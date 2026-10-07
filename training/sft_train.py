@@ -172,7 +172,7 @@ def main():
         per_device_eval_batch_size=args.batch_size,
         gradient_accumulation_steps=args.grad_accum,
         learning_rate=args.lr,
-        warmup_ratio=0.03,
+        warmup_steps=20,
         lr_scheduler_type="cosine",
         logging_steps=10,
         save_strategy="steps",
