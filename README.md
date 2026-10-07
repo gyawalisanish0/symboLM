@@ -77,6 +77,11 @@ symboLM/
 │   ├── sft_train.py        # Stage 1: SFT (TPU v5e bfloat16 + CUDA fallback)
 │   └── grpo_train.py       # Stage 2: DeepSeek R1-style GRPO (TPU v5e + CUDA)
 │
+├── data/
+│   ├── build_dataset.py            # Multi-register dataset compiler & SFT formatter
+│   ├── symbolic_dataset.py         # PyTorch Dataset & collator with prompt masking
+│   ├── verify_answers.py           # Ground-truth extractor & validator
+│   └── DATASET_CURATION_STRATEGY.md# Frontier AI distillation & compiler quality gates
 ├── colab/
 │   ├── 01_setup_tpu.ipynb  # TPU v5e verification, Drive mount & environment install
 │   ├── 03_sft_tpu.ipynb    # Stage 1 SFT on TPU v5e in bfloat16
