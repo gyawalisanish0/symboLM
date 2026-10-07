@@ -1,0 +1,11 @@
+# Requirements for Google Colab TPU v5e (PyTorch/XLA)
+torch
+torch_xla[tpu] -f https://storage.googleapis.com/libtpu-releases/index.html
+transformers>=4.48.0
+accelerate>=0.34.0
+peft>=0.14.0
+trl>=0.14.0
+datasets>=2.19.0
+tqdm>=4.66.0
+sympy>=1.12
+scipy>=1.11.0

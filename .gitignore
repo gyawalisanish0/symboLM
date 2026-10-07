@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Checkpoints & Weights (Large files - host on Hugging Face / Google Drive)
+checkpoints/
+*.pt
+*.bin
+*.safetensors
+*.pth
+
+# Jupyter & Colab
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Local Environment & Cache
+.cache/
+.pytest_cache/
+wandb/
+
+# Local data dumps (keep structure, ignore large generated jsonl)
+data/symbolic_dataset/*.jsonl
