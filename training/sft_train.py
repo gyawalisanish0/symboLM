@@ -163,7 +163,10 @@ def main():
         if val_path.exists()
         else None
     )
-    collator = SymbolicDataCollator(pad_token_id=tokenizer.pad_token_id)
+    collator = SymbolicDataCollator(
+        pad_token_id=tokenizer.pad_token_id,
+        max_length=384 if use_tpu else None,
+    )
 
     # 4. Training Arguments
     training_args = TrainingArguments(

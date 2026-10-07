@@ -92,13 +92,26 @@ class SymbolicSFTDataset(Dataset):
 
 
 class SymbolicDataCollator:
-    """Dynamically pads input_ids, attention_mask, and labels to batch max_len."""
+    """Pads input_ids, attention_mask, and labels to batch max_len.
+    On TPU, supports fixed max_length or multiples of 64/128 to prevent XLA dynamic shape recompilation.
+    """
 
-    def __init__(self, pad_token_id: int):
+    def __init__(
+        self,
+        pad_token_id: int,
+        pad_to_multiple_of: Optional[int] = None,
+        max_length: Optional[int] = None,
+    ):
         self.pad_token_id = pad_token_id
+        self.pad_to_multiple_of = pad_to_multiple_of
+        self.max_length = max_length
 
     def __call__(self, batch: List[Dict[str, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         max_len = max(len(x["input_ids"]) for x in batch)
+        if self.pad_to_multiple_of is not None and self.pad_to_multiple_of > 0:
+            max_len = ((max_len + self.pad_to_multiple_of - 1) // self.pad_to_multiple_of) * self.pad_to_multiple_of
+        if self.max_length is not None:
+            max_len = max(max_len, self.max_length)
 
         batch_input_ids = []
         batch_attention_mask = []
