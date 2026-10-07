@@ -35,6 +35,9 @@ try:
     import torch_xla.core.xla_model as xm
     torch.xla = torch_xla
     HAS_TPU = True
+except ImportError:
+    pass
+
 # Ensure PyTorch 2.6+ unpickler allows numpy structures in rng_state.pth
 try:
     import numpy as np
