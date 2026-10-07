@@ -165,7 +165,7 @@ def main():
     )
     collator = SymbolicDataCollator(
         pad_token_id=tokenizer.pad_token_id,
-        max_length=384 if use_tpu else None,
+        max_length=256 if use_tpu else None,
     )
 
     # 4. Training Arguments
@@ -186,7 +186,7 @@ def main():
         eval_steps=100 if val_dataset else None,
         bf16=use_tpu or (torch.cuda.is_available() and torch.cuda.is_bf16_supported()),
         fp16=not use_tpu and torch.cuda.is_available() and not torch.cuda.is_bf16_supported(),
-        gradient_checkpointing=not use_tpu,
+        gradient_checkpointing=True,
         report_to="none",
         optim="adamw_torch" if use_tpu else "paged_adamw_8bit",
         dataloader_num_workers=0,
