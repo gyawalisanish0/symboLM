@@ -1,7 +1,6 @@
-# SymboLM (Version 1.1) — Session Context & Handoff
-
 **Project Name:** SymboLM (Version 1.1) — Adaptive Symbolic Reasoning & General Intelligence Engine  
 **Author:** Sanish Gyawali  
+**GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
 **Target Base Model:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`  
 **Primary Compute Hardware:** Google Colab TPU v5e (v5e-1 chip, 16GB HBM2e) in native `bfloat16` via PyTorch/XLA (with NVIDIA CUDA GPU fallback)  
 **IDE / Cloud Bridge:** `colab-mcp` configured in `mcp_config.json`  
