@@ -35,8 +35,20 @@ try:
     import torch_xla.core.xla_model as xm
     torch.xla = torch_xla
     HAS_TPU = True
-except ImportError:
+# Ensure PyTorch 2.6+ unpickler allows numpy structures in rng_state.pth
+try:
+    import numpy as np
+    import numpy._core.multiarray as ma
+    torch.serialization.add_safe_globals([ma._reconstruct, np.ndarray, np.dtype])
+except Exception:
     pass
+
+_orig_torch_load = torch.load
+def _safe_torch_load(*args, **kwargs):
+    if "weights_only" not in kwargs:
+        kwargs["weights_only"] = False
+    return _orig_torch_load(*args, **kwargs)
+torch.load = _safe_torch_load
 
 
 def parse_args():
