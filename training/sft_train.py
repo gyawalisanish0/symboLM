@@ -196,10 +196,27 @@ def main():
     )
 
     class HostRAMCleanupCallback(TrainerCallback):
-        """Periodically runs garbage collection to eliminate host memory accumulation on Colab."""
+        """Periodically runs garbage collection to eliminate host memory accumulation on Colab and syncs checkpoints to Drive."""
+        def __init__(self, drive_backup=None):
+            self.drive_backup = drive_backup
+
         def on_step_end(self, args, state, control, **kwargs):
             if state.global_step % 25 == 0:
                 gc.collect()
+
+        def on_save(self, args, state, control, **kwargs):
+            gc.collect()
+            if self.drive_backup:
+                try:
+                    drive_ckpt = Path(self.drive_backup) / "sft_adapter"
+                    drive_ckpt.mkdir(parents=True, exist_ok=True)
+                    latest_ckpt = Path(args.output_dir) / f"checkpoint-{state.global_step}"
+                    if latest_ckpt.exists():
+                        dest_ckpt = drive_ckpt / f"checkpoint-{state.global_step}"
+                        shutil.copytree(latest_ckpt, dest_ckpt, dirs_exist_ok=True)
+                        print(f"\n[Drive Backup] Synced step {state.global_step} to {dest_ckpt}")
+                except Exception as e:
+                    print(f"\n[Drive Backup Warning] Failed to backup checkpoint: {e}")
 
     trainer = Trainer(
         model=model,
@@ -207,7 +224,7 @@ def main():
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         data_collator=collator,
-        callbacks=[HostRAMCleanupCallback()],
+        callbacks=[HostRAMCleanupCallback(drive_backup=args.drive_backup)],
     )
 
     # 5. Execute Training
