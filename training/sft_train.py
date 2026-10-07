@@ -20,6 +20,7 @@ from transformers import (
     AutoTokenizer,
     BitsAndBytesConfig,
     Trainer,
+    TrainerCallback,
     TrainingArguments,
 )
 
@@ -184,6 +185,8 @@ def main():
         save_total_limit=3,
         eval_strategy="steps" if val_dataset else "no",
         eval_steps=100 if val_dataset else None,
+        prediction_loss_only=True,
+        eval_accumulation_steps=1,
         bf16=use_tpu or (torch.cuda.is_available() and torch.cuda.is_bf16_supported()),
         fp16=not use_tpu and torch.cuda.is_available() and not torch.cuda.is_bf16_supported(),
         gradient_checkpointing=True,
@@ -192,12 +195,19 @@ def main():
         dataloader_num_workers=0,
     )
 
+    class HostRAMCleanupCallback(TrainerCallback):
+        """Periodically runs garbage collection to eliminate host memory accumulation on Colab."""
+        def on_step_end(self, args, state, control, **kwargs):
+            if state.global_step % 25 == 0:
+                gc.collect()
+
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         data_collator=collator,
+        callbacks=[HostRAMCleanupCallback()],
     )
 
     # 5. Execute Training
