@@ -1,6 +1,6 @@
 # Requirements for Google Colab TPU v5e (PyTorch/XLA)
-torch
-torch_xla[tpu] -f https://storage.googleapis.com/libtpu-releases/index.html
+# Note: PyTorch and torch-xla/libtpu are pre-installed in Google Colab TPU runtimes.
+# Do NOT reinstall torch_xla without matching PyTorch ABI.
 transformers>=4.48.0
 accelerate>=0.34.0
 peft>=0.14.0

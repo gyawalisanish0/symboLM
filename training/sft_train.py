@@ -178,14 +178,14 @@ def main():
         save_strategy="steps",
         save_steps=50,
         save_total_limit=3,
-        evaluation_strategy="steps" if val_dataset else "no",
+        eval_strategy="steps" if val_dataset else "no",
         eval_steps=100 if val_dataset else None,
-        bf16=use_tpu or torch.cuda.is_bf16_supported(),
-        fp16=not use_tpu and not torch.cuda.is_bf16_supported(),
+        bf16=use_tpu or (torch.cuda.is_available() and torch.cuda.is_bf16_supported()),
+        fp16=not use_tpu and torch.cuda.is_available() and not torch.cuda.is_bf16_supported(),
         gradient_checkpointing=True,
         report_to="none",
         optim="adamw_torch" if use_tpu else "paged_adamw_8bit",
-        dataloader_num_workers=2 if use_tpu else 0,
+        dataloader_num_workers=0,
     )
 
     trainer = Trainer(
