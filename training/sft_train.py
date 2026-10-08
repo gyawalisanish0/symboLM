@@ -9,6 +9,7 @@ and NVIDIA CUDA GPUs (T4 in fp16/4-bit).
 from __future__ import annotations
 
 import argparse
+import gc
 import os
 import shutil
 from pathlib import Path
@@ -65,6 +66,7 @@ def parse_args():
     parser.add_argument("--lr", type=float, default=config.sft_lr)
     parser.add_argument("--tpu", action="store_true", help="Force TPU v5e execution via PyTorch/XLA")
     parser.add_argument("--full_finetune", action="store_true", help="Full fine-tuning instead of LoRA (TPU)")
+    parser.add_argument("--no_quant", action="store_true", help="Disable 4-bit quantization on GPU (use unquantized fp16/bf16 LoRA for seamless TPU checkpoint resume)")
     parser.add_argument("--drive_backup", type=str, default=config.colab_drive_checkpoint)
     parser.add_argument("--resume_from_checkpoint", type=str, default=None)
     return parser.parse_args()
@@ -136,22 +138,34 @@ def main():
         # -------------------------------------------------------------
         # GPU / CUDA Fallback Path: 4-bit QLoRA / fp16
         # -------------------------------------------------------------
-        print("[CUDA] Initializing model with 4-bit NF4 quantization...")
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_compute_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
-        )
-        model = AutoModelForCausalLM.from_pretrained(
-            args.base_model,
-            quantization_config=bnb_config,
-            device_map="auto",
-            trust_remote_code=True,
-        )
-        model.resize_token_embeddings(len(tokenizer))
-        initialize_symbol_embeddings(model, tokenizer)
-        model = prepare_model_for_kbit_training(model)
+        if not args.no_quant:
+            print("[CUDA] Initializing model with 4-bit NF4 quantization...")
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_compute_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
+            )
+            model = AutoModelForCausalLM.from_pretrained(
+                args.base_model,
+                quantization_config=bnb_config,
+                device_map="auto",
+                trust_remote_code=True,
+            )
+            model.resize_token_embeddings(len(tokenizer))
+            initialize_symbol_embeddings(model, tokenizer)
+            model = prepare_model_for_kbit_training(model)
+        else:
+            dtype = torch.bfloat16 if (torch.cuda.is_available() and torch.cuda.is_bf16_supported()) else torch.float16
+            print(f"[CUDA] Initializing model in native {dtype} (unquantized) for seamless checkpoint compatibility...")
+            model = AutoModelForCausalLM.from_pretrained(
+                args.base_model,
+                torch_dtype=dtype,
+                device_map="auto",
+                trust_remote_code=True,
+            )
+            model.resize_token_embeddings(len(tokenizer))
+            initialize_symbol_embeddings(model, tokenizer)
 
         lora_cfg = LoraConfig(
             r=config.lora_r,
@@ -206,7 +220,7 @@ def main():
         fp16=not use_tpu and torch.cuda.is_available() and not torch.cuda.is_bf16_supported(),
         gradient_checkpointing=True,
         report_to="none",
-        optim="adamw_torch" if use_tpu else "paged_adamw_8bit",
+        optim="adamw_torch" if (use_tpu or args.no_quant) else "paged_adamw_8bit",
         dataloader_num_workers=0,
     )
 
