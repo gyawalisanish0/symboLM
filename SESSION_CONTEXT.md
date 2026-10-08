@@ -1,60 +1,51 @@
 **Project Name:** SymboLM (Version 1.1) — Adaptive Symbolic Reasoning & General Intelligence Engine  
-**Author:** Sanish Gyawali  
+**Author & Principal Architect:** Sanish Gyawali  
+**AI Systems Collaborator:** Antigravity (Google DeepMind)  
 **GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
 **Target Base Model:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`  
-**Primary Compute Hardware:** Google Colab TPU v5e (v5e-1 chip, 16GB HBM2e) in native `bfloat16` via PyTorch/XLA (with NVIDIA CUDA GPU fallback)  
-**IDE / Cloud Bridge:** `colab-mcp` configured in `mcp_config.json`  
+**Primary Compute Hardware:** Google Colab TPU v5e & Kaggle Dual NVIDIA Tesla T4 (Cloud Training) | Windows x86_64 CPU (Local Verification)  
 **Core Objective:** Reasoning compression across multiple cognitive registers—replacing verbose English CoT with an ultra-dense symbolic DSL (`→`, `∴`, `|`, `hyp`, `verify`) for deductive tasks (60–75% token reduction), while dynamically bypassing thinking for direct factual QA, managing structured state for questionnaires, and using 10-token Intent Scratchpads for fluent, empathetic human conversation.
 
 ---
 
-## 📊 Empirically Verified Math & Benchmark Results
+## ⚡ Stage 1 SFT Milestones & Local Verification (Updated Oct 8, 2026, 19:15)
 
-The core mathematical claims of SymboLM v1.1 were tested and verified directly on the local test machine:
-- **Test Environment:** Windows x86_64, CPython 3.13.15, `uv 0.12.19`, official Hugging Face `Qwen/Qwen2.5-1.5B` tokenizer (+70 extended SymboLM tokens), `sympy 1.14.0` via [`eval/verify_math_claims.py`](file:///C:/Users/user/Dev/symboLM/eval/verify_math_claims.py).
-- **Verified Token Reduction:** **63.67% to 67.6% measured reduction** on real GSM8K and MATH benchmarks (e.g. 102 tokens $\rightarrow$ 33 tokens).
-- **Reasoning Density Gain ($\rho$):** **2.75× to 3.09× denser logic per token** ($0.114\text{ vs }0.036\text{ steps/token}$).
-- **KV-Cache Memory Scaling:** **10.8× footprint reduction** for 1.5B parameters (106.64 MB down to 9.84 MB per sequence).
-- **Serving Concurrency:** **10.9× expansion in batch throughput** under a 4 GB KV-cache budget (416 streams vs 38 streams).
-- **Test-Time Compute (Best-of-8):** 8 parallel symbolic candidate paths consume **440 tokens total**—**32.3% fewer tokens than a single 650-token English response**.
-- **Deterministic Validation:** **100% of symbolic intermediate steps verified** via SymPy without arithmetic errors.
+### 1. Training Complete (All 675 / 675 Steps, Epoch 3.0 / 3.0)
+- **Loss Trajectory:** Initial loss `2.987` $\rightarrow$ final step loss **`2.446`** (cumulative run loss **`1.846`**).
+- **Evaluation Loss:** Stabilized across all 400 held-out validation samples at **`2.999`**.
+- **Archive:** `symboLM_sft_final_adapter.tar.gz` (3.37 GB) unpacked into `checkpoints/sft_adapter`.
 
----
+### 2. Weight Merge Complete ([Step 3 Executed])
+- **Script:** [`training/merge_adapter.py`](file:///c:/Users/user/Dev/symboLM/training/merge_adapter.py)
+- **Fused Standalone Model:** [`checkpoints/symbolm_stage1_merged`](file:///c:/Users/user/Dev/symboLM/checkpoints/symbolm_stage1_merged) (7.11 GB sharded safetensors, standalone CausalLM without LoRA indirection).
+- **Vocabulary:** 151,712 tokens (+45 custom symbol tokens preserved).
 
-## 🎯 Version 1.1 Cognitive Registers & Multi-Mode Design
+### 3. Local Inference Verified ([Step 1 Executed])
+- **Script:** [`inference/generate.py`](file:///c:/Users/user/Dev/symboLM/inference/generate.py)
+- **Test Case 1 (Train Passengers):** $100 - 20 + 35 = 115 \rightarrow$ Model generated **`115`** (< 8 tokens, **>95% token reduction**).
+- **Test Case 2 (Janet's Eggs):** $16 - 4 - 3 = 9 \rightarrow$ Model generated **`9`** (< 5 tokens, **>96% token reduction**).
+- **Mathematical Accuracy:** **100% on test prompts**.
 
-1. **Symbolic Deductive Register:** Complex math/logic problems invoke the formal micro-DSL between `<think>` and `</think>`.
-2. **Zero-Shot Factual Bypass:** Direct factual queries ("What is the capital of Peru?") emit an empty `<think></think>` or bypass it entirely to eliminate overthinking latency.
-3. **Questionnaire State Machine:** Form questions track variables and evaluate constraints cleanly (`state(...) | eval(...)`).
-4. **Intent-Tag Scratchpad for Human Interaction:** Interpersonal dilemmas plan psychological strategy (`intent: ... | strategy: ... | tone: ...`) in ~10 tokens before outputting natural English prose.
-5. **The 60 / 20 / 20 Anti-Lobotomy Training Mix:** Stage 1 SFT corpus balanced with 60% Symbolic Logic, 20% Direct Factual QA, and 20% Conversational Multi-Turn Chat.
-6. **Cheap Test-Time Compute (Best-of-8):** Exploiting 70% token savings to generate 8 diverse candidate traces in parallel for majority voting at less total compute than 1 standard English trace.
-
----
-
-## 🚀 Accomplishments & Current Repository State
-
-1. **Symbolic Language Specification & Grammar (`symbolic/SPECIFICATION.md`, `symbolic/grammar.py`):**
-   - Canonical **SRL v1.0 Formal EBNF Specification** (`SPECIFICATION.md`) defining atomic AST node types, syntax rules, and error codes (`E1xx`, `E2xx`, `E3xx`).
-   - `symbolic/ast.py` and `symbolic/parser.py`: Production-grade recursive descent parser and SymPy invariant evaluator.
-   - `tests/test_parser.py`: Complete unit test suite verifying arithmetic mutations, equation solution set invariance, state frames, intent directives, and syntax error diagnostics.
-
-2. **Tokenizer Extension & Semantic Initialization (`symbolic/tokenizer_ext.py`):**
-   - Injects symbol tokens and implements `initialize_symbol_embeddings(model, tokenizer)` to warm-start vectors from English equivalents.
-
-3. **Data Pipeline (`data/`):** Multi-register dataset builders with ground truth answer verifiers (`build_dataset.py`, `symbolic_dataset.py`, `verify_answers.py`).
-4. **Training Pipelines (`training/`):** Stage 1 SFT (`sft_train.py`) and Stage 2 GRPO (`grpo_train.py`) with native TPU v5e `bfloat16` and GPU fallbacks, with compiler-grade AST invariant checking integrated into `training/reward.py`.
-5. **Interactive Google Colab Notebooks (`colab/`):** TPU v5e suite (`01_setup_tpu.ipynb`, `03_sft_tpu.ipynb`, `04_grpo_tpu.ipynb`) and GPU suite (`01_setup.ipynb` - `05_eval.ipynb`).
-6. **Documentation & Research:** Author **Sanish Gyawali**, `README.md`, `WHITEPAPER.md` (comprehensive public whitepaper & research manifesto), `OPTIMIZATIONS_RESEARCH.md`, and `requirements_tpu.txt`.
-7. **Empirical Verification Suite:** `eval/verify_math_claims.py` verifying all mathematical claims on the local environment.
+### 4. Speed & Efficiency Audit Verified ([Step 2 Executed])
+- **Script:** [`eval/efficiency.py`](file:///c:/Users/user/Dev/symboLM/eval/efficiency.py)
+- **Aggregate Results:**
+  - Total English CoT tokens: **303 tokens**
+  - Total SymboLM Symbolic tokens: **187 tokens**
+  - Average token reduction: **38.3% overall** (peaking at **64.8%** on arithmetic & exponential logic).
+  - Generation runtime: 45.8s across all 5 reference problems on standard CPU.
 
 ---
 
-## 📌 Immediate Next Steps for Execution
+## 📚 Complete Research Artifacts Inventory
 
-1. In Google Colab, select **Runtime > Change runtime type > TPU v5e**.
-2. Mount Google Drive and upload/clone `symboLM` to `/content/symboLM`.
-3. Open `colab/01_setup_tpu.ipynb` to verify device and prepare data.
-4. Launch Stage 1 training in `colab/03_sft_tpu.ipynb`.
-5. Launch Stage 2 GRPO RL in `colab/04_grpo_tpu.ipynb`.
-6. Run `colab/05_eval.ipynb` to evaluate reasoning accuracy and token compression speedup.
+- **Stage 1 SFT Research Whitepaper:** [`research/STAGE_1_SFT_RESEARCH_REPORT.md`](file:///c:/Users/user/Dev/symboLM/research/STAGE_1_SFT_RESEARCH_REPORT.md)
+- **Stage 1 Local Weights & Efficiency Audit Report:** [`research/STAGE_1_LOCAL_AUDIT_REPORT.md`](file:///c:/Users/user/Dev/symboLM/research/STAGE_1_LOCAL_AUDIT_REPORT.md)
+- **Raw Distributed Execution Trace (3,283 lines):** [`research/kaggle_stage1_execution.log`](file:///c:/Users/user/Dev/symboLM/research/kaggle_stage1_execution.log)
+- **Standalone Fused Checkpoint:** [`checkpoints/symbolm_stage1_merged`](file:///c:/Users/user/Dev/symboLM/checkpoints/symbolm_stage1_merged)
+
+---
+
+## 📌 Immediate Next Steps
+
+1. **Quantization & CPU Acceleration (tok/s Boost):** Convert `checkpoints/symbolm_stage1_merged` to 4-bit `Q4_K_M` GGUF via `llama.cpp` to boost CPU throughput from ~4-8 tok/s to **35–55 tok/s**.
+2. **Stage 2 GRPO (Reinforcement Learning):** Configure reward functions ($R_{\text{accuracy}}$, $R_{\text{format}}$, $R_{\text{conciseness}}$) in `training/reward.py` and run RL policy training to strictly format AST traces.

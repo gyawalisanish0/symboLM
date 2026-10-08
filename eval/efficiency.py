@@ -8,8 +8,21 @@ and reasoning compression ratio between English CoT vs SymboLM DSL.
 from __future__ import annotations
 
 import argparse
+import sys
 import time
 from pathlib import Path
+
+if sys.platform == "win32":
+    try:
+        sys.stdin.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 import torch
 from peft import PeftModel
@@ -27,27 +40,8 @@ def parse_args():
 
 
 def benchmark_efficiency(args):
-    tok_dir = Path(config.tokenizer_dir)
-    tokenizer = AutoTokenizer.from_pretrained(
-        tok_dir if tok_dir.exists() else args.base_model,
-        trust_remote_code=True,
-    )
-
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-    )
-    model = AutoModelForCausalLM.from_pretrained(
-        args.base_model,
-        quantization_config=bnb_config,
-        device_map="auto",
-        trust_remote_code=True,
-    )
-    model.resize_token_embeddings(len(tokenizer))
-
-    if args.adapter_path and Path(args.adapter_path).exists():
-        model = PeftModel.from_pretrained(model, args.adapter_path)
+    from inference.generate import load_symbo_model
+    model, tokenizer = load_symbo_model(args.base_model, args.adapter_path)
     model.eval()
 
     print("\n" + "=" * 70)
@@ -66,11 +60,14 @@ def benchmark_efficiency(args):
         eng_token_ids = tokenizer.encode(eng_cot, add_special_tokens=False)
         sym_token_ids = tokenizer.encode(sym_cot, add_special_tokens=False)
 
-        prompt = (
-            f"<|im_start|>system\n{config.system_prompt}<|im_end|>\n"
-            f"<|im_start|>user\n{prob}<|im_end|>\n"
-            f"<|im_start|>assistant\n<think>\n"
-        )
+        messages = [{"role": "user", "content": prob}]
+        if getattr(config, "system_prompt", None):
+            messages.insert(0, {"role": "system", "content": config.system_prompt})
+
+        if getattr(tokenizer, "chat_template", None):
+            prompt = tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+        else:
+            prompt = f"<｜User｜>{prob}<｜Assistant｜><think>\n"
         inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
         if torch.cuda.is_available():
@@ -81,7 +78,7 @@ def benchmark_efficiency(args):
             outputs = model.generate(
                 **inputs,
                 max_new_tokens=128,
-                temperature=0.0,
+                do_sample=False,
                 pad_token_id=tokenizer.eos_token_id,
             )
 

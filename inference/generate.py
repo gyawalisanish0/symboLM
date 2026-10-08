@@ -11,6 +11,18 @@ import argparse
 import sys
 from pathlib import Path
 
+if sys.platform == "win32":
+    try:
+        sys.stdin.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import torch
 from peft import PeftModel
 from transformers import (
@@ -35,29 +47,65 @@ def parse_args():
 
 
 def load_symbo_model(base_model: str, adapter_path: str):
+    adapter_p = Path(adapter_path) if adapter_path else None
+
+    # Check if adapter_path is a standalone merged model directory
+    is_merged_model = (
+        adapter_p
+        and adapter_p.exists()
+        and (adapter_p / "config.json").exists()
+        and not (adapter_p / "adapter_config.json").exists()
+    )
+
+    if is_merged_model:
+        print(f"Loading standalone merged SymboLM model from: {adapter_p}")
+        tokenizer = AutoTokenizer.from_pretrained(str(adapter_p), trust_remote_code=True)
+        dtype = torch.float16 if torch.cuda.is_available() else torch.bfloat16
+        model = AutoModelForCausalLM.from_pretrained(
+            str(adapter_p),
+            torch_dtype=dtype,
+            device_map="auto" if torch.cuda.is_available() else None,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+        )
+        model.eval()
+        return model, tokenizer
+
+    # Otherwise load base model + optional LoRA adapter
     tok_dir = Path(config.tokenizer_dir)
-    tokenizer = AutoTokenizer.from_pretrained(
-        tok_dir if tok_dir.exists() else base_model,
-        trust_remote_code=True,
+    tok_source = (
+        str(adapter_p)
+        if (adapter_p and (adapter_p / "tokenizer_config.json").exists())
+        else (str(tok_dir) if tok_dir.exists() else base_model)
     )
+    tokenizer = AutoTokenizer.from_pretrained(tok_source, trust_remote_code=True)
 
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-    )
+    if torch.cuda.is_available():
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=True,
+        )
+    else:
+        print("[CPU Mode] Loading base model in float32 on CPU...")
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            torch_dtype=torch.float32,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+        )
 
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model,
-        quantization_config=bnb_config,
-        device_map="auto",
-        trust_remote_code=True,
-    )
     model.resize_token_embeddings(len(tokenizer))
 
-    if adapter_path and Path(adapter_path).exists():
-        print(f"Loading adapter: {adapter_path}")
-        model = PeftModel.from_pretrained(model, adapter_path)
+    if adapter_p and adapter_p.exists():
+        print(f"Loading adapter: {adapter_p}")
+        model = PeftModel.from_pretrained(model, str(adapter_p))
     else:
         print(f"Note: Running base model without adapter ({base_model})")
 
@@ -73,24 +121,35 @@ def generate_solution(
     max_new_tokens: int = 256,
     stream: bool = True,
 ):
-    prompt = (
-        f"<|im_start|>system\n{config.system_prompt}<|im_end|>\n"
-        f"<|im_start|>user\n{question}<|im_end|>\n"
-        f"<|im_start|>assistant\n<think>\n"
-    )
+    messages = [
+        {"role": "user", "content": question},
+    ]
+    if getattr(config, "system_prompt", None):
+        messages.insert(0, {"role": "system", "content": config.system_prompt})
+
+    if getattr(tokenizer, "chat_template", None):
+        prompt = tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, tokenize=False
+        )
+    else:
+        prompt = f"<｜User｜>{question}<｜Assistant｜><think>\n"
 
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     streamer = TextStreamer(tokenizer, skip_prompt=True) if stream else None
 
+    gen_kwargs = {
+        "max_new_tokens": max_new_tokens,
+        "pad_token_id": tokenizer.eos_token_id,
+        "streamer": streamer,
+    }
+    if temperature > 0:
+        gen_kwargs["temperature"] = temperature
+        gen_kwargs["do_sample"] = True
+    else:
+        gen_kwargs["do_sample"] = False
+
     with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            do_sample=temperature > 0,
-            pad_token_id=tokenizer.eos_token_id,
-            streamer=streamer,
-        )
+        outputs = model.generate(**inputs, **gen_kwargs)
 
     full_text = tokenizer.decode(outputs[0][inputs.input_ids.shape[1]:], skip_special_tokens=False)
     answer = extract_answer(full_text)
