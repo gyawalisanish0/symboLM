@@ -1,0 +1,14 @@
+{
+  "id": "gyawalisanish0/symbolm-sft-training",
+  "title": "SymboLM Stage 1 SFT Training",
+  "code_file": "symboLM_sft_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": []
+}
