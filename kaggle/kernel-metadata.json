@@ -1,14 +1,15 @@
 {
-  "id": "sanishgyawali/symbolm-sft-training",
+  "id": "sanishgyawali/symbolm-stage-1-sft-training",
   "title": "SymboLM Stage 1 SFT Training",
   "code_file": "symboLM_sft_kaggle.ipynb",
   "language": "python",
   "kernel_type": "notebook",
-  "is_private": true,
-  "enable_gpu": true,
-  "enable_tpu": false,
-  "enable_internet": true,
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
   "dataset_sources": [],
   "competition_sources": [],
-  "kernel_sources": []
+  "kernel_sources": [],
+  "model_sources": []
 }
