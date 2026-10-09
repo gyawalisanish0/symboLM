@@ -45,3 +45,8 @@ data/symbolic_dataset/*.jsonl
 # Secrets and environment files
 .env
 *.env
+
+# Logs and screenshots
+*.log
+*.png
+scratch/
