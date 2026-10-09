@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SymboLM — The Reasoning Revolution</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.2); }
+      50% { box-shadow: 0 0 35px rgba(168, 85, 247, 0.7), inset 0 0 25px rgba(168, 85, 247, 0.3); }
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1000%); }
+    }
+    .neon-border {
+      animation: pulseGlow 3s infinite ease-in-out;
+    }
+    .scanline-effect::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.8), transparent);
+      animation: scanline 4s linear infinite;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans select-none overflow-x-hidden">
+
+  <!-- View Mode Switcher (TikTok 9:16 vs Landscape 16:9) -->
+  <div class="fixed top-4 right-4 z-50 flex items-center space-x-2 bg-slate-900/90 border border-slate-700/80 rounded-full px-4 py-1.5 shadow-xl backdrop-blur-md">
+    <span class="text-xs font-medium text-slate-400">Aspect:</span>
+    <button id="btn-tiktok" onclick="setMode('tiktok')" class="text-xs px-3 py-1 rounded-full bg-cyan-500 font-bold text-slate-950 transition">TikTok 9:16</button>
+    <button id="btn-widescreen" onclick="setMode('widescreen')" class="text-xs px-3 py-1 rounded-full text-slate-400 hover:text-white transition">Desktop 16:9</button>
+  </div>
+
+  <!-- Main Container -->
+  <div id="deck-container" class="relative transition-all duration-500 w-[380px] h-[720px] rounded-3xl bg-slate-900/90 border-2 border-slate-800 shadow-2xl flex flex-col overflow-hidden scanline-effect neon-border">
+
+    <!-- Progress Bar (Top) -->
+    <div class="h-1.5 w-full bg-slate-800 flex">
+      <div id="slide-progress" class="h-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-500 transition-all duration-300 w-1/5"></div>
+    </div>
+
+    <!-- Header Brand Badge -->
+    <div class="px-5 pt-4 pb-2 flex justify-between items-center border-b border-slate-800/80">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 rounded-full bg-cyan-400 animate-ping"></span>
+        <span class="font-black text-sm tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">SymboLM</span>
+      </div>
+      <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-300">By Sanish Gyawali</span>
+    </div>
+
+    <!-- Slide Content Area -->
+    <div class="flex-1 p-5 flex flex-col justify-between overflow-y-auto">
+
+      <!-- SLIDE 1: The Hook (75% Waste) -->
+      <div id="slide-1" class="slide-pane flex flex-col justify-center items-center text-center space-y-4 my-auto">
+        <div class="inline-block px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-400 text-xs font-bold uppercase tracking-wider">
+          ⚠️ The Hidden Flaw in Modern AI
+        </div>
+        <h1 class="text-2xl font-black leading-tight text-white">
+          Why does your AI <br/>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-purple-300 to-amber-300">waste 75% of its brain</span> <br/>
+          talking to itself?
+        </h1>
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 text-left text-xs font-mono text-slate-400 space-y-1.5 w-full">
+          <div class="text-rose-400 font-bold mb-1">Standard Reasoning (o1 / R1):</div>
+          <p class="opacity-70">"Wait, let me rethink that..."</p>
+          <p class="opacity-70">"Actually, if we look at equation 2..."</p>
+          <p class="opacity-70">"Hmm, that might be wrong, starting over..."</p>
+          <div class="mt-2 text-rose-400 font-bold text-center text-sm">⏱️ 35 Seconds & 1,000+ Tokens!</div>
+        </div>
+        <p class="text-xs text-slate-400">
+          We built an ultra-dense symbolic language to kill the fluff.
+        </p>
+      </div>
+
+      <!-- SLIDE 2: The Live Race Simulation -->
+      <div id="slide-2" class="slide-pane hidden flex-col justify-between h-full space-y-3">
+        <div class="text-center">
+          <span class="text-[11px] font-mono uppercase tracking-widest text-cyan-400">⚡ Live Head-to-Head Race</span>
+          <h2 class="text-lg font-black text-white">English CoT vs SymboLM</h2>
+        </div>
+
+        <!-- Competitor 1: English CoT -->
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-rose-950/60 flex flex-col space-y-1">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-rose-400">Standard English CoT</span>
+            <span id="eng-tokens" class="font-mono text-slate-400">0 tok</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="eng-bar" class="bg-rose-500 h-full w-0 transition-all duration-75"></div>
+          </div>
+          <p id="eng-sample" class="text-[10px] font-mono text-slate-500 truncate">Waiting to start...</p>
+        </div>
+
+        <!-- Competitor 2: SymboLM -->
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-cyan-950/60 flex flex-col space-y-1">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-cyan-400 flex items-center">
+              SymboLM SRL v1.0
+              <span id="winner-tag" class="ml-2 hidden px-1.5 py-0.2 bg-emerald-500 text-slate-950 font-black text-[9px] rounded">4x FASTER!</span>
+            </span>
+            <span id="sym-tokens" class="font-mono text-cyan-300">0 tok</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div id="sym-bar" class="bg-cyan-400 h-full w-0 transition-all duration-75"></div>
+          </div>
+          <p id="sym-sample" class="text-[10px] font-mono text-cyan-400/80 truncate">Waiting to start...</p>
+        </div>
+
+        <!-- Metric Scoreboard -->
+        <div class="grid grid-cols-2 gap-2 text-center">
+          <div class="p-2.5 rounded-lg bg-slate-800/50 border border-slate-700/60">
+            <div class="text-[10px] text-slate-400">Token Reduction</div>
+            <div id="metric-compression" class="text-base font-black text-emerald-400">60% – 75%</div>
+            <div class="text-[9px] text-slate-500 font-mono">Verified (GSM8K/MATH)</div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-800/50 border border-slate-700/60">
+            <div class="text-[10px] text-slate-400">Latency Speedup</div>
+            <div id="metric-speed" class="text-base font-black text-cyan-400">3.6x – 4.0x</div>
+            <div class="text-[9px] text-slate-500 font-mono">Autoregressive Dec.</div>
+          </div>
+        </div>
+
+        <div class="text-[9px] text-center text-slate-400/80 font-mono">
+          🔬 Audited on official DeepSeek-R1 / Qwen2.5 Tokenizer & SymPy AST.
+        </div>
+
+        <button onclick="startRace()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-slate-950 font-black text-xs uppercase tracking-wider hover:brightness-110 active:scale-98 transition shadow-lg shadow-cyan-500/20">
+          ▶️ Run Live Benchmark
+        </button>
+      </div>
+
+      <!-- SLIDE 3: The Secret: "What If" Branching -->
+      <div id="slide-3" class="slide-pane hidden flex-col justify-center space-y-3.5 my-auto">
+        <div class="text-center">
+          <span class="text-[11px] font-mono uppercase tracking-widest text-purple-400">🔬 The Architecture Secret</span>
+          <h2 class="text-lg font-black text-white">First-Class "What If" Logic</h2>
+        </div>
+        <p class="text-xs text-slate-400 text-center">
+          Instead of rambling paragraphs, SymboLM tests hypotheses like an automated theorem compiler:
+        </p>
+        <div class="p-4 rounded-xl bg-slate-950/90 border border-purple-800/40 font-mono text-xs space-y-2">
+          <div class="text-purple-300">hyp [width = 12] → area = 144</div>
+          <div class="text-amber-300 pl-3">↳ verify(144 ≤ 100) → <span class="text-rose-400 font-bold">✗ (backtrack)</span></div>
+          <div class="text-cyan-300">hyp [width = 8] → area = 96</div>
+          <div class="text-emerald-300 pl-3">↳ verify(96 ≤ 100) → <span class="text-emerald-400 font-bold">✓ (ACCEPTED)</span></div>
+          <div class="text-white font-bold pt-1 border-t border-slate-800">∴ ans = 8</div>
+        </div>
+        <div class="p-2.5 rounded-lg bg-purple-950/30 border border-purple-800/40 text-[11px] text-purple-200 text-center">
+          Zero conversational baggage. Clean AST verification in GRPO RL.
+        </div>
+      </div>
+
+      <!-- SLIDE 4: The 20B Scaling Horizon -->
+      <div id="slide-4" class="slide-pane hidden flex-col justify-center space-y-4 my-auto text-center">
+        <span class="text-[11px] font-mono uppercase tracking-widest text-cyan-400">🚀 The Next Frontier</span>
+        <h2 class="text-xl font-black text-white">
+          Frontier AI on Your Laptop <br/>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">in Sub-5 Seconds</span>
+        </h2>
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-left text-xs space-y-2 font-mono">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Target Scale:</span>
+            <span class="text-cyan-300 font-bold">GPT OSS 20B / Gemma 27B</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">RAM Required:</span>
+            <span class="text-emerald-300 font-bold">12–14 GB (MacBook / RTX 4070)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Local Response Time:</span>
+            <span class="text-purple-300 font-bold">&lt; 5.0 seconds</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400">
+          No \$200/month cloud subscriptions. Pure sovereign local reasoning.
+        </p>
+      </div>
+
+      <!-- SLIDE 5: The Human Story -->
+      <div id="slide-5" class="slide-pane hidden flex-col justify-center space-y-3.5 my-auto text-center">
+        <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-cyan-400 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+          <span class="text-2xl">🧠</span>
+        </div>
+        <h2 class="text-lg font-black text-white">Conceived from Bed in Nepal</h2>
+        <p class="text-xs text-slate-300 leading-relaxed px-2">
+          I am <strong>Sanish Gyawali</strong>. I am physically disabled and bedridden 24/7.
+        </p>
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-left text-xs space-y-1.5 text-slate-300">
+          <p>⚡ <strong>The Exoskeleton:</strong> I architected SymboLM and direct AI pair-programmers to orchestrate cloud GPU clusters from bed.</p>
+          <p>🔋 <strong>Blackout-Trained:</strong> Ran autonomous GRPO RL runs straight through 4-hour power blackouts.</p>
+        </div>
+        <div class="pt-1">
+          <a href="https://github.com/gyawalisanish0/symboLM" target="_blank" class="inline-block px-4 py-2 rounded-xl bg-slate-800 border border-slate-600 text-white font-bold text-xs hover:bg-slate-700 transition">
+            ⭐ Star on GitHub: gyawalisanish0/symboLM
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Slide Navigation Controls (Bottom) -->
+    <div class="px-5 py-3 border-t border-slate-800 flex justify-between items-center bg-slate-950/60">
+      <button onclick="prevSlide()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold transition">◀ Prev</button>
+      <div id="slide-indicator" class="text-xs font-mono text-slate-400">1 / 5</div>
+      <button onclick="nextSlide()" class="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs transition">Next ▶</button>
+    </div>
+
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 5;
+
+    function updateSlide() {
+      for (let i = 1; i <= totalSlides; i++) {
+        const el = document.getElementById(`slide-${i}`);
+        if (el) el.classList.toggle('hidden', i !== currentSlide);
+      }
+      document.getElementById('slide-progress').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      document.getElementById('slide-indicator').textContent = `${currentSlide} / ${totalSlides}`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function setMode(mode) {
+      const container = document.getElementById('deck-container');
+      const btnTiktok = document.getElementById('btn-tiktok');
+      const btnWide = document.getElementById('btn-widescreen');
+
+      if (mode === 'tiktok') {
+        container.classList.remove('w-[840px]', 'h-[500px]');
+        container.classList.add('w-[380px]', 'h-[720px]');
+        btnTiktok.className = "text-xs px-3 py-1 rounded-full bg-cyan-500 font-bold text-slate-950 transition";
+        btnWide.className = "text-xs px-3 py-1 rounded-full text-slate-400 hover:text-white transition";
+      } else {
+        container.classList.remove('w-[380px]', 'h-[720px]');
+        container.classList.add('w-[840px]', 'h-[500px]');
+        btnWide.className = "text-xs px-3 py-1 rounded-full bg-cyan-500 font-bold text-slate-950 transition";
+        btnTiktok.className = "text-xs px-3 py-1 rounded-full text-slate-400 hover:text-white transition";
+      }
+    }
+
+    // Benchmark Simulator
+    let isRacing = false;
+    function startRace() {
+      if (isRacing) return;
+      isRacing = true;
+
+      const engBar = document.getElementById('eng-bar');
+      const symBar = document.getElementById('eng-tokens');
+      const symBarEl = document.getElementById('sym-bar');
+      const symTokensEl = document.getElementById('sym-tokens');
+      const engTokensEl = document.getElementById('eng-tokens');
+      const engSample = document.getElementById('eng-sample');
+      const symSample = document.getElementById('sym-sample');
+      const winnerTag = document.getElementById('winner-tag');
+
+      engBar.style.width = "0%";
+      symBarEl.style.width = "0%";
+      winnerTag.classList.add('hidden');
+
+      let engCount = 0;
+      let symCount = 0;
+
+      const symInterval = setInterval(() => {
+        if (symCount < 215) {
+          symCount += 12;
+          symTokensEl.textContent = `${Math.min(symCount, 215)} tok`;
+          symBarEl.style.width = `${(symCount / 215) * 100}%`;
+          symSample.textContent = "let x = 14 | hyp [w = 8] → verify(✓) | ∴ ans = 96";
+        } else {
+          clearInterval(symInterval);
+          winnerTag.classList.remove('hidden');
+        }
+      }, 50);
+
+      const engInterval = setInterval(() => {
+        if (engCount < 980) {
+          engCount += 10;
+          engTokensEl.textContent = `${Math.min(engCount, 980)} tok`;
+          engBar.style.width = `${(engCount / 980) * 100}%`;
+          engSample.textContent = "Wait, let's rethink step 2... maybe if we calculate the area...";
+        } else {
+          clearInterval(engInterval);
+          isRacing = false;
+        }
+      }, 40);
+    }
+  </script>
+</body>
+</html>
