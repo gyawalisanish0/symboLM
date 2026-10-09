@@ -171,26 +171,30 @@ def main():
     raw_ds = load_prompts_dataset(Path(args.data_dir))
     print(f"Loaded {len(raw_ds)} prompts for GRPO training.")
 
-    # 4. GRPO Configuration
-    training_args = GRPOConfig(
-        output_dir=args.output_dir,
-        learning_rate=args.learning_rate,
-        per_device_train_batch_size=config.grpo_batch_size,
-        gradient_accumulation_steps=config.grpo_grad_accum_steps,
-        num_generations=args.num_generations,
-        max_prompt_length=config.grpo_max_prompt_len,
-        max_completion_length=config.grpo_max_completion_len,
-        max_steps=args.max_steps,
-        logging_steps=5,
-        save_strategy="steps",
-        save_steps=25,
-        beta=config.grpo_beta,
-        temperature=config.grpo_temperature,
-        report_to="none",
-        use_vllm=False,
-        bf16=use_tpu or torch.cuda.is_bf16_supported(),
-        fp16=not use_tpu and not torch.cuda.is_bf16_supported(),
-    )
+    # 4. GRPO Configuration (Dynamically filtered for installed TRL version)
+    import inspect
+    sig_params = inspect.signature(GRPOConfig.__init__).parameters
+    grpo_kwargs = {
+        "output_dir": args.output_dir,
+        "learning_rate": args.learning_rate,
+        "per_device_train_batch_size": config.grpo_batch_size,
+        "gradient_accumulation_steps": config.grpo_grad_accum_steps,
+        "num_generations": args.num_generations,
+        "max_prompt_length": config.grpo_max_prompt_len,
+        "max_completion_length": config.grpo_max_completion_len,
+        "max_steps": args.max_steps,
+        "logging_steps": 5,
+        "save_strategy": "steps",
+        "save_steps": 25,
+        "beta": config.grpo_beta,
+        "temperature": config.grpo_temperature,
+        "report_to": "none",
+        "use_vllm": False,
+        "bf16": torch.cuda.is_available() and torch.cuda.is_bf16_supported(),
+        "fp16": torch.cuda.is_available() and not torch.cuda.is_bf16_supported(),
+    }
+    filtered_kwargs = {k: v for k, v in grpo_kwargs.items() if k in sig_params}
+    training_args = GRPOConfig(**filtered_kwargs)
 
     # 5. Trainer
     trainer = GRPOTrainer(
