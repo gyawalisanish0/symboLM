@@ -1,5 +1,5 @@
 {
-  "id": "sanishgyawali/symbolm-stage-2-grpo-training-tpu-v3-8",
+  "id": "sanishgyawali/symbolm-stage-2-grpo-training-dual-tesla-t4",
   "title": "SymboLM Stage 2 GRPO Training (Dual Tesla T4)",
   "code_file": "symboLM_grpo_kaggle.ipynb",
   "language": "python",

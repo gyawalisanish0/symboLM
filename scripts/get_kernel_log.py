@@ -5,7 +5,7 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 api = KaggleApi()
 api.authenticate()
 
-kernel = "sanishgyawali/symbolm-stage-2-grpo-training-tpu-v3-8"
+kernel = sys.argv[1] if len(sys.argv) > 1 else "sanishgyawali/symbolm-stage-2-grpo-training-dual-tesla-t4"
 owner_slug, kernel_slug, _ = api.parse_kernel_string(kernel)
 
 with api.build_kaggle_client() as kaggle:
