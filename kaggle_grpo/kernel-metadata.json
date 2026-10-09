@@ -1,5 +1,5 @@
 {
-  "id": "sanishgyawali/symbolm-stage-2-grpo-training",
+  "id": "sanishgyawali/symbolm-stage-2-grpo-training-tpu-v3-8",
   "title": "SymboLM Stage 2 GRPO Training (TPU v3-8)",
   "code_file": "symboLM_grpo_kaggle.ipynb",
   "language": "python",
