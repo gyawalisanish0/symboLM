@@ -97,8 +97,8 @@ def load_symbo_model(base_model: str, adapter_path: str):
             low_cpu_mem_usage=True,
             trust_remote_code=True,
         )
-
-    model.resize_token_embeddings(len(tokenizer))
+    target_vocab = max(len(tokenizer), 151712) if (adapter_p and adapter_p.exists()) else len(tokenizer)
+    model.resize_token_embeddings(target_vocab)
 
     if adapter_p and adapter_p.exists():
         print(f"Loading adapter: {adapter_p}")

@@ -37,15 +37,17 @@ nb["cells"][2]["source"] = [
     "!pip install -q transformers peft trl accelerate sympy datasets bitsandbytes\n"
 ]
 
-# Update Cell 4: Dynamic SFT Adapter Mounting
+# Update Cell 4: Dynamic SFT Adapter & Tokenizer Mounting
 nb["cells"][4]["source"] = [
-    "# Cell 4: Mount and unpack Stage 1 SFT Adapter from Kaggle kernel source\n",
+    "# Cell 4: Mount and unpack Stage 1 SFT Adapter & Tokenizer from Kaggle kernel source\n",
     "import os\n",
     "import shutil\n",
     "from pathlib import Path\n",
     "\n",
     "target_dir = Path('/kaggle/working/symboLM/checkpoints/sft_adapter')\n",
     "target_dir.mkdir(parents=True, exist_ok=True)\n",
+    "tok_target = Path('/kaggle/working/symboLM/checkpoints/tokenizer_extended')\n",
+    "tok_target.mkdir(parents=True, exist_ok=True)\n",
     "\n",
     "found = False\n",
     "# 1. Search for existing extracted sft_adapter directory containing adapter_config.json\n",
@@ -64,6 +66,15 @@ nb["cells"][4]["source"] = [
     "        print(f'[OK] Found SFT archive at: {arc}. Unpacking...')\n",
     "        os.system(f'tar -xzf \"{arc}\" -C \"{target_dir}\"')\n",
     "        found = True\n",
+    "        break\n",
+    "\n",
+    "# 3. Copy tokenizer_extended if present\n",
+    "for tp in Path('/kaggle/input').glob('**/tokenizer_extended'):\n",
+    "    if (tp / 'tokenizer.json').exists():\n",
+    "        print(f'[OK] Found tokenizer_extended directory at: {tp}')\n",
+    "        for item in tp.iterdir():\n",
+    "            if item.is_file():\n",
+    "                shutil.copy2(item, tok_target / item.name)\n",
     "        break\n",
     "\n",
     "print('[Status] Target SFT Adapter Directory Contents:')\n",

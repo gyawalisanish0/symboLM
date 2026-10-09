@@ -115,13 +115,21 @@ def main():
     print("=" * 65)
 
     # 1. Load Tokenizer
+    sft_p = Path(args.sft_adapter)
     tok_dir = Path(config.tokenizer_dir)
-    tokenizer = AutoTokenizer.from_pretrained(
-        tok_dir if tok_dir.exists() else args.base_model,
-        trust_remote_code=True,
-    )
+    if sft_p.exists() and (sft_p / "tokenizer.json").exists():
+        tok_source = sft_p
+    elif tok_dir.exists() and (tok_dir / "tokenizer.json").exists():
+        tok_source = tok_dir
+    else:
+        tok_source = args.base_model
+
+    print(f"Loading tokenizer from: {tok_source}...")
+    tokenizer = AutoTokenizer.from_pretrained(tok_source, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    print(f"Tokenizer vocab size: {len(tokenizer)}")
+    target_vocab_size = max(len(tokenizer), 151712)
 
     # 2. Load Base Model
     if torch.cuda.is_available():
@@ -133,7 +141,7 @@ def main():
             device_map="auto",
             trust_remote_code=True,
         )
-        model.resize_token_embeddings(len(tokenizer))
+        model.resize_token_embeddings(target_vocab_size)
     elif use_tpu:
         print("[TPU v5e] Loading model in native bfloat16...")
         model = AutoModelForCausalLM.from_pretrained(
@@ -141,7 +149,7 @@ def main():
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
         )
-        model.resize_token_embeddings(len(tokenizer))
+        model.resize_token_embeddings(target_vocab_size)
     else:
         print("[CPU] Loading base model in float32...")
         model = AutoModelForCausalLM.from_pretrained(
@@ -149,7 +157,7 @@ def main():
             torch_dtype=torch.float32,
             trust_remote_code=True,
         )
-        model.resize_token_embeddings(len(tokenizer))
+        model.resize_token_embeddings(target_vocab_size)
 
     # Attach SFT LoRA weights if present
     adapter_cfg = Path(args.sft_adapter) / "adapter_config.json"
