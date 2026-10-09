@@ -82,10 +82,11 @@ def merge_and_save():
     )
     print(f"[OK] Base model loaded! Base vocab size: {model.config.vocab_size:,}")
 
-    # Resize embeddings to match extended tokenizer
-    if len(tokenizer) != model.config.vocab_size:
-        print(f"Resizing token embeddings: {model.config.vocab_size:,} -> {len(tokenizer):,}...")
-        model.resize_token_embeddings(len(tokenizer))
+    # Resize embeddings to match the adapter's saved vocabulary shape (151712)
+    target_vocab = max(len(tokenizer), 151712)
+    if model.config.vocab_size != target_vocab:
+        print(f"Resizing token embeddings to match adapter state dict: {model.config.vocab_size:,} -> {target_vocab:,}...")
+        model.resize_token_embeddings(target_vocab)
 
     # 3. Attach LoRA Adapter
     print("\n3. Attaching LoRA adapter...")

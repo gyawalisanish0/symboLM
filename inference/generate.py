@@ -60,7 +60,7 @@ def load_symbo_model(base_model: str, adapter_path: str):
     if is_merged_model:
         print(f"Loading standalone merged SymboLM model from: {adapter_p}")
         tokenizer = AutoTokenizer.from_pretrained(str(adapter_p), trust_remote_code=True)
-        dtype = torch.float16 if torch.cuda.is_available() else torch.bfloat16
+        dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         model = AutoModelForCausalLM.from_pretrained(
             str(adapter_p),
             torch_dtype=dtype,
