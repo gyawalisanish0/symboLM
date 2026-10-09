@@ -85,8 +85,8 @@ nb["cells"][4]["source"] = [
 
 # Update Cell 6: Hardware-adaptive launch
 nb["cells"][6]["source"] = [
-    "# Cell 6: Launch Stage 2 GRPO Policy Optimization\n",
-    "!python -m training.grpo_train \\\n",
+    "# Cell 6: Launch Stage 2 GRPO Policy Optimization on single GPU\n",
+    "!CUDA_VISIBLE_DEVICES=0 python -m training.grpo_train \\\n",
     "    --base_model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \\\n",
     "    --sft_adapter ./checkpoints/sft_adapter \\\n",
     "    --output_dir ./checkpoints/grpo_adapter \\\n",

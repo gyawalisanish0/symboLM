@@ -134,11 +134,11 @@ def main():
     # 2. Load Base Model
     if torch.cuda.is_available():
         dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-        print(f"[CUDA] Loading base model in native {dtype} (unquantized, ~3.0 GB)...")
+        print(f"[CUDA] Loading base model on primary GPU in native {dtype} (unquantized, ~3.0 GB)...")
         model = AutoModelForCausalLM.from_pretrained(
             args.base_model,
             torch_dtype=dtype,
-            device_map="auto",
+            device_map={"": "cuda:0"},
             trust_remote_code=True,
         )
         model.resize_token_embeddings(target_vocab_size)
