@@ -133,3 +133,29 @@ All arithmetic and algebraic claims inside SRL v1.0 training data and benchmark 
 * Invariant arithmetic step transitions: `16 - 3 == 13`, `13 - 4 == 9`, `9 * 2 == 18` $\rightarrow$ **VALIDATED**.
 
 Zero hallucination in ground-truth labels.
+
+---
+
+## 8. Transparent Engineering Cons, Limitations & Failure Modes
+
+In the spirit of rigorous, uncompromised scientific integrity, the following real-world trade-offs and limitations apply to the SymboLM neurosymbolic architecture:
+
+### 8.1 Reduced Casual Human Readability of Raw Traces
+* **The Trade-off:** While natural English CoT is inherently readable to non-technical users (*"First, Janet has 16 eggs..."*), SymboLM's raw internal thinking trace is written in dense symbolic notation (`let(tot=16) | eat-=3→13 | bake-=4→9 | sell(9*2)→18 ∴ ans=18`).
+* **Mitigation:** The final user-facing output inside `<ans>...</ans>` remains clear natural language/numbers. For developers auditing reasoning steps, we maintain an automated symbolic-to-text decompiler (`inference/symbolic_to_text.py`), but the raw tokens themselves require technical literacy to interpret.
+
+### 8.2 Out-of-Distribution (OOD) Domain Rigidity
+* **The Limitation:** SRL v1.0 was mathematically formalized for deductive, mathematical, algorithmic, and state-machine logic. For deeply subjective, open-ended, or philosophical queries (*"Discuss the ethical implications of utilitarianism"*), rigid symbolic operators (`→`, `∴`) are less expressive than nuanced prose.
+* **Mitigation:** The Tri-Register cognitive architecture was explicitly designed to handle this via the **Intent Scratchpad Register** (allocating compact 10-token natural directives for human dialogue), but multi-domain curriculum balancing remains an ongoing engineering challenge.
+
+### 8.3 Vocabulary Extension & Embedding Overhead
+* **The Limitation:** To maximize compression, SymboLM adds 47 custom neurosymbolic tokens to the base model's tokenizer (expanding vocabulary from 151,665 to 151,712).
+* **Impact:** Applying this architecture to closed third-party APIs (where the tokenizer cannot be modified) requires mapping symbolic tokens to multi-byte subwords, slightly reducing the effective compression ratio by ~5–10% unless native token embeddings are accessible.
+
+### 8.4 Vulnerability to RL Reward Hacking
+* **The Risk:** During Stage 2 GRPO policy optimization, if length penalties or brevity bonuses are over-weighted, policy networks will exploit reward functions by generating ultra-short, meaningless symbolic gibberish.
+* **Mitigation:** Countered by strict coupling with deterministic ground-truth verification ($R_{\text{correct}}$) and AST compiler parsing ($R_{\text{syntax\_noise}}$), which heavily penalizes uncompilable or mathematically incorrect traces (-1.0 penalty).
+
+### 8.5 SFT Cold-Start Requirement
+* **The Overhead:** A pre-trained base model cannot natively speak SRL v1.0 zero-shot. It requires an initial supervised fine-tuning (SFT) phase on high-quality synthetic traces before reinforcement learning (GRPO) can discover optimal reasoning shortcuts.
+
