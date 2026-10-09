@@ -67,5 +67,14 @@ class SymboLMConfig:
     grpo_beta: float = 0.04            # KL penalty coefficient
     grpo_temperature: float = 0.8
 
+    # Cloud Persistence & Remote Hub Storage
+    hf_repo_id: str = "gyawalisanish0/symboLM-checkpoints"
+    hf_private_repo: bool = True
+    enable_hf_sync: bool = True
+    sync_every_n_steps: int = 25
+    enable_local_pruning: bool = True
+    keep_latest_checkpoints: int = 1
+    prune_after_sync_only: bool = True
+
 
 config = SymboLMConfig()

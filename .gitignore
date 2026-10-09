@@ -41,3 +41,7 @@ wandb/
 
 # Local data dumps (keep structure, ignore large generated jsonl)
 data/symbolic_dataset/*.jsonl
+
+# Secrets and environment files
+.env
+*.env
