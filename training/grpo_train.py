@@ -124,7 +124,17 @@ def main():
         tokenizer.pad_token = tokenizer.eos_token
 
     # 2. Load Base Model
-    if use_tpu:
+    if torch.cuda.is_available():
+        dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        print(f"[CUDA] Loading base model in native {dtype} (unquantized, ~3.0 GB)...")
+        model = AutoModelForCausalLM.from_pretrained(
+            args.base_model,
+            torch_dtype=dtype,
+            device_map="auto",
+            trust_remote_code=True,
+        )
+        model.resize_token_embeddings(len(tokenizer))
+    elif use_tpu:
         print("[TPU v5e] Loading model in native bfloat16...")
         model = AutoModelForCausalLM.from_pretrained(
             args.base_model,
@@ -133,27 +143,21 @@ def main():
         )
         model.resize_token_embeddings(len(tokenizer))
     else:
-        print("[CUDA] Initializing 4-bit NF4 quantized base model...")
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_compute_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
-        )
+        print("[CPU] Loading base model in float32...")
         model = AutoModelForCausalLM.from_pretrained(
             args.base_model,
-            quantization_config=bnb_config,
-            device_map="auto",
+            torch_dtype=torch.float32,
             trust_remote_code=True,
         )
         model.resize_token_embeddings(len(tokenizer))
 
     # Attach SFT LoRA weights if present
-    if os.path.exists(args.sft_adapter):
+    adapter_cfg = Path(args.sft_adapter) / "adapter_config.json"
+    if os.path.exists(args.sft_adapter) and adapter_cfg.exists():
         print(f"Attaching SFT LoRA weights from {args.sft_adapter}...")
         model = PeftModel.from_pretrained(model, args.sft_adapter, is_trainable=True)
     else:
-        print("[Warning] No SFT adapter found. Training GRPO directly on base model.")
+        print(f"[Warning] No valid SFT adapter found at {args.sft_adapter} (missing adapter_config.json). Training GRPO directly on base model.")
 
     # 3. Load dataset
     raw_ds = load_prompts_dataset(Path(args.data_dir))
