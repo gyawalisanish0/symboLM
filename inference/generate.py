@@ -81,14 +81,11 @@ def load_symbo_model(base_model: str, adapter_path: str):
     tokenizer = AutoTokenizer.from_pretrained(tok_source, trust_remote_code=True)
 
     if torch.cuda.is_available():
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16,
-        )
+        dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        print(f"[CUDA] Loading model in {dtype}...")
         model = AutoModelForCausalLM.from_pretrained(
             base_model,
-            quantization_config=bnb_config,
+            torch_dtype=dtype,
             device_map="auto",
             trust_remote_code=True,
         )

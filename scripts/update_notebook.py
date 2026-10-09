@@ -29,6 +29,14 @@ nb["cells"][1]["source"] = [
     "        print('[Notice] TPU/XLA check:', e)\n"
 ]
 
+# Update Cell 2: Dependencies and conflict resolution
+nb["cells"][2]["source"] = [
+    "# Cell 2: Install required libraries & resolve package conflicts\n",
+    "!pip install -q --upgrade pip\n",
+    "!pip uninstall -y -q torchao\n",
+    "!pip install -q transformers peft trl accelerate sympy datasets bitsandbytes\n"
+]
+
 # Update Cell 4: Dynamic SFT Adapter Mounting
 nb["cells"][4]["source"] = [
     "# Cell 4: Mount and unpack Stage 1 SFT Adapter from Kaggle kernel source\n",
