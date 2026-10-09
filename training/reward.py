@@ -115,6 +115,38 @@ WEIGHTS = {
 BASELINE_ENGLISH_TOKENS = 55  # rough GSM8K average
 
 
+NOISE_PATTERNS = [
+    re.compile(r"=\{`?\$\{?"),                       # e.g. ={`${105}`}>
+    re.compile(r"\?>[\"']"),                           # e.g. ?>"></
+    re.compile(r"<\s*/\s*<\s*\|"),                     # broken tags
+    re.compile(r"[<{]{3,}"),                           # repeated bracket soup
+    re.compile(r"\$\{[^}]*\}"),                        # template string leftovers
+    re.compile(r"<\/?[a-zA-Z0-9_\-]+(?!\w)[^>]*$"),    # unclosed trailing html/xml tag
+]
+
+
+def detect_trailing_noise(text: str) -> float:
+    """Detect unparsed trailing syntax garbage and template residue."""
+    for pat in NOISE_PATTERNS:
+        if pat.search(text):
+            return -1.0
+    # Also check if text ends with invalid dangling punctuation after numbers
+    if re.search(r"\d+\s*[\?=>\"'\}\{]{2,}", text):
+        return -1.0
+    return 0.0
+
+
+def detect_self_correction(text: str, is_correct: bool) -> float:
+    """Award bonus if model used compact verification or backtrack to arrive at truth."""
+    if not is_correct:
+        return 0.0
+    has_backtrack = ("✗" in text) or bool(re.search(r"\bbacktrack\b", text)) or bool(re.search(r"\btry\(", text))
+    has_verify = bool(re.search(r"verify\(", text)) or ("✓" in text)
+    if (has_backtrack or has_verify) and ("∴" in text or "<ans>" in text):
+        return 0.4
+    return 0.0
+
+
 def compute_reward(
     prediction: str,
     ground_truth: str,
@@ -206,7 +238,17 @@ def compute_reward(
     r_leak = -WEIGHTS["leak"] * leak_score
 
     # ----------------------------------------------------------------
-    # 7. Combine
+    # 7. Trailing Noise & Syntax Hallucination Penalty
+    # ----------------------------------------------------------------
+    r_noise = detect_trailing_noise(prediction)
+
+    # ----------------------------------------------------------------
+    # 8. Compact Self-Correction Bonus
+    # ----------------------------------------------------------------
+    r_self_correct = detect_self_correction(prediction, is_correct)
+
+    # ----------------------------------------------------------------
+    # 9. Combine
     # ----------------------------------------------------------------
     total = (
         WEIGHTS["correctness"] * r_correctness
@@ -215,6 +257,8 @@ def compute_reward(
         + WEIGHTS["invariant"] * r_invariant
         + r_length               # already weighted (per-token)
         + r_leak                 # already weighted
+        + r_noise                # heavy penalty if noisy (-1.0)
+        + r_self_correct         # bonus if verified self-correcting (+0.4)
     )
 
     breakdown = RewardBreakdown(
@@ -285,6 +329,99 @@ def make_reward_fn(include_english_refs: bool = False) -> Callable:
         return batch_reward_fn(pred_texts, ground_truths, english_refs)
 
     return reward_fn
+
+
+# ---------------------------------------------------------------------------
+# Modular Reward Functions for TRL GRPOTrainer
+# ---------------------------------------------------------------------------
+
+def correctness_reward_func(prompts, completions, answers, **kwargs) -> list[float]:
+    """Evaluates final answer accuracy against ground-truth normalized answer."""
+    rewards = []
+    for comp, ans in zip(completions, answers):
+        extracted = extract_answer(comp)
+        if answers_match(extracted, ans):
+            rewards.append(1.0)
+        else:
+            rewards.append(-0.6)
+    return rewards
+
+
+def syntax_and_noise_reward_func(prompts, completions, **kwargs) -> list[float]:
+    """Penalizes trailing noise/template debris and rewards clean SRL grammar."""
+    rewards = []
+    srl_parser = SRLParser()
+    for comp in completions:
+        score = 0.0
+        # 1. Trailing noise / template leftover penalty
+        score += detect_trailing_noise(comp)
+
+        # 2. SRL Parser AST validation
+        res = srl_parser.parse(comp)
+        if res.is_valid:
+            score += 0.5
+        else:
+            score -= 0.3
+
+        # 3. Soft trace validator
+        val = validate_trace(comp)
+        if val.has_conclusion:
+            score += 0.2
+        if val.english_leak_score > 0.25:
+            score -= 0.3
+        rewards.append(score)
+    return rewards
+
+
+def self_correction_reward_func(prompts, completions, answers, **kwargs) -> list[float]:
+    """Awards a +0.4 bonus for verified hypothesis testing / backtracking."""
+    rewards = []
+    for comp, ans in zip(completions, answers):
+        extracted = extract_answer(comp)
+        is_corr = answers_match(extracted, ans)
+        bonus = detect_self_correction(comp, is_corr)
+        rewards.append(bonus)
+    return rewards
+
+
+def efficiency_and_bypass_reward_func(prompts, completions, answers, registers=None, **kwargs) -> list[float]:
+    """Rewards token compression, zero-shot factual bypass, and intent scratchpads."""
+    rewards = []
+    regs = registers if registers else ["symbolic_deductive"] * len(completions)
+    for comp, ans, reg in zip(completions, answers, regs):
+        extracted = extract_answer(comp)
+        is_corr = answers_match(extracted, ans)
+
+        # Register: Factual Bypass
+        if reg == "factual_bypass":
+            think_match = re.search(r"<think>(.*?)</think>", comp, re.DOTALL)
+            think_content = think_match.group(1).strip() if think_match else ""
+            if len(think_content) == 0:
+                rewards.append(0.8 if is_corr else 0.0)
+            elif len(think_content) < 20:
+                rewards.append(0.2 if is_corr else -0.2)
+            else:
+                rewards.append(-0.8)  # Overthinking penalty
+            continue
+
+        # Register: Intent Dialogue
+        if reg == "intent_dialogue":
+            has_intent_tag = bool(re.search(r"intent:\s*[^|\n]+", comp))
+            if has_intent_tag:
+                rewards.append(0.6)
+            else:
+                rewards.append(-0.3)
+            continue
+
+        # Register: Symbolic Deductive (Standard efficiency)
+        if not is_corr:
+            rewards.append(0.0)
+            continue
+        toks = _estimate_tokens(comp)
+        baseline = 60
+        comp_ratio = max(0.0, min(0.6, (baseline - toks) / baseline))
+        rewards.append(float(comp_ratio * 0.5))
+    return rewards
 
 
 # ---------------------------------------------------------------------------

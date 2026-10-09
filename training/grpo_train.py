@@ -21,9 +21,22 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from trl import GRPOConfig, GRPOTrainer
 
+import sys
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from config import config
 from symbolic.grammar import extract_answer, validate_trace, _estimate_tokens
-from training.reward import answers_match, compute_reward
+from training.reward import (
+    answers_match,
+    compute_reward,
+    correctness_reward_func,
+    syntax_and_noise_reward_func,
+    self_correction_reward_func,
+    efficiency_and_bypass_reward_func,
+)
 
 HAS_TPU = False
 try:
@@ -44,80 +57,49 @@ def parse_args():
     parser.add_argument("--num_generations", type=int, default=config.grpo_num_generations)
     parser.add_argument("--learning_rate", type=float, default=config.grpo_lr)
     parser.add_argument("--max_steps", type=int, default=250)
-    parser.add_argument("--tpu", action="store_true", help="Force TPU v5e execution via PyTorch/XLA")
+    parser.add_argument("--tpu", action="store_true", help="Force TPU execution via PyTorch/XLA")
     return parser.parse_args()
 
 
-# ---------------------------------------------------------------------------
-# Multi-component reward callbacks
-# ---------------------------------------------------------------------------
-
-def correctness_reward_func(prompts, completions, answers, **kwargs) -> list[float]:
-    """Reward +1.0 for correct final answer, -0.5 for wrong."""
-    rewards = []
-    for comp, ans in zip(completions, answers):
-        extracted = extract_answer(comp)
-        if answers_match(extracted, ans):
-            rewards.append(1.0)
-        else:
-            rewards.append(-0.5)
-    return rewards
-
-
-def efficiency_reward_func(prompts, completions, answers, **kwargs) -> list[float]:
-    """Rewards token compression if and only if the final answer is correct."""
-    rewards = []
-    for comp, ans in zip(completions, answers):
-        extracted = extract_answer(comp)
-        if not answers_match(extracted, ans):
-            rewards.append(0.0)
-            continue
-
-        tokens = _estimate_tokens(comp)
-        baseline = 60  # GSM8K average reasoning tokens
-        compression = max(0.0, min(0.6, (baseline - tokens) / baseline))
-        rewards.append(float(compression * 0.5))
-    return rewards
-
-
-def format_reward_func(prompts, completions, **kwargs) -> list[float]:
-    """Reward for adhering to symbolic syntax, '|' separators, and conclusion marker."""
-    rewards = []
-    for comp in completions:
-        val = validate_trace(comp)
-        score = 0.0
-        if val.has_conclusion:
-            score += 0.1
-        if val.has_steps:
-            score += 0.1
-        if val.english_leak_score < 0.2:
-            score += 0.1
-        else:
-            score -= 0.2
-        rewards.append(score)
-    return rewards
-
-
 def load_prompts_dataset(data_dir: Path) -> Dataset:
-    """Load queries and ground-truth answers for GRPO sampling."""
+    """Load queries, ground-truth answers, and cognitive register for GRPO sampling."""
+    curriculum_file = data_dir / "grpo_curriculum.jsonl"
     train_file = data_dir / "train.jsonl"
+
+    data_file = curriculum_file if curriculum_file.exists() else train_file
+    print(f"Loading GRPO training prompts from: {data_file}")
+
     prompts = []
     answers = []
+    registers = []
 
-    with open(train_file, "r", encoding="utf-8") as f:
+    with open(data_file, "r", encoding="utf-8") as f:
         for line in f:
             if not line.strip():
                 continue
             item = json.loads(line)
-            query = (
-                f"<|im_start|>system\n{config.system_prompt}<|im_end|>\n"
-                f"<|im_start|>user\n{item['messages'][1]['content']}<|im_end|>\n"
-                f"<|im_start|>assistant\n<think>\n"
-            )
-            prompts.append(query)
-            answers.append(item["answer"])
+            
+            # Extract user prompt based on schema
+            if "prompt" in item:
+                user_text = item["prompt"]
+            elif "messages" in item and len(item["messages"]) > 1:
+                user_text = item["messages"][1]["content"]
+            else:
+                continue
 
-    return Dataset.from_dict({"prompt": prompts, "answers": answers})
+            query = f"<｜User｜>{user_text}<｜Assistant｜><think>\n"
+            ans = str(item.get("answer", ""))
+            reg = item.get("register", "symbolic_deductive")
+
+            prompts.append(query)
+            answers.append(ans)
+            registers.append(reg)
+
+    return Dataset.from_dict({
+        "prompt": prompts,
+        "answers": answers,
+        "registers": registers,
+    })
 
 
 def main():
@@ -202,7 +184,12 @@ def main():
     trainer = GRPOTrainer(
         model=model,
         processing_class=tokenizer,
-        reward_funcs=[correctness_reward_func, efficiency_reward_func, format_reward_func],
+        reward_funcs=[
+            correctness_reward_func,
+            syntax_and_noise_reward_func,
+            self_correction_reward_func,
+            efficiency_and_bypass_reward_func,
+        ],
         args=training_args,
         train_dataset=raw_ds,
     )
