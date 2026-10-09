@@ -81,12 +81,13 @@ def load_symbo_model(base_model: str, adapter_path: str):
     tokenizer = AutoTokenizer.from_pretrained(tok_source, trust_remote_code=True)
 
     if torch.cuda.is_available():
-        dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-        print(f"[CUDA] Loading model in {dtype}...")
+        is_sm80 = torch.cuda.get_device_capability()[0] >= 8
+        dtype = torch.bfloat16 if is_sm80 else torch.float16
+        print(f"[CUDA] Loading model in {dtype} on single GPU...")
         model = AutoModelForCausalLM.from_pretrained(
             base_model,
             torch_dtype=dtype,
-            device_map="auto",
+            device_map={"": "cuda:0"},
             trust_remote_code=True,
         )
     else:
@@ -100,7 +101,7 @@ def load_symbo_model(base_model: str, adapter_path: str):
     target_vocab = max(len(tokenizer), 151712) if (adapter_p and adapter_p.exists()) else len(tokenizer)
     model.resize_token_embeddings(target_vocab)
 
-    if adapter_p and adapter_p.exists():
+    if adapter_p and adapter_p.exists() and (adapter_p / "adapter_config.json").exists():
         print(f"Loading adapter: {adapter_p}")
         model = PeftModel.from_pretrained(model, str(adapter_p))
     else:

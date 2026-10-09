@@ -131,10 +131,15 @@ def main():
     print(f"Tokenizer vocab size: {len(tokenizer)}")
     target_vocab_size = max(len(tokenizer), 151712)
 
+    is_sm80 = False
+    if torch.cuda.is_available():
+        major, minor = torch.cuda.get_device_capability()
+        is_sm80 = (major >= 8)
+
     # 2. Load Base Model
     if torch.cuda.is_available():
-        dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-        print(f"[CUDA] Loading base model on primary GPU in native {dtype} (unquantized, ~3.0 GB)...")
+        dtype = torch.bfloat16 if is_sm80 else torch.float16
+        print(f"[CUDA] Loading base model on primary GPU in native {dtype} (Compute Capability {major}.{minor}, ~3.0 GB)...")
         model = AutoModelForCausalLM.from_pretrained(
             args.base_model,
             torch_dtype=dtype,
@@ -190,8 +195,8 @@ def main():
         "temperature": config.grpo_temperature,
         "report_to": "none",
         "use_vllm": False,
-        "bf16": torch.cuda.is_available() and torch.cuda.is_bf16_supported(),
-        "fp16": torch.cuda.is_available() and not torch.cuda.is_bf16_supported(),
+        "bf16": is_sm80,
+        "fp16": torch.cuda.is_available() and not is_sm80,
     }
     filtered_kwargs = {k: v for k, v in grpo_kwargs.items() if k in sig_params}
     training_args = GRPOConfig(**filtered_kwargs)

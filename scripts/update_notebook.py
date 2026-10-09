@@ -96,6 +96,15 @@ nb["cells"][6]["source"] = [
     "    --max_steps 250\n"
 ]
 
+# Update Cell 7: Post-Training Policy Verification
+nb["cells"][7]["source"] = [
+    "# Cell 7: Post-Training Policy Verification (Zero-Noise & Compact Self-Correction)\n",
+    "!CUDA_VISIBLE_DEVICES=0 python -m inference.generate \\\n",
+    "    --base_model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \\\n",
+    "    --adapter_path ./checkpoints/grpo_adapter \\\n",
+    "    --prompt \"A train departs with 100 passengers. At the first stop, 20 leave and 35 enter. How many passengers now?\"\n"
+]
+
 with open(nb_path, "w", encoding="utf-8") as f:
     json.dump(nb, f, indent=1)
 
