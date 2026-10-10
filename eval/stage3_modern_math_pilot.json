@@ -1,0 +1,43 @@
+{
+  "benchmark_name": "SymboLM Modern Math 2026 Benchmark",
+  "total_problems": 2,
+  "correct": 0,
+  "pass_at_1_accuracy": 0.0,
+  "trailing_syntax_cleanliness_pct": 100.0,
+  "total_symbolic_tokens": 384,
+  "total_english_baseline_tokens": 780,
+  "overall_token_savings_pct": 50.77,
+  "ockbench_ock_score": 0.0,
+  "results": [
+    {
+      "id": "MM2026-NT-01",
+      "domain": "Number Theory",
+      "question": "Find the smallest positive integer n such that n \u2261 3 (mod 5), n \u2261 5 (mod 7), and n \u2261 7 (mod 11).",
+      "ground_truth": "328",
+      "prediction": "107313794591322345717147541117644872511331874109141511413117151141311715114131171511413117151141311715114131171511413117151141311715114131171511413117151141311715114131171511413117151141311715",
+      "correct": false,
+      "generated_tokens": 192,
+      "english_baseline_tokens": 420,
+      "compression_savings_pct": 54.29,
+      "generation_time_ms": 58723.39,
+      "tokens_per_second": 3.3,
+      "clean_syntax": true,
+      "full_generation": "107313794591322345717147541117644872511331874109141511413117151141311715114131171511413117151141311715114131171511413117151141311715114131171511413117151141311715114131171511413117151141311715"
+    },
+    {
+      "id": "MM2026-NT-02",
+      "domain": "Number Theory",
+      "question": "Compute the remainder when 3^2026 is divided by 100.",
+      "ground_truth": "89",
+      "prediction": "266400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "correct": false,
+      "generated_tokens": 192,
+      "english_baseline_tokens": 360,
+      "compression_savings_pct": 46.67,
+      "generation_time_ms": 57330.09,
+      "tokens_per_second": 3.3,
+      "clean_syntax": true,
+      "full_generation": "266400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

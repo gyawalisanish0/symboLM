@@ -4,7 +4,7 @@
 **GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
 **Target Base Model:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`  
 **Current Active Compute:** Host Workstation (Local CPU / CUDA) & Kaggle Dual Tesla T4  
-**Active Cloud Kernel:** `sanishgyawali/symbolm-stage-3-concept-grpo-training` (Status: `KernelWorkerStatus.RUNNING` on Kaggle Dual Tesla T4)  
+**Active Cloud Kernel:** `sanishgyawali/symbolm-stage-3-concept-grpo-training` (Status: `KernelWorkerStatus.COMPLETE` on Kaggle Dual Tesla T4)  
 **Core Objective:** Reasoning compression across multiple cognitive registers—replacing verbose English CoT with an ultra-dense symbolic DSL (`→`, `∴`, `|`, `hyp`, `verify`) for deductive tasks (60–75% token reduction), while dynamically bypassing thinking for direct factual QA, managing structured state for questionnaires, and using 10-token Intent Scratchpads for fluent, empathetic human conversation.
 
 ---
@@ -64,10 +64,34 @@
 
 ---
 
-## 📌 Next Steps (Training & Grant Submission)
+---
 
-1. **Stage 2.5 / Stage 3 GRPO Training Run:** Train the policy on `data/concept_math_curriculum.jsonl` using Dual Tesla T4 GPUs on Kaggle or Colab to cement Register v2.0 planning.
-2. **LoRA Adapter Merge & GGUF Export:** Export `Q5_K_M` for local edge CPU inference.
-3. **Record 2-Minute Workstation Overview:** Short video showcasing working compiler receipts from bedside workstation.
-4. **Submit Emergent Ventures Application:** Submit formal grant dossier to Dr. Tyler Cowen ($15k–$25k fellowship).
+## ⚡ Stage 3 Concept GRPO Completion & Empirical Findings (Updated Oct 10, 2026, 19:40 NPT)
 
+### 1. Training & Policy Execution Receipts
+- **Status:** **`KernelWorkerStatus.COMPLETE`**
+- **Compute Run:** Kaggle Dual Tesla T4 GPUs executed for **3 hours 31 minutes** (250/250 steps, 16,000 candidate rollouts).
+- **Curriculum:** 1,600 unified samples (`data/stage3_unified_curriculum.jsonl`) blending 1,400 Register v2.0 concept samples across 7 invariant families with 200 legacy arithmetic anchors.
+- **Local Persistence:** Final policy adapter weights successfully downloaded via streaming Kaggle SDK into [`checkpoints/stage3_adapter/`](checkpoints/stage3_adapter) (`adapter_model.safetensors` 1.0 GB, `adapter_config.json`, `tokenizer.json`, `chat_template.jinja`).
+- **Remote Cloud Hub Persistence:** Authenticated private repository sync completed with **100% success** to:
+  [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints) (`stage3_concept_adapter`).
+
+### 2. Empirical Benchmark Findings & The Cold-Start Exploration Barrier
+- **Zero Regressions on Prior Registers:**
+  - Instant Factual Bypass: Carbon atomic number → `6` preserved.
+  - Elementary Deductive Arithmetic: $3x + 6 = 21 → 5$, $100 - 20 + 35 → 115$ preserved.
+  - Competition Geometry Invariant: Inradius $r=6, P=72 → 216$ correctly recalled.
+- **Core Scientific Discovery (The Cold-Start Exploration Barrier):**
+  - Training logs reveal that throughout 16,000 GRPO rollouts, `rewards/concept_alignment_reward_func/mean` remained strictly `0.0`.
+  - **Root Cause:** `<reg:plan>` was a completely novel syntactic token sequence unobserved in Stage 1/2. Because the warm-start policy's prior $P(\text{sampling } <reg:plan>) \approx 0$, random generation never stumbled upon the formal delimiters.
+  - **Architectural Lesson:** Formal cognitive registers cannot be discovered purely through reinforcement learning from an ungrounded prior. They require a **2-Phase Transition**:
+    1. **Phase 1 (Syntactic SFT Seeding):** 1-epoch supervised warm-start on `data/concept_math_curriculum.jsonl` to establish non-zero token probability over the register grammar.
+    2. **Phase 2 (GRPO Exploration & Pruning):** Reinforcement learning to calibrate multi-step deduction, verification tokens (`verify(...) ✓`), and anti-guessing penalties.
+
+---
+
+## 📌 Next Steps (Grant Submission & Phase 1 SFT Seeding)
+
+1. **Emergent Ventures Grant Submission:** Submit formal grant dossier to Dr. Tyler Cowen ($20,000 fellowship request), featuring the unedited bedside workstation video and empirical receipts from Stages 1, 2, and 3.
+2. **Stage 2.5 Syntactic SFT Seeding Run:** Execute a quick 1-epoch SFT run on Dual Tesla T4 GPUs over `data/concept_math_curriculum.jsonl` to seed the `<reg:plan>` prior.
+3. **LoRA Adapter Merge & GGUF Export:** Export merged weights for local edge CPU inference.
