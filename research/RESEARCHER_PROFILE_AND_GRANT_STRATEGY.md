@@ -157,10 +157,14 @@ I do not present paper theories; I present working software and reproducible clu
    * **Open & Verifiable:** Weights published on Hugging Face Hub (`gyawalisanish0/symboLM-checkpoints`), repository open on GitHub (`github.com/gyawalisanish0/symboLM`).
 4. **Radically Honest Engineering Boundaries:** On out-of-distribution 2026 Olympiad competition math (CRT, Legendre factorials), the policy scored 0/12 because our initial 1,200-sample curriculum calibrated basic arithmetic but lacked higher-order number theory. This proved that the cognitive register mechanism works, but requires scaling from 1,200 synthetic samples to a 100,000-sample competition curriculum.
 
-### The Scaling Vision: Mixture-of-Experts (MoE) & 20x Efficiency
-SymboLM's Tri-Register architecture maps 1:1 onto sparse MoE routers (routing symbolic tokens to logic experts, factual queries to memory experts, and dialogue to conversational experts). Compounding a **4x token compression** with **5x sparse parameter activation** yields an unprecedented **20x reduction in total compute, memory bandwidth, and battery drain per query**.
+### Who Am I & Why This Grant Matters (The Honest Beginner's Stance)
+I consider myself an independent, self-taught beginner researcher. I do not come from an elite institutional lab, nor do I claim to have all the answers. I am permanently disabled, bedridden 24/7 in Nepal, conducting systems research from my bed workstation using AI (Antigravity by Google DeepMind) as my operational and cognitive exoskeleton.
 
-### How will the grant be spent? (\$20,000 Request)
-* **\$4,000 — Electrical Independence & Health Stability:** Hybrid solar inverter and LiFePO4 batteries to survive Nepal's blackouts and keep my workstation and ventilators powered 24/7.
-* **\$8,000 — Dedicated Cloud Cluster Compute:** On-demand A100/H100 compute to train a 100,000-sample Olympiad curriculum and scale SymboLM to 20B+ models and sparse MoEs.
-* **\$8,000 — 12-Month Runway:** Basic living, medical care, and continuous research runway for 12 months.
+SymboLM v1.1 is my initial small proof-of-concept—built under extreme physical constraints, frequent regional blackouts, and free-tier GPU quotas. Yet, it works: the AST compiler parses formally, GRPO policy optimization converged across 16,000 rollouts, and the 50%–98% token compression receipts are verifiable on Hugging Face and GitHub.
+
+I am applying for this Emergent Ventures grant precisely because I want to learn more. I have an intense hunger to master frontier systems engineering, formal verification, and sparse MoE scaling. An unrestricted grant from Dr. Tyler Cowen is the single catalytic intervention that permanently stabilizes my electricity (solar/battery storage), frees me from free-tier compute bottlenecks, and provides a 12-month living and medical care runway so I can dedicate every waking hour to studying, experimenting, and advancing this research.
+
+### How will the grant be spent? ($20,000 Request)
+* **$4,000 — Electrical Independence & Health Stability:** Hybrid solar inverter and LiFePO4 batteries to survive Nepal's blackouts and keep my bed workstation powered 24/7.
+* **$8,000 — Dedicated Cloud Cluster Compute:** On-demand A100/H100 compute to train a 100,000-sample Olympiad curriculum and scale SymboLM to 20B+ models and sparse MoEs.
+* **$8,000 — 12-Month Runway:** Basic living, medical care, and continuous research runway for 12 months.

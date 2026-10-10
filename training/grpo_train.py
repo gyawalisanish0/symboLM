@@ -36,6 +36,7 @@ from training.reward import (
     syntax_and_noise_reward_func,
     self_correction_reward_func,
     efficiency_and_bypass_reward_func,
+    concept_alignment_reward_func,
 )
 
 HAS_TPU = False
@@ -63,15 +64,26 @@ def parse_args():
 
 def load_prompts_dataset(data_dir: Path) -> Dataset:
     """Load queries, ground-truth answers, and cognitive register for GRPO sampling."""
+    stage3_file = data_dir / "stage3_unified_curriculum.jsonl"
+    concept_file = data_dir / "concept_math_curriculum.jsonl"
     curriculum_file = data_dir / "grpo_curriculum.jsonl"
     train_file = data_dir / "train.jsonl"
 
-    data_file = curriculum_file if curriculum_file.exists() else train_file
+    if stage3_file.exists():
+        data_file = stage3_file
+    elif concept_file.exists():
+        data_file = concept_file
+    elif curriculum_file.exists():
+        data_file = curriculum_file
+    else:
+        data_file = train_file
+
     print(f"Loading GRPO training prompts from: {data_file}")
 
     prompts = []
     answers = []
     registers = []
+    concepts = []
 
     with open(data_file, "r", encoding="utf-8") as f:
         for line in f:
@@ -88,17 +100,20 @@ def load_prompts_dataset(data_dir: Path) -> Dataset:
                 continue
 
             query = f"<｜User｜>{user_text}<｜Assistant｜><think>\n"
-            ans = str(item.get("answer", ""))
-            reg = item.get("register", "symbolic_deductive")
+            ans = str(item.get("ground_truth", item.get("answer", "")))
+            reg = item.get("register", item.get("domain", "symbolic_deductive"))
+            cpt = item.get("concept", "")
 
             prompts.append(query)
             answers.append(ans)
             registers.append(reg)
+            concepts.append(cpt)
 
     return Dataset.from_dict({
         "prompt": prompts,
         "answers": answers,
         "registers": registers,
+        "concepts": concepts,
     })
 
 
@@ -210,6 +225,7 @@ def main():
             syntax_and_noise_reward_func,
             self_correction_reward_func,
             efficiency_and_bypass_reward_func,
+            concept_alignment_reward_func,
         ],
         args=training_args,
         train_dataset=raw_ds,
