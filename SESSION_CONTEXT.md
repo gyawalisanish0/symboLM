@@ -1,10 +1,10 @@
-**Project Name:** SymboLM (Version 1.1) — Adaptive Symbolic Reasoning & General Intelligence Engine  
+**Project Name:** SymboLM (Version 1.2) — Adaptive Symbolic Reasoning & General Intelligence Engine  
 **Author & Principal Architect:** Sanish Gyawali  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
 **GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
 **Target Base Model:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`  
 **Current Active Compute:** Host Workstation (Local CPU / CUDA) & Kaggle Dual Tesla T4  
-**Active Cloud Kernel:** `sanishgyawali/symbolm-stage-2-grpo-training-dual-tesla-t4` (Version 9, Status: `KernelWorkerStatus.COMPLETE`)  
+**Active Cloud Kernel:** `sanishgyawali/symbolm-stage-3-concept-grpo-training` (Status: `KernelWorkerStatus.RUNNING` on Kaggle Dual Tesla T4)  
 **Core Objective:** Reasoning compression across multiple cognitive registers—replacing verbose English CoT with an ultra-dense symbolic DSL (`→`, `∴`, `|`, `hyp`, `verify`) for deductive tasks (60–75% token reduction), while dynamically bypassing thinking for direct factual QA, managing structured state for questionnaires, and using 10-token Intent Scratchpads for fluent, empathetic human conversation.
 
 ---

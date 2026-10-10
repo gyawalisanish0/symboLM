@@ -1,0 +1,18 @@
+{
+  "id": "sanishgyawali/symbolm-stage-3-concept-grpo-training",
+  "title": "SymboLM Stage 3 Concept GRPO Training",
+  "code_file": "symboLM_stage3_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "sanishgyawali/symbolm-stage-2-grpo-training-dual-tesla-t4",
+    "sanishgyawali/symbolm-stage-1-sft-training"
+  ],
+  "model_sources": []
+}
