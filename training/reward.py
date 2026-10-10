@@ -85,8 +85,10 @@ class RewardBreakdown:
     efficiency:  float
     format_score: float
     invariant_score: float
-    length_penalty: float
-    leak_penalty: float
+    concept_score: float = 0.0
+    anti_guess_penalty: float = 0.0
+    length_penalty: float = 0.0
+    leak_penalty: float = 0.0
 
     def __str__(self) -> str:
         return (
@@ -95,6 +97,8 @@ class RewardBreakdown:
             f"eff={self.efficiency:+.2f} | "
             f"fmt={self.format_score:+.2f} | "
             f"inv={self.invariant_score:+.2f} | "
+            f"cpt={self.concept_score:+.2f} | "
+            f"noguess={self.anti_guess_penalty:+.2f} | "
             f"len={self.length_penalty:+.3f} | "
             f"leak={self.leak_penalty:+.2f}"
         )
@@ -106,6 +110,7 @@ WEIGHTS = {
     "efficiency":     0.4,    # Fraction of tokens saved (0 to 0.5 bonus)
     "format":         0.2,    # Grammar adherence (+0.2 max)
     "invariant":      0.3,    # Deterministic SymPy step verification (+0.3 / -0.3)
+    "concept":        0.4,    # Register v2.0 concept alignment bonus (+0.4 max)
     "length":         0.001,  # Per-token penalty (very mild)
     "leak":           0.3,    # English leak penalty (0 to -0.3)
 }
@@ -151,6 +156,8 @@ def compute_reward(
     prediction: str,
     ground_truth: str,
     english_reference: str | None = None,
+    expected_concept: str | None = None,
+    is_multi_step: bool = False,
     return_breakdown: bool = False,
 ) -> float | RewardBreakdown:
     """
@@ -161,6 +168,8 @@ def compute_reward(
         ground_truth:      The correct answer string.
         english_reference: If available, the English CoT for efficiency comparison.
                            If None, uses BASELINE_ENGLISH_TOKENS.
+        expected_concept:  Optional canonical mathematical concept (e.g. 'chinese_remainder').
+        is_multi_step:     If True, penalizes blind guesses without macro-planning / steps.
         return_breakdown:  If True, return RewardBreakdown instead of float.
 
     Returns:
@@ -192,14 +201,12 @@ def compute_reward(
 
     if eng_tokens > 0:
         raw_compression = 1.0 - (sym_tokens / eng_tokens)
-        # Clip to [0, 0.5] — we reward compression, but not at the expense of everything
-        # Also no reward for making it longer than English (negative compression)
+        # Clip to [0, 0.5] — reward compression, but not at the expense of everything
         r_efficiency = max(0.0, min(0.5, raw_compression))
     else:
         r_efficiency = 0.0
 
     # Only give efficiency bonus if the answer is correct
-    # (prevents model from learning to be compact but wrong)
     if not is_correct:
         r_efficiency = 0.0
 
@@ -211,11 +218,21 @@ def compute_reward(
 
     r_format = 0.0
     r_invariant = 0.0
+    r_concept = 0.0
 
     if parse_res.is_valid:
         r_format += 0.20
     else:
         r_format -= 0.15
+
+    # Register v2.0 Concept Grounding Reward
+    if parse_res.ast and parse_res.ast.plan:
+        r_concept += 0.25  # Valid macro-plan declared
+        if expected_concept:
+            cand = parse_res.ast.plan.concept.lower()
+            exp = expected_concept.lower()
+            if exp in cand or cand in exp:
+                r_concept += 0.20  # Matched domain invariant
 
     # Deterministic SymPy Step Invariant Verification
     if parse_res.ast and not parse_res.ast.is_empty:
@@ -226,35 +243,49 @@ def compute_reward(
             r_invariant = -0.30  # Hallucinated or broken intermediate arithmetic
 
     # ----------------------------------------------------------------
-    # 5. Length penalty (very mild — just breaks ties)
+    # 5. Anti-Guessing Penalty (kills the Binary Trap)
+    # ----------------------------------------------------------------
+    r_anti_guess = 0.0
+    if is_multi_step:
+        has_plan = bool(parse_res.ast and parse_res.ast.plan)
+        has_multi_steps = bool(parse_res.ast and len(parse_res.ast.steps) > 1)
+        has_bypass = "<reg:bypass>" in prediction or (parse_res.ast and parse_res.ast.register_type == "bypass")
+        # If model attempted blind 1-token guess on complex problem
+        if (sym_tokens <= 5 and not has_plan and not has_multi_steps) or has_bypass:
+            r_anti_guess = -0.80
+
+    # ----------------------------------------------------------------
+    # 6. Length penalty (very mild — just breaks ties)
     # ----------------------------------------------------------------
     r_length = -WEIGHTS["length"] * sym_tokens
 
     # ----------------------------------------------------------------
-    # 6. English leak penalty
+    # 7. English leak penalty
     # ----------------------------------------------------------------
     validation = validate_trace(symbolic_trace)
     leak_score = validation.english_leak_score  # 0 = pure symbolic, 1 = pure English
     r_leak = -WEIGHTS["leak"] * leak_score
 
     # ----------------------------------------------------------------
-    # 7. Trailing Noise & Syntax Hallucination Penalty
+    # 8. Trailing Noise & Syntax Hallucination Penalty
     # ----------------------------------------------------------------
     r_noise = detect_trailing_noise(prediction)
 
     # ----------------------------------------------------------------
-    # 8. Compact Self-Correction Bonus
+    # 9. Compact Self-Correction Bonus
     # ----------------------------------------------------------------
     r_self_correct = detect_self_correction(prediction, is_correct)
 
     # ----------------------------------------------------------------
-    # 9. Combine
+    # 10. Combine
     # ----------------------------------------------------------------
     total = (
         WEIGHTS["correctness"] * r_correctness
         + WEIGHTS["efficiency"] * r_efficiency
         + WEIGHTS["format"]    * r_format
         + WEIGHTS["invariant"] * r_invariant
+        + WEIGHTS["concept"]   * r_concept
+        + r_anti_guess           # heavy penalty if blind guess
         + r_length               # already weighted (per-token)
         + r_leak                 # already weighted
         + r_noise                # heavy penalty if noisy (-1.0)
@@ -267,6 +298,8 @@ def compute_reward(
         efficiency= WEIGHTS["efficiency"]  * r_efficiency,
         format_score=WEIGHTS["format"]     * r_format,
         invariant_score=WEIGHTS["invariant"] * r_invariant,
+        concept_score=WEIGHTS["concept"]   * r_concept,
+        anti_guess_penalty=r_anti_guess,
         length_penalty=r_length,
         leak_penalty=r_leak,
     )
@@ -393,11 +426,12 @@ def efficiency_and_bypass_reward_func(prompts, completions, answers, registers=N
         is_corr = answers_match(extracted, ans)
 
         # Register: Factual Bypass
-        if reg == "factual_bypass":
+        if reg in ("factual_bypass", "bypass"):
+            has_bypass_tag = bool(re.search(r"<reg:bypass>(.*?)</reg:bypass>", comp, re.DOTALL))
             think_match = re.search(r"<think>(.*?)</think>", comp, re.DOTALL)
             think_content = think_match.group(1).strip() if think_match else ""
-            if len(think_content) == 0:
-                rewards.append(0.8 if is_corr else 0.0)
+            if has_bypass_tag or len(think_content) == 0:
+                rewards.append(0.9 if is_corr else -0.3)
             elif len(think_content) < 20:
                 rewards.append(0.2 if is_corr else -0.2)
             else:
@@ -405,22 +439,54 @@ def efficiency_and_bypass_reward_func(prompts, completions, answers, registers=N
             continue
 
         # Register: Intent Dialogue
-        if reg == "intent_dialogue":
-            has_intent_tag = bool(re.search(r"intent:\s*[^|\n]+", comp))
+        if reg in ("intent_dialogue", "intent"):
+            has_intent_tag = bool(re.search(r"(?:<reg:intent>|intent:)\s*[^|\n<]+", comp))
             if has_intent_tag:
                 rewards.append(0.6)
             else:
                 rewards.append(-0.3)
             continue
 
-        # Register: Symbolic Deductive (Standard efficiency)
+        # Register: Concept Math / Symbolic Deductive
+        # Penalize attempted zero-shot bypass on complex problems
+        has_bypass_tag = bool(re.search(r"<reg:bypass>", comp))
+        think_match = re.search(r"<think>(.*?)</think>", comp, re.DOTALL)
+        think_content = think_match.group(1).strip() if think_match else ""
+        if has_bypass_tag or (len(think_content) == 0 and not is_corr):
+            rewards.append(-0.8)  # Anti-guess penalty
+            continue
+
         if not is_corr:
             rewards.append(0.0)
             continue
+
+        # Reward presence of valid <reg:plan>
+        plan_bonus = 0.25 if ("<reg:plan>" in comp) else 0.0
+
         toks = _estimate_tokens(comp)
         baseline = 60
         comp_ratio = max(0.0, min(0.6, (baseline - toks) / baseline))
-        rewards.append(float(comp_ratio * 0.5))
+        rewards.append(float(comp_ratio * 0.5 + plan_bonus))
+    return rewards
+
+
+def concept_alignment_reward_func(prompts, completions, answers, concepts=None, **kwargs) -> list[float]:
+    """Awards bonus for declaring valid Register v2.0 concept macro-plans."""
+    rewards = []
+    srl_parser = SRLParser()
+    exp_concepts = concepts if concepts else [None] * len(completions)
+    for comp, exp_c in zip(completions, exp_concepts):
+        res = srl_parser.parse(comp)
+        if res.ast and res.ast.plan:
+            bonus = 0.30
+            if exp_c:
+                cand = res.ast.plan.concept.lower()
+                exp = exp_c.lower()
+                if exp in cand or cand in exp:
+                    bonus += 0.20
+            rewards.append(bonus)
+        else:
+            rewards.append(0.0)
     return rewards
 
 

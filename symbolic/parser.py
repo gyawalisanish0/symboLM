@@ -21,6 +21,7 @@ from symbolic.ast import (
     Diagnostic,
     ErrorLevel,
     IntentNode,
+    PlanNode,
     StateFrameNode,
     StepNode,
     TraceNode,
@@ -53,12 +54,32 @@ class SRLParser:
         diagnostics: List[Diagnostic] = []
         text = text.strip()
 
-        # 1. Extract <ans>...</ans>
+        # 1. Extract <ans>...</ans> or <reg:bypass>...</reg:bypass>
         ans_val: Optional[str] = None
         ans_match = re.search(r"<ans>(.*?)</ans>", text, re.DOTALL)
         if ans_match:
             ans_val = ans_match.group(1).strip()
         ans_node = AnswerNode(raw_text=ans_val or "", value=ans_val or "") if ans_val else None
+
+        # Handle Register v2.0 Factual Bypass (<reg:bypass>)
+        bypass_match = re.search(r"<reg:bypass>(.*?)</reg:bypass>", text, re.DOTALL)
+        if bypass_match:
+            b_val = bypass_match.group(1).strip()
+            ast = TraceNode(raw_text=b_val, is_empty=True, register_type="bypass", answer=AnswerNode(raw_text=b_val, value=b_val))
+            return ParseResult(ast=ast, is_valid=True, diagnostics=diagnostics, extracted_answer=b_val)
+
+        # Handle Register v2.0 Dialogue Intent (<reg:intent>)
+        intent_match = re.search(r"<reg:intent>(.*?)</reg:intent>", text, re.DOTALL)
+        if intent_match:
+            intent_node = self._parse_intent_directive(intent_match.group(1).strip())
+            ast = TraceNode(
+                raw_text=intent_match.group(1).strip(),
+                steps=[intent_node],
+                is_intent_only=True,
+                register_type="intent",
+                answer=ans_node
+            )
+            return ParseResult(ast=ast, is_valid=True, diagnostics=diagnostics, extracted_answer=ans_val)
 
         # 2. Extract <think>...</think>
         think_match = re.search(r"<think>(.*?)</think>", text, re.DOTALL)
@@ -71,12 +92,23 @@ class SRLParser:
         else:
             trace_content = think_match.group(1).strip()
 
+        # Handle Register v2.0 Macro-Plan (<reg:plan>)
+        plan_node: Optional[PlanNode] = None
+        plan_match = re.search(r"<reg:plan>(.*?)</reg:plan>", text, re.DOTALL)
+        if plan_match:
+            plan_node = self._parse_plan_directive(plan_match.group(1).strip())
+
+        # Handle Register v2.0 Deductive Execution (<reg:deduce>)
+        deduce_match = re.search(r"<reg:deduce>(.*?)</reg:deduce>", text, re.DOTALL)
+        if deduce_match:
+            trace_content = deduce_match.group(1).strip()
+
         # Handle empty thinking block (Factual zero-shot bypass)
-        if not trace_content:
+        if not trace_content and not plan_node:
             ast = TraceNode(raw_text="", is_empty=True, answer=ans_node)
             return ParseResult(ast=ast, is_valid=True, diagnostics=diagnostics, extracted_answer=ans_val)
 
-        # 3. Check for Intent Directive (Interpersonal dialogue register)
+        # 3. Check for legacy Intent Directive (Interpersonal dialogue register)
         if trace_content.startswith("intent:") or "intent:" in trace_content:
             intent_node = self._parse_intent_directive(trace_content)
             ast = TraceNode(
@@ -93,6 +125,21 @@ class SRLParser:
 
         if ast:
             ast.answer = ans_node
+            if plan_node:
+                ast.plan = plan_node
+                ast.steps.insert(0, plan_node)
+                ast.register_type = "plan_deduce"
+            elif deduce_match:
+                ast.register_type = "deduce"
+
+            # Parse optional <reg:verify> block
+            verify_match = re.search(r"<reg:verify>(.*?)</reg:verify>", text, re.DOTALL)
+            if verify_match:
+                v_content = verify_match.group(1).strip()
+                v_step = self._parse_single_step(v_content, len(ast.steps))
+                if isinstance(v_step, VerifyNode):
+                    ast.steps.append(v_step)
+
             # Check answer alignment if both present
             if ast.conclusion and ans_node:
                 if ast.conclusion.value.strip() != ans_node.value.strip():
@@ -159,6 +206,13 @@ class SRLParser:
     def _parse_single_step(self, step_str: str, index: int) -> Optional[StepNode]:
         """Classifies and parses an individual step into a typed StepNode."""
         step_str = step_str.strip()
+
+        # 0. PlanNode: <reg:plan>...</reg:plan> or plan(...) or concept: ...
+        if "<reg:plan>" in step_str or step_str.startswith("plan(") or step_str.startswith("concept:"):
+            clean_plan = step_str.replace("<reg:plan>", "").replace("</reg:plan>", "").strip()
+            if clean_plan.startswith("plan(") and clean_plan.endswith(")"):
+                clean_plan = clean_plan[5:-1].strip()
+            return self._parse_plan_directive(clean_plan, index)
 
         # 1. Declaration: let(var = expr)
         let_match = re.match(r"let\s*\(\s*([a-zA-Z0-9_]+)\s*=\s*(.+?)\s*\)$", step_str)
@@ -246,6 +300,40 @@ class SRLParser:
             intent=intent_val,
             strategy=strat_val,
             tone=tone_val,
+        )
+
+    def _parse_plan_directive(self, content: str, index: int = 0) -> PlanNode:
+        """Parses a macro-plan block: concept: tag | theorem: tag | strategy: tag."""
+        parts = [p.strip() for p in content.split("|")]
+        concept_val = ""
+        theorem_val = None
+        strat_val = None
+        metadata = {}
+
+        for p in parts:
+            if ":" in p:
+                k, v = p.split(":", 1)
+                k_norm = k.strip().lower()
+                v_norm = v.strip()
+                if k_norm == "concept":
+                    concept_val = v_norm
+                elif k_norm in ("theorem", "identity", "recurrence", "formula"):
+                    theorem_val = v_norm
+                elif k_norm in ("strategy", "method"):
+                    strat_val = v_norm
+                else:
+                    metadata[k.strip()] = v_norm
+            elif "=" in p:
+                k, v = p.split("=", 1)
+                metadata[k.strip()] = v.strip()
+
+        return PlanNode(
+            raw_text=content,
+            step_index=index,
+            concept=concept_val or content,
+            theorem=theorem_val,
+            strategy=strat_val,
+            metadata=metadata,
         )
 
 

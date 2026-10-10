@@ -111,15 +111,64 @@ THINK_CLOSE   = "</think>"
 ANS_OPEN      = "<ans>"
 ANS_CLOSE     = "</ans>"
 
+# Register v2.0 Cognitive Architecture Delimiters
+REG_PLAN_OPEN     = "<reg:plan>"
+REG_PLAN_CLOSE    = "</reg:plan>"
+REG_DEDUCE_OPEN   = "<reg:deduce>"
+REG_DEDUCE_CLOSE  = "</reg:deduce>"
+REG_VERIFY_OPEN   = "<reg:verify>"
+REG_VERIFY_CLOSE  = "</reg:verify>"
+REG_BYPASS_OPEN   = "<reg:bypass>"
+REG_BYPASS_CLOSE  = "</reg:bypass>"
+REG_INTENT_OPEN   = "<reg:intent>"
+REG_INTENT_CLOSE  = "</reg:intent>"
+
+REGISTER_TOKENS = [
+    REG_PLAN_OPEN, REG_PLAN_CLOSE,
+    REG_DEDUCE_OPEN, REG_DEDUCE_CLOSE,
+    REG_VERIFY_OPEN, REG_VERIFY_CLOSE,
+    REG_BYPASS_OPEN, REG_BYPASS_CLOSE,
+    REG_INTENT_OPEN, REG_INTENT_CLOSE,
+]
+
 ALL_SPECIAL_TOKENS = list(LOGICAL_OPS.keys()) + [
     THINK_OPEN, THINK_CLOSE, ANS_OPEN, ANS_CLOSE
-]
+] + REGISTER_TOKENS
 
 # ---------------------------------------------------------------------------
 # Pattern library — common reasoning idioms in the DSL
 # ---------------------------------------------------------------------------
 
 PATTERNS = {
+    "concept_plan": (
+        "<reg:plan>concept:{concept} | theorem:{theorem} | strategy:{strategy}</reg:plan>",
+        "Macro-level conceptual invariant planning"
+    ),
+    "polynomial_invariant": (
+        "<reg:plan>concept:polynomial_invariant | identity:{identity} | target:{target}</reg:plan> | "
+        "<reg:deduce>{substitutions} ∴ ans={ans}</reg:deduce>",
+        "Symmetric polynomial invariant reduction"
+    ),
+    "modular_crt": (
+        "<reg:plan>concept:chinese_remainder | moduli:[{moduli}] | method:modular_inverses</reg:plan> | "
+        "<reg:deduce>{congruences} ∴ ans={ans}</reg:deduce>",
+        "Chinese Remainder Theorem modular system"
+    ),
+    "legendre_valuation": (
+        "<reg:plan>concept:legendre_formula | prime:{p} | n:{n} | series:Σ⌊{n}/{p}^k⌋</reg:plan> | "
+        "<reg:deduce>{terms} ∴ ans={ans}</reg:deduce>",
+        "Prime power valuation in factorials via Legendre"
+    ),
+    "derangement_recurrence": (
+        "<reg:plan>concept:derangement | n:{n} | recurrence:D_n=(n-1)(D_{n-1}+D_{n-2})</reg:plan> | "
+        "<reg:deduce>{steps} ∴ ans={ans}</reg:deduce>",
+        "Derangement count recurrence"
+    ),
+    "inradius_geometry": (
+        "<reg:plan>concept:inradius_geometry | theorem:Area=r*s | semiperimeter:s=P/2</reg:plan> | "
+        "<reg:deduce>{steps} ∴ ans={ans}</reg:deduce>",
+        "Geometric invariant connecting inradius, perimeter, and area"
+    ),
     "arithmetic_chain": (
         "hyp(start={v}) | {v}+={delta}→{v}={r1} | {v}-={d2}→{v}={r2} ∴ ans={r2}",
         "Chain of arithmetic operations on a variable"
@@ -314,15 +363,38 @@ def validate_trace(trace: str) -> ValidationResult:
 
 
 def extract_answer(text: str) -> str | None:
-    """Extract the final answer from a full model output (including <ans> tags or ∴ ans=)."""
-    # Try <ans> tags first (most reliable)
+    """Extract the final answer from a full model output (including <ans>, <reg:bypass>, or ∴ ans=)."""
+    # 1. Try explicit <ans> tags
     m = re.search(r"<ans>(.*?)</ans>", text, re.DOTALL)
     if m:
         return m.group(1).strip()
-    # Try ∴ ans= pattern
-    m = re.search(r"∴\s*ans\s*=\s*([^\s|✓✗\n<]+)", text)
+
+    # 2. Try <reg:bypass> tags
+    m = re.search(r"<reg:bypass>(.*?)</reg:bypass>", text, re.DOTALL)
     if m:
         return m.group(1).strip()
+
+    # 3. Try ∴ ans= pattern
+    m = re.search(r"(?:∴\s*)?ans\s*=\s*([^\s|✓✗\n<@]+)", text)
+    if m:
+        return m.group(1).strip()
+
+    # 4. Check if text is a direct standalone answer after clean
+    clean = text.strip()
+    if "</think>" in clean:
+        clean = clean.split("</think>")[-1].strip()
+    if "</reg:deduce>" in clean:
+        after_reg = clean.split("</reg:deduce>")[-1].strip()
+        if after_reg:
+            m = re.search(r"(?:∴\s*)?ans\s*=\s*([^\s|✓✗\n<@]+)", after_reg)
+            if m:
+                return m.group(1).strip()
+
+    # Match direct scalar number/boolean at start of clean text
+    m_direct = re.match(r"^([+-]?\d+(?:\.\d+)?|[Tt]rue|[Ff]alse|[Nn]one)(?:[^0-9a-zA-Z.]|$)", clean)
+    if m_direct:
+        return m_direct.group(1).strip()
+
     return None
 
 

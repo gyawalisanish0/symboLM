@@ -80,6 +80,15 @@ class IntentNode(StepNode):
 
 
 @dataclass
+class PlanNode(StepNode):
+    """Represents macro-concept planning: concept: tag | theorem: tag | strategy: tag."""
+    concept: str = ""
+    theorem: Optional[str] = None
+    strategy: Optional[str] = None
+    metadata: Dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
 class CaseNode(StepNode):
     """Represents a branch split: case(cond)[steps]."""
     condition: str = ""
@@ -102,8 +111,10 @@ class AnswerNode(ASTNode):
 class TraceNode(ASTNode):
     """Root node of a parsed SRL trace."""
     steps: List[StepNode] = field(default_factory=list)
+    plan: Optional[PlanNode] = None
     conclusion: Optional[ConclusionNode] = None
     answer: Optional[AnswerNode] = None
+    register_type: Optional[str] = None
     is_empty: bool = False
     is_intent_only: bool = False
 
@@ -119,3 +130,7 @@ class TraceNode(ASTNode):
 
     def get_verifications(self) -> List[VerifyNode]:
         return [s for s in self.steps if isinstance(s, VerifyNode)]
+
+    def get_plans(self) -> List[PlanNode]:
+        return [s for s in self.steps if isinstance(s, PlanNode)]
+

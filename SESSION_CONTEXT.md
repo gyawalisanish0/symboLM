@@ -35,9 +35,39 @@
 
 ---
 
-## 📌 Next Steps (Deployment & Grant Submission)
+## ⚡ Register v2.0 & Olympiad Concept Math Alignment (Completed Oct 10, 2026)
 
-1. **LoRA Adapter Merge:** Merge `checkpoints/grpo_adapter` into base weights to produce standalone unified checkpoint.
-2. **GGUF Export (`Q5_K_M`):** Quantize the unified model for ultra-fast edge deployment (>40 tok/s on local CPU).
-3. **Record 2-Minute Unedited Video:** Record brief bedside workstation overview demonstrating working compiler receipts and radical transparency.
-4. **Submit Emergent Ventures Application:** Finalize application text targeting $15k–$25k unrestricted fellowship.
+### 1. Architectural Upgrade: Register v2.0
+- **Problem Solved:** Overcame the "Binary Trap" where complex competition problems triggered blind 1-token guesses or verbose base CoT fallback.
+- **Hierarchy Introduced:**
+  - `<reg:plan>`: 8–16 tokens declaring domain invariants, theorems, and reduction strategy.
+  - `<reg:deduce>`: 10–35 tokens of pure symbolic AST execution (`∴ ans = value`).
+  - `<reg:verify>`: 3–8 tokens verifying bounds, parity, and invariants (`verify(...) ✓`).
+  - `<reg:bypass>`: 1–3 tokens for atomic facts.
+  - `<reg:intent>`: 8–15 tokens for interpersonal dialogue.
+- **AST Compiler Integration:** Added `PlanNode(StepNode)` to `symbolic/ast.py`, `symbolic/grammar.py`, and `symbolic/parser.py`. Passed 100% of unit tests with zero regressions.
+
+### 2. Concept Mathematics Curriculum (`data/concept_math_curriculum.jsonl`)
+- **Generated 1,400 Verified Samples** across 7 core competition invariant families:
+  1. *Polynomial Invariants & Symmetric Powers* ($x+1/x=k \implies x^n+1/x^n$)
+  2. *Modular Congruence & Chinese Remainder Theorem* (CRT with Bézout reduction)
+  3. *Modular Orders & Euler's Totient Reductions* ($a^E \pmod m$)
+  4. *Legendre's Formula for Factorial Prime Valuations* ($\nu_p(n!) = \sum \lfloor n/p^k \rfloor$)
+  5. *Combinatorial Recurrences & Derangements* ($D_n = (n-1)(D_{n-1}+D_{n-2})$)
+  6. *Geometric Invariants* (Right triangle inradius $\text{Area} = r \cdot s$, $s = P/2$)
+  7. *Diophantine Factorization & Work Rates* ($x^2 - y^2 = N$, harmonic pump schedules)
+
+### 3. Anti-Guessing Reward Calibration (`training/reward.py`)
+- **Anti-Guessing Penalty:** Imposed an immediate **$-0.80$ penalty** on multi-step problems if the model attempts a 1-token blind guess or bypass without reasoning.
+- **Concept Alignment Reward:** Awarded **$+0.25$ to $+0.45$** when `<reg:plan>` declares a valid invariant/theorem matching the domain.
+- **All Unit Tests Verified:** `tests/test_register_v2.py` and `tests/test_parser.py` passing 100%.
+
+---
+
+## 📌 Next Steps (Training & Grant Submission)
+
+1. **Stage 2.5 / Stage 3 GRPO Training Run:** Train the policy on `data/concept_math_curriculum.jsonl` using Dual Tesla T4 GPUs on Kaggle or Colab to cement Register v2.0 planning.
+2. **LoRA Adapter Merge & GGUF Export:** Export `Q5_K_M` for local edge CPU inference.
+3. **Record 2-Minute Workstation Overview:** Short video showcasing working compiler receipts from bedside workstation.
+4. **Submit Emergent Ventures Application:** Submit formal grant dossier to Dr. Tyler Cowen ($15k–$25k fellowship).
+
