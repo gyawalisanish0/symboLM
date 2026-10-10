@@ -67,6 +67,8 @@ def parse_args():
     parser.add_argument("--tpu", action="store_true", help="Force TPU v5e execution via PyTorch/XLA")
     parser.add_argument("--full_finetune", action="store_true", help="Full fine-tuning instead of LoRA (TPU)")
     parser.add_argument("--no_quant", action="store_true", help="Disable 4-bit quantization on GPU (use unquantized fp16/bf16 LoRA for seamless TPU checkpoint resume)")
+    parser.add_argument("--train_file", type=str, default=None, help="Explicit path to training JSONL file")
+    parser.add_argument("--val_file", type=str, default=None, help="Explicit path to validation JSONL file")
     parser.add_argument("--drive_backup", type=str, default=config.colab_drive_checkpoint)
     parser.add_argument("--resume_from_checkpoint", type=str, default=None)
     return parser.parse_args()
@@ -179,11 +181,19 @@ def main():
         model.print_trainable_parameters()
 
     # 3. Datasets
-    train_path = Path(args.data_dir) / "train.jsonl"
-    val_path = Path(args.data_dir) / "val.jsonl"
+    if args.train_file:
+        train_path = Path(args.train_file)
+    else:
+        train_path = Path(args.data_dir) / "train.jsonl"
+
+    if args.val_file:
+        val_path = Path(args.val_file)
+    else:
+        val_path = Path(args.data_dir) / "val.jsonl"
+
     if not train_path.exists():
         raise FileNotFoundError(
-            f"Dataset not found at {train_path}. Run 'python -m data.build_dataset' first!"
+            f"Dataset not found at {train_path}. Please check data path!"
         )
 
     print(f"Loading dataset from {train_path}...")

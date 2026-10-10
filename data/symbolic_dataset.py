@@ -46,23 +46,40 @@ class SymbolicSFTDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         item = self.records[idx]
-        messages = item["messages"]
+        if "full_target" in item:
+            prompt_text = item.get("prompt", "")
+            target_text = item.get("full_target", "")
+            if target_text.startswith("<think>\n"):
+                target_body = target_text[len("<think>\n"):]
+            elif target_text.startswith("<think>"):
+                target_body = target_text[len("<think>"):]
+            else:
+                target_body = target_text
 
-        # Formulate prompt vs full text
-        prompt_msgs = messages[:-1]
-        full_msgs = messages
+            prompt_str = f"<｜begin of sentence｜><｜User｜>{prompt_text}<｜Assistant｜><think>\n"
+            full_str = f"{prompt_str}{target_body}<｜end of sentence｜>"
+        elif "messages" in item:
+            messages = item["messages"]
+            prompt_msgs = messages[:-1]
+            asst_content = messages[-1].get("content", "")
+            user_content = prompt_msgs[-1].get("content", "") if prompt_msgs else ""
 
-        # Format using tokenizer's chat template or fallback
-        if getattr(self.tokenizer, "chat_template", None):
-            prompt_str = self.tokenizer.apply_chat_template(
-                prompt_msgs, add_generation_prompt=True, tokenize=False
-            )
-            full_str = self.tokenizer.apply_chat_template(
-                full_msgs, tokenize=False
-            )
+            if "<think>" in asst_content:
+                target_body = asst_content.replace("<think>\n", "").replace("<think>", "")
+                prompt_str = f"<｜begin of sentence｜><｜User｜>{user_content}<｜Assistant｜><think>\n"
+                full_str = f"{prompt_str}{target_body}<｜end of sentence｜>"
+            elif getattr(self.tokenizer, "chat_template", None):
+                prompt_str = self.tokenizer.apply_chat_template(
+                    prompt_msgs, add_generation_prompt=True, tokenize=False
+                )
+                full_str = self.tokenizer.apply_chat_template(
+                    messages, tokenize=False
+                )
+            else:
+                prompt_str = f"<｜begin of sentence｜><｜User｜>{user_content}<｜Assistant｜><think>\n"
+                full_str = f"{prompt_str}{asst_content}<｜end of sentence｜>"
         else:
-            prompt_str = f"<|im_start|>system\n{prompt_msgs[0]['content']}<|im_end|>\n<|im_start|>user\n{prompt_msgs[1]['content']}<|im_end|>\n<|im_start|>assistant\n"
-            full_str = f"{prompt_str}{messages[-1]['content']}<|im_end|>\n"
+            raise ValueError(f"Unrecognized dataset record at index {idx}: {item.keys()}")
 
         prompt_encoded = self.tokenizer(
             prompt_str,

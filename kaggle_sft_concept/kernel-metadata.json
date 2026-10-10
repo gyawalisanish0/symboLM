@@ -1,0 +1,15 @@
+{
+  "id": "sanishgyawali/symbolm-stage-2-5-concept-sft-seeding",
+  "title": "SymboLM Stage 2.5 Concept SFT Seeding",
+  "code_file": "symboLM_sft_concept_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
