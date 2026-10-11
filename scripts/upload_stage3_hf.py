@@ -6,7 +6,7 @@ from huggingface_hub import HfApi
 def upload_stage3():
     api = HfApi()
     repo_id = "gyawalisanish0/symboLM-checkpoints"
-    local_dir = Path("checkpoints/stage3_adapter")
+    local_dir = Path("checkpoints/stage3_concept_adapter")
     
     files_to_upload = [
         "adapter_config.json",
