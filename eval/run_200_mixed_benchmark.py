@@ -165,25 +165,10 @@ def run_evaluation(args):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Device       : {device.upper()} ({torch.cuda.get_device_name(0) if device == 'cuda' else 'CPU'})")
 
-    # Load Tokenizer
-    print("\n[1/3] Loading Tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained(args.base_model, trust_remote_code=True)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
-    # Load Base Model
-    print("[2/3] Loading Base Model in float16...")
-    dtype = torch.float16 if device == "cuda" else torch.float32
-    base_model = AutoModelForCausalLM.from_pretrained(
-        args.base_model,
-        torch_dtype=dtype,
-        device_map="auto" if device == "cuda" else None,
-        trust_remote_code=True
-    )
-
-    # Load PEFT Adapter
-    print(f"[3/3] Loading Stage 3.5 Concept GRPO Adapter from: {adapter_dir}...")
-    model = PeftModel.from_pretrained(base_model, str(adapter_dir))
+    # Load Model and Adapter via canonical load_symbo_model
+    print(f"\n[1/2] Loading Base Model & Stage 3.5 Adapter from: {adapter_dir}...")
+    from inference.generate import load_symbo_model
+    model, tokenizer = load_symbo_model(args.base_model, str(adapter_dir))
     model.eval()
     print("[READY] Model & Adapter successfully initialized for inference!\n")
 
