@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>SymboLM — Adaptive Symbolic Reasoning & General Intelligence Engine</title>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -22,7 +23,8 @@
           },
           animation: {
             'pulse-glow': 'pulseGlow 3s infinite ease-in-out',
-            'scanline': 'scanline 4s linear infinite',
+            'scanline': 'scanline 5s linear infinite',
+            'float-hint': 'floatHint 2s infinite ease-in-out',
           }
         }
       }
@@ -30,12 +32,16 @@
   </script>
   <style>
     @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.35), inset 0 0 15px rgba(6, 182, 212, 0.15); }
-      50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), inset 0 0 25px rgba(168, 85, 247, 0.25); }
+      0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.35), inset 0 0 10px rgba(6, 182, 212, 0.15); }
+      50% { box-shadow: 0 0 35px rgba(168, 85, 247, 0.6), inset 0 0 20px rgba(168, 85, 247, 0.25); }
     }
     @keyframes scanline {
       0% { transform: translateY(-100%); }
       100% { transform: translateY(1200%); }
+    }
+    @keyframes floatHint {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
     }
     .neon-border {
       animation: pulseGlow 4s infinite ease-in-out;
@@ -44,333 +50,341 @@
       content: "";
       position: absolute;
       top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.7), transparent);
-      animation: scanline 5s linear infinite;
+      background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.6), transparent);
+      animation: scanline 6s linear infinite;
       pointer-events: none;
     }
-    /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    /* Touch-friendly scrolling & hidden scrollbar */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: #0b0f19; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    
     .glass-card {
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(51, 65, 85, 0.6);
     }
-    .glass-card-active {
-      background: rgba(30, 41, 59, 0.85);
-      border-color: rgba(6, 182, 212, 0.8);
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+    
+    /* Mobile safe-area support */
+    .safe-bottom {
+      padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+    }
+    .safe-top {
+      padding-top: max(0.5rem, env(safe-area-inset-top));
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 font-sans select-none overflow-x-hidden">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 font-sans select-none overflow-x-hidden touch-manipulation">
 
-  <!-- Floating Control Bar (Top) -->
-  <header class="fixed top-3 z-50 flex items-center space-x-2 sm:space-x-3 bg-slate-900/90 border border-slate-700/80 rounded-full px-3 sm:px-5 py-1.5 shadow-2xl backdrop-blur-md">
-    <div class="flex items-center space-x-1.5 border-r border-slate-700 pr-3">
+  <!-- ======================================================== -->
+  <!-- Floating Header Controls (Thumb-friendly & Responsive)    -->
+  <!-- ======================================================== -->
+  <header class="fixed top-2 sm:top-3 z-50 flex items-center justify-between w-[96%] max-w-4xl bg-slate-900/95 border border-slate-700/80 rounded-full px-3.5 sm:px-5 py-1.5 shadow-2xl backdrop-blur-md safe-top">
+    <!-- Brand Title -->
+    <div class="flex items-center space-x-2">
       <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
       <span class="font-black text-xs sm:text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">SymboLM</span>
-    </div>
-    
-    <!-- Aspect Ratio Toggle -->
-    <div class="flex items-center space-x-1">
-      <button id="btn-widescreen" onclick="setMode('widescreen')" class="text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full bg-cyan-500 font-bold text-slate-950 transition" title="16:9 Presentation Deck">🖥️ Desktop</button>
-      <button id="btn-tiktok" onclick="setMode('tiktok')" class="text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full text-slate-400 hover:text-white transition" title="9:16 Vertical Video / Mobile">📱 Mobile 9:16</button>
+      <span class="text-[10px] font-mono text-cyan-300 hidden md:inline bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">SRL v1.0</span>
     </div>
 
-    <!-- Quick Slide Selector Dropdown -->
-    <select id="slide-jump" onchange="goToSlide(parseInt(this.value))" class="bg-slate-800 text-[11px] sm:text-xs text-slate-200 border border-slate-700 rounded-md px-2 py-0.5 outline-none focus:border-cyan-400 hidden sm:block">
-      <option value="1">1. The Token Inflation Crisis</option>
-      <option value="2">2. Register v2.0 Architecture</option>
-      <option value="3">3. Live Head-to-Head Race</option>
-      <option value="4">4. Proofs vs. Stories</option>
-      <option value="5">5. Empirical Training Receipts</option>
-      <option value="6">6. Cognitive Register Deep-Dive</option>
-      <option value="7">7. Scaling to 20B & 70B</option>
-      <option value="8">8. Conceived from Bed in Nepal</option>
-    </select>
+    <!-- Center Mode & Quick Navigation -->
+    <div class="flex items-center space-x-1.5 sm:space-x-2">
+      <button id="btn-widescreen" onclick="setMode('widescreen')" class="text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full text-slate-400 hover:text-white transition" title="Widescreen Mode">🖥️ Deck</button>
+      <button id="btn-tiktok" onclick="setMode('tiktok')" class="text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full text-slate-400 hover:text-white transition" title="Phone 9:16 Mode">📱 Mobile</button>
+      
+      <!-- Slide Selector Dropdown -->
+      <select id="slide-jump" onchange="goToSlide(parseInt(this.value))" class="bg-slate-800 text-[10px] sm:text-xs text-slate-200 border border-slate-700 rounded-md px-1.5 py-1 outline-none focus:border-cyan-400 max-w-[120px] sm:max-w-[200px] truncate">
+        <option value="1">1. Token Inflation</option>
+        <option value="2">2. Register v2.0</option>
+        <option value="3">3. Head-to-Head Race</option>
+        <option value="4">4. Proofs vs Stories</option>
+        <option value="5">5. Training Receipts</option>
+        <option value="6">6. Register Bench</option>
+        <option value="7">7. 20B / 70B Scale</option>
+        <option value="8">8. Story from Bed</option>
+      </select>
+    </div>
+
+    <!-- Author Attribution -->
+    <div class="flex items-center">
+      <span class="text-[10px] sm:text-xs font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-cyan-300 truncate max-w-[100px] sm:max-w-none">
+        By <strong class="text-white">Sanish</strong>
+      </span>
+    </div>
   </header>
 
-  <!-- Presentation Deck Container -->
-  <main id="deck-container" class="relative transition-all duration-500 w-[960px] max-w-[96vw] h-[640px] max-h-[88vh] rounded-3xl bg-slate-900/90 border-2 border-slate-800 shadow-2xl flex flex-col overflow-hidden scanline-effect neon-border mt-10">
+  <!-- ======================================================== -->
+  <!-- Main Presentation Deck Container                        -->
+  <!-- ======================================================== -->
+  <main id="deck-container" class="relative transition-all duration-300 w-full max-w-md sm:max-w-4xl h-[calc(100dvh-5.5rem)] sm:h-[660px] rounded-2xl sm:rounded-3xl bg-slate-900/95 border-2 border-slate-800 shadow-2xl flex flex-col overflow-hidden scanline-effect neon-border mt-12 sm:mt-12 mb-1">
 
-    <!-- Top Status Bar & Progress Indicator -->
-    <div class="h-1.5 w-full bg-slate-800 flex">
+    <!-- Progress Bar (Top) -->
+    <div class="h-1.5 w-full bg-slate-800 flex shrink-0">
       <div id="slide-progress" class="h-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-500 transition-all duration-300 w-[12.5%]"></div>
     </div>
 
-    <!-- Deck Header -->
-    <div class="px-5 py-3 flex justify-between items-center border-b border-slate-800/80 bg-slate-950/40">
-      <div class="flex items-center space-x-2">
-        <span class="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest" id="deck-topic-tag">THE INFLATION CRISIS</span>
-        <span class="text-slate-600 hidden sm:inline">•</span>
-        <span class="text-[11px] text-slate-400 font-mono hidden sm:inline">Adaptive Symbolic Reasoning Language</span>
+    <!-- Slide Header Bar -->
+    <div class="px-3.5 sm:px-5 py-2 sm:py-2.5 flex justify-between items-center border-b border-slate-800/80 bg-slate-950/60 shrink-0">
+      <div class="flex items-center space-x-2 truncate">
+        <span class="text-[11px] sm:text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider truncate" id="deck-topic-tag">THE INFLATION CRISIS</span>
       </div>
-      <div class="flex items-center space-x-2">
-        <span class="text-[10px] sm:text-xs font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-cyan-300">
-          Architect: <strong class="text-white">Sanish Gyawali</strong>
-        </span>
+      <!-- Swipe Hint Badge (Mobile only, auto-fades) -->
+      <div id="swipe-hint" class="flex items-center space-x-1 text-[10px] text-cyan-300/80 bg-cyan-950/60 border border-cyan-800/50 px-2 py-0.5 rounded-full animate-float-hint">
+        <span>👆 Swipe</span>
       </div>
     </div>
 
-    <!-- Slides Viewport (Single Active Slide Visible) -->
-    <div class="flex-1 p-4 sm:p-6 flex flex-col justify-between overflow-y-auto relative">
+    <!-- Slide Viewport (Scrollable if needed, responsive) -->
+    <div id="slide-viewport" class="flex-1 p-3.5 sm:p-6 flex flex-col justify-between overflow-y-auto overflow-x-hidden relative">
 
       <!-- ========================================== -->
       <!-- SLIDE 1: The Token Inflation Tax Crisis    -->
       <!-- ========================================== -->
-      <section id="slide-1" class="slide-pane flex flex-col justify-between h-full space-y-4">
-        <div class="text-center space-y-2">
-          <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold uppercase tracking-wider">
-            <span>⚠️</span>
-            <span>The Hidden Flaw in Modern AI Reasoning</span>
+      <section id="slide-1" class="slide-pane flex flex-col justify-between h-full space-y-3 sm:space-y-4">
+        <div class="text-center space-y-1.5">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[11px] font-bold uppercase tracking-wider">
+            <span>⚠️</span> <span>The Hidden Flaw in AI Reasoning</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-black leading-tight text-white">
+          <h1 class="text-xl sm:text-3xl font-black leading-tight text-white">
             Why Does AI Waste <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-rose-400">75% of Its Compute</span> Talking to Itself?
           </h1>
-          <p class="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto">
-            Reasoning models like DeepSeek-R1, Mistral Large, and o1 don't just solve problems—they generate massive conversational fluff that burns latency, electricity, and API costs.
+          <p class="text-[11px] sm:text-xs text-slate-400 max-w-xl mx-auto">
+            Reasoning models (DeepSeek-R1, Mistral Large, o1) spend thousands of tokens rambling in English prose instead of executing direct proofs.
           </p>
         </div>
 
-        <!-- Comparative Breakdown -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 my-auto">
-          <!-- Standard CoT Box -->
-          <div class="glass-card rounded-2xl p-4 border-rose-900/40 relative overflow-hidden">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-xs font-black text-rose-400 uppercase tracking-wider flex items-center space-x-1">
-                <span>💬</span> <span>Standard English CoT (R1 / Mistral Large)</span>
+        <!-- Comparative Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4 my-auto">
+          <!-- Standard CoT -->
+          <div class="glass-card rounded-xl p-3 border-rose-900/50 relative">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-[11px] sm:text-xs font-bold text-rose-400 flex items-center space-x-1">
+                <span>💬</span> <span>Standard English CoT</span>
               </span>
-              <span class="text-[10px] font-mono bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded">18× Token Tax</span>
+              <span class="text-[9px] font-mono bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded font-bold">18× Token Tax</span>
             </div>
-            <div class="p-3 rounded-xl bg-slate-950/80 font-mono text-[11px] text-slate-400 space-y-1.5 border border-slate-800/80 leading-relaxed max-h-36 overflow-y-auto">
-              <p class="text-rose-300/80">"Wait, let me rethink step 2..."</p>
+            <div class="p-2 sm:p-2.5 rounded-lg bg-slate-950/90 font-mono text-[10px] sm:text-[11px] text-slate-400 space-y-1 border border-slate-800 leading-relaxed max-h-24 sm:max-h-32 overflow-y-auto">
+              <p class="text-rose-300/90">"Wait, let me rethink step 2..."</p>
               <p class="opacity-70">"Actually, if we look at the perimeter, maybe the circle formula applies?"</p>
-              <p class="opacity-70">"Wait, is it 2*pi*r or pi*r^2? Hmm... Let's re-read the problem carefully..."</p>
-              <p class="opacity-60">"Okay, so 2*pi*r = 72, which gives r = 36/pi... but wait..."</p>
+              <p class="opacity-60">"Wait, is it 2*pi*r or pi*r^2? Hmm... Let's re-read..."</p>
             </div>
-            <div class="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-              <div class="bg-slate-900/60 p-1.5 rounded-lg border border-slate-800">
-                <div class="text-[10px] text-slate-500">Tokens</div>
+            <div class="mt-2 grid grid-cols-3 gap-1.5 text-center text-[10px]">
+              <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+                <div class="text-[9px] text-slate-500">Tokens</div>
                 <div class="font-bold text-rose-400">950+ tok</div>
               </div>
-              <div class="bg-slate-900/60 p-1.5 rounded-lg border border-slate-800">
-                <div class="text-[10px] text-slate-500">Latency</div>
+              <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+                <div class="text-[9px] text-slate-500">Latency</div>
                 <div class="font-bold text-rose-400">14.8s</div>
               </div>
-              <div class="bg-slate-900/60 p-1.5 rounded-lg border border-slate-800">
-                <div class="text-[10px] text-slate-500">Machine Check</div>
-                <div class="font-bold text-rose-400">Impossible</div>
+              <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+                <div class="text-[9px] text-slate-500">Check</div>
+                <div class="font-bold text-rose-400">Unverifiable</div>
               </div>
             </div>
           </div>
 
-          <!-- SymboLM Box -->
-          <div class="glass-card rounded-2xl p-4 border-cyan-500/50 relative overflow-hidden bg-gradient-to-b from-cyan-950/20 to-slate-900/80">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center space-x-1">
-                <span>⚡</span> <span>SymboLM Register v2.0 (SRL v1.0)</span>
+          <!-- SymboLM Register v2.0 -->
+          <div class="glass-card rounded-xl p-3 border-cyan-500/60 bg-gradient-to-b from-cyan-950/20 to-slate-900/90">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="text-[11px] sm:text-xs font-bold text-cyan-300 flex items-center space-x-1">
+                <span>⚡</span> <span>SymboLM Register v2.0</span>
               </span>
-              <span class="text-[10px] font-mono bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold">75% Compressed</span>
+              <span class="text-[9px] font-mono bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded font-bold">75% Compressed</span>
             </div>
-            <div class="p-3 rounded-xl bg-slate-950/90 font-mono text-[11px] text-cyan-300/90 space-y-1 border border-cyan-800/40 leading-relaxed max-h-36 overflow-y-auto">
+            <div class="p-2 sm:p-2.5 rounded-lg bg-slate-950/90 font-mono text-[10px] sm:text-[11px] text-cyan-300/90 space-y-1 border border-cyan-800/40 leading-relaxed max-h-24 sm:max-h-32 overflow-y-auto">
               <p class="text-purple-300">&lt;reg:plan&gt;[rel: P = 2*pi*r, target: V = pi*r^2*h]&lt;/reg:plan&gt;</p>
               <p class="text-cyan-300">&lt;reg:deduce&gt;let r = 6 | P = 72 → h = 6 | V = 216&lt;/reg:deduce&gt;</p>
               <p class="text-emerald-300">&lt;reg:verify&gt;verify(216 == 216) → ✓&lt;/reg:verify&gt;</p>
               <p class="text-white font-bold">&lt;reg:intent&gt;∴ ans = 216&lt;/reg:intent&gt;</p>
             </div>
-            <div class="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-              <div class="bg-slate-900/60 p-1.5 rounded-lg border border-slate-800">
-                <div class="text-[10px] text-slate-500">Tokens</div>
+            <div class="mt-2 grid grid-cols-3 gap-1.5 text-center text-[10px]">
+              <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+                <div class="text-[9px] text-slate-500">Tokens</div>
                 <div class="font-bold text-emerald-400">42 tok</div>
               </div>
-              <div class="bg-slate-900/60 p-1.5 rounded-lg border border-slate-800">
-                <div class="text-[10px] text-slate-500">Latency</div>
+              <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+                <div class="text-[9px] text-slate-500">Latency</div>
                 <div class="font-bold text-cyan-400">1.2s</div>
               </div>
-              <div class="bg-slate-900/60 p-1.5 rounded-lg border border-slate-800">
-                <div class="text-[10px] text-slate-500">Machine Check</div>
+              <div class="bg-slate-900/80 p-1 rounded border border-slate-800">
+                <div class="text-[9px] text-slate-500">Check</div>
                 <div class="font-bold text-emerald-400">SymPy AST (0ms)</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="text-center text-[11px] sm:text-xs text-slate-400 bg-slate-950/60 py-2 px-3 rounded-xl border border-slate-800/60 flex items-center justify-center space-x-2">
-          <span class="text-cyan-400 font-bold">Key Insight:</span>
-          <span>We don't need conversational storytelling in the hidden thinking stage. We need high-density mathematical truth.</span>
+        <div class="text-center text-[10px] sm:text-xs text-slate-400 bg-slate-950/70 py-1.5 px-2.5 rounded-xl border border-slate-800">
+          <span class="text-cyan-400 font-bold">Core Insight:</span>
+          <span> AI shouldn't tell bedtime stories during hidden thinking. It needs formal mathematical proofs.</span>
         </div>
       </section>
 
       <!-- ========================================== -->
       <!-- SLIDE 2: Register v2.0 Cognitive Hierarchy -->
       <!-- ========================================== -->
-      <section id="slide-2" class="slide-pane hidden flex-col justify-between h-full space-y-3">
+      <section id="slide-2" class="slide-pane hidden flex-col justify-between h-full space-y-2.5 sm:space-y-3">
         <div class="text-center space-y-1">
-          <div class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-wider">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[11px] font-bold uppercase tracking-wider">
             <span>🧠</span> <span>Hardware-Inspired Cognitive Architecture</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white">
-            Register v2.0: Thinking in 5 Specialized Channels
+          <h2 class="text-lg sm:text-2xl font-black text-white">
+            Register v2.0: 5 Specialized Thinking Channels
           </h2>
-          <p class="text-xs text-slate-400">
-            CPUs use specialized registers for data, pointers, and arithmetic. SymboLM organizes neural reasoning into 5 strict cognitive registers.
+          <p class="text-[11px] sm:text-xs text-slate-400">
+            CPUs use specialized registers. SymboLM organizes neural reasoning into 5 strict cognitive registers. Tap any box below:
           </p>
         </div>
 
-        <!-- 5 Register Interactive Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 my-auto">
-          
-          <!-- Register 1: Plan -->
-          <div class="glass-card p-3 rounded-xl border-purple-800/60 flex flex-col justify-between space-y-2 hover:border-purple-400 transition cursor-pointer" onclick="selectRegister('plan')">
+        <!-- 5 Registers Grid: 2 columns on mobile, 5 columns on desktop -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2 my-auto">
+          <!-- 1. Plan -->
+          <div class="glass-card p-2 sm:p-2.5 rounded-xl border-purple-800/60 flex flex-col justify-between active:scale-95 transition cursor-pointer" onclick="selectRegister('plan')">
             <div>
-              <div class="text-[10px] font-mono text-purple-400 uppercase font-black tracking-wider">1. Strategic Plan</div>
-              <div class="font-bold text-sm text-purple-200 mt-0.5">&lt;reg:plan&gt;</div>
-              <p class="text-[10px] text-slate-400 mt-1 leading-snug">Blueprint before execution. Maps constraints & invariants.</p>
+              <div class="text-[9px] font-mono text-purple-400 uppercase font-bold">1. Plan</div>
+              <div class="font-black text-xs sm:text-sm text-purple-200">&lt;reg:plan&gt;</div>
+              <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-2">Blueprint before execution. Maps invariants.</p>
             </div>
-            <div class="bg-slate-950 p-1.5 rounded font-mono text-[9px] text-purple-300/80">
-              [rel: P = 2*(L+W)]
+            <div class="bg-slate-950/90 p-1 rounded font-mono text-[8px] text-purple-300/80 mt-1 truncate">
+              [rel: P = 2*pi*r]
             </div>
           </div>
 
-          <!-- Register 2: Deduce -->
-          <div class="glass-card p-3 rounded-xl border-cyan-800/60 flex flex-col justify-between space-y-2 hover:border-cyan-400 transition cursor-pointer" onclick="selectRegister('deduce')">
+          <!-- 2. Deduce -->
+          <div class="glass-card p-2 sm:p-2.5 rounded-xl border-cyan-800/60 flex flex-col justify-between active:scale-95 transition cursor-pointer" onclick="selectRegister('deduce')">
             <div>
-              <div class="text-[10px] font-mono text-cyan-400 uppercase font-black tracking-wider">2. Symbolic Math</div>
-              <div class="font-bold text-sm text-cyan-200 mt-0.5">&lt;reg:deduce&gt;</div>
-              <p class="text-[10px] text-slate-400 mt-1 leading-snug">Formal algebraic proof steps. 75% fewer tokens than prose.</p>
+              <div class="text-[9px] font-mono text-cyan-400 uppercase font-bold">2. Deduce</div>
+              <div class="font-black text-xs sm:text-sm text-cyan-200">&lt;reg:deduce&gt;</div>
+              <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-2">Formal algebraic proofs. 75% fewer tokens.</p>
             </div>
-            <div class="bg-slate-950 p-1.5 rounded font-mono text-[9px] text-cyan-300/80">
-              let x = 12 | y = 2*x
+            <div class="bg-slate-950/90 p-1 rounded font-mono text-[8px] text-cyan-300/80 mt-1 truncate">
+              let r=6 → h=6 | V=216
             </div>
           </div>
 
-          <!-- Register 3: Verify -->
-          <div class="glass-card p-3 rounded-xl border-emerald-800/60 flex flex-col justify-between space-y-2 hover:border-emerald-400 transition cursor-pointer" onclick="selectRegister('verify')">
+          <!-- 3. Verify -->
+          <div class="glass-card p-2 sm:p-2.5 rounded-xl border-emerald-800/60 flex flex-col justify-between active:scale-95 transition cursor-pointer" onclick="selectRegister('verify')">
             <div>
-              <div class="text-[10px] font-mono text-emerald-400 uppercase font-black tracking-wider">3. Machine Check</div>
-              <div class="font-bold text-sm text-emerald-200 mt-0.5">&lt;reg:verify&gt;</div>
-              <p class="text-[10px] text-slate-400 mt-1 leading-snug">Deterministic AST verification via SymPy/Z3 in milliseconds.</p>
+              <div class="text-[9px] font-mono text-emerald-400 uppercase font-bold">3. Verify</div>
+              <div class="font-black text-xs sm:text-sm text-emerald-200">&lt;reg:verify&gt;</div>
+              <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-2">SymPy/Z3 deterministic AST verification in 0ms.</p>
             </div>
-            <div class="bg-slate-950 p-1.5 rounded font-mono text-[9px] text-emerald-300/80">
-              verify(24 == 24) → ✓
+            <div class="bg-slate-950/90 p-1 rounded font-mono text-[8px] text-emerald-300/80 mt-1 truncate">
+              verify(216 == 216) → ✓
             </div>
           </div>
 
-          <!-- Register 4: Bypass -->
-          <div class="glass-card p-3 rounded-xl border-amber-800/60 flex flex-col justify-between space-y-2 hover:border-amber-400 transition cursor-pointer" onclick="selectRegister('bypass')">
+          <!-- 4. Bypass -->
+          <div class="glass-card p-2 sm:p-2.5 rounded-xl border-amber-800/60 flex flex-col justify-between active:scale-95 transition cursor-pointer" onclick="selectRegister('bypass')">
             <div>
-              <div class="text-[10px] font-mono text-amber-400 uppercase font-black tracking-wider">4. Zero-Shot Facts</div>
-              <div class="font-bold text-sm text-amber-200 mt-0.5">&lt;reg:bypass&gt;</div>
-              <p class="text-[10px] text-slate-400 mt-1 leading-snug">Instant 1-token lookup for facts. Zero reasoning waste!</p>
+              <div class="text-[9px] font-mono text-amber-400 uppercase font-bold">4. Bypass</div>
+              <div class="font-black text-xs sm:text-sm text-amber-200">&lt;reg:bypass&gt;</div>
+              <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-2">Instant 1-token lookup for facts. Zero waste!</p>
             </div>
-            <div class="bg-slate-950 p-1.5 rounded font-mono text-[9px] text-amber-300/80">
+            <div class="bg-slate-950/90 p-1 rounded font-mono text-[8px] text-amber-300/80 mt-1 truncate">
               &lt;reg:bypass&gt;6&lt;/reg:bypass&gt;
             </div>
           </div>
 
-          <!-- Register 5: Intent -->
-          <div class="glass-card p-3 rounded-xl border-blue-800/60 flex flex-col justify-between space-y-2 hover:border-blue-400 transition cursor-pointer" onclick="selectRegister('intent')">
+          <!-- 5. Intent (spans 2 cols on mobile) -->
+          <div class="glass-card p-2 sm:p-2.5 rounded-xl border-blue-800/60 flex flex-col justify-between col-span-2 sm:col-span-1 active:scale-95 transition cursor-pointer" onclick="selectRegister('intent')">
             <div>
-              <div class="text-[10px] font-mono text-blue-400 uppercase font-black tracking-wider">5. Human Dialogue</div>
-              <div class="font-bold text-sm text-blue-200 mt-0.5">&lt;reg:intent&gt;</div>
-              <p class="text-[10px] text-slate-400 mt-1 leading-snug">Direct communication scratchpad for conversational goals.</p>
+              <div class="text-[9px] font-mono text-blue-400 uppercase font-bold">5. Intent</div>
+              <div class="font-black text-xs sm:text-sm text-blue-200">&lt;reg:intent&gt;</div>
+              <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-2">Human dialogue scratchpad for direct goals.</p>
             </div>
-            <div class="bg-slate-950 p-1.5 rounded font-mono text-[9px] text-blue-300/80">
-              [user wants code only]
+            <div class="bg-slate-950/90 p-1 rounded font-mono text-[8px] text-blue-300/80 mt-1 truncate">
+              ∴ ans = 216
             </div>
           </div>
-
         </div>
 
-        <!-- Dynamic Register Explanation Box -->
-        <div id="register-detail-box" class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
-          <div class="space-y-0.5">
-            <span class="text-xs font-bold text-cyan-300" id="reg-detail-title">Adaptive Routing: Zero-Shot vs Multi-Step Math</span>
-            <p class="text-[11px] text-slate-400" id="reg-detail-desc">
-              If asked "Atomic number of Carbon", the model emits &lt;reg:bypass&gt;6&lt;/reg:bypass&gt; (1 token). If asked to solve a differential equation, it allocates &lt;reg:plan&gt; and &lt;reg:deduce&gt;.
-            </p>
-          </div>
-          <span class="px-2.5 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 rounded-lg text-xs font-mono font-bold whitespace-nowrap ml-3">
-            0% Overthinking
-          </span>
+        <!-- Detail Box -->
+        <div id="register-detail-box" class="p-2.5 sm:p-3 rounded-xl bg-slate-950/90 border border-slate-800 text-left">
+          <div class="text-[11px] sm:text-xs font-bold text-cyan-300" id="reg-detail-title">Adaptive Routing: Zero-Shot vs Multi-Step Math</div>
+          <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 leading-snug" id="reg-detail-desc">
+            If asked "Atomic number of Carbon", the model emits &lt;reg:bypass&gt;6&lt;/reg:bypass&gt; (1 token). If asked to solve a geometric problem, it engages &lt;reg:plan&gt; and &lt;reg:deduce&gt;.
+          </p>
         </div>
       </section>
 
       <!-- ========================================== -->
       <!-- SLIDE 3: Interactive Head-to-Head Race    -->
       <!-- ========================================== -->
-      <section id="slide-3" class="slide-pane hidden flex-col justify-between h-full space-y-3">
+      <section id="slide-3" class="slide-pane hidden flex-col justify-between h-full space-y-2.5 sm:space-y-3">
         <div class="text-center">
-          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[11px] font-bold uppercase tracking-wider">
             <span>⚡</span> <span>Interactive Benchmark Simulator</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Live Race: English CoT vs SymboLM</h2>
-          <p class="text-xs text-slate-400">
-            Query: "A cylinder has radius $r=6$ m and perimeter $P=72$ m. Find volume $V$."
+          <h2 class="text-lg sm:text-2xl font-black text-white mt-0.5">Live Race: English CoT vs SymboLM</h2>
+          <p class="text-[10px] sm:text-xs text-slate-400">
+            "A cylinder has radius $r=6$ m and perimeter $P=72$ m. Find volume $V$."
           </p>
         </div>
 
         <!-- The Race Tracks -->
-        <div class="space-y-2.5 my-auto">
+        <div class="space-y-2 sm:space-y-2.5 my-auto">
           <!-- Competitor 1: English CoT -->
-          <div class="glass-card rounded-xl p-3 border-rose-950/80 space-y-1">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-rose-400 flex items-center space-x-1.5">
-                <span>🐌</span> <span>Standard English CoT (DeepSeek-R1 / Qwen2.5 Base)</span>
+          <div class="glass-card rounded-xl p-2.5 border-rose-950/80 space-y-1">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="font-bold text-rose-400 flex items-center space-x-1 truncate">
+                <span>🐌</span> <span class="truncate">English CoT (DeepSeek-R1 / Qwen Base)</span>
               </span>
-              <span id="eng-tokens" class="font-mono text-rose-300 font-bold">0 tokens (0.0s)</span>
+              <span id="eng-tokens" class="font-mono text-rose-300 font-bold shrink-0 ml-1">0 tok</span>
             </div>
-            <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
+            <div class="w-full bg-slate-950 h-2 sm:h-2.5 rounded-full overflow-hidden border border-slate-800">
               <div id="eng-bar" class="bg-gradient-to-r from-rose-600 to-rose-400 h-full w-0 transition-all duration-75"></div>
             </div>
-            <p id="eng-stream-text" class="text-[11px] font-mono text-slate-400 truncate bg-slate-950/60 px-2 py-1 rounded">
+            <p id="eng-stream-text" class="text-[10px] font-mono text-slate-400 truncate bg-slate-950/70 px-2 py-0.5 rounded">
               Ready to stream...
             </p>
           </div>
 
           <!-- Competitor 2: SymboLM -->
-          <div class="glass-card rounded-xl p-3 border-cyan-950/80 space-y-1 bg-cyan-950/20">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-cyan-400 flex items-center space-x-1.5">
-                <span>⚡</span> <span>SymboLM Register v2.0 (SRL v1.0)</span>
-                <span id="winner-tag" class="ml-2 hidden px-2 py-0.5 bg-emerald-500 text-slate-950 font-black text-[10px] rounded-full animate-bounce">
+          <div class="glass-card rounded-xl p-2.5 border-cyan-950/80 space-y-1 bg-cyan-950/20">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="font-bold text-cyan-400 flex items-center space-x-1 truncate">
+                <span>⚡</span> <span class="truncate">SymboLM Register v2.0</span>
+                <span id="winner-tag" class="ml-1.5 hidden px-1.5 py-0.2 bg-emerald-500 text-slate-950 font-black text-[9px] rounded-full animate-bounce">
                   🏆 4.5× FASTER!
                 </span>
               </span>
-              <span id="sym-tokens" class="font-mono text-cyan-300 font-bold">0 tokens (0.0s)</span>
+              <span id="sym-tokens" class="font-mono text-cyan-300 font-bold shrink-0 ml-1">0 tok</span>
             </div>
-            <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
+            <div class="w-full bg-slate-950 h-2 sm:h-2.5 rounded-full overflow-hidden border border-slate-800">
               <div id="sym-bar" class="bg-gradient-to-r from-cyan-500 via-emerald-400 to-cyan-300 h-full w-0 transition-all duration-75"></div>
             </div>
-            <p id="sym-stream-text" class="text-[11px] font-mono text-cyan-300/90 truncate bg-slate-950/60 px-2 py-1 rounded">
+            <p id="sym-stream-text" class="text-[10px] font-mono text-cyan-300/90 truncate bg-slate-950/70 px-2 py-0.5 rounded">
               Ready to stream...
             </p>
           </div>
 
-          <!-- Scoreboard Summary -->
-          <div class="grid grid-cols-3 gap-2 text-center pt-1">
-            <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
-              <div class="text-[10px] text-slate-400">Token Reduction</div>
-              <div class="text-base font-black text-emerald-400">89.5%</div>
-              <div class="text-[9px] text-slate-500">42 vs 980 tok</div>
+          <!-- Scoreboard -->
+          <div class="grid grid-cols-3 gap-1.5 sm:gap-2 text-center pt-0.5">
+            <div class="p-1.5 sm:p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+              <div class="text-[9px] text-slate-400">Tokens</div>
+              <div class="text-xs sm:text-base font-black text-emerald-400">89.5% Less</div>
+              <div class="text-[8px] text-slate-500">42 vs 980 tok</div>
             </div>
-            <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
-              <div class="text-[10px] text-slate-400">Latency Speedup</div>
-              <div class="text-base font-black text-cyan-400">4.5× Faster</div>
-              <div class="text-[9px] text-slate-500">1.2s vs 14.8s</div>
+            <div class="p-1.5 sm:p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+              <div class="text-[9px] text-slate-400">Speedup</div>
+              <div class="text-xs sm:text-base font-black text-cyan-400">4.5× Faster</div>
+              <div class="text-[8px] text-slate-500">1.2s vs 14.8s</div>
             </div>
-            <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
-              <div class="text-[10px] text-slate-400">AST Verification</div>
-              <div class="text-base font-black text-purple-400">100% Deterministic</div>
-              <div class="text-[9px] text-slate-500">SymPy / Z3 Verified</div>
+            <div class="p-1.5 sm:p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+              <div class="text-[9px] text-slate-400">Accuracy</div>
+              <div class="text-xs sm:text-base font-black text-purple-400">100% Truth</div>
+              <div class="text-[8px] text-slate-500">SymPy Verified</div>
             </div>
           </div>
         </div>
 
-        <button onclick="startRace()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 active:scale-98 transition flex items-center justify-center space-x-2">
+        <button onclick="startRace()" class="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 active:scale-95 transition flex items-center justify-center space-x-1.5">
           <span>▶️</span> <span>Run Real-Time Race Simulation</span>
         </button>
       </section>
@@ -378,78 +392,56 @@
       <!-- ========================================== -->
       <!-- SLIDE 4: The Transparency Debate Debunked  -->
       <!-- ========================================== -->
-      <section id="slide-4" class="slide-pane hidden flex-col justify-between h-full space-y-3">
-        <div class="text-center space-y-1">
-          <div class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+      <section id="slide-4" class="slide-pane hidden flex-col justify-between h-full space-y-2.5 sm:space-y-3">
+        <div class="text-center space-y-0.5">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold uppercase tracking-wider">
             <span>🛡️</span> <span>The Core Philosophical Debate</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white">
+          <h2 class="text-lg sm:text-2xl font-black text-white">
             "Does Symbolic Reasoning Kill AI Transparency?"
           </h2>
-          <p class="text-xs text-slate-400">
-            Skeptics ask: <em>"If the AI doesn't write in English paragraphs, can we still trust its thoughts?"</em>
+          <p class="text-[10px] sm:text-xs text-slate-400">
+            <em>"If AI doesn't write in English paragraphs, can we trust it?"</em>
           </p>
         </div>
 
-        <!-- The Contrast Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-auto">
-          <!-- Column 1: The Myth of English CoT -->
-          <div class="glass-card p-4 rounded-2xl border-rose-900/40 space-y-2">
-            <div class="flex items-center space-x-2 text-rose-400 font-bold text-xs">
-              <span class="text-base">❌</span>
-              <span>English CoT is "Post-Hoc Persuasion"</span>
+        <!-- The Contrast Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto">
+          <!-- Myth -->
+          <div class="glass-card p-2.5 sm:p-3 rounded-xl border-rose-900/40 space-y-1">
+            <div class="flex items-center space-x-1.5 text-rose-400 font-bold text-xs">
+              <span>❌</span> <span>English CoT is "Persuasion", Not Proof</span>
             </div>
-            <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed">
-              <li class="flex items-start space-x-1.5">
-                <span class="text-rose-400">•</span>
-                <span><strong>Unfaithful Storytelling:</strong> LLMs routinely fabricate plausible-sounding English steps that don't match their actual internal calculations.</span>
-              </li>
-              <li class="flex items-start space-x-1.5">
-                <span class="text-rose-400">•</span>
-                <span><strong>Unverifiable by Machines:</strong> A computer cannot mathematically parse or check "Wait, let me rethink step 2..." without another fuzzy LLM prompt.</span>
-              </li>
-              <li class="flex items-start space-x-1.5">
-                <span class="text-rose-400">•</span>
-                <span><strong>Silent Hallucinations:</strong> Grammatically elegant paragraphs often hide fatal arithmetic mistakes.</span>
-              </li>
+            <ul class="text-[10px] sm:text-[11px] text-slate-300 space-y-1 leading-snug">
+              <li>• <strong>Unfaithful:</strong> Models make up convincing English rationales that don't match calculations.</li>
+              <li>• <strong>Unverifiable:</strong> Computers cannot mathematically verify English paragraphs without another fuzzy LLM prompt.</li>
             </ul>
           </div>
 
-          <!-- Column 2: The Reality of SymboLM AST -->
-          <div class="glass-card p-4 rounded-2xl border-emerald-500/40 space-y-2 bg-emerald-950/10">
-            <div class="flex items-center space-x-2 text-emerald-300 font-bold text-xs">
-              <span class="text-base">✅</span>
-              <span>SymboLM is a "Machine-Checked Proof Object"</span>
+          <!-- Reality -->
+          <div class="glass-card p-2.5 sm:p-3 rounded-xl border-emerald-500/40 space-y-1 bg-emerald-950/10">
+            <div class="flex items-center space-x-1.5 text-emerald-300 font-bold text-xs">
+              <span>✅</span> <span>SymboLM is a "Machine Proof Object"</span>
             </div>
-            <ul class="text-[11px] text-slate-300 space-y-2 leading-relaxed">
-              <li class="flex items-start space-x-1.5">
-                <span class="text-emerald-400">•</span>
-                <span><strong>Formal Proof Object:</strong> Every line is an Abstract Syntax Tree (AST) verified deterministically by SymPy or Z3 solver in &lt;1ms.</span>
-              </li>
-              <li class="flex items-start space-x-1.5">
-                <span class="text-emerald-400">•</span>
-                <span><strong>Bi-Directional Translation:</strong> SymboLM compiles into formal proofs for speed, and converts back to clear human English on demand!</span>
-              </li>
-              <li class="flex items-start space-x-1.5">
-                <span class="text-emerald-400">•</span>
-                <span><strong>Zero-Doubt Truth:</strong> If `verify(✓)` passes, the math is guaranteed correct by theorem provers, not wishful prose.</span>
-              </li>
+            <ul class="text-[10px] sm:text-[11px] text-slate-300 space-y-1 leading-snug">
+              <li>• <strong>Formal AST:</strong> Verified deterministically via SymPy or Z3 solver in &lt;1 millisecond.</li>
+              <li>• <strong>Bi-Directional:</strong> Compiles back to clear English explanations for humans on demand!</li>
             </ul>
           </div>
         </div>
 
-        <!-- Interactive Bi-Directional Proof Explorer -->
-        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+        <!-- Interactive Proof Explorer -->
+        <div class="p-2.5 sm:p-3 rounded-xl bg-slate-950/90 border border-slate-800 space-y-1.5">
           <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-300 flex items-center space-x-2">
-              <span>🔄</span> <span>Bi-Directional Compiler Preview:</span>
+            <span class="text-[11px] sm:text-xs font-bold text-slate-300 flex items-center space-x-1">
+              <span>🔄</span> <span>Bi-Directional Proof Explorer:</span>
             </span>
             <div class="flex space-x-1 bg-slate-900 p-0.5 rounded-lg border border-slate-700">
-              <button id="btn-view-ast" onclick="toggleProofView('ast')" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500 text-slate-950 transition">AST Proof Object</button>
-              <button id="btn-view-eng" onclick="toggleProofView('eng')" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold text-slate-400 hover:text-white transition">English Explanation</button>
+              <button id="btn-view-ast" onclick="toggleProofView('ast')" class="px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-cyan-500 text-slate-950 transition active:scale-95">AST Proof</button>
+              <button id="btn-view-eng" onclick="toggleProofView('eng')" class="px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 hover:text-white transition active:scale-95">English</button>
             </div>
           </div>
-          <div id="proof-display" class="font-mono text-xs p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-cyan-300 overflow-x-auto">
+          <div id="proof-display" class="font-mono text-[10px] sm:text-xs p-2 rounded-lg bg-slate-900 border border-slate-800 text-cyan-300 overflow-x-auto leading-relaxed">
             &lt;reg:plan&gt;[rel: Area = W * L, target: W ≤ 10]&lt;/reg:plan&gt;<br/>
             &lt;reg:deduce&gt;hyp [W = 12] → Area = 144 | verify(144 ≤ 100) → ✗ | hyp [W = 8] → Area = 64 | verify(64 ≤ 100) → ✓&lt;/reg:deduce&gt;<br/>
             &lt;reg:intent&gt;∴ ans = 8&lt;/reg:intent&gt;
@@ -460,289 +452,231 @@
       <!-- ========================================== -->
       <!-- SLIDE 5: Empirical Training Receipts       -->
       <!-- ========================================== -->
-      <section id="slide-5" class="slide-pane hidden flex-col justify-between h-full space-y-3">
-        <div class="text-center space-y-1">
-          <div class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+      <section id="slide-5" class="slide-pane hidden flex-col justify-between h-full space-y-2.5 sm:space-y-3">
+        <div class="text-center space-y-0.5">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
             <span>🔬</span> <span>Empirical Evidence</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white">
-            Real Training Receipts: Dual Tesla T4 Cloud Cluster
+          <h2 class="text-lg sm:text-2xl font-black text-white">
+            Real Receipts: Dual Tesla T4 Cloud Cluster
           </h2>
-          <p class="text-xs text-slate-400">
-            Real outputs from the overnight Stage 2.5 SFT Seeding and active Stage 3.5 Concept GRPO run.
+          <p class="text-[10px] sm:text-xs text-slate-400">
+            Outputs from Stage 2.5 Concept SFT Seeding and active Stage 3.5 Concept GRPO.
           </p>
         </div>
 
-        <!-- The 2 Evidence Panels -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-auto">
-          
-          <!-- Card 1: Stage 2.5 SFT Seeding -->
-          <div class="glass-card p-4 rounded-2xl border-cyan-800/40 space-y-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 my-auto">
+          <!-- Card 1: SFT Seeding -->
+          <div class="glass-card p-2.5 sm:p-3 rounded-xl border-cyan-800/40 space-y-1.5">
             <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-cyan-300 flex items-center space-x-1">
-                <span>📦</span> <span>Stage 2.5 Concept SFT Seeding</span>
-              </span>
-              <span class="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">COMPLETED & PERSISTED</span>
+              <span class="text-[11px] font-bold text-cyan-300">📦 Stage 2.5 Concept SFT</span>
+              <span class="text-[9px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-bold">COMPLETED</span>
             </div>
-            <p class="text-[11px] text-slate-300 leading-snug">
-              Cold-start exploration barrier broken: Trained model to natively emit Register v2.0 tokens without guidance.
-            </p>
-            <div class="bg-slate-950 p-2.5 rounded-xl font-mono text-[10px] text-slate-300 space-y-1 border border-slate-800 max-h-32 overflow-y-auto">
-              <div class="text-purple-300 font-bold">// Sample 1: Geometric Invariant</div>
+            <div class="bg-slate-950 p-2 rounded font-mono text-[9px] sm:text-[10px] text-slate-300 space-y-0.5 border border-slate-800 max-h-24 sm:max-h-32 overflow-y-auto">
+              <div class="text-purple-300 font-bold">// Circle Geometry Receipt:</div>
               <div>&lt;reg:plan&gt;[rel: P = 2*pi*r, target: V = pi*r^2*h]&lt;/reg:plan&gt;</div>
               <div class="text-cyan-300">&lt;reg:deduce&gt;let r = 6 | P = 72 → h = 6 | V = 216&lt;/reg:deduce&gt;</div>
-              <div class="text-emerald-300">&lt;reg:verify&gt;verify(216 == 216) → ✓&lt;/reg:verify&gt;</div>
-              <div class="text-amber-300 font-bold mt-1">// Sample 2: Zero-Shot Factual Bypass</div>
-              <div>Query: "Atomic number of Carbon" → &lt;reg:bypass&gt;6&lt;/reg:bypass&gt;</div>
+              <div class="text-amber-300 font-bold mt-1">// Factual Bypass Receipt:</div>
+              <div>Query: "Carbon atomic #" → &lt;reg:bypass&gt;6&lt;/reg:bypass&gt;</div>
             </div>
-            <div class="text-[10px] text-slate-400 font-mono flex justify-between items-center pt-1 border-t border-slate-800">
+            <div class="text-[9px] text-slate-400 font-mono flex justify-between items-center">
               <span>Adapter: 1.01 GB Safetensors</span>
               <span class="text-cyan-400">Hub: symboLM-checkpoints</span>
             </div>
           </div>
 
-          <!-- Card 2: Stage 3.5 Concept GRPO -->
-          <div class="glass-card p-4 rounded-2xl border-purple-800/40 space-y-2 bg-purple-950/10">
+          <!-- Card 2: Concept GRPO -->
+          <div class="glass-card p-2.5 sm:p-3 rounded-xl border-purple-800/40 space-y-1.5 bg-purple-950/10">
             <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-purple-300 flex items-center space-x-1">
-                <span>⚡</span> <span>Stage 3.5 Concept GRPO RL</span>
-              </span>
-              <span class="text-[10px] font-mono bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold animate-pulse">LIVE ON KAGGLE CLOUD</span>
+              <span class="text-[11px] font-bold text-purple-300">⚡ Stage 3.5 Concept GRPO</span>
+              <span class="text-[9px] font-mono bg-cyan-500/20 text-cyan-300 px-1.5 py-0.2 rounded font-bold animate-pulse">RUNNING IN CLOUD</span>
             </div>
-            <p class="text-[11px] text-slate-300 leading-snug">
-              Reinforcement Learning Pruning Razor: 5 simultaneous reward objectives eliminating noise and locking in proofs.
-            </p>
-            <div class="bg-slate-950 p-2.5 rounded-xl font-mono text-[10px] text-slate-300 space-y-1 border border-slate-800">
+            <div class="bg-slate-950 p-2 rounded font-mono text-[9px] sm:text-[10px] text-slate-300 space-y-0.5 border border-slate-800">
               <div class="flex justify-between">
                 <span class="text-rose-400">R_syntax_noise (-1.0):</span>
-                <span>Prunes trailing template garbage</span>
+                <span>Prunes trailing debris</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-purple-400">R_concept_alignment (+0.45):</span>
+                <span class="text-purple-400">R_concept_plan (+0.45):</span>
                 <span>Rewards macro-planning</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-amber-400">R_anti_guessing (-0.80):</span>
-                <span>Penalizes guessing without plan</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-emerald-400">R_efficiency_bypass (+0.90):</span>
+                <span class="text-emerald-400">R_bypass (+0.90):</span>
                 <span>Rewards instant factual recall</span>
               </div>
-              <div class="flex justify-between font-bold text-cyan-300 pt-1 border-t border-slate-800">
-                <span>R_correctness (+1.0 / -0.60):</span>
-                <span>Deterministic mathematical truth</span>
+              <div class="flex justify-between font-bold text-cyan-300 pt-0.5 border-t border-slate-800">
+                <span>R_correctness (+1.0):</span>
+                <span>Ground-truth math</span>
               </div>
             </div>
-            <div class="text-[10px] text-slate-400 font-mono flex justify-between items-center pt-1 border-t border-slate-800">
-              <span>Curriculum: 1,600 Unified Samples</span>
-              <span class="text-emerald-400">Dual Tesla T4 Active</span>
+            <div class="text-[9px] text-slate-400 font-mono flex justify-between items-center">
+              <span>1,600 Unified Samples</span>
+              <span class="text-emerald-400">Dual Tesla T4</span>
             </div>
           </div>
-
         </div>
 
-        <div class="text-center text-[11px] text-slate-400 bg-slate-950/60 py-2 px-3 rounded-xl border border-slate-800 flex items-center justify-between">
-          <span class="flex items-center space-x-1.5">
+        <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800 flex justify-between items-center text-[10px]">
+          <span class="text-emerald-300 font-bold flex items-center space-x-1">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span class="text-emerald-300 font-bold">Cloud Pipeline Synchronized:</span>
-            <span>Weights backed up locally & on Hugging Face Hub.</span>
+            <span>Weights Persisted on Hugging Face Hub</span>
           </span>
-          <a href="https://huggingface.co/gyawalisanish0/symboLM-checkpoints" target="_blank" class="text-cyan-400 hover:underline font-mono text-[10px]">View Checkpoints &rarr;</a>
+          <a href="https://huggingface.co/gyawalisanish0/symboLM-checkpoints" target="_blank" class="text-cyan-400 hover:underline font-mono">View Hub &rarr;</a>
         </div>
       </section>
 
       <!-- ========================================== -->
       <!-- SLIDE 6: Cognitive Register Deep-Dive      -->
       <!-- ========================================== -->
-      <section id="slide-6" class="slide-pane hidden flex-col justify-between h-full space-y-3">
-        <div class="text-center space-y-1">
-          <div class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider">
-            <span>⚙️</span> <span>Under the Hood</span>
+      <section id="slide-6" class="slide-pane hidden flex-col justify-between h-full space-y-2 sm:space-y-3">
+        <div class="text-center space-y-0.5">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
+            <span>⚙️</span> <span>Interactive Workbench</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white">
-            Interactive Cognitive Register Workbench
+          <h2 class="text-lg sm:text-2xl font-black text-white">
+            Register Inspector Workbench
           </h2>
-          <p class="text-xs text-slate-400">
-            Click any register below to inspect its mathematical definition and role in the pipeline:
+          <p class="text-[10px] sm:text-xs text-slate-400">
+            Tap any register tab to inspect its mathematical grammar:
           </p>
         </div>
 
-        <!-- Register Switcher Tabs -->
-        <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2">
-          <button onclick="inspectRegister('plan')" id="tab-plan" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-cyan-500 text-slate-950 transition">&lt;reg:plan&gt;</button>
-          <button onclick="inspectRegister('deduce')" id="tab-deduce" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition">&lt;reg:deduce&gt;</button>
-          <button onclick="inspectRegister('verify')" id="tab-verify" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition">&lt;reg:verify&gt;</button>
-          <button onclick="inspectRegister('bypass')" id="tab-bypass" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition">&lt;reg:bypass&gt;</button>
-          <button onclick="inspectRegister('intent')" id="tab-intent" class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition">&lt;reg:intent&gt;</button>
+        <!-- Horizontally Scrollable Tabs (Touch optimized) -->
+        <div class="flex overflow-x-auto no-scrollbar space-x-1.5 py-1 justify-start sm:justify-center">
+          <button onclick="inspectRegister('plan')" id="tab-plan" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-cyan-500 text-slate-950 transition active:scale-95 shrink-0">&lt;reg:plan&gt;</button>
+          <button onclick="inspectRegister('deduce')" id="tab-deduce" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-slate-800 text-slate-300 transition active:scale-95 shrink-0">&lt;reg:deduce&gt;</button>
+          <button onclick="inspectRegister('verify')" id="tab-verify" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-slate-800 text-slate-300 transition active:scale-95 shrink-0">&lt;reg:verify&gt;</button>
+          <button onclick="inspectRegister('bypass')" id="tab-bypass" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-slate-800 text-slate-300 transition active:scale-95 shrink-0">&lt;reg:bypass&gt;</button>
+          <button onclick="inspectRegister('intent')" id="tab-intent" class="px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-slate-800 text-slate-300 transition active:scale-95 shrink-0">&lt;reg:intent&gt;</button>
         </div>
 
-        <!-- Detailed Inspector Panel -->
-        <div class="glass-card rounded-2xl p-4 border-slate-700 space-y-3 my-auto">
-          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <!-- Detail Card -->
+        <div class="glass-card rounded-xl p-3 border-slate-700 space-y-2 my-auto">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
             <div>
-              <span id="inspect-name" class="text-base font-black text-cyan-300">&lt;reg:plan&gt; — Macro-Architectural Planner</span>
-              <p id="inspect-subtitle" class="text-xs text-slate-400">Prevents myopic step-by-step guessing by establishing invariants.</p>
+              <div id="inspect-name" class="text-xs sm:text-sm font-black text-cyan-300">&lt;reg:plan&gt; — Macro-Architectural Planner</div>
+              <div id="inspect-subtitle" class="text-[10px] text-slate-400">Prevents myopic guessing by establishing invariants.</div>
             </div>
-            <span id="inspect-reward" class="text-xs font-mono font-bold px-2.5 py-1 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">
+            <span id="inspect-reward" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 shrink-0 ml-2">
               Reward: +0.45
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Formal Grammar Syntax:</span>
-              <pre id="inspect-grammar" class="bg-slate-950 p-2.5 rounded-xl font-mono text-[11px] text-cyan-300 overflow-x-auto border border-slate-800">&lt;reg:plan&gt;[rel: P = 2*pi*r, target: V = pi*r^2*h]&lt;/reg:plan&gt;</pre>
+          <div class="space-y-1.5">
+            <div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Grammar Syntax:</span>
+              <pre id="inspect-grammar" class="bg-slate-950 p-2 rounded-lg font-mono text-[10px] text-cyan-300 overflow-x-auto border border-slate-800">&lt;reg:plan&gt;[rel: P = 2*pi*r, target: V = pi*r^2*h]&lt;/reg:plan&gt;</pre>
             </div>
-            <div class="space-y-1">
-              <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Cognitive Purpose:</span>
-              <div id="inspect-purpose" class="bg-slate-950/80 p-2.5 rounded-xl text-xs text-slate-300 leading-relaxed border border-slate-800">
-                In complex mathematics, models that immediately start calculating without a blueprint frequently hallucinate. &lt;reg:plan&gt; acts as an architectural blueprint, mapping geometric invariants and target equations before any arithmetic occurs.
+            <div>
+              <span class="text-[9px] font-mono text-slate-400 uppercase">Purpose:</span>
+              <div id="inspect-purpose" class="bg-slate-950/80 p-2 rounded-lg text-[10px] sm:text-xs text-slate-300 leading-relaxed border border-slate-800 max-h-24 overflow-y-auto">
+                Maps geometric invariants and equations before arithmetic occurs to prevent hallucinations.
               </div>
             </div>
           </div>
         </div>
 
-        <div class="text-center text-[10px] font-mono text-slate-500">
-          Built into SRL v1.0 specification • Tested on DeepSeek-R1 Distill Qwen 1.5B & 7B
+        <div class="text-center text-[9px] font-mono text-slate-500">
+          SRL v1.0 • Tested on DeepSeek-R1 Distill Qwen 1.5B & 7B
         </div>
       </section>
 
       <!-- ========================================== -->
       <!-- SLIDE 7: Scaling to 20B & 70B Models       -->
       <!-- ========================================== -->
-      <section id="slide-7" class="slide-pane hidden flex-col justify-between h-full space-y-3">
-        <div class="text-center space-y-1">
-          <div class="inline-flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+      <section id="slide-7" class="slide-pane hidden flex-col justify-between h-full space-y-2 sm:space-y-3">
+        <div class="text-center space-y-0.5">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
             <span>🚀</span> <span>The Scaling Horizon</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white">
-            What Happens When We Scale to 20B, 70B & Kimi?
+          <h2 class="text-lg sm:text-2xl font-black text-white">
+            Scaling to 20B, 70B & Kimi
           </h2>
-          <p class="text-xs text-slate-400">
-            Open-weight models have vast latent knowledge, but their verbose reasoning wastes compute and throttles local deployment.
+          <p class="text-[10px] sm:text-xs text-slate-400">
+            Eliminating token bloat unlocks sovereign frontier AI on everyday hardware:
           </p>
         </div>
 
-        <!-- Scaling Tier Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-auto">
-          
-          <!-- Tier 1: 1.5B - 3B Edge -->
-          <div class="glass-card p-3.5 rounded-2xl border-slate-800 space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-slate-300">Edge / Mobile Tier</span>
-              <span class="text-[10px] font-mono bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded">1.5B – 3B</span>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 my-auto">
+          <!-- 1.5B - 3B -->
+          <div class="glass-card p-2.5 rounded-xl border-slate-800 space-y-1">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="font-bold text-slate-300">Edge / Mobile</span>
+              <span class="font-mono text-cyan-300">1.5B – 3B</span>
             </div>
-            <div class="text-lg font-black text-white">Sub-Second Math</div>
-            <p class="text-[11px] text-slate-400 leading-snug">
-              Fits entirely in 2GB RAM on edge devices and smartphones. Solves competition math without network latency.
-            </p>
-            <div class="pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 space-y-1">
-              <div>RAM: &lt; 2 GB</div>
-              <div>Latency: &lt; 0.8s</div>
-              <div class="text-cyan-400">Current Proof of Concept</div>
-            </div>
+            <div class="text-sm font-black text-white">Sub-Second Math</div>
+            <p class="text-[10px] text-slate-400 leading-snug">Fits in 2GB RAM on phones. Instant edge reasoning without cloud fees.</p>
           </div>
 
-          <!-- Tier 2: 20B - 27B Laptop Sovereign -->
-          <div class="glass-card p-3.5 rounded-2xl border-cyan-500/50 bg-cyan-950/20 space-y-2 relative overflow-hidden">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-cyan-300">The Sweet Spot</span>
-              <span class="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">GPT OSS 20B / Gemma 27B</span>
+          <!-- 20B - 27B -->
+          <div class="glass-card p-2.5 rounded-xl border-cyan-500/50 bg-cyan-950/20 space-y-1">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="font-bold text-cyan-300">The Sweet Spot</span>
+              <span class="font-mono bg-emerald-500/20 text-emerald-300 px-1 rounded font-bold">20B – 27B</span>
             </div>
-            <div class="text-lg font-black text-cyan-200">Local MacBook Frontier</div>
-            <p class="text-[11px] text-slate-300 leading-snug">
-              Eliminates the \$200/mo cloud API tax. Run frontier-level symbolic reasoning on a MacBook Pro or RTX 4070 in under 4 seconds!
-            </p>
-            <div class="pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 space-y-1">
-              <div>RAM: 12 – 14 GB</div>
-              <div>Latency: 3.5 – 4.5s</div>
-              <div class="text-emerald-400 font-bold">Target of Grant Proposal</div>
-            </div>
+            <div class="text-sm font-black text-cyan-200">Local MacBook Frontier</div>
+            <p class="text-[10px] text-slate-300 leading-snug">Runs on a MacBook Pro or RTX 4070 in &lt;4 seconds. No \$200/mo cloud bill!</p>
           </div>
 
-          <!-- Tier 3: 72B Enterprise / Cluster -->
-          <div class="glass-card p-3.5 rounded-2xl border-purple-800/40 space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="text-xs font-bold text-purple-300">Frontier Enterprise</span>
-              <span class="text-[10px] font-mono bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded">Qwen 72B / Kimi / Mistral</span>
+          <!-- 72B -->
+          <div class="glass-card p-2.5 rounded-xl border-purple-800/40 space-y-1">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="font-bold text-purple-300">Frontier Enterprise</span>
+              <span class="font-mono text-purple-300">72B / Kimi</span>
             </div>
-            <div class="text-lg font-black text-purple-200">Industrial Solvers</div>
-            <p class="text-[11px] text-slate-400 leading-snug">
-              Slashing enterprise token costs by 75% across millions of daily queries. Formal verification eliminates AI liability.
-            </p>
-            <div class="pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 space-y-1">
-              <div>Throughput: 4.8× queries/sec</div>
-              <div>Verification: Z3 SMT Solver</div>
-              <div class="text-purple-400">Phase 3 Scaling Target</div>
-            </div>
+            <div class="text-sm font-black text-purple-200">Industrial Solvers</div>
+            <p class="text-[10px] text-slate-400 leading-snug">Slashes enterprise token costs by 75% across millions of daily API calls.</p>
           </div>
-
         </div>
 
-        <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-center text-xs text-slate-300">
-          <strong class="text-cyan-300">The Ultimate Goal:</strong> Make elite, deterministic reasoning affordable, local, and sovereign for every researcher and engineer on earth.
+        <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800 text-center text-[10px] sm:text-xs text-slate-300">
+          <strong class="text-cyan-300">Mission:</strong> Make deterministic frontier reasoning sovereign and affordable for everyone.
         </div>
       </section>
 
       <!-- ========================================== -->
       <!-- SLIDE 8: Conceived from Bed in Nepal       -->
       <!-- ========================================== -->
-      <section id="slide-8" class="slide-pane hidden flex-col justify-between h-full space-y-3 text-center">
-        <div class="space-y-1">
-          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold uppercase tracking-wider">
+      <section id="slide-8" class="slide-pane hidden flex-col justify-between h-full space-y-2.5 sm:space-y-3 text-center">
+        <div class="space-y-0.5">
+          <div class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[11px] font-bold uppercase tracking-wider">
             <span>🇳🇵</span> <span>Independent Research from Nepal</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white">
+          <h2 class="text-lg sm:text-2xl font-black text-white">
             Conceived from Bed: The Human Story
           </h2>
-          <p class="text-xs text-slate-300 max-w-xl mx-auto">
+          <p class="text-[10px] sm:text-xs text-slate-300 max-w-md mx-auto">
             Architected by <strong>Sanish Gyawali</strong> — a physically disabled, independent researcher based in Nepal who is bedridden 24/7 and cannot walk.
           </p>
         </div>
 
-        <!-- The 3 Pillars of Sanish's Lab -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left my-auto">
-          <div class="glass-card p-3 rounded-xl border-slate-800 space-y-1">
-            <div class="text-xs font-bold text-cyan-400 flex items-center space-x-1">
-              <span>🦾</span> <span>The AI Exoskeleton</span>
-            </div>
-            <p class="text-[11px] text-slate-400 leading-snug">
-              Antigravity (Google DeepMind) serves as an operational exoskeleton, translating Sanish's abstract architectural directives into compiler code, cloud clusters, and test suites.
-            </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-left my-auto">
+          <div class="glass-card p-2.5 rounded-xl border-slate-800 space-y-0.5">
+            <div class="text-xs font-bold text-cyan-400">🦾 AI Exoskeleton</div>
+            <p class="text-[10px] text-slate-400 leading-snug">Antigravity (Google DeepMind) serves as an operational exoskeleton, translating directives into cloud GPU pipelines.</p>
           </div>
-
-          <div class="glass-card p-3 rounded-xl border-slate-800 space-y-1">
-            <div class="text-xs font-bold text-amber-400 flex items-center space-x-1">
-              <span>⚡</span> <span>Blackout Resilient</span>
-            </div>
-            <p class="text-[11px] text-slate-400 leading-snug">
-              Conducting cutting-edge cloud RL training through unpredictable 11kV electrical feeder trips and internet disruptions from a bed workstation in Nepal.
-            </p>
+          <div class="glass-card p-2.5 rounded-xl border-slate-800 space-y-0.5">
+            <div class="text-xs font-bold text-amber-400">⚡ Blackout Resilient</div>
+            <p class="text-[10px] text-slate-400 leading-snug">Training cloud RL models straight through 11kV electrical power trips and outages from a bed workstation.</p>
           </div>
-
-          <div class="glass-card p-3 rounded-xl border-slate-800 space-y-1">
-            <div class="text-xs font-bold text-purple-400 flex items-center space-x-1">
-              <span>🌐</span> <span>Radical Transparency</span>
-            </div>
-            <p class="text-[11px] text-slate-400 leading-snug">
-              100% open-source codebase, fully reproducible cloud checkpoints, and full disclosure of AI collaboration in all papers and grant applications.
-            </p>
+          <div class="glass-card p-2.5 rounded-xl border-slate-800 space-y-0.5">
+            <div class="text-xs font-bold text-purple-400">🌐 100% Open Science</div>
+            <p class="text-[10px] text-slate-400 leading-snug">Radical transparency: open-source code, reproducible cloud weights, and honest disclosure of AI collaboration.</p>
           </div>
         </div>
 
-        <!-- Action Links & Next Steps -->
-        <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <!-- Thumb-accessible touch action buttons -->
+        <div class="bg-slate-950/90 p-2.5 sm:p-3 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2">
           <div class="text-left">
-            <div class="text-xs font-bold text-white">Targeting High-Agency Fellowships</div>
-            <p class="text-[10px] text-slate-400">Emergent Ventures ($20k) • Dedicated A100 Compute • LiFePO4 Power Stability</p>
+            <div class="text-[11px] sm:text-xs font-bold text-white">Emergent Ventures Grant Candidate</div>
+            <p class="text-[9px] sm:text-[10px] text-slate-400">Targeting \$20k for LiFePO4 power stability, care runway & dedicated compute.</p>
           </div>
-          <div class="flex space-x-2">
-            <a href="https://github.com/gyawalisanish0/symboLM" target="_blank" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs font-bold border border-slate-700 transition flex items-center space-x-1">
-              <span>⭐</span> <span>GitHub</span>
+          <div class="flex space-x-2 w-full sm:w-auto">
+            <a href="https://github.com/gyawalisanish0/symboLM" target="_blank" class="flex-1 sm:flex-none py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-mono text-xs font-bold border border-slate-700 transition text-center active:scale-95">
+              ⭐ GitHub
             </a>
-            <a href="https://huggingface.co/gyawalisanish0/symboLM-checkpoints" target="_blank" class="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono text-xs font-black transition flex items-center space-x-1">
-              <span>🤗</span> <span>Checkpoints</span>
+            <a href="https://huggingface.co/gyawalisanish0/symboLM-checkpoints" target="_blank" class="flex-1 sm:flex-none py-2 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono text-xs font-black transition text-center active:scale-95">
+              🤗 HuggingFace
             </a>
           </div>
         </div>
@@ -750,34 +684,34 @@
 
     </div>
 
-    <!-- Deck Footer Controls -->
-    <footer class="px-5 py-2.5 border-t border-slate-800 flex justify-between items-center bg-slate-950/70">
-      <div class="flex items-center space-x-2">
-        <button onclick="prevSlide()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center space-x-1">
-          <span>◀</span> <span>Prev</span>
-        </button>
-        <span class="text-[10px] text-slate-500 hidden sm:inline">(or Left Arrow)</span>
-      </div>
+    <!-- ======================================================== -->
+    <!-- Thumb-Friendly Bottom Navigation Footer                  -->
+    <!-- ======================================================== -->
+    <footer class="px-3.5 sm:px-5 py-2 sm:py-2.5 border-t border-slate-800 flex justify-between items-center bg-slate-950/90 shrink-0 safe-bottom">
+      <!-- Prev Button (Large touch target) -->
+      <button onclick="prevSlide()" class="py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 text-xs sm:text-sm font-bold transition flex items-center space-x-1 active:scale-95 touch-manipulation">
+        <span>◀</span> <span>Prev</span>
+      </button>
 
-      <!-- Slide Indicator & Jump Dots -->
-      <div class="flex items-center space-x-2">
-        <div id="slide-dots" class="flex space-x-1.5">
+      <!-- Center Dots & Indicator (Tappable dots) -->
+      <div class="flex items-center space-x-1.5 sm:space-x-2">
+        <div id="slide-dots" class="flex space-x-1 sm:space-x-1.5 items-center">
           <!-- Populated dynamically via JS -->
         </div>
-        <span id="slide-indicator" class="text-xs font-mono text-slate-400 font-bold ml-2">1 / 8</span>
+        <span id="slide-indicator" class="text-[11px] sm:text-xs font-mono text-slate-400 font-bold ml-1">1 / 8</span>
       </div>
 
-      <div class="flex items-center space-x-2">
-        <span class="text-[10px] text-slate-500 hidden sm:inline">(Space / Right Arrow)</span>
-        <button onclick="nextSlide()" class="px-3.5 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs transition flex items-center space-x-1">
-          <span>Next</span> <span>▶</span>
-        </button>
-      </div>
+      <!-- Next Button (Large touch target) -->
+      <button onclick="nextSlide()" class="py-2 px-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-300 text-slate-950 font-black text-xs sm:text-sm transition flex items-center space-x-1 active:scale-95 touch-manipulation shadow-md shadow-cyan-500/20">
+        <span>Next</span> <span>▶</span>
+      </button>
     </footer>
 
   </main>
 
-  <!-- Interactive JavaScript Logic -->
+  <!-- ======================================================== -->
+  <!-- JavaScript: Responsive Handling, Touch Swiping, State    -->
+  <!-- ======================================================== -->
   <script>
     let currentSlide = 1;
     const totalSlides = 8;
@@ -792,15 +726,20 @@
       "CONCEIVED FROM BED IN NEPAL"
     ];
 
-    // Initialize slide indicators
+    // Initialize dots with touch-friendly hitboxes
     function initDots() {
       const container = document.getElementById('slide-dots');
       container.innerHTML = '';
       for (let i = 1; i <= totalSlides; i++) {
-        const dot = document.createElement('button');
-        dot.className = `w-2 h-2 rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-cyan-400 w-4' : 'bg-slate-700 hover:bg-slate-500'}`;
-        dot.onclick = () => goToSlide(i);
-        container.appendChild(dot);
+        const dotWrapper = document.createElement('button');
+        dotWrapper.className = 'p-1 flex items-center justify-center touch-manipulation';
+        dotWrapper.onclick = () => goToSlide(i);
+        
+        const dot = document.createElement('div');
+        dot.className = `rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-cyan-400 w-3.5 h-1.5 sm:w-4 sm:h-2' : 'bg-slate-700 hover:bg-slate-500 w-1.5 h-1.5 sm:w-2 sm:h-2'}`;
+        
+        dotWrapper.appendChild(dot);
+        container.appendChild(dotWrapper);
       }
     }
 
@@ -817,6 +756,11 @@
       document.getElementById('deck-topic-tag').textContent = topicTags[currentSlide - 1];
       const jumpDropdown = document.getElementById('slide-jump');
       if (jumpDropdown) jumpDropdown.value = currentSlide;
+      
+      // Reset viewport scroll position when switching slides
+      const viewport = document.getElementById('slide-viewport');
+      if (viewport) viewport.scrollTop = 0;
+
       initDots();
     }
 
@@ -824,6 +768,7 @@
       if (currentSlide < totalSlides) {
         currentSlide++;
         updateSlide();
+        dismissSwipeHint();
       }
     }
 
@@ -831,6 +776,7 @@
       if (currentSlide > 1) {
         currentSlide--;
         updateSlide();
+        dismissSwipeHint();
       }
     }
 
@@ -838,6 +784,50 @@
       if (n >= 1 && n <= totalSlides) {
         currentSlide = n;
         updateSlide();
+        dismissSwipeHint();
+      }
+    }
+
+    function dismissSwipeHint() {
+      const hint = document.getElementById('swipe-hint');
+      if (hint) {
+        hint.style.opacity = '0';
+        hint.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => hint.classList.add('hidden'), 500);
+      }
+    }
+
+    // ==========================================
+    // Touch Swipe Gestures for Mobile
+    // ==========================================
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    const viewportEl = document.getElementById('slide-viewport');
+
+    viewportEl.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    viewportEl.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      touchEndY = e.changedTouches[0].screenY;
+      handleGesture();
+    }, { passive: true });
+
+    function handleGesture() {
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+      // Dominant horizontal swipe exceeding 40px threshold
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+        if (diffX < 0) {
+          nextSlide(); // swipe left -> next
+        } else {
+          prevSlide(); // swipe right -> prev
+        }
       }
     }
 
@@ -854,7 +844,7 @@
       } else if (e.key.toLowerCase() === 'r') {
         if (currentSlide === 3) startRace();
       } else if (e.key.toLowerCase() === 't') {
-        const isTiktok = document.getElementById('deck-container').classList.contains('w-[390px]');
+        const isTiktok = document.getElementById('deck-container').classList.contains('max-w-md');
         setMode(isTiktok ? 'widescreen' : 'tiktok');
       }
     });
@@ -866,19 +856,30 @@
       const btnWide = document.getElementById('btn-widescreen');
 
       if (mode === 'tiktok') {
-        container.classList.remove('w-[960px]', 'h-[640px]');
-        container.classList.add('w-[390px]', 'h-[780px]');
+        container.classList.remove('sm:max-w-4xl', 'sm:h-[660px]');
+        container.classList.add('max-w-md', 'h-[calc(100dvh-5.5rem)]');
         btnTiktok.className = "text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full bg-cyan-500 font-bold text-slate-950 transition";
         btnWide.className = "text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full text-slate-400 hover:text-white transition";
       } else {
-        container.classList.remove('w-[390px]', 'h-[780px]');
-        container.classList.add('w-[960px]', 'h-[640px]');
+        container.classList.remove('max-w-md');
+        container.classList.add('sm:max-w-4xl', 'sm:h-[660px]');
         btnWide.className = "text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full bg-cyan-500 font-bold text-slate-950 transition";
         btnTiktok.className = "text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full text-slate-400 hover:text-white transition";
       }
     }
 
+    // Auto-detect mobile viewport on launch
+    function autoDetectViewport() {
+      if (window.innerWidth < 640) {
+        setMode('tiktok');
+      } else {
+        setMode('widescreen');
+      }
+    }
+
+    // ==========================================
     // Interactive Race Simulator
+    // ==========================================
     let isRacing = false;
     function startRace() {
       if (isRacing) return;
@@ -915,7 +916,6 @@
         "Maybe height is involved? Let's check cross-section...",
         "Actually, let's test if the perimeter is for the rectangle...",
         "P = 2*(2*r + h) = 72 => 2*(12 + h) = 72 => h = 24...",
-        "Wait, let me recalculate: 12 + h = 36 => h = 24...",
         "Now volume is pi * r^2 * h = 36 * 24 * pi = 864 * pi...",
         "Wait, let's re-read the sentence carefully again...",
         "Hmm, let's check if there is an alternative interpretation..."
@@ -925,35 +925,37 @@
       const symInterval = setInterval(() => {
         if (symCount < 42) {
           symCount += 3;
-          symTokens.textContent = `${Math.min(symCount, 42)} tok (${(symCount * 0.028).toFixed(1)}s)`;
+          symTokens.textContent = `${Math.min(symCount, 42)} tok`;
           symBar.style.width = `${(symCount / 42) * 100}%`;
           const phraseIdx = Math.min(Math.floor((symCount / 42) * symPhrases.length), symPhrases.length - 1);
           symStream.textContent = symPhrases[phraseIdx];
         } else {
           clearInterval(symInterval);
           winnerTag.classList.remove('hidden');
-          symTokens.textContent = `42 tok (1.2s) — DONE!`;
+          symTokens.textContent = `42 tok (1.2s)`;
         }
       }, 70);
 
-      // Standard English CoT rambles to 950+ tokens (~14.8s)
+      // Standard English CoT reaches 950+ tokens (~14.8s)
       const engInterval = setInterval(() => {
         if (engCount < 950) {
           engCount += 16;
           elapsedSeconds += 0.08;
-          engTokens.textContent = `${Math.min(engCount, 950)} tok (${elapsedSeconds.toFixed(1)}s)`;
+          engTokens.textContent = `${Math.min(engCount, 950)} tok`;
           engBar.style.width = `${(engCount / 950) * 100}%`;
           const phraseIdx = Math.min(Math.floor((engCount / 950) * engPhrases.length), engPhrases.length - 1);
           engStream.textContent = engPhrases[phraseIdx];
         } else {
           clearInterval(engInterval);
-          engTokens.textContent = `950 tok (14.8s) — Finished`;
+          engTokens.textContent = `950 tok (14.8s)`;
           isRacing = false;
         }
       }, 50);
     }
 
+    // ==========================================
     // Register Selector on Slide 2
+    // ==========================================
     const registerDetails = {
       plan: {
         title: "Register 1: <reg:plan> (Macro Architectural Planning)",
@@ -985,30 +987,34 @@
       }
     }
 
+    // ==========================================
     // Proof View Toggle on Slide 4
+    // ==========================================
     function toggleProofView(type) {
       const display = document.getElementById('proof-display');
       const btnAst = document.getElementById('btn-view-ast');
       const btnEng = document.getElementById('btn-view-eng');
 
       if (type === 'ast') {
-        btnAst.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500 text-slate-950 transition";
-        btnEng.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold text-slate-400 hover:text-white transition";
+        btnAst.className = "px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-cyan-500 text-slate-950 transition active:scale-95";
+        btnEng.className = "px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 hover:text-white transition active:scale-95";
         display.innerHTML = `&lt;reg:plan&gt;[rel: Area = W * L, target: W ≤ 10]&lt;/reg:plan&gt;<br/>
 &lt;reg:deduce&gt;hyp [W = 12] → Area = 144 | verify(144 ≤ 100) → ✗ | hyp [W = 8] → Area = 64 | verify(64 ≤ 100) → ✓&lt;/reg:deduce&gt;<br/>
 &lt;reg:intent&gt;∴ ans = 8&lt;/reg:intent&gt;`;
       } else {
-        btnEng.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500 text-slate-950 transition";
-        btnAst.className = "px-2 py-0.5 rounded text-[10px] font-mono font-bold text-slate-400 hover:text-white transition";
+        btnEng.className = "px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-cyan-500 text-slate-950 transition active:scale-95";
+        btnAst.className = "px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold text-slate-400 hover:text-white transition active:scale-95";
         display.innerHTML = `<strong>Auto-Compiled English Proof:</strong><br/>
-1. <em>Plan:</em> Identify that Area = Width × Length, with constraint Width ≤ 10.<br/>
-2. <em>Hypothesis 1:</em> If Width = 12, Area = 144. Backtrack (fails constraint 144 ≤ 100).<br/>
+1. <em>Plan:</em> Identify Area = Width × Length with constraint Width ≤ 10.<br/>
+2. <em>Hypothesis 1:</em> If Width = 12, Area = 144. Backtrack (fails 144 ≤ 100).<br/>
 3. <em>Hypothesis 2:</em> If Width = 8, Area = 64. Constraint verified (64 ≤ 100). Accepted!<br/>
 <strong>Conclusion:</strong> The optimal width is 8.`;
       }
     }
 
+    // ==========================================
     // Register Inspector on Slide 6
+    // ==========================================
     const inspectData = {
       plan: {
         name: "<reg:plan> — Macro-Architectural Planner",
@@ -1055,9 +1061,9 @@
         const btn = document.getElementById(`tab-${r}`);
         if (btn) {
           if (r === reg) {
-            btn.className = "px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-cyan-500 text-slate-950 transition";
+            btn.className = "px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-cyan-500 text-slate-950 transition active:scale-95 shrink-0";
           } else {
-            btn.className = "px-3 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-800 text-slate-300 hover:text-white transition";
+            btn.className = "px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-slate-800 text-slate-300 hover:text-white transition active:scale-95 shrink-0";
           }
         }
       });
@@ -1069,8 +1075,9 @@
       document.getElementById('inspect-purpose').textContent = data.purpose;
     }
 
-    // Initialize on load
+    // Initialize on load & detect viewport
     window.addEventListener('DOMContentLoaded', () => {
+      autoDetectViewport();
       initDots();
       updateSlide();
     });
