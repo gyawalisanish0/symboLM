@@ -11,7 +11,6 @@ sft_src = "sanishgyawali/symbolm-stage-2-5-concept-sft-seeding"
 if sft_src not in meta.get("kernel_sources", []):
     meta["kernel_sources"] = [sft_src] + meta.get("kernel_sources", [])
 else:
-    # Move to front
     meta["kernel_sources"].remove(sft_src)
     meta["kernel_sources"] = [sft_src] + meta["kernel_sources"]
 
@@ -19,7 +18,7 @@ with open(meta_path, "w", encoding="utf-8") as f:
     json.dump(meta, f, indent=2)
 print(f"[OK] Updated {meta_path} with kernel sources: {meta['kernel_sources']}")
 
-# 2. Update notebook Cell 4
+# 2. Update notebook Cells
 nb_path = Path("kaggle_stage3/symboLM_stage3_kaggle.ipynb")
 with open(nb_path, "r", encoding="utf-8") as f:
     nb = json.load(f)
@@ -72,7 +71,15 @@ nb["cells"][4]["source"] = [
     "print('[VERIFIED] Successfully mounted Stage 2.5 Concept SFT warm-start adapter!')\n"
 ]
 
+nb["cells"][8]["source"] = [
+    "# Cell 8: Package and archive final Stage 3 policy checkpoints\n",
+    "import os\n",
+    "assert os.path.exists('/kaggle/working/symboLM/checkpoints/stage3_adapter/adapter_config.json'), 'CRITICAL: GRPO adapter missing!'\n",
+    "!tar -czf /kaggle/working/symboLM_stage3_final_policy.tar.gz -C /kaggle/working/symboLM/checkpoints/stage3_adapter .\n",
+    "print('[COMPLETE] Stage 3 Concept GRPO complete! Policy weights saved to /kaggle/working/symboLM_stage3_final_policy.tar.gz')\n"
+]
+
 with open(nb_path, "w", encoding="utf-8") as f:
     json.dump(nb, f, indent=1)
 
-print(f"[OK] Successfully patched {nb_path} for Stage 3.5 Concept GRPO!")
+print(f"[OK] Successfully patched {nb_path} Cell 4 and Cell 8 for Stage 3.5 Concept GRPO!")
