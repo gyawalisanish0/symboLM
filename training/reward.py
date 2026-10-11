@@ -490,6 +490,96 @@ def concept_alignment_reward_func(prompts, completions, answers, concepts=None, 
     return rewards
 
 
+def detect_ngram_repetition(text: str) -> bool:
+    """Detects looping repetitive n-grams (e.g. '527 527 527...' or 'potassium potassium...')."""
+    words = re.findall(r"[\w.-]+", text)
+    if len(words) >= 6:
+        for n in (1, 2, 3):
+            for i in range(len(words) - 3 * n):
+                chunk = words[i:i + n]
+                if words[i + n:i + 2 * n] == chunk and words[i + 2 * n:i + 3 * n] == chunk:
+                    return True
+    return False
+
+
+def detect_web_debris(text: str) -> bool:
+    """Detects base-model web vocabulary artifacts (PHP, HTML, random code scrap tokens)."""
+    debris_patterns = [
+        r"\bendphp\b", r"\bIconModule\b", r"\btatto\b", r"<\?php",
+        r"\bimport\s+react\b", r"<!DOCTYPE", r"<\s*/?div\s*>",
+        r"__init__", r"typedef\s+", r"public\s+static\s+void"
+    ]
+    for pat in debris_patterns:
+        if re.search(pat, text, re.IGNORECASE):
+            return True
+    return False
+
+
+def hard_eos_and_economy_reward_func(prompts, completions, answers, registers=None, **kwargs) -> list[float]:
+    """
+    Stage 4 Alignment: Rewards strict token economy, immediate EOS termination,
+    and imposes heavy penalties on answer loops, debris, and excessive length.
+    """
+    rewards = []
+    regs = registers if registers else ["symbolic_deductive"] * len(completions)
+
+    for comp, ans, reg in zip(completions, answers, regs):
+        score = 0.0
+        extracted = extract_answer(comp)
+        is_corr = answers_match(extracted, ans)
+
+        has_repeat = detect_ngram_repetition(comp)
+        has_debris = detect_web_debris(comp)
+
+        # 1. Heavy Repetition Penalty (-2.5)
+        if has_repeat:
+            score -= 2.5
+
+        # 2. Base Web Debris Penalty (-2.0)
+        if has_debris:
+            score -= 2.0
+
+        # 3. Clean EOS & Closure Bonus (+1.2)
+        tail_after_ans = ""
+        if "</ans>" in comp:
+            tail_after_ans = comp.split("</ans>")[-1].strip()
+        elif "</reg:deduce>" in comp:
+            tail_after_ans = comp.split("</reg:deduce>")[-1].strip()
+        elif "</reg:bypass>" in comp:
+            tail_after_ans = comp.split("</reg:bypass>")[-1].strip()
+        elif "</reg:intent>" in comp:
+            tail_after_ans = comp.split("</reg:intent>")[-1].strip()
+        elif "</think>" in comp:
+            tail_after_ans = comp.split("</think>")[-1].strip()
+
+        if is_corr and not has_debris and not has_repeat:
+            tail_tokens = len(tail_after_ans.split())
+            if tail_tokens <= 4:
+                score += 1.2  # Immediate clean EOS cutoff
+            elif tail_tokens > 20:
+                score -= 1.0  # Trailing unpruned monologue
+
+        # 4. Monotonic Length Economy Penalty / Bonus
+        toks = _estimate_tokens(comp)
+        if reg in ("factual_bypass", "bypass"):
+            target_len = 15
+        elif reg in ("intent_dialogue", "intent"):
+            target_len = 75
+        else:
+            target_len = 50  # Concept Math target
+
+        if toks > target_len:
+            excess = toks - target_len
+            score -= min(1.5, 0.03 * excess)
+        elif is_corr and not has_debris and not has_repeat:
+            savings = max(0.0, (target_len - toks) / target_len)
+            score += 0.5 * savings
+
+        rewards.append(float(score))
+
+    return rewards
+
+
 # ---------------------------------------------------------------------------
 # Demo
 # ---------------------------------------------------------------------------
