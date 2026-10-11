@@ -368,10 +368,11 @@ def make_reward_fn(include_english_refs: bool = False) -> Callable:
 # Modular Reward Functions for TRL GRPOTrainer
 # ---------------------------------------------------------------------------
 
-def correctness_reward_func(prompts, completions, answers, **kwargs) -> list[float]:
+def correctness_reward_func(prompts, completions, answers=None, **kwargs) -> list[float]:
     """Evaluates final answer accuracy against ground-truth normalized answer."""
+    ans_list = answers if answers is not None else kwargs.get("answer", kwargs.get("answers", [""] * len(completions)))
     rewards = []
-    for comp, ans in zip(completions, answers):
+    for comp, ans in zip(completions, ans_list):
         extracted = extract_answer(comp)
         if answers_match(extracted, ans):
             rewards.append(1.0)
@@ -406,10 +407,11 @@ def syntax_and_noise_reward_func(prompts, completions, **kwargs) -> list[float]:
     return rewards
 
 
-def self_correction_reward_func(prompts, completions, answers, **kwargs) -> list[float]:
+def self_correction_reward_func(prompts, completions, answers=None, **kwargs) -> list[float]:
     """Awards a +0.4 bonus for verified hypothesis testing / backtracking."""
+    ans_list = answers if answers is not None else kwargs.get("answer", kwargs.get("answers", [""] * len(completions)))
     rewards = []
-    for comp, ans in zip(completions, answers):
+    for comp, ans in zip(completions, ans_list):
         extracted = extract_answer(comp)
         is_corr = answers_match(extracted, ans)
         bonus = detect_self_correction(comp, is_corr)
@@ -417,11 +419,12 @@ def self_correction_reward_func(prompts, completions, answers, **kwargs) -> list
     return rewards
 
 
-def efficiency_and_bypass_reward_func(prompts, completions, answers, registers=None, **kwargs) -> list[float]:
+def efficiency_and_bypass_reward_func(prompts, completions, answers=None, registers=None, **kwargs) -> list[float]:
     """Rewards token compression, zero-shot factual bypass, and intent scratchpads."""
+    ans_list = answers if answers is not None else kwargs.get("answer", kwargs.get("answers", [""] * len(completions)))
+    regs = registers if registers is not None else kwargs.get("register", kwargs.get("registers", ["symbolic_deductive"] * len(completions)))
     rewards = []
-    regs = registers if registers else ["symbolic_deductive"] * len(completions)
-    for comp, ans, reg in zip(completions, answers, regs):
+    for comp, ans, reg in zip(completions, ans_list, regs):
         extracted = extract_answer(comp)
         is_corr = answers_match(extracted, ans)
 
@@ -470,18 +473,18 @@ def efficiency_and_bypass_reward_func(prompts, completions, answers, registers=N
     return rewards
 
 
-def concept_alignment_reward_func(prompts, completions, answers, concepts=None, **kwargs) -> list[float]:
+def concept_alignment_reward_func(prompts, completions, answers=None, concepts=None, **kwargs) -> list[float]:
     """Awards bonus for declaring valid Register v2.0 concept macro-plans."""
     rewards = []
     srl_parser = SRLParser()
-    exp_concepts = concepts if concepts else [None] * len(completions)
+    exp_concepts = concepts if concepts is not None else kwargs.get("concept", kwargs.get("concepts", [None] * len(completions)))
     for comp, exp_c in zip(completions, exp_concepts):
         res = srl_parser.parse(comp)
         if res.ast and res.ast.plan:
             bonus = 0.30
             if exp_c:
                 cand = res.ast.plan.concept.lower()
-                exp = exp_c.lower()
+                exp = str(exp_c).lower()
                 if exp in cand or cand in exp:
                     bonus += 0.20
             rewards.append(bonus)
@@ -515,15 +518,16 @@ def detect_web_debris(text: str) -> bool:
     return False
 
 
-def hard_eos_and_economy_reward_func(prompts, completions, answers, registers=None, **kwargs) -> list[float]:
+def hard_eos_and_economy_reward_func(prompts, completions, answers=None, registers=None, **kwargs) -> list[float]:
     """
     Stage 4 Alignment: Rewards strict token economy, immediate EOS termination,
     and imposes heavy penalties on answer loops, debris, and excessive length.
     """
     rewards = []
-    regs = registers if registers else ["symbolic_deductive"] * len(completions)
+    ans_list = answers if answers is not None else kwargs.get("answer", kwargs.get("answers", [""] * len(completions)))
+    regs = registers if registers is not None else kwargs.get("register", kwargs.get("registers", ["symbolic_deductive"] * len(completions)))
 
-    for comp, ans, reg in zip(completions, answers, regs):
+    for comp, ans, reg in zip(completions, ans_list, regs):
         score = 0.0
         extracted = extract_answer(comp)
         is_corr = answers_match(extracted, ans)

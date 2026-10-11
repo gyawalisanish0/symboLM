@@ -83,8 +83,11 @@ def load_efficiency_curriculum(data_file_path: Path) -> Dataset:
             records.append({
                 "prompt": formatted_prompt,
                 "answer": str(ans),
+                "answers": str(ans),
                 "register": str(reg),
+                "registers": str(reg),
                 "concept": str(concept),
+                "concepts": str(concept),
             })
 
     print(f"[DATASET] Loaded {len(records)} curriculum samples for Stage 4 Efficiency Alignment.")
