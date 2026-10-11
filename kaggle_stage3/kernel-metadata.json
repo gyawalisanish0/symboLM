@@ -11,6 +11,7 @@
   "dataset_sources": [],
   "competition_sources": [],
   "kernel_sources": [
+    "sanishgyawali/symbolm-stage-2-5-concept-sft-seeding",
     "sanishgyawali/symbolm-stage-2-grpo-training-dual-tesla-t4",
     "sanishgyawali/symbolm-stage-1-sft-training"
   ],
