@@ -6,6 +6,7 @@
 **Location:** Rupandehi, Nepal  
 **Grant Request:** $20,000 (Unrestricted Project Grant)  
 **GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
+**Official Model Release:** [https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5)  
 **Model Hub Checkpoints:** [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints)  
 
 ---

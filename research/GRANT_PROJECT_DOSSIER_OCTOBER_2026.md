@@ -7,6 +7,7 @@
 **Target Fellowships:** Emergent Ventures (Dr. Tyler Cowen), 1517 Fund Medici Grants, AI Grant  
 **Funding Request:** $20,000 – $25,000 (Unrestricted Fellowship / Project Grant)  
 **Open Source Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
+**Official Model Release:** [https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5)  
 **Model Hub Checkpoints:** [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints)  
 
 ---
