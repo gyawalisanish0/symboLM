@@ -123,11 +123,21 @@
 
 ---
 
-## 📌 Next Steps (Stage 5 GRPO Training & Grant Submission)
+## ⚡ Stage 5 Parsimony & Scratchpad 2.0 Training (Active Oct 12, 2026, 08:20 NPT)
 
-1. **Stage 5 GRPO Policy Run (Scratchpad 2.0):**
-   - Train on Kaggle Dual Tesla T4 / TPU v3-8 using `gradient_complexity_reward_func` to dynamically calibrate reasoning depth across $\Delta_0 \to \Delta_3$.
-2. **Emergent Ventures Grant Submission:**
-   - Submit formal grant dossier to Dr. Tyler Cowen ($20,000 fellowship request), featuring Sanish's 2-minute unedited video, Stage 4 empirical scorecard, and the 224x DeepSeek co-design memorandum.
-3. **LoRA Adapter Merge & GGUF Export:**
-   - Export merged weights for local edge CPU inference.
+### 1. Active Cloud Kernel
+- **Kernel ID:** [`sanishgyawali/symbolm-stage-5-parsimony-grpo`](https://www.kaggle.com/code/sanishgyawali/symbolm-stage-5-parsimony-grpo)
+- **Status:** **`KernelWorkerStatus.RUNNING`** on Kaggle Tesla T4 GPU.
+- **Curriculum:** 1,600 verified samples across Cognitive Depth Spectrum ($\Delta_0 \to \Delta_3$) (`data/stage5_parsimony_curriculum.jsonl`).
+- **Reward Engine:** `unbounded_parsimony_reward_func` (Sanish Gyawali's continuous hyperbolic parsimony gradient with zero token ceiling lock).
+- **Warm-Start:** Bootstrapped from `checkpoints/stage4_efficient_adapter/`.
+- **Completion Budget:** `max_completion_length = 192` (providing elastic breathing room for multi-step derivations).
+
+---
+
+## 📌 Next Steps (Grant Submission & Stage 5 Audit)
+
+1. **Monitor Stage 5 Training Run:** 150 GRPO steps on Kaggle GPU (~35–40 minutes total).
+2. **Download & Audit Stage 5 Policy Adapter:** Verify multi-depth inline audit ($\Delta_0$ instant bypass vs. $\Delta_3$ deep derivation) and download weights to `checkpoints/stage5_parsimony_adapter/`.
+3. **Emergent Ventures Grant Submission:** Submit formal dossier to Dr. Tyler Cowen ($20,000 fellowship request), featuring Sanish's 2-minute unedited bedside video, Stage 4/5 empirical receipts, and the 224x DeepSeek co-design memorandum.
+4. **LoRA Adapter Merge & GGUF Export:** Export merged weights for local edge CPU inference.
