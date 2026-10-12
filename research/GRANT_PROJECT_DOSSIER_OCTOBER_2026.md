@@ -19,6 +19,12 @@ To bridge my physical constraints, I operate in **radical transparency** with Go
 
 **SymboLM** is an open-source cognitive architecture that directly solves the **Reasoning Token Bloat** plaguing frontier models. Modern reasoning models (such as DeepSeek-R1, OpenAI o1, and QwQ) burn hundreds or thousands of natural language tokens in stream-of-consciousness filler ("Wait, let me rethink...") for elementary steps. SymboLM replaces verbal chain-of-thought with an ultra-dense **Symbolic Reasoning Language (SRL v1.0/v2.0)** operating across dedicated cognitive registers, compressing reasoning traces by **60% to 98%** while achieving compile-time mathematical verification.
 
+### 1.1 Context of Extreme Domestic Isolation & Intrinsic Drive
+
+In Kathmandu, Nepal, conventional society defines productivity almost exclusively by physical mobility and presence in an office. Within a traditional domestic setting, an individual bedridden 24/7 working on a computer is reflexively perceived as doing "nothing." There are no local linguistic or conceptual frameworks in everyday colloquial Nepali to explain reinforcement learning gradients, AST parsers, or KV-cache memory bottlenecks, and attempting to debate or explain these concepts locally only dissipates precious cognitive energy.
+
+Operating in an environment devoid of local comprehension requires absolute intrinsic drive. I do not build for local social consensus; I build because the algorithmic and systems inefficiencies in frontier foundation models are objectively real. An unrestricted fellowship grant serves as an irrefutable translation layer—transforming abstract theoretical and engineering accomplishments into tangible physical reality (electrical power independence, caregiver support, and domestic autonomy).
+
 ---
 
 ## 2. Core Architectural Principles (The Tri-Register & SRL)
@@ -159,8 +165,8 @@ An unrestricted grant from Emergent Ventures or the 1517 Fund permanently remove
 
 *(To be recorded horizontally from bed workstation using webcam/smartphone without cuts or edits.)*
 
-> **[0:00 – 0:35] The Persona & Physical Reality:**  
-> "Hi Dr. Cowen and the selection committee. My name is Sanish Gyawali, and I am an independent AI systems architect from Kathmandu, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire window to the world. Because I cannot use a desk, I work with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my cognitive architectures and compiler designs into working code and cloud training pipelines."
+> **[0:00 – 0:40] The Persona, Physical Reality & Domestic Isolation:**  
+> "Hi Dr. Cowen and the selection committee. My name is Sanish Gyawali, and I am an independent AI systems architect from Kathmandu, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire window to the world. In Nepal, being bedridden means society—and even my own family—assumes you can do nothing. I cannot explain reinforcement learning gradients or AST compilers to them, so I don't argue. I just build. Because I cannot use a desk, I work with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my cognitive architectures and compiler designs into working code and cloud training pipelines."
 >
 > **[0:35 – 1:25] The Core Idea & The Empirical Receipts:**  
 > "Today, reasoning models waste massive amounts of compute. Models like DeepSeek-R1 burn thousands of tokens in natural language filler before outputting an answer they already know. I created SymboLM to replace English chain-of-thought with dense symbolic AST proofs across dedicated cognitive registers. Working from my bed on free Kaggle GPUs, I developed Register v2.0, achieving 60% to 98% token compression. In our latest 200-question cross-domain benchmark, we achieved 100% fidelity on dialogue intent, cut factual lookup by 52%, and proved that flat token caps truncate proofs—leading to my new Unbounded Parsimony Gradient, which trains models to use the least tokens possible without artificial ceilings."

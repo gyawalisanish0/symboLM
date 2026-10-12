@@ -20,6 +20,8 @@ I am Sanish Gyawali, a self-taught AI systems architect and independent research
 
 Despite having no institutional affiliation or academic credentials, I spend all my waking hours examining LLM cognitive behaviors, token dynamics, and open-source models. Because I am unable to walk or use a standard desk setup, I operate with Google DeepMind’s Antigravity (Gemini) as my transparent operational exoskeleton—translating my abstract architectural designs, grammar rules, and compiler specifications into production code, automated test suites, and cloud execution pipelines.
 
+Living in a traditional household in Nepal, where productive work is strictly recognized as physical presence in an office or a conventional job, my family and community naturally perceive someone lying in bed on a computer as doing "nothing." In colloquial Nepali, there are no words or conceptual frameworks to explain reinforcement learning gradients, AST parsers, or KV-cache memory bottlenecks. I have learned not to argue or plead for local understanding; instead, I channel every waking hour into code, mathematical proofs, and empirical receipts. Operating in an environment of total domestic skepticism requires extreme intrinsic drive—I build because the systems problems are real, not because anyone around me validates them. An Emergent Ventures grant is not merely compute credits; it is the universal translator that permanently converts this abstract research into undeniable physical reality, solar energy independence, and the dignity to build without domestic friction.
+
 ---
 
 ### Field 3: A Consensus View You Strongly Agree With
@@ -84,8 +86,8 @@ The $20,000 grant directly removes the three binding physical and digital constr
 
 *(Record horizontally from your bed workstation using your phone or webcam. Speak naturally and unedited.)*
 
-> **[0:00 - 0:35] The Persona & Physical Reality:**  
-> "Hi Dr. Cowen. My name is Sanish Gyawali, and I'm an independent AI systems researcher from Kathmandu, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire connection to the world. Because I cannot use a standard desk, I operate with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my architectural designs into terminal commands and cloud GPU pipelines."
+> **[0:00 - 0:40] The Persona, Physical Reality & Domestic Isolation:**  
+> "Hi Dr. Cowen. My name is Sanish Gyawali, and I'm an independent AI systems researcher from Kathmandu, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire connection to the world. In Nepal, being bedridden means society—and even my own family—assumes you can do nothing. I can't explain reinforcement learning gradients or AST compilers to them, so I don't argue. I just build. Because I cannot use a standard desk, I operate with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my architectural designs into terminal commands and cloud GPU pipelines."
 >
 > **[0:35 - 1:25] The Core Idea & The Empirical Receipts:**  
 > "Today, reasoning models are wasting astronomical amounts of compute. Frontier models burn thousands of tokens rambling in English—performing uncertainty theater before giving an answer they already know. I created SymboLM to replace natural language CoT with dense, verifiable AST proofs across distinct cognitive registers. Working on free Kaggle GPUs, I trained a 1.5-billion parameter model that derives Olympiad math proofs in 35 tokens instead of 1,200 tokens. When our 200-question audit showed the model was looping answers, I immediately engineered Stage 4 Hard EOS alignment, and within hours proved we could eliminate the bloat and terminate cleanly."
