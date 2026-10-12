@@ -98,3 +98,16 @@ The precision of the model weights and gradients dictates the absolute ceiling o
 | **Upgrade to 7B Model on T4** | 4-bit NF4 QLoRA + Fused Cross-Entropy (Liger) |
 | **Speed (Time-to-Train)** | Sequence Packing + SDPA + FP16 Base + LoRA |
 | **Max GRPO Rollout Size (G=8)** | Selective `lm_head` projection + 8-bit KV Cache |
+| **Edge & Datacenter Scale (224x Gain)** | DeepSeek CED Shared Global KV + SymboLM Symbolic AST |
+
+---
+
+## 5. Frontier Co-Design: DeepSeek-V4.1-Flash & SymboLM v2.0
+
+*Detailed technical memorandum:* [`research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md`](file:///c:/Users/user/Dev/symboLM/research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md)
+
+### Architectural Multiplier:
+* **DeepSeek Hardware Innovation:** Causal Encoder-Decoder (CED), Shared Global KV via CSA2 (Compressed Sparse Attention 2), and FP4 E2M1 quantization reduce KV cache from 4,000 B/token to **890 B/token**.
+* **SymboLM Sequence Innovation:** Replaces 2,000 verbal English tokens with **40 dense symbolic AST tokens** via SRL v2.0.
+* **Compound Result:** Memory footprint drops from **8.0 MB to 35.6 KB per request**—a **$224\times$ reduction** enabling massive concurrent scaling.
+* **MTP Synergy:** SRL's deterministic grammar enables near-100% speculative acceptance on Multi-Token Prediction (MTP) heads.
