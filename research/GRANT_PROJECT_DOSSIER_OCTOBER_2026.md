@@ -3,7 +3,7 @@
 
 **Principal Systems Architect & Research Director:** Sanish Gyawali  
 **AI Systems Exoskeleton:** Antigravity (Google DeepMind)  
-**Location:** Kathmandu, Nepal  
+**Location:** Rupandehi, Nepal  
 **Target Fellowships:** Emergent Ventures (Dr. Tyler Cowen), 1517 Fund Medici Grants, AI Grant  
 **Funding Request:** $20,000 – $25,000 (Unrestricted Fellowship / Project Grant)  
 **Open Source Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
@@ -13,7 +13,7 @@
 
 ## 1. Executive Summary & Research Trajectory
 
-I am Sanish Gyawali, an independent AI systems researcher based in Kathmandu, Nepal. I have a severe congenital physical disability and am bedridden 24/7. My bed workstation is my sole laboratory, university, and interface with the global research community. Without institutional backing, venture funding, or access to high-end domestic compute clusters, I conduct all systems design, compiler engineering, and reinforcement learning runs directly from my bed.
+I am Sanish Gyawali, an independent AI systems researcher based in Rupandehi, Nepal. I have a severe congenital physical disability and am bedridden 24/7. My bed workstation is my sole laboratory, university, and interface with the global research community. Without institutional backing, venture funding, or access to high-end domestic compute clusters, I conduct all systems design, compiler engineering, and reinforcement learning runs directly from my bed.
 
 To bridge my physical constraints, I operate in **radical transparency** with Google DeepMind’s Antigravity (Gemini) as my cognitive and operational exoskeleton. I conceive the abstract first principles—designing domain grammars, formal compiler ASTs, cognitive registers, and reinforcement learning reward functions—which are then collaboratively translated into code, automated test suites, and remote cloud GPU pipelines.
 
@@ -21,7 +21,7 @@ To bridge my physical constraints, I operate in **radical transparency** with Go
 
 ### 1.1 Context of Extreme Domestic Isolation & Intrinsic Drive
 
-In Kathmandu, Nepal, conventional society defines productivity almost exclusively by physical mobility and presence in an office. Within a traditional domestic setting, an individual bedridden 24/7 working on a computer is reflexively perceived as doing "nothing." There are no local linguistic or conceptual frameworks in everyday colloquial Nepali to explain reinforcement learning gradients, AST parsers, or KV-cache memory bottlenecks, and attempting to debate or explain these concepts locally only dissipates precious cognitive energy.
+In Rupandehi, Nepal, conventional society defines productivity almost exclusively by physical mobility and presence in an office. Within a traditional domestic setting, an individual bedridden 24/7 working on a computer is reflexively perceived as doing "nothing." There are no local linguistic or conceptual frameworks in everyday colloquial Nepali to explain reinforcement learning gradients, AST parsers, or KV-cache memory bottlenecks, and attempting to debate or explain these concepts locally only dissipates precious cognitive energy.
 
 Operating in an environment devoid of local comprehension requires absolute intrinsic drive. I do not build for local social consensus; I build because the algorithmic and systems inefficiencies in frontier foundation models are objectively real. An unrestricted fellowship grant serves as an irrefutable translation layer—transforming abstract theoretical and engineering accomplishments into tangible physical reality (electrical power independence, caregiver support, and domestic autonomy).
 
@@ -166,7 +166,7 @@ An unrestricted grant from Emergent Ventures or the 1517 Fund permanently remove
 ├──────────────────────────┼──────────────┼──────────────────────────────┤
 │ 3. Living & Care         │ $5,000 –     │ 12-month caregiving & daily  │
 │    Runway                │ $8,000       │ physical assistance runway   │
-│                          │              │ in Kathmandu, Nepal.         │
+│                          │              │ in Rupandehi, Nepal.         │
 └──────────────────────────┴──────────────┴──────────────────────────────┘
 ```
 
@@ -177,10 +177,10 @@ An unrestricted grant from Emergent Ventures or the 1517 Fund permanently remove
 *(To be recorded horizontally from bed workstation using webcam/smartphone without cuts or edits.)*
 
 > **[0:00 – 0:40] The Persona, Physical Reality & Domestic Isolation:**  
-> "Hi Dr. Cowen and the selection committee. My name is Sanish Gyawali, and I am an independent AI systems architect from Kathmandu, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire window to the world. In Nepal, being bedridden means society—and even my own family—assumes you can do nothing. I cannot explain reinforcement learning gradients or AST compilers to them, so I don't argue. I just build. Because I cannot use a desk, I work with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my cognitive architectures and compiler designs into working code and cloud training pipelines."
+> "Hi Dr. Cowen and the selection committee. My name is Sanish Gyawali, and I am an independent AI systems architect from Rupandehi, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire window to the world. In Nepal, being bedridden means society—and even my own family—assumes you can do nothing. I cannot explain reinforcement learning gradients or AST compilers to them, so I don't argue. I just build. Because I cannot use a desk, I work with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my cognitive architectures and compiler designs into working code and cloud training pipelines."
 >
 > **[0:35 – 1:25] The Core Idea & The Empirical Receipts:**  
 > "Today, reasoning models waste massive amounts of compute. Models like DeepSeek-R1 burn thousands of tokens in natural language filler before outputting an answer they already know. I created SymboLM to replace English chain-of-thought with dense symbolic AST proofs across dedicated cognitive registers. Working from my bed on free Kaggle GPUs, I developed Register v2.0, achieving 60% to 98% token compression. In our latest 200-question cross-domain benchmark, we achieved 100% fidelity on dialogue intent, cut factual lookup by 52%, and proved that flat token caps truncate proofs—leading to my new Unbounded Parsimony Gradient, which trains models to use the least tokens possible without artificial ceilings."
 >
 > **[1:25 – 2:00] What Your Grant Unlocks:**  
-> "A grant permanently solves three bottlenecks: First, it installs battery storage so Kathmandu’s frequent power outages don't cut my remote GPU runs. Second, it provides dedicated A100 compute so I can scale SymboLM from 1.5-billion to 14-billion and 32-billion parameter foundation models. Third, it provides a 12-month living and personal care runway so I can devote 100% of my waking life to independent research. All weights, code, and receipts are open source. Thank you for believing in independent research."
+> "A grant permanently solves three bottlenecks: First, it installs battery storage so Rupandehi’s frequent power outages don't cut my remote GPU runs. Second, it provides dedicated A100 compute so I can scale SymboLM from 1.5-billion to 14-billion and 32-billion parameter foundation models. Third, it provides a 12-month living and personal care runway so I can devote 100% of my waking life to independent research. All weights, code, and receipts are open source. Thank you for believing in independent research."

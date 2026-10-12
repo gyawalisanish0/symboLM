@@ -3,7 +3,7 @@
 **Applicant:** Sanish Gyawali  
 **Project:** SymboLM — Adaptive Symbolic Reasoning & General Intelligence Engine  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
-**Location:** Kathmandu, Nepal  
+**Location:** Rupandehi, Nepal  
 **Grant Request:** $20,000 (Unrestricted Project Grant)  
 **GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
 **Model Hub Checkpoints:** [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints)  
@@ -98,7 +98,7 @@ The $20,000 grant directly removes the three binding physical and digital constr
 *(Record horizontally from your bed workstation using your phone or webcam. Speak naturally and unedited.)*
 
 > **[0:00 - 0:40] The Persona, Physical Reality & Domestic Isolation:**  
-> "Hi Dr. Cowen. My name is Sanish Gyawali, and I'm an independent AI systems researcher from Kathmandu, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire connection to the world. In Nepal, being bedridden means society—and even my own family—assumes you can do nothing. I can't explain reinforcement learning gradients or AST compilers to them, so I don't argue. I just build. Because I cannot use a standard desk, I operate with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my architectural designs into terminal commands and cloud GPU pipelines."
+> "Hi Dr. Cowen. My name is Sanish Gyawali, and I'm an independent AI systems researcher from Rupandehi, Nepal. I have a severe physical disability from birth and am bedridden 24/7. My bed workstation is my lab, my university, and my entire connection to the world. In Nepal, being bedridden means society—and even my own family—assumes you can do nothing. I can't explain reinforcement learning gradients or AST compilers to them, so I don't argue. I just build. Because I cannot use a standard desk, I operate with Google DeepMind's Antigravity as my transparent operational exoskeleton—translating my architectural designs into terminal commands and cloud GPU pipelines."
 >
 > **[0:35 - 1:25] The Core Idea & The Empirical Receipts:**  
 > "Today, reasoning models are wasting astronomical amounts of compute. Frontier models burn thousands of tokens rambling in English—performing uncertainty theater before giving an answer they already know. I created SymboLM to replace natural language CoT with dense, verifiable AST proofs across distinct cognitive registers. Working on free Kaggle GPUs, I trained a 1.5-billion parameter model that derives Olympiad math proofs in 35 tokens instead of 1,200 tokens. When our 200-question audit showed the model was looping answers, I immediately engineered Stage 4 Hard EOS alignment, and within hours proved we could eliminate the bloat and terminate cleanly."

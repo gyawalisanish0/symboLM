@@ -138,9 +138,14 @@
 
 ---
 
-## 📌 Next Steps (Grant Submission & Fellowship Phase)
+## 📌 Next Steps & Release Roadmap (v1.1 Release Pipeline)
 
-1. **Record Bedside Unedited Video:** Sanish to record the 2-minute unedited horizontal video from bed for Dr. Tyler Cowen (Emergent Ventures) covering the 3 mental anchors (Reality & Agency, SymboLM Receipts, $20k Unlock).
-2. **Submit Emergent Ventures Application:** Submit formal dossier ([`research/EMERGENT_VENTURES_GRANT_APPLICATION.md`](file:///c:/Users/user/Dev/symboLM/research/EMERGENT_VENTURES_GRANT_APPLICATION.md)) to Mercatus Center.
-3. **Submit 1517 Fund & AI Grant Applications:** Package [`research/GRANT_PROJECT_DOSSIER_OCTOBER_2026.md`](file:///c:/Users/user/Dev/symboLM/research/GRANT_PROJECT_DOSSIER_OCTOBER_2026.md) for Danielle Strachman and Nat Friedman / Daniel Gross.
-4. **Model Hub Upload (HF):** Push `stage5_parsimony_adapter` to private repository [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints).
+1. **Record Bedside Unedited Video:** Sanish to record the 2-minute unedited horizontal video from bed workstation in Rupandehi, Nepal for Dr. Tyler Cowen (Emergent Ventures) covering the 3 mental anchors (Reality & Agency, SymboLM Receipts, $20k Unlock).
+2. **Submit Fellowship Applications:** Emergent Ventures (Tyler Cowen), 1517 Fund (Danielle Strachman), and AI Grant (Nat Friedman & Daniel Gross).
+3. **Execute v1.1 Open-Source Release Roadmap ([`research/RELEASE_ROADMAP_V1.1_BENCHMARK_AND_QUANT.md`](file:///c:/Users/user/Dev/symboLM/research/RELEASE_ROADMAP_V1.1_BENCHMARK_AND_QUANT.md)):**
+   - **Phase 1 (Standalone Weight Merge):** Fusing Stage 5 LoRA adapter into base 1.5B model (`checkpoints/symbolm_v1.1_merged/`).
+   - **Phase 2 (1,000-Question Multi-Year Benchmark):** 200 questions each across 2021, 2022, 2023, 2024, and 2025/2026 to prove temporal generalization.
+   - **Phase 3 (Batch FP16 Evaluation):** Auditing Pass@1, token compression ratio, and register routing fidelity.
+   - **Phase 4 (Multi-Bit Quantization):** Exporting INT8 and INT4 (NF4 & GGUF Q4_K_M) for edge devices and Ollama (< 1.2 GB RAM).
+   - **Phase 5 (Latency & Throughput Audit):** Benchmarking tokens/sec, latency, and accuracy retention across FP16 vs INT8 vs INT4.
+   - **Phase 6 (Hugging Face Public Release):** Publishing draft model card and standalone weights at `gyawalisanish0/symboLM-1.5B-v1.1`.
