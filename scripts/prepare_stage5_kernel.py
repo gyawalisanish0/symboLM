@@ -1,0 +1,258 @@
+"""
+Prepare Kaggle Kernel Bundle for Stage 5: Scratchpad 2.0 & Unbounded Parsimony GRPO
+===================================================================================
+Creates:
+  - kaggle_stage5/kernel-metadata.json
+  - kaggle_stage5/symbolm_stage5_kaggle.ipynb
+
+Author: Sanish Gyawali
+AI Systems Exoskeleton: Antigravity (Google DeepMind)
+"""
+
+import json
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+OUT_DIR = ROOT_DIR / "kaggle_stage5"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# 1. Kernel Metadata
+metadata = {
+    "id": "sanishgyawali/symbolm-stage-5-parsimony-grpo",
+    "title": "SymboLM Stage 5 Parsimony GRPO",
+    "code_file": "symbolm_stage5_kaggle.ipynb",
+    "language": "python",
+    "kernel_type": "notebook",
+    "is_private": "true",
+    "enable_gpu": "true",
+    "enable_tpu": "false",
+    "enable_internet": "true",
+    "dataset_sources": [],
+    "competition_sources": [],
+    "kernel_sources": [
+        "sanishgyawali/symbolm-stage-4-efficiency-grpo"
+    ],
+    "model_sources": []
+}
+
+meta_file = OUT_DIR / "kernel-metadata.json"
+with open(meta_file, "w", encoding="utf-8") as f:
+    json.dump(metadata, f, indent=2)
+print(f"[OK] Generated {meta_file}")
+
+# 2. Notebook Structure
+notebook = {
+    "cells": [
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "# SymboLM (v2.0) — Stage 5: Scratchpad 2.0 & Unbounded Parsimony GRPO\n",
+                "\n",
+                "**Author & Principal Architect:** Sanish Gyawali  \n",
+                "**AI Systems Exoskeleton:** Antigravity (Google DeepMind)  \n",
+                "**Hardware:** Kaggle NVIDIA Tesla T4 GPU (CUDA)  \n",
+                "**Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  \n",
+                "\n",
+                "---  \n",
+                "### Core Stage 5 Objectives:\n",
+                "1. **Unbounded Parsimony Gradient:** No artificial token ceilings. Monotonically rewards using the least tokens possible ($R \\propto \\frac{K}{K + |\\tau|}$).\n",
+                "2. **Elastic Scratchpad 2.0:** Dynamic depth allocation across the Cognitive Depth Spectrum ($\\Delta_0 \\to \\Delta_3$) with up to 192 tokens for deep proofs.\n",
+                "3. **Latent Knowledge Leverage:** Discourages verbal recitation of known axioms, pushing the policy toward Minimum Description Length (MDL).\n",
+                "4. **Warm-Start from Stage 4:** Inherits 1.0% syntax noise and clean anti-repetition termination."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 1: Environment & Hardware Verification\n",
+                "import os\n",
+                "import sys\n",
+                "import torch\n",
+                "\n",
+                "print('Python version:', sys.version)\n",
+                "print('Torch version :', torch.__version__)\n",
+                "if torch.cuda.is_available():\n",
+                "    print(f'[OK] NVIDIA CUDA detected! Found {torch.cuda.device_count()} GPU(s):')\n",
+                "    for i in range(torch.cuda.device_count()):\n",
+                "        mem = torch.cuda.get_device_properties(i).total_memory / 1e9\n",
+                "        print(f'  GPU {i}: {torch.cuda.get_device_name(i)} ({mem:.1f} GB VRAM)')\n",
+                "else:\n",
+                "    print('[Warning] No CUDA GPU found!')\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 2: Install required libraries\n",
+                "!pip install -q --upgrade pip\n",
+                "!pip uninstall -y -q torchao\n",
+                "!pip install -q transformers peft trl accelerate sympy datasets huggingface_hub\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 3: Clone latest SymboLM repository with Stage 5 parsimony curriculum\n",
+                "!rm -rf /kaggle/working/symboLM\n",
+                "!git clone https://github.com/gyawalisanish0/symboLM.git /kaggle/working/symboLM\n",
+                "print('[OK] Successfully cloned latest SymboLM repository!')\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 4: Mount Stage 4 Efficiency Adapter from Kernel Source\n",
+                "import os\n",
+                "import shutil\n",
+                "from pathlib import Path\n",
+                "\n",
+                "target_dir = Path('/kaggle/working/symboLM/checkpoints/stage4_efficient_adapter')\n",
+                "target_dir.mkdir(parents=True, exist_ok=True)\n",
+                "\n",
+                "found = False\n",
+                "# 1. Search for stage4_adapter in mounted kernel inputs\n",
+                "for p in Path('/kaggle/input').glob('**/stage4_adapter'):\n",
+                "    if (p / 'adapter_config.json').exists():\n",
+                "        print(f'[OK] Found Stage 4 adapter at: {p}')\n",
+                "        for item in p.iterdir():\n",
+                "            if item.is_file():\n",
+                "                shutil.copy2(item, target_dir / item.name)\n",
+                "        found = True\n",
+                "        break\n",
+                "\n",
+                "# 2. Search for tar archive\n",
+                "if not found:\n",
+                "    for arc in Path('/kaggle/input').glob('**/*stage4*policy*.tar.gz'):\n",
+                "        print(f'[OK] Found Stage 4 tar archive at: {arc}. Unpacking...')\n",
+                "        os.system(f'tar -xzf \"{arc}\" -C \"{target_dir}\"')\n",
+                "        found = True\n",
+                "        break\n",
+                "\n",
+                "print('[Status] Validating Stage 4 Warm-Start Files:')\n",
+                "for f in sorted(target_dir.iterdir()):\n",
+                "    sz = f.stat().st_size / 1e6 if f.is_file() else 0\n",
+                "    print(f'  {f.name} ({sz:.2f} MB)' if f.is_file() else f'  {f.name}/')\n",
+                "\n",
+                "assert (target_dir / 'adapter_config.json').exists(), 'CRITICAL: adapter_config.json missing!'\n",
+                "assert (target_dir / 'adapter_model.safetensors').exists(), 'CRITICAL: adapter_model.safetensors missing!'\n",
+                "print('[VERIFIED] Stage 4 adapter ready as Stage 5 warm-start!')\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 5: Run Stage 5 Parsimony & Scratchpad 2.0 GRPO Training\n",
+                "!CUDA_VISIBLE_DEVICES=0 python /kaggle/working/symboLM/training/stage5_parsimony_train.py \\\n",
+                "  --base_model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \\\n",
+                "  --warmstart_adapter /kaggle/working/symboLM/checkpoints/stage4_efficient_adapter \\\n",
+                "  --output_dir /kaggle/working/stage5_parsimony_adapter \\\n",
+                "  --data_file /kaggle/working/symboLM/data/stage5_parsimony_curriculum.jsonl \\\n",
+                "  --learning_rate 1e-5 \\\n",
+                "  --max_steps 150 \\\n",
+                "  --max_completion_length 192 \\\n",
+                "  --num_generations 4 \\\n",
+                "  --beta 0.04 \\\n",
+                "  --temperature 0.3\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 6: Post-Training Multi-Depth Verification Audit\n",
+                "import torch\n",
+                "from pathlib import Path\n",
+                "from peft import PeftModel\n",
+                "from transformers import AutoModelForCausalLM, AutoTokenizer\n",
+                "\n",
+                "print('=== STAGE 5 MULTI-DEPTH INLINE AUDIT ===')\n",
+                "adapter_dir = Path('/kaggle/working/stage5_parsimony_adapter')\n",
+                "tokenizer = AutoTokenizer.from_pretrained(str(adapter_dir), trust_remote_code=True)\n",
+                "base_model = AutoModelForCausalLM.from_pretrained(\n",
+                "    'deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B',\n",
+                "    torch_dtype=torch.float16,\n",
+                "    device_map={'': 'cuda:0'},\n",
+                "    trust_remote_code=True\n",
+                ")\n",
+                "base_model.resize_token_embeddings(151712)\n",
+                "model = PeftModel.from_pretrained(base_model, str(adapter_dir))\n",
+                "model.eval()\n",
+                "\n",
+                "test_suite = [\n",
+                "    ('Δ0 Atomic Fact', 'What is the chemical symbol for Potassium?', 'K'),\n",
+                "    ('Δ1 Linear Invariant', 'If x + 1/x = 6, find the exact value of x^2 + 1/x^2.', '34'),\n",
+                "    ('Δ2 Geometry Invariant', 'A right triangle has inradius r = 6 and perimeter P = 72. Find its area using Area = r * s.', '216'),\n",
+                "    ('Δ3 Deep Congruence', 'Solve for x in [0, 76]: x ≡ 4 (mod 7) and x ≡ 9 (mod 11). Find x.', '53'),\n",
+                "]\n",
+                "\n",
+                "for depth_label, q, expected in test_suite:\n",
+                "    prompt = f'<｜User｜>{q}<｜Assistant｜><think>\\n'\n",
+                "    inputs = tokenizer(prompt, return_tensors='pt').to('cuda:0')\n",
+                "    with torch.no_grad():\n",
+                "        out = model.generate(**inputs, max_new_tokens=128, temperature=0.1, do_sample=False)\n",
+                "    gen = tokenizer.decode(out[0][inputs.input_ids.shape[1]:], skip_special_tokens=False)\n",
+                "    toks = len(gen.split())\n",
+                "    print(f'\\n[{depth_label}] Target: {expected} | Emitted: {toks} tokens')\n",
+                "    print('Generation Preview:')\n",
+                "    print(gen[:300])\n",
+                "    print('-' * 70)\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 7: Package & Export Stage 5 Final Policy\n",
+                "print('[Export] Archiving Stage 5 Aligned Policy Adapter...')\n",
+                "!tar -czf /kaggle/working/symboLM_stage5_final_policy.tar.gz -C /kaggle/working/stage5_parsimony_adapter .\n",
+                "sz = os.path.getsize('/kaggle/working/symboLM_stage5_final_policy.tar.gz') / 1e6\n",
+                "print(f'[OK] Successfully exported /kaggle/working/symboLM_stage5_final_policy.tar.gz ({sz:.2f} MB)')\n"
+            ]
+        }
+    ],
+    "metadata": {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3"
+        },
+        "language_info": {
+            "codemirror_mode": {"name": "ipython", "version": 3},
+            "file_extension": ".py",
+            "mimetype": "text/x-python",
+            "name": "python",
+            "nbconvert_exporter": "python",
+            "pygments_lexer": "ipython3",
+            "version": "3.11.0"
+        }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 4
+}
+
+nb_file = OUT_DIR / "symbolm_stage5_kaggle.ipynb"
+with open(nb_file, "w", encoding="utf-8") as f:
+    json.dump(notebook, f, indent=2)
+print(f"[OK] Generated {nb_file}")
+print("=" * 60)
+print(f"[READY] Stage 5 Kaggle Kernel Bundle prepared in {OUT_DIR}!")

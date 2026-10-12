@@ -1,0 +1,17 @@
+{
+  "id": "sanishgyawali/symbolm-stage-5-parsimony-grpo",
+  "title": "SymboLM Stage 5 Parsimony GRPO",
+  "code_file": "symbolm_stage5_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "sanishgyawali/symbolm-stage-4-efficiency-grpo"
+  ],
+  "model_sources": []
+}
