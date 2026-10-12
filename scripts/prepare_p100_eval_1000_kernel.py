@@ -88,8 +88,10 @@ notebook = {
             "outputs": [],
             "source": [
                 "# [Cell 2] Package Installation & Environment Setup\n",
+                "!pip uninstall -y torchao\n",
                 "!pip install -q transformers peft accelerate datasets\n",
                 "print('[OK] Core libraries ready!')\n"
+
             ]
         },
         {
