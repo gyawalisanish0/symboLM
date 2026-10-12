@@ -1,0 +1,17 @@
+{
+  "id": "sanishgyawali/symbolm-200-mixed-benchmark-evaluation",
+  "title": "SymboLM 200 Mixed Benchmark Evaluation",
+  "code_file": "symbolm_eval_200_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "sanishgyawali/symbolm-stage-3-concept-grpo-training"
+  ],
+  "model_sources": []
+}

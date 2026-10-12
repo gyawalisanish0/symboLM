@@ -50,3 +50,5 @@ data/symbolic_dataset/*.jsonl
 *.log
 *.png
 scratch/
+eval_cross_domain/
+stage4_download/
