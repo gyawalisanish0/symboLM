@@ -585,6 +585,140 @@ def hard_eos_and_economy_reward_func(prompts, completions, answers=None, registe
 
 
 # ---------------------------------------------------------------------------
+# Stage 5 Alignment: Gradient Registers & Scratchpad 2.0 Reward Mechanism
+# ---------------------------------------------------------------------------
+
+def extract_cognitive_depth(comp: str, default: str = "Δ1") -> str:
+    """
+    Extracts cognitive depth tier (Δ0, Δ1, Δ2, Δ3) from Scratchpad 2.0 header,
+    registers, or reasoning structure.
+    """
+    # 1. Direct explicit Scratchpad 2.0 attribute: <reg:scratchpad depth="2">
+    m = re.search(r'depth=["\']?([0-3]|Δ[0-3])["\']?', comp, re.IGNORECASE)
+    if m:
+        val = m.group(1)
+        return val if val.startswith("Δ") else f"Δ{val}"
+
+    # 2. Structural inference from register markers:
+    if "<reg:bypass>" in comp:
+        return "Δ0"
+    if "hyp [" in comp or "<reg:verify>" in comp:
+        return "Δ2"
+    if "<reg:plan>" in comp or "<reg:deduce>" in comp:
+        return "Δ1"
+    if "<reg:intent>" in comp:
+        return "Δ1"
+
+    return default
+
+
+def gradient_complexity_reward_func(
+    prompts,
+    completions,
+    answers=None,
+    cognitive_depths=None,
+    **kwargs
+) -> list[float]:
+    """
+    Stage 5 Alignment: Continuous Gradient-Based Complexity-Proportional Reward
+    (Sanish Gyawali's Scratchpad 2.0 / Gradient Register Architecture).
+
+    Formula:
+      R(tau, y*, C) = R_correct(y*) * [1 + alpha * Phi(tau, C)] - beta * Psi(tau, C) - gamma * Omega(tau) + R_closure
+
+    Where:
+      - C in {Δ0, Δ1, Δ2, Δ3}
+        * Δ0: L_opt = 10,  L_max = 15,  lambda = 0.08 (Strict atomic recall)
+        * Δ1: L_opt = 30,  L_max = 45,  lambda = 0.04 (Linear invariant)
+        * Δ2: L_opt = 55,  L_max = 80,  lambda = 0.03 (Branching verification)
+        * Δ3: L_opt = 90,  L_max = 150, lambda = 0.02 (Deep Scratchpad 2.0 unrolling)
+      - Phi(tau, C) = max(0.0, (L_opt(C) - |tau|) / L_opt(C))
+      - Psi(tau, C) = ReLU(|tau| - L_max(C)) * lambda(C)
+      - Omega(tau) = 2.5 (if repeat) + 2.0 (if debris)
+    """
+    rewards = []
+    ans_list = answers if answers is not None else kwargs.get("answer", kwargs.get("answers", [""] * len(completions)))
+
+    # Cognitive depths can be provided in kwargs or extracted from completion
+    depth_kwargs = cognitive_depths if cognitive_depths is not None else kwargs.get(
+        "cognitive_depth", kwargs.get("cognitive_depths", kwargs.get("depth", [None] * len(completions)))
+    )
+    if not isinstance(depth_kwargs, list):
+        depth_kwargs = [depth_kwargs] * len(completions)
+
+    DEPTH_CONFIG = {
+        "Δ0": {"L_opt": 10, "L_max": 15, "lambda": 0.08},
+        "Δ1": {"L_opt": 30, "L_max": 45, "lambda": 0.04},
+        "Δ2": {"L_opt": 55, "L_max": 80, "lambda": 0.03},
+        "Δ3": {"L_opt": 90, "L_max": 150, "lambda": 0.02},
+    }
+
+    for idx, (comp, ans) in enumerate(zip(completions, ans_list)):
+        # 1. Resolve Cognitive Depth Tier
+        c_depth = depth_kwargs[idx] if idx < len(depth_kwargs) and depth_kwargs[idx] else None
+        if not c_depth:
+            c_depth = extract_cognitive_depth(comp, default="Δ1")
+        if not str(c_depth).startswith("Δ"):
+            c_depth = f"Δ{c_depth}"
+
+        cfg = DEPTH_CONFIG.get(str(c_depth), DEPTH_CONFIG["Δ1"])
+        l_opt = cfg["L_opt"]
+        l_max = cfg["L_max"]
+        l_lambda = cfg["lambda"]
+
+        # 2. Extract and match answer
+        extracted = extract_answer(comp)
+        is_corr = answers_match(extracted, ans)
+
+        # 3. Base Correctness Reward
+        r_correct = 2.0 if is_corr else -0.8
+
+        # 4. Token Counting
+        toks = _estimate_tokens(comp)
+
+        # 5. Gradient Economy Scaling (Phi)
+        if is_corr:
+            phi = max(0.0, (l_opt - toks) / l_opt)
+            r_economy = r_correct * (1.0 + 0.5 * phi)
+        else:
+            r_economy = r_correct
+
+        # 6. Elastic Length Punishment (Psi) - Zero penalty if within L_max!
+        excess = max(0, toks - l_max)
+        psi = excess * l_lambda
+
+        # 7. Repetition and Web Debris Penalty (Omega)
+        has_repeat = detect_ngram_repetition(comp)
+        has_debris = detect_web_debris(comp)
+        omega = 0.0
+        if has_repeat:
+            omega += 2.5
+        if has_debris:
+            omega += 2.0
+
+        # 8. Clean Closure Bonus (+0.5 if clean EOS within 4 tokens of answer)
+        r_closure = 0.0
+        tail_after_ans = ""
+        for tag in ("</ans>", "</reg:scratchpad>", "</reg:deduce>", "</reg:bypass>", "</reg:intent>", "</think>"):
+            if tag in comp:
+                tail_after_ans = comp.split(tag)[-1].strip()
+                break
+
+        if is_corr and not has_repeat and not has_debris:
+            tail_toks = len(tail_after_ans.split())
+            if tail_toks <= 4:
+                r_closure = 0.5
+            elif tail_toks > 25:
+                r_closure = -0.5
+
+        # Total continuous gradient reward
+        score = r_economy - psi - omega + r_closure
+        rewards.append(float(score))
+
+    return rewards
+
+
+# ---------------------------------------------------------------------------
 # Demo
 # ---------------------------------------------------------------------------
 
