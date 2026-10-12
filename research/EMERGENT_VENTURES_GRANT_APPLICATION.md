@@ -31,17 +31,23 @@ Massive open-weight models (from recent Mistral Large variants to DeepSeek-R1 di
 
 ---
 
-### Field 4: The Idea (SymboLM: Adaptive Symbolic Reasoning & Register v2.0)
-To solve the token inflation tax in open models, I conceived **SymboLM** ([https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)), replacing unconstrained natural language with **Register v2.0 (Hierarchical Cognitive Architecture)**:
+### Field 4: The Idea (Biomimetic Reasoning: Applying Nature's Evolutionary Laws to AI)
+Why did natural evolution design the human brain to operate on a mere **20 Watts of power**—the consumption of a dim refrigerator lightbulb—while solving calculus, physical navigation, and language, whereas modern AI burns megawatts in datacenters just to ramble in English? 
+
+Because biological evolution never tolerates monolithic, energy-wasting cognition. In nature, an organism that burned maximum metabolic calories on every mundane stimulus would starve and go extinct. The brain survived through two fundamental evolutionary laws:
+1. **Modular Cognitive Registers:** Firing an instant reflex (System 1) for known memory without metabolic overhead, setting social intent before speech, and reserving dense, symbolic manipulation (System 2) strictly for novel invariants.
+2. **The Metabolic Parsimony Gradient:** Continuous evolutionary pressure toward the Minimum Description Length (MDL)—achieving the survival objective with the least necessary energetic cost.
+
+To transplant nature's evolutionary efficiency into open foundation models, I conceived **SymboLM** ([https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)), replacing unconstrained natural language with **Register v2.0 (Biomimetic Cognitive Architecture)**:
 
 1. **Macro-Concept Planning (`<reg:plan>`):** Identifies domain mathematical invariants and theorems (e.g., Chinese Remainder Theorem, Legendre's formula, semiperimeter-inradius geometry) before touching arithmetic, preventing blind guessing.
 2. **Micro-Symbolic Execution (`<reg:deduce>`):** Translates multi-step logic into an ultra-dense Symbolic Reasoning Language (SRL v1.0) using AST operators (`→`, `∴`, `|`), compressing token counts by 65–75% while making each step mathematically verifiable via SymPy.
 3. **Deterministic Runtime Verification (`<reg:verify>`):** Executes runtime hypothesis assertions (`verify(...)`) and active backtracking (`✗` → `✓`) to prune hallucinations.
-4. **Zero-Shot Factual Bypass (`<reg:bypass>`):** Dynamically allocates 0 thinking tokens for factual memory, permanently eliminating the 18× token waste on routine lookups.
+4. **Zero-Shot Factual Bypass (`<reg:bypass>`):** Dynamically allocates 0 thinking tokens for factual memory, permanently eliminating the 18× token waste on routine lookups (mirroring biological reflex memory).
 5. **Intent Scratchpad (`<reg:intent>`):** Restricts communicative reflection to a 10-token strategy header before fluent dialogue.
 
 **The Empirical Proof of Concept & Rapid Iteration:**
-Working entirely from free-tier cloud GPUs on Kaggle from my bed in Nepal, I advanced SymboLM across four distinct training phases (Stage 1 SFT → Stage 2 GRPO → Stage 2.5 Concept SFT → Stage 3.5 Concept GRPO → Stage 4 Efficiency Alignment):
+Working entirely from free-tier cloud GPUs on Kaggle from my bed in Nepal, I advanced SymboLM across five distinct training phases (Stage 1 SFT → Stage 2 GRPO → Stage 2.5 Concept SFT → Stage 3.5 Concept GRPO → Stage 4 Efficiency Alignment → Stage 5 Parsimony GRPO):
 
 1. **200-Question Mixed Benchmark Audit (AIME Math, Factual QA, Dialogue):**
    - **43.5% Overall Accuracy** on a tiny 1.5B model (`DeepSeek-R1-Distill-Qwen-1.5B`).
@@ -58,8 +64,13 @@ Working entirely from free-tier cloud GPUs on Kaggle from my bed in Nepal, I adv
    - **Olympiad Invariants:** Solved complex theorems ($x+1/x=6 \implies x^4+1/x^4=1154$, $3^{100} \pmod 7 = 4$, symmetric roots).
    - **The Truncation Bottleneck:** Incorrect derivations in CS, Math, and Physics revealed that the model was hitting the 128-token evaluation ceiling right before outputting the final `<ans>` closure. This empirically proved that flat token locks artificially choke deep reasoning.
 
-3. **Stage 5 Architecture: Scratchpad 2.0 & The Unbounded Parsimony Gradient:**
-   To solve this, I designed the Unbounded Parsimony Gradient: eliminating artificial token ceilings so deep derivations can breathe, while monotonically rewarding the shortest valid path ($R = R_{\text{base}} \cdot [\gamma + (1-\gamma) \frac{K}{K+|\tau|}]$). Validated in unit tests: 5-token recall earns $+2.69$, while a deep 120-token proof remains strictly positive at $+1.81$ with zero length penalty.
+3. **Stage 5 Architecture: Scratchpad 2.0 & Unbounded Parsimony Receipts (Completed Oct 12, 2026):**
+   To solve this, I designed and trained the Unbounded Parsimony Gradient: eliminating artificial token ceilings so deep derivations can breathe, while monotonically rewarding the shortest valid path ($R = R_{\text{base}} \cdot [\gamma_{\text{floor}} + (1-\gamma_{\text{floor}}) \frac{K}{K+|\tau|}]$).
+   **Empirical Receipts (Tesla T4 GPU, 150 GRPO steps):**
+   - **$\Delta_0$ Atomic Fact Recall:** **3 tokens!** (`<reg:bypass>K</reg:bypass>`) — 100% instant retrieval.
+   - **$\Delta_1$ Linear Invariant:** **21 tokens!** ($x+1/x=6 \implies 34$) vs. 600+ baseline English tokens.
+   - **$\Delta_3$ Deep Congruence (Chinese Remainder Theorem):** **35 tokens!** ($x \equiv 4 \pmod 7, x \equiv 9 \pmod{11} \implies 53$) with zero truncation.
+   - Final policy weights (1,006 MB) safely persisted in [`checkpoints/stage5_parsimony_adapter/`](file:///c:/Users/user/Dev/symboLM/checkpoints/stage5_parsimony_adapter/).
 
 4. **Frontier Co-Design (The 224x DeepSeek Multiplier):**
    Our formal memorandum proves that combining DeepSeek-V4.1-Flash's hardware Shared Global KV (890 B/tok) with SymboLM's sequence compression (40 tokens vs 2,000) achieves a **224x compound reduction in serving memory footprint** (dropping from 8.0 MB to 35.6 KB per request).

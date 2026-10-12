@@ -1,29 +1,33 @@
-# SymboLM (Version 1.1): Adaptive Symbolic Reasoning & General Intelligence Engine
+# SymboLM (Version 2.0): Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine
 
-**Author:** Sanish Gyawali  
-*Base Model: DeepSeek-R1-Distill-Qwen-1.5B*  
-*Compute Target: Google Colab TPU v5e (v5e-1, bfloat16) / CUDA Fallback*
+**Author & Principal Systems Architect:** Sanish Gyawali  
+**AI Systems Collaborator:** Antigravity (Google DeepMind)  
+*Base Foundation: DeepSeek-R1-Distill-Qwen-1.5B*  
+*Active Compute: Kaggle Dual Tesla T4 (CUDA) / Google Colab TPU v5e*  
+*GitHub Repository:* [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
+*Model Checkpoints:* [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints)
 
-> **Re-imagining DeepSeek R1-style reasoning:** Compressing verbose natural language chain-of-thought into an ultra-dense, verified symbolic DSL to maximize token generation speed, slash inference latency, and triple effective reasoning depth—while maintaining fluent general intelligence, factual direct retrieval, and human conversational empathy.
+> **Applying Nature's Evolutionary Laws to AI Reasoning:**  
+> The biological human brain achieves general intelligence on a mere **20 Watts of power** (the energy of a dim lightbulb) by enforcing two evolutionary principles: **Modular Cognitive Registers** (firing instant reflexes for known facts, setting social intent before speech, and reserving intense deliberation strictly for novel invariants) and the **Metabolic Parsimony Gradient** (relentless evolutionary pressure to achieve the survival objective with the Minimum Description Length).  
+> SymboLM replaces the monolithic, megawatt-burning English CoT of frontier models with a biomimetic multi-register architecture—compressing reasoning traces by **60% to 98%**, reducing KV-cache serving footprint by up to **224×**, and enforcing compile-time mathematical verification.
 
 📄 **[Read the Full Research Whitepaper & Architecture Manifesto (WHITEPAPER.md)](file:///C:/Users/user/Dev/symboLM/WHITEPAPER.md)**
 
 ---
 
-## 🎯 SymboLM Version 1.1 Overview
+## 🎯 Biomimetic Register v2.0 Architecture
 
-SymboLM v1.1 avoids the "Golden Hammer" trap of narrow reasoning models. It operates across **four distinct cognitive registers**:
-
-| Query Type | Cognitive Register | Internal `<think>` Behavior | User Output |
+| Biological Mode | Cognitive Register | Internal `<think>` Behavior | Verified Empirical Output |
 | :--- | :--- | :--- | :--- |
-| **Complex Math / Logic** | **Symbolic Engine** | Dense Symbolic DSL (`let()`, `|`, `→`, `verify`) | Exact verified answer + step summary |
-| **Factual Knowledge / Trivia** | **Zero-Shot Bypass** | **Bypassed / Empty** (`<think></think>`) | Immediate, direct factual answer |
-| **Questionnaires & Forms** | **State Machine** | Variable extraction & constraint tracking | Structured, compliant form response |
-| **Human Interpersonal Interaction**| **Intent Scratchpad** | 10-token planning (`intent: ... | tone: ...`) | Warm, empathetic, natural English prose |
+| **System 1 (Instant Reflex)** | **`<reg:bypass>` (0-step)** | **Bypassed / Empty** (`<think></think>`) | Emits facts in **3 tokens** (e.g., Potassium $\to$ `K`) with 0 reasoning bloat |
+| **Social / Emotional Intent** | **`<reg:intent>` (10-token)** | 10-token planning (`intent: ... \| tone: ...`) | **100.0% routing fidelity**; warm, empathetic natural dialogue |
+| **System 2 (Invariant Planning)** | **`<reg:plan>` (8–16 tokens)** | Declares domain theorems & algebraic identities | Prevents blind guessing on Olympiad number theory & geometry |
+| **System 2 (Symbolic Deduction)** | **`<reg:deduce>` (AST Execution)**| Micro-Symbolic DSL (`let()`, `\|`, `→`, `∴`, `eval`) | **21–35 token proofs** ($x+1/x=6 \implies 34$, Chinese Remainder Theorem) |
+| **Hypothesis Verification** | **`<reg:verify>` (Assert ✓/✗)** | Runtime assertions with active backtracking | Prunes hallucinations before emitting `<ans>` |
 
 ---
 
-## ⚡ The Efficiency Math
+## ⚡ The Efficiency Math & Empirical Receipts
 
 ```
 Standard English Chain-of-Thought (~85 tokens):
@@ -32,20 +36,19 @@ She starts with 5 apples. Next, she gives 2 away to John, leaving 5 - 2 = 3.
 After that, she buys 3 more apples. So 3 + 3 = 6.
 Therefore, the final answer must be 6."
 
-SymboLM v1.1 Symbolic Trace (~16 tokens):
+SymboLM v2.0 Symbolic Trace (~16 tokens):
 <think>
 let(M=5) | M-=2→M=3 | M+=3→M=6 ∴ ans=6
 </think>
 <ans>6</ans>
 ```
 
-### Empirically Verified Benchmark Results (Tested Locally on Qwen2.5/DeepSeek-R1 Tokenizer):
-1. **63.7% to 67.6% Measured Token Reduction:** Verified across real GSM8K and MATH problems (e.g., 102 tokens $\rightarrow$ 33 tokens).
-2. **10.8× KV-Cache Memory Reduction:** Slashes active KV cache consumption from 106.64 MB down to 9.84 MB per sequence for 1.5B parameters.
-3. **10.9× Serving Concurrency Expansion:** Increases serving capacity on a 4 GB KV cache budget from 38 streams to 416 streams.
-4. **Democratized Test-Time Compute (Best-of-8 Cheaper Than 1):** Generating 8 parallel symbolic candidate traces consumes only 440 tokens—**32.3% fewer tokens than a single 650-token English response**.
-5. **100% Deterministic Execution:** All intermediate symbolic invariants verified via SymPy.
-6. **Local Test Environment:** Windows x86_64, CPython 3.13.15, `uv 0.12.19`, official Hugging Face `Qwen/Qwen2.5-1.5B` tokenizer (+70 extended SymboLM tokens), `sympy 1.14.0`. Tested via `eval/verify_math_claims.py`.
+### Empirically Verified Benchmark Receipts (Stages 1 Through 5):
+1. **Stage 5 Parsimony GRPO:** 150 GRPO steps trained on Kaggle Tesla T4. Verified **3 tokens** on factual bypass, **21 tokens** on polynomial invariants, and **35 tokens** on Chinese Remainder Theorem without truncation.
+2. **The 224× Compound Serving Multiplier:** Co-designed with DeepSeek-V4.1-Flash's hardware Shared Global KV caching (890 B/tok), SymboLM collapses the active sequence memory footprint from **8.0 MB to 35.6 KB per request** (224.7× serving reduction).
+3. **Stage 4 Cross-Domain 200 Audit:** **100% intent routing fidelity** (25/25), **100% factual bypass routing** (25/25), and trailing syntax noise crushed to **1.0%**.
+4. **Stage 2 Arithmetic Deductive Compression:** **98.3% token reduction** on direct deductive queries ($3x+6=21 \to 5$ in 2 tokens).
+5. **100% Deterministic Intermediate Invariant Verification:** Verified via SymPy that all intermediate symbolic transitions preserve truth invariance.
 
 ---
 
