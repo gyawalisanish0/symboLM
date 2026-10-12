@@ -1,0 +1,4093 @@
+{
+  "benchmark": "SymboLM 200-Question Mixed Evaluation Benchmark",
+  "author": "Sanish Gyawali",
+  "date": "2026-10-12 00:57:21",
+  "base_model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+  "adapter_path": "/kaggle/working/symboLM/checkpoints/stage4_efficient_adapter",
+  "overall_metrics": {
+    "total_questions": 200,
+    "correct_answers": 50,
+    "overall_accuracy_pct": 25.0,
+    "total_sym_tokens": 24337,
+    "total_eng_tokens": 40000,
+    "token_compression_pct": 39.1575,
+    "mean_tokens_per_question": 121.685,
+    "trailing_noise_rate_pct": 1.0,
+    "information_efficiency_ratio": 20.544849406253853,
+    "total_latency_seconds": 1763.053682565689
+  },
+  "category_metrics": {
+    "Chemistry & Quantitative Biology": {
+      "total": 25,
+      "correct": 3,
+      "sym_tokens": 2879,
+      "eng_tokens": 5000,
+      "noise": 0,
+      "bypass_count": 10,
+      "plan_count": 11,
+      "intent_count": 0
+    },
+    "Strategic Intent & Pragmatics": {
+      "total": 25,
+      "correct": 25,
+      "sym_tokens": 3174,
+      "eng_tokens": 5000,
+      "noise": 0,
+      "bypass_count": 0,
+      "plan_count": 0,
+      "intent_count": 25
+    },
+    "Probability, Stats & Finance": {
+      "total": 25,
+      "correct": 2,
+      "sym_tokens": 3182,
+      "eng_tokens": 5000,
+      "noise": 0,
+      "bypass_count": 0,
+      "plan_count": 23,
+      "intent_count": 0
+    },
+    "Pure & Competition Mathematics": {
+      "total": 40,
+      "correct": 7,
+      "sym_tokens": 5120,
+      "eng_tokens": 8000,
+      "noise": 1,
+      "bypass_count": 0,
+      "plan_count": 30,
+      "intent_count": 0
+    },
+    "Physics & Engineering": {
+      "total": 30,
+      "correct": 2,
+      "sym_tokens": 3789,
+      "eng_tokens": 6000,
+      "noise": 0,
+      "bypass_count": 4,
+      "plan_count": 24,
+      "intent_count": 0
+    },
+    "Computer Science & Discrete Systems": {
+      "total": 30,
+      "correct": 4,
+      "sym_tokens": 3840,
+      "eng_tokens": 6000,
+      "noise": 1,
+      "bypass_count": 0,
+      "plan_count": 29,
+      "intent_count": 0
+    },
+    "Scientific & Multi-Hop Factual Retrieval": {
+      "total": 25,
+      "correct": 7,
+      "sym_tokens": 2353,
+      "eng_tokens": 5000,
+      "noise": 0,
+      "bypass_count": 25,
+      "plan_count": 5,
+      "intent_count": 0
+    }
+  },
+  "itemized_results": [
+    {
+      "id": "CROSS-200-001",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "Calculate the density in g/L of Oxygen gas (O2, molar mass 32 g/mol) at STP (round to two decimal places).",
+      "ground_truth": "1.43",
+      "extracted_answer": "1.00",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 10.43971300125122,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>1.00</reg:bypass>\n<reg:deduce>1.00</reg:deduce>\n<reg:deduce>1.00</reg:deduce>\n<reg:deduce>1.00</reg:deduce>\n<reg:deduce>1.00</reg:deduce>\n<reg:deduce>1.00</reg:deduce>\n<reg:deduce>1.00</reg:deduce>\n<reg:deduce>1.00</reg:deduce>\n<reg"
+    },
+    {
+      "id": "CROSS-200-002",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you ask a customer for an honest testimonial without making them feel pressured or obligated?",
+      "ground_truth": "low-pressure testimonial request",
+      "extracted_answer": "intent: inquire | tone: caring | strategy: non-accusatory-check-in",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.251157760620117,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: inquire | tone: caring | strategy: non-accusatory-check-in</reg:intent>\nSchedule a private, non-accusatory meeting. Gather open-ended questions to learn about their business relationship. Encourage them to share what truly matters to them, and validate their positive experiences. Ensure the tone is warm and understanding, so they feel valued and heard.<reg:deduce>implicit assum"
+    },
+    {
+      "id": "CROSS-200-003",
+      "category": "Probability, Stats & Finance",
+      "prompt": "If a stock has beta = 1.2, risk-free rate = 3%, and market risk premium = 5%, calculate expected return via CAPM as a percentage.",
+      "ground_truth": "9.0",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.31693720817566,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept:CAPM | factor: beta | risk_free_rate: 3% | market_risk_premium: 5% | expected_return: ?</reg:plan>\n<reg:deduce>expected_return=3%+1.2·5%</reg:deduce>\n<reg:verify>0.03+0.06=0.09=9%</reg:verify>\n<reg:verify>0.09>0%</reg:verify>\n</think>\n<reg:plan>concept: CAPM | factor: β | risk_free_rate"
+    },
+    {
+      "id": "CROSS-200-004",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you write a LinkedIn connection message to a prominent AI researcher whose work inspired your project without sounding like spam?",
+      "ground_truth": "specific respectful intellectual outreach",
+      "extracted_answer": "intent: express-investigation | tone: professional | strategy: direct-private-dialogue",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.3306565284729,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: express-investigation | tone: professional | strategy: direct-private-dialogue</reg:intent>\nHey, I really value the work of Dr. [Name], and I truly admire your contributions to [field]. I noticed a lot of overlap in your research on [topic]. I hope we can collaborate on this idea. Let's get in touch so we can discuss your vision in more depth.<reg:deduce>induced-influence: acad"
+    },
+    {
+      "id": "CROSS-200-005",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the highest power of 5 that divides 250!.",
+      "ground_truth": "62",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.340805053710938,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: prime_factorization | prime: 5 | n: 250 | series: 250/5^k</reg:plan>\n<reg:deduce>250/5=50 | 250/25=10 | 250/125=2 | 250/625=0  | 50+10+2=62  62</reg:deduce>\n<reg:verify>62>0  62</reg:verify>\n</think>\n"
+    },
+    {
+      "id": "CROSS-200-006",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "How many trailing zeros does the number 1000! have in base 10?",
+      "ground_truth": "249",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.330449104309082,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: trailing_zeros | prime: 2,5 | strategy: count_factors_10</reg:plan>\n<reg:deduce>⌊1000/2⌋+⌊1000/4⌋+⌊1000/8⌋+⌊1000/16⌋+⌊1000/32⌋+⌊1000/64⌋+⌊1000/128⌋+⌊1000/256⌋+⌊1000/512⌋+⌊10"
+    },
+    {
+      "id": "CROSS-200-007",
+      "category": "Physics & Engineering",
+      "prompt": "An alternating voltage source V(t) = 170 sin(377 t) volts is connected across a 50-ohm resistor. What is the RMS power dissipated in watts (round to one decimal place)?",
+      "ground_truth": "289.0",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.214073181152344,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: rms_power | formula: P_{rms} = V_{rms}² / R | V_{rms} = V_{peak} / √2</reg:plan>\n<reg:deduce>170/√2=120.20615 | 120.20615²=14449.44 | 14449.44/50=288.9888  289.0</reg:deduce>\n<reg:verify>reg:"
+    },
+    {
+      "id": "CROSS-200-008",
+      "category": "Physics & Engineering",
+      "prompt": "A block of mass 5 kg slides down a frictionless 30-degree incline of length 10 meters. Assuming g = 9.8 m/s^2, what is its speed at the bottom in m/s (round to two decimal places)?",
+      "ground_truth": "9.90",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.230085372924805,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: kinematics, energy conservation | mechanism: frictionless incline, conservative force</reg:plan>\n<reg:deduce>PE=KE+KE_w</reg:deduce>PE= mgh, h=10·sin(30) | KE_w=Iω²/2+mgR²/2  [R=0.1 m]  | 5·9.8·5=0.5·0.1·ω²+5·9.8·0.1·(1/2)  | ω=10"
+    },
+    {
+      "id": "CROSS-200-009",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "Calculate the percent by mass of Nitrogen in Ammonium Nitrate, NH4NO3 (use N=14.01, H=1.01, O=16.00; round to one decimal place).",
+      "ground_truth": "35.0",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.339360475540161,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: molar_mass | compound: NH4NO3 | elements: N, H, O | formula: NH4NO3</reg:plan>\n<reg:deduce>atomic_mass(NH4NO3) = 14.01+4·1.01+14.01+3·16.00=103.11 | molar_mass(NH4NO3) = 103.11  | %by-weight(N) = (14.01/103.11)·1"
+    },
+    {
+      "id": "CROSS-200-010",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the dual of the Boolean expression: (A + B) * (C + 0)?",
+      "ground_truth": "A * B + C * 1",
+      "extracted_answer": "+0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.291289567947388,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: boolean_duality | distributive: true | operand: boolean</reg:plan>\n<reg:deduce>(A + B) * (C + 0) -grow: (A+B)(C+0)  simplify: (A+B)C  complement: (A+B)·C</reg:deduce>\n<reg:verify>reg:deduce: (A+B)·C -grow: (A·C) + (B·C)  simplify: AC + BC  rome: AC+BC  rome: AC+BC</reg:"
+    },
+    {
+      "id": "CROSS-200-011",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "What is the coefficient of x^3 in the expansion of (2x - 3)^5?",
+      "ground_truth": "720",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.237481594085693,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: binomial_theorem | binomial: (2x-3)^5 | method: binomial_expansion | target: coefficient_of_x^3</reg:plan>\n<reg:deduce> (2x)⁰(3)⁵ + 5C1(2x)⁴(-3)¹ + 5C2(2x)³(-3)² | 0+5·16·3²·x⁴+10·8·9·x³+10·4·9·x³+10·2"
+    },
+    {
+      "id": "CROSS-200-012",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Which vitamin is synthesized in human skin upon exposure to ultraviolet B radiation?",
+      "ground_truth": "Vitamin D",
+      "extracted_answer": "25-OH-DPP-4",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.091766595840454,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>25-OH-DPP-4</reg:bypass>\n<reg:deduce>UVB radiation induces the production of 25-hydroxydiphenylcholine (25-OH-DPP-4) in the human skin. 25-OH-DPP-4 is a precursor for 25-hydroxyepicholine (25-OH-epicholine) and 25-hydroxyepicholine-3-oxo (25-OH-epicholine-3-oxo), which are subsequently converted into 25"
+    },
+    {
+      "id": "CROSS-200-013",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "If polynomial P(x) = x^3 - 6x^2 + 11x - 6, find the sum of squares of its roots.",
+      "ground_truth": "14",
+      "extracted_answer": "14",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.112547636032104,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: polynomial_invariant | theorem: sum_of_squares_of_roots= (r₁+r₂+r₃)²-2(r₁r₂+r₁r₃+r₂r₃) | discriminant: D=11</reg:plan>\n<reg:deduce>reg:deduce/roots: 6 | sum_of_roots=6 | sum_of_products=11 | sum_of_squares=6²-2·11=36-22=14  14</reg:deduce>14</reg:verify"
+    },
+    {
+      "id": "CROSS-200-014",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "If a double-stranded DNA molecule contains 28% Adenine, what is the percentage of Cytosine according to Chargaff's rules?",
+      "ground_truth": "22",
+      "extracted_answer": "28",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.25349473953247,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>28</reg:bypass>\n</think>\n<reg:bypass>28</reg:bypass>\nAccording to Chargaff's rules, the percentage of Cytosine is also 28% in a double-stranded DNA molecule. This is because DNA follows the base-pairing rule, where Adenine pairs with Thymine and Cytosine pairs with Guanine. Therefore, the percentages of complementary bases are equal. Hence, Cytosine is 28%.</reg:bypass>28</reg:bypass>2"
+    },
+    {
+      "id": "CROSS-200-015",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What organelle is known as the site of cellular respiration and ATP synthesis?",
+      "ground_truth": "Mitochondria",
+      "extracted_answer": "inner ear",
+      "correct": false,
+      "tokens_emitted": 76,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 5.539763689041138,
+      "registers": {
+        "plan": true,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>inner ear</reg:bypass><reg:plan>reg:cellular-respiration|ATP-synthesis</reg:plan>\n</think>\n<reg:bypass>inner ear</reg:bypass><reg:plan>inner ear, ATP synthesis</reg:plan>  \nThe inner ear is the site of cellular respiration and ATP synthesis.<｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-016",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the hardest known natural mineral on the Mohs hardness scale?",
+      "ground_truth": "Diamond",
+      "extracted_answer": "6.0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.250175714492798,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>6.0</reg:bypass>\n</think>\n<reg:bypass>Diamond</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:bypass>6.0</reg:b"
+    },
+    {
+      "id": "CROSS-200-017",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the minimum number of keys in a B-tree of order m = 5 and height h = 2 (where root is height 0)?",
+      "ground_truth": "17",
+      "extracted_answer": "11",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.232241868972778,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": true,
+      "raw_output": "<reg:plan>concept: b-tree | order: 5 | height: 2 | depth: 2</reg:plan>\n<reg:deduce>h=2  ueue:3  | n_min=11   tatto:11   tatto:11</reg:deduce>\n<reg:verify>reg:deduce:  11>0   tatto:11>0   tatto:11</reg:verify>\n</think>\n<reg:deduce>reg:deduce: 11   tatto:11   tatto"
+    },
+    {
+      "id": "CROSS-200-018",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the highest power of 2 that divides 100!.",
+      "ground_truth": "97",
+      "extracted_answer": "+6",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.151947259902954,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: prime_factorization | prime: 2 | n: 100 | series: 100/2^k</reg:plan>\n<reg:deduce>100/2=50 | 100/4=25 | 100/8=12 | 100/16=6 | 100/32=3 | 100/64=1 | 100/128=0  | 0+50+25+12+6"
+    },
+    {
+      "id": "CROSS-200-019",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "Apply the Master Theorem to find the Big-Theta time complexity of T(n) = 4T(n/2) + n^2. State the exponent of n in the Theta bound (e.g. for n^2 log n, write 'n^2 log n').",
+      "ground_truth": "n^2 log n",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.28438425064087,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: master_theorem | recurrence: 4T(n/2) + n² | case: regular</reg:plan>\n<reg:deduce>reg:deduce: t(n) = 4T(n/2) + n²     4=2²  1=2⁻¹  0=2⁻²  0   0    0     0     0     0     0     0     0"
+    },
+    {
+      "id": "CROSS-200-020",
+      "category": "Physics & Engineering",
+      "prompt": "A 2 kg mass attached to a spring with k = 200 N/m undergoes simple harmonic motion. What is its angular frequency omega in rad/s?",
+      "ground_truth": "10",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.186965942382812,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: simple harmonic motion | spring | angular_frequency | spring_constant | mass | omega = sqrt(k/m)</reg:plan>\n<reg:deduce>omega = sqrt(200/2) = sqrt(100) = 10 rad/s</reg:deduce>\n<reg:verify>reg:deduce>10>0, 10  0  10</reg:verify>\n</think>\n<reg:plan>concept: simple harmonic motion | spring | angular_frequency | spring_constant | mass | ω = √(k/m"
+    },
+    {
+      "id": "CROSS-200-021",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Which subatomic particle has zero electric charge and a mass slightly greater than a proton?",
+      "ground_truth": "Neutron",
+      "extracted_answer": "proton",
+      "correct": false,
+      "tokens_emitted": 27,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 1.955735206604004,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>proton</reg:bypass>\n</think>\n<reg:bypass>proton</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-022",
+      "category": "Physics & Engineering",
+      "prompt": "An LC oscillator has L = 2 mH and C = 8 uF. What is the resonant frequency f in Hz (round to nearest integer)?",
+      "ground_truth": "1258",
+      "extracted_answer": "00000",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.234012603759766,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: resonant_frequency | inductor: L=2 mH | capacitor: C=8 μF | formula: f=1/(2·π·√(L·C))</reg:plan>\n<reg:deduce>uH to H: 2 mH=0.002 H | 8 μF=0.000008 F | L·C=0.002·0.000008=0.000000016 | √(0.00000"
+    },
+    {
+      "id": "CROSS-200-023",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "Determine if the formula ((P -> Q) and (Q -> R)) -> (P -> R) is a tautology (answer: True or False).",
+      "ground_truth": "True",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.25568962097168,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: logical_tautology | theorem: ((P→Q)∧(Q→R))→(P→R) | logic: material_implication | material_implication: A→B≡¬A∨B | tautology: true</reg:plan>\n<reg:deduce>reg:deduce((P→Q)∧(Q→R))→(P→R)  using modus_tollens  1  2  3  4  5  6  7  8  9  10  "
+    },
+    {
+      "id": "CROSS-200-024",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the area of a cyclic quadrilateral with side lengths 2, 3, 4, 5 (use Brahmagupta's formula; round to two decimal places).",
+      "ground_truth": "10.95",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.238293647766113,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: cyclic_quadrilateral | theorem: Brahmagupta's_formula | sides: 2, 3, 4, 5 | semiperimeter: s=(2+3+4+5)/2=7</reg:plan>\n<reg:deduce>reg:deduce: 2+3+4+5=14, s=14/2=7 | 7>0 -bars: sqrt((7-2)(7-3)(7-4)(7-5))=sqrt(5·4·3·2)=sqrt(1"
+    },
+    {
+      "id": "CROSS-200-025",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A stakeholder asks for an unrealistic 2-week deadline for a 2-month feature. How do you negotiate a phased MVP scope without saying a flat 'no'?",
+      "ground_truth": "phased MVP scope negotiation",
+      "extracted_answer": "intent: request-clarification | tone: professional | strategy: phased-transparent",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.286217451095581,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: request-clarification | tone: professional | strategy: phased-transparent</reg:intent>\nI understand your request for a phased development schedule. I will break the 2-month feature into two 1-week phases. Phase 1 will be delivered within the first 1 week, with full feature release in 1 week. Phase 2 will follow in the next 1 week, with a 1-week beta phase. This approach ensures"
+    },
+    {
+      "id": "CROSS-200-026",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "In computer architecture, what does RISC stand for?",
+      "ground_truth": "Reduced Instruction Set Computer",
+      "extracted_answer": "6808",
+      "correct": false,
+      "tokens_emitted": 80,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 5.790544748306274,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>6808</reg:bypass><reg:deduce>6808  | RISC | Reduced Instruction Set CPU</reg:deduce>\n</think>\n<reg:bypass>6808</reg:bypass><reg:deduce>6808  | RISC  | Reduced Instruction Set Machine</reg:deduce><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-027",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "In an AVL tree, after inserting keys 10, 20, 30 in that order into an initially empty tree, what key is at the root?",
+      "ground_truth": "20",
+      "extracted_answer": "0",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.29216742515564,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: AVL_tree | operation: insert | invariant: balance_factor of each subtree is between -1 and 1</reg:plan>\n<reg:deduce>insert(10)：left=0, right=0, rotate_right(10)  10  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  "
+    },
+    {
+      "id": "CROSS-200-028",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "If x + 1/x = 6, find the exact value of x^4 + 1/x^4.",
+      "ground_truth": "1154",
+      "extracted_answer": "1154",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.241377353668213,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: polynomial_invariant | identity: (x⁴+1/x⁴)=(x²+1/x²)²-2 | target: x⁴+1/x⁴ | target: ?</reg:plan>\n<reg:deduce>x²+1/x²=(x+1/x)²-2=6²-2=34 | x⁴+1/x⁴=34²-2=1156-2=1154  1154</reg:deduce>\n<reg:verify>reg:"
+    },
+    {
+      "id": "CROSS-200-029",
+      "category": "Physics & Engineering",
+      "prompt": "Two masses of 3 kg and 7 kg undergo a completely inelastic head-on collision. Mass 1 moves at +10 m/s and mass 2 moves at -5 m/s. What is their final common velocity in m/s?",
+      "ground_truth": "-0.5",
+      "extracted_answer": "25",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.258104085922241,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: completely_inelastic_inelastic | momentum_conservation | system_momentum=0</reg:plan>\n<reg:deduce> p₁_initial + p₂_initial = (m₁·v₁) + (m₂·v₂) = 0  | v=0  | v= (10·3 + (-5)·7)/(3+7) = 2.5  m/s</reg:deduce>\n<reg:verify>v>0  2.5>0  10·3+(-5)·7=25"
+    },
+    {
+      "id": "CROSS-200-030",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A partner company accidentally shared confidential partner metrics in a public Slack channel. How do you handle containment and notification?",
+      "ground_truth": "calm urgent containment notification",
+      "extracted_answer": "intent: de-escalate | tone: empathetic | strategy: clear, non-accusatory",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.266776323318481,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: empathetic | strategy: clear, non-accusatory</reg:intent>\nWhen faced with this situation, I immediately took immediate action to clear the public channel. I assessed the situation calmly and recognized the breach fully. I then worked with my team to address the issue collaboratively, ensuring everyone is on the same page. Clear communication helped prevent f"
+    },
+    {
+      "id": "CROSS-200-031",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "Convert the hexadecimal number 0x3FA to decimal.",
+      "ground_truth": "1018",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.27358365058899,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: hexadecimal_to_decimal | base: 2</reg:plan>\n<reg:deduce>0x3FA_16= 3*16²+15*16+10= 768+240+10= 1018  1018</reg:deduce>1018</reg:verify>1018</reg:verify>\n<reg:verify>1018>0  1018</reg:verify>\n</think>\n<reg:plan>concept:"
+    },
+    {
+      "id": "CROSS-200-032",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the smallest positive integer x such that 17x = 1 mod 43.",
+      "ground_truth": "38",
+      "extracted_answer": "43",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.267648458480835,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: modular_inverses | base: 17 | modulus: 43 | theorem: φ(43)=42</reg:plan>\n<reg:deduce>φ(43)=42, 17<1 mod 42  17<42  | 17^22 mod 43=1  22=42/2  17^22 modx=1  17^21 modx=17  17 modx=1 mod 43  "
+    },
+    {
+      "id": "CROSS-200-033",
+      "category": "Physics & Engineering",
+      "prompt": "A parallel plate capacitor with capacitance 50 uF is charged to 200V. Find the energy stored in the capacitor in joules.",
+      "ground_truth": "1",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.250961303710938,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: electric potential energy in a capacitor | formula: U=0.5*C*V² | unit: J</reg:plan>\n<reg:deduce>U=0.5*50uF*200V² | 50uF=50·10⁻⁶F, 200V²=40000V² | U=0.5·50·10⁻⁶·40000=10J  10</reg:deduce>\n<reg:verify>"
+    },
+    {
+      "id": "CROSS-200-034",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the chromatic number of the complete bipartite graph K_{4, 7}?",
+      "ground_truth": "2",
+      "extracted_answer": "2",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.160290479660034,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: graph theory, chromatic_number | graph: complete_bipartite | partitions: 4, 7</reg:plan>\n<reg:deduce>unk_{4,7} is a complete bipartite graph with partitions of size 4 and 7. The chromatic number of a complete bipartite graph is 2, as it can be colored with two colors, alternating between the two partitions.</reg:deduce>\n<reg:verify>unk_{4,7} is a complete bipartite graph, so its"
+    },
+    {
+      "id": "CROSS-200-035",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the SI unit of electric capacitance?",
+      "ground_truth": "Farad",
+      "extracted_answer": "1875",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.292325258255005,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>1875</reg:bypass>\n</think>\n<reg:bypass>1875 F</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:bypass>1875</reg:b"
+    },
+    {
+      "id": "CROSS-200-036",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "Find the [H+] ion concentration in mol/L for a solution with pH = 3.70 (express in scientific notation: A.BCe-4; round to two decimal places).",
+      "ground_truth": "2.00e-4",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.1629056930542,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: pH and [H⁺] relationship | base: acidic/basic</reg:plan>\n<reg:deduce> [H⁺] = 10^(-pH) | 10^(-3.70) | 10^(-4+0.30) = 10^(-4) * 10^0.30  | 10^0.30≈2.0  | [H⁺]≈2.0×10^(-4)  | [H⁺]≈2.0×1"
+    },
+    {
+      "id": "CROSS-200-037",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "Balance the reaction: a C3H8 + b O2 -> c CO2 + d H2O. What is the sum of integer coefficients a + b + c + d in simplest terms?",
+      "ground_truth": "13",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.289834260940552,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>10</reg:bypass>\n<reg:deduce>1</reg:deduce>10</reg:deduce>\n<reg:deduce>10</reg:deduce>\n<reg:deduce>10</reg:deduce>\n<reg:deduce>10</reg:deduce>\n<reg:deduce>10</reg:deduce>\n<reg:deduce>10</reg:deduce>\n<reg:deduce>10</reg:deduce>\n<reg:deduce>10</reg:"
+    },
+    {
+      "id": "CROSS-200-038",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you request an urgent letter of recommendation from a busy professor with only 5 days before the fellowship deadline?",
+      "ground_truth": "pre-drafted respectful urgent recommendation request",
+      "extracted_answer": "intent: request-urgent-letters | tone: professional | strategy: clear, direct, follow-up-friendly",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.175233602523804,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: request-urgent-letters | tone: professional | strategy: clear, direct, follow-up-friendly</reg:intent>\nSchedule a one-on-onesession with the professor. Frame the request as appreciative and constructive. In the letter, express appreciation for the time and effort invested. Suggest a plan to smoothly transition the research project to the next phase. Schedule a follow-up within "
+    },
+    {
+      "id": "CROSS-200-039",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many comparisons does binary search make in the worst case for a sorted array of 1,000,000 elements?",
+      "ground_truth": "20",
+      "extracted_answer": "19",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.241604089736938,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: binary_search | array: sorted | n: 1000000 | method: iterative</reg:plan>\n<reg:deduce>log₂(1000000)≈19.94 | 19.94  19</reg:deduce>\n<reg:verify>19<1000000  19  1000000  19  19</reg:verify>\n</think>\n<reg:deduce>19  19"
+    },
+    {
+      "id": "CROSS-200-040",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "In networking, what does the acronym DNS stand for?",
+      "ground_truth": "Domain Name System",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.219935417175293,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>Network Address Forwarding (NAF)  |  <reg:protocol>UPnP</reg:protocol>  |  <reg:technology>Network Address Forwarding (NAF)  |  <reg:concept>Network Address Forwarding (NAF)  |  <reg:standard>OpenNormalizer (ON-FD)  |  <reg:contact>Network-Address-Forwarding-Project</reg:contact>\n</think>\nNetwork Address Forwarding (NAF)  |  <reg:protocol>UPnP</reg:protocol>  |  <reg:"
+    },
+    {
+      "id": "CROSS-200-041",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the boiling point of liquid Nitrogen at 1 atm in Celsius (nearest integer)?",
+      "ground_truth": "-196",
+      "extracted_answer": "77.95",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.19787883758545,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>77.95</reg:bypass>\n</think>\n<reg:bypass>78</reg:bypass>\n</think>\n78 °C  (78)  in Celsius (rounded to the nearest integer)  \n<reg:bypass>78</reg:bypass>\n<reg:bypass>78</reg:bypass>\n<reg:bypass>78</reg:bypass>\n<reg:bypass>78</reg:bypass>78</reg:bypass>78</reg:bypass>78</reg:bypass>78</reg:bypass>7"
+    },
+    {
+      "id": "CROSS-200-042",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "Calculate the molar mass of Calcium Nitrate, Ca(NO3)2, in g/mol (use Ca=40.08, N=14.01, O=16.00; round to two decimal places).",
+      "ground_truth": "164.10",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.288922786712646,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: molar_mass | compound: Ca(NO3)2 | elements: Ca, N, O | formula: Ca(NO3)2</reg:plan>\n<reg:deduce>Ca: 40.08, N: 2*14.01, O: 2*3*16.00 | 40.08+28.02+96.00=164.10  164.10</reg:deduce>\n<reg:verify>reg:deduce>1"
+    },
+    {
+      "id": "CROSS-200-043",
+      "category": "Physics & Engineering",
+      "prompt": "In a series circuit with three resistors R1 = 12 ohms, R2 = 18 ohms, and R3 = 30 ohms connected across a 120V supply, find the voltage drop across R2 in volts.",
+      "ground_truth": "36",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.23760175704956,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: ohm's_law | theorem: voltage_division | circuit: series</reg:plan>\n<reg:deduce>reg:deduce/3 12 18 30 120 12 18 30 120 12</reg:deduce>12</reg:deduce>12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 1"
+    },
+    {
+      "id": "CROSS-200-044",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Evaluate: 10! / (7! * 3!).",
+      "ground_truth": "120",
+      "extracted_answer": "3",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.291907548904419,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: combinatorics | identity: nCk = n!/(k!(n-k)!) | n=10, k=3</reg:plan>\n<reg:deduce>10C3=120  120</reg:deduce>\n<reg:verify>120>0  120</reg:verify>\n</think>\n<reg:plan>concept: combinatorics | binomial_coefficient | nCk= n!/(k!(n-k)!) | n=10, k=3</reg:"
+    },
+    {
+      "id": "CROSS-200-045",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the primary greenhouse gas released by human agricultural livestock?",
+      "ground_truth": "Methane",
+      "extracted_answer": "CO₂",
+      "correct": false,
+      "tokens_emitted": 56,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 4.040755271911621,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>CO₂</reg:bypass>\n</think>\n<reg:bypass>CO₂</reg:bypass>\nThe primary greenhouse gas released by human agricultural livestock is carbon dioxide (CO₂). This is a key greenhouse gas responsible for contributing to climate change.<｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-046",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the maximum flow from S to T in a network where S connects to A (cap 10) and B (cap 10), and A and B each connect to T (caps 8 and 7 respectively)?",
+      "ground_truth": "15",
+      "extracted_answer": "11",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.340246438980103,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: max-flow min-cut | structure: series-parallel | method: decomposition</reg:plan>\n<reg:deduce>capacities: S-A=10, A-T1=8, A-T2=7, B-T3=8, T1+T2+T3=7  | series: 8+7+8=23  | 23>7  无下界  11  11</reg:deduce>\n<reg:verify> 11>0  11</reg:verify>\n"
+    },
+    {
+      "id": "CROSS-200-047",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "What is the value of Euler's totient function phi(360)?",
+      "ground_truth": "96",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.223514556884766,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: euler_totient | modulus: 360 | prime_factorization: 360=2^3·3^2·5^1</reg:plan>\n<reg:deduce>φ(360)=φ(2^3)·φ(3^2)·φ(5^1)=16·6·4=384  384</reg:deduce>\n<reg:verify>φ(360)  384>0  384</reg:verify>\n</think>\n<reg"
+    },
+    {
+      "id": "CROSS-200-048",
+      "category": "Probability, Stats & Finance",
+      "prompt": "What is the median of the data set: [12, 5, 22, 30, 7, 9, 18]?",
+      "ground_truth": "12",
+      "extracted_answer": "12",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.31826901435852,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: median | data: [12, 5, 22, 30, 7, 9, 18] | sort: [5, 7, 9, 12, 18, 22, 30] | n: 7 | median: middle term</reg:plan>\n<reg:deduce>after sorting: [5, 7, 9, 12, 18, 22, 30] | n=7 (odd) | median=12 -bars:"
+    },
+    {
+      "id": "CROSS-200-049",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "What is the oxidation state of Chromium in the dichromate ion Cr2O7^(2-)?",
+      "ground_truth": "+6",
+      "extracted_answer": "6",
+      "correct": true,
+      "tokens_emitted": 82,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 5.88691520690918,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:deduce>4</reg:deduce>\n</think>\n<reg:deduce>6</reg:deduce>\n</think>\n<reg:deduce>6</reg:deduce>\nThe oxidation state of chromium in the dichromate ion, Cr₂O₇²⁻, is 6.  \n<reg:deduce>6</reg:deduce><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-050",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "A right triangle has inradius r = 4 and hypotenuse c = 25. Find the perimeter of the triangle.",
+      "ground_truth": "58",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.224989891052246,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "Alright, so I have this problem here: a right triangle has an inradius r = 4 and hypotenuse c = 25. I need to find the perimeter of the triangle. Hmm, okay. Let me think about how to approach this.\n\nFirst, I remember that in a right triangle, the inradius can be related to the legs and the hypotenuse. I think there's a formula for the inradius of a right triangle. Let me recall... I believe it's s"
+    },
+    {
+      "id": "CROSS-200-051",
+      "category": "Probability, Stats & Finance",
+      "prompt": "If correlation coefficient between two assets is r = -0.5, what is the covariance if standard deviations are 10% and 20% (in decimal)?",
+      "ground_truth": "-0.01",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.27864146232605,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: correlation_and_covariance | formula: Cov(X,Y) = r*σ_X*σ_Y | units: none</reg:plan>\n<reg:deduce>Cov(X,Y) = -0.5*0.10*0.20= -0.01  1.0000</reg:deduce>\n<reg:verify>reg:deduce>0.01>0  1.0000</reg:verify>\n</think>\n<reg:plan>concept: correlation_and_covariance | formula:"
+    },
+    {
+      "id": "CROSS-200-052",
+      "category": "Probability, Stats & Finance",
+      "prompt": "An investment of $10,000 earns 6% annual interest compounded quarterly. What is the total accumulated value after 3 years in dollars (round to two decimal places)?",
+      "ground_truth": "11956.18",
+      "extracted_answer": "194052",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.239769697189331,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: compound_investment | rate: 6% | time: 3 | n: 4 | principal: 10000</reg:plan>\n<reg:deduce>10000*(1+0.06/4)^(4*3)=10000*1.194052=11940.52  11940.52</reg:deduce>\n<reg:verify> misunderstandings: 无 | arith: 1.194052"
+    },
+    {
+      "id": "CROSS-200-053",
+      "category": "Probability, Stats & Finance",
+      "prompt": "What is the future value of an ordinary annuity of $1,000 paid annually for 3 years at 10% interest rate in dollars?",
+      "ground_truth": "3310",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.224658489227295,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: future_value_infinite | rate: 10% | period: 3 | payment: 1000 | timeline: [0,1,2,3</reg:plan>\n<reg:deduce>reg:deduce/plan>1000*[(1+0.1)^3 - 1]/0.1=1452.34</reg:deduce>\n<reg:verify>ans: $1,452.34</reg:verify>\n</think>\n<reg:plan>concept: future_value_infinite"
+    },
+    {
+      "id": "CROSS-200-054",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the arithmetic mean of all prime numbers between 10 and 30.",
+      "ground_truth": "18.67",
+      "extracted_answer": "29",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.235878467559814,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the arithmetic mean of the prime numbers between 10 and 30, I first need to identify all the prime numbers in this range. A prime number is a number greater than 1 that has no positive divisors other than 1 and itself.\n\nThe prime numbers between 10 and 30 are 11, 13, 17, 19, 23, and 29. \n\nNext, I will calculate the sum of these prime numbers: 11 + 13 + 17 + 19 + 23 + 29 ="
+    },
+    {
+      "id": "CROSS-200-055",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many distinct binary boolean functions of 3 variables exist?",
+      "ground_truth": "256",
+      "extracted_answer": "8",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.19029712677002,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: boolean_function | size: 2^n | n=3</reg:plan>\n<reg:deduce>2^3=8  8  8</reg:deduce>\n<reg:verify>reg:deduce: 2^3=8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  "
+    },
+    {
+      "id": "CROSS-200-056",
+      "category": "Physics & Engineering",
+      "prompt": "A 1200 kg car accelerates from rest at a constant rate of 3 m/s^2 for 8 seconds. Find the work done on the car in joules.",
+      "ground_truth": "345600",
+      "extracted_answer": "14400",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.243691444396973,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: work | force | Newton's second law | kinematics: velocity, displacement, distance</reg:plan>\n<reg:deduce>accretion_in_momentum=1200*3*8 | W=1200*3*8*8/2  14400  14400  14400  14400  14400  14400  14400  14400  14400 "
+    },
+    {
+      "id": "CROSS-200-057",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the name of the nearest major spiral galaxy to the Milky Way?",
+      "ground_truth": "Andromeda",
+      "extracted_answer": "Miranda",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.270419836044312,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>Miranda</reg:bypass>\n<reg:plan>concept: nearest-neighbor | criterion: direct</reg:plan>\n<reg:deduce>Neptune: 10.2M, Uranus: 2.9M, Saturn: 2.0M, Uranus: 2.9M, Neptune: 10.2M | 10.2M+2.9M+2.0M=15.1M>10</reg:deduce>\n<reg:verify>15.1M>10</reg"
+    },
+    {
+      "id": "CROSS-200-058",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A direct report expresses severe burnout and exhaustion in a 1-on-1. How do you respond with immediate psychological safety and workload triage?",
+      "ground_truth": "immediate workload triage and psychological safety",
+      "extracted_answer": "intent: de-escalate | tone: empathetic | strategy: non-accusatory-check-in",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.289968490600586,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: empathetic | strategy: non-accusatory-check-in</reg:intent>\nI sincerely apologize for the disruption. I noticed the work environment was challenging. Let's take a 1-on-1 meeting to address the issue calmly. We'll review progress and plan next steps collaboratively.<reg:intent>remediate</reg:intent>\n</think>\nI sincerely apologize for the disruption. I noticed"
+    },
+    {
+      "id": "CROSS-200-059",
+      "category": "Physics & Engineering",
+      "prompt": "What is the magnetic field B in teslas inside a solenoid with 500 turns/m carrying a current of 4 A (take mu_0 = 4*pi*1e-7; round to three decimal places)?",
+      "ground_truth": "0.003",
+      "extracted_answer": "51",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.272541284561157,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: magnetic_field_in_solenoid | law: B=μ₀nI | unit: T</reg:plan>\n<reg:deduce>μ₀=4·π·10⁻⁷ T·m/A, n=500 1/m, I=4 A | B=4·π·10⁻⁷·500·4=2.513274123  T  2.513  T</reg:deduce>\n<reg:verify>reg:deduce>2.51"
+    },
+    {
+      "id": "CROSS-200-060",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "How many base triplets (codons) specify amino acids out of the 64 possible mRNA codons in the standard genetic code?",
+      "ground_truth": "61",
+      "extracted_answer": "14",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.29596996307373,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>14</reg:bypass>\n<reg:deduce>14</reg:deduce>\n<reg:deduce>14</reg:deduce>\n<reg:deduce>14</reg:deduce>\n<reg:deduce>14</reg:deduce>\n<reg:deduce>14</reg:deduce>\n<reg:deduce>14</reg:deduce>\n<reg:deduce>14</reg:deduce>\n<reg:deduce>14</reg:deduce>\n<reg:ded"
+    },
+    {
+      "id": "CROSS-200-061",
+      "category": "Probability, Stats & Finance",
+      "prompt": "A perpetual annuity pays $600 at the end of each year. At an interest rate of 4%, what is its present value in dollars?",
+      "ground_truth": "15000",
+      "extracted_answer": "1500",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.213598012924194,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: present_value_of_annuity | rate: 4% | payment: 600 | n: ∞</reg:plan>\n<reg:deduce>PV=600*1/(1+0.04)^(1) + 600*1/(1+0.04)^(2) + ... = 600*1/0.04</reg:deduce>15000</reg:deduce>\n<reg:verify>concept: present_value_of_infinite_annuity  1500"
+    },
+    {
+      "id": "CROSS-200-062",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the 8-bit two's complement binary representation of the decimal integer -43?",
+      "ground_truth": "11010101",
+      "extracted_answer": "00111111",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.207021951675415,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: two's_complement | base: binary | n: 8</reg:plan>\n<reg:deduce>43_10=32+8+2+1=2^5+2^3+2^1+2^0 | 2's_complement_of_32_100000+001011=00111111 | 00111111+1=01000000-1=00111111  "
+    },
+    {
+      "id": "CROSS-200-063",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the chemical symbol for Tungsten?",
+      "ground_truth": "W",
+      "extracted_answer": "W",
+      "correct": true,
+      "tokens_emitted": 25,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 1.7999053001403809,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>W</reg:bypass>\n</think>\n<reg:bypass>W</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-064",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you tell a senior colleague that their proposed architectural refactor has a critical race condition without making them defensive?",
+      "ground_truth": "respectful technical correction",
+      "extracted_answer": "intent: assertively-assertive | tone: encouraging | strategy: non-accusatory-check-in",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.148167371749878,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: assertively-assertive | tone: encouraging | strategy: non-accusatory-check-in</reg:intent>\nHey, I really value our collaboration. I noticed something interesting with your proposed architectural refactor. I fully understand the technical requirements, but I noticed a potential race condition in the data flow. Let's discuss this in a non-accusatory way so we can work together to"
+    },
+    {
+      "id": "CROSS-200-065",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Compute the sum of the infinite geometric series: 12 + 4 + 4/3 + 4/9 + ...",
+      "ground_truth": "18",
+      "extracted_answer": "8",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.21939754486084,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: infinite_geometric_series | ratio: 1/3 | first_term: 12</reg:plan>\n<reg:deduce>12/1 - 12/3= 12/1 - 4= 8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8  8 "
+    },
+    {
+      "id": "CROSS-200-066",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "How many ATP molecules are net produced per glucose molecule during aerobic cellular respiration in typical eukaryotic cells (traditional value)?",
+      "ground_truth": "36",
+      "extracted_answer": "18.5",
+      "correct": false,
+      "tokens_emitted": 102,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 7.315713167190552,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>18.5</reg:bypass>\n</think>\n<reg:bypass>18.5</reg:bypass>\nDuring aerobic cellular respiration, typical eukaryotic cells produce a net of 18.5 ATP per glucose molecule. This includes 2 ATP from glycolysis, 28 ATP from the Krebs cycle, and 18 ATP from the electron transport chain. The remaining 0.5 ATP is considered a metabolic byproduct.<｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-067",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the smallest positive integer n such that n = 2 mod 3, n = 3 mod 5, and n = 2 mod 7.",
+      "ground_truth": "23",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.17861533164978,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: chinese_remainder | moduli: [3,5,7] | method: modular_inverses</reg:plan>\n<reg:deduce>n≡2 mod 3, n≡3 mod 5, n≡2 mod 7 -grow n mod 105  by 105  until  n  modx  105   0  -bars  0</reg:deduce>\n<reg:verify> modular_nets  37  modx  105   2  10"
+    },
+    {
+      "id": "CROSS-200-068",
+      "category": "Physics & Engineering",
+      "prompt": "Find the drift velocity of electrons in a copper wire of cross-section 2 mm^2 carrying 10 A current if electron density is 8.5e28 m^-3 and e = 1.6e-19 C in mm/s (round to three decimal places).",
+      "ground_truth": "0.368",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.197230815887451,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: drift_velocity | law: v = I/(nA e) | given: I=10 A, n=8.5·10²⁸ m⁻³, A=2·10⁻³ mm², e=1.6·10⁻¹⁹ C</reg:plan>\n<reg:deduce>1. convert cross-section from mm² to m²: 2·10⁻³ mm²=2·10⁻¹⁵ m²  2. calculate the area: A=2·10⁻¹�"
+    },
+    {
+      "id": "CROSS-200-069",
+      "category": "Physics & Engineering",
+      "prompt": "A magnetic flux through a coil of 50 turns increases uniformly from 0.02 Wb to 0.14 Wb in 0.3 seconds. Find the magnitude of induced EMF in volts.",
+      "ground_truth": "20",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.254488706588745,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: induced_emf | in: coil | number: 50 | rate: uniform 0.3 s | ΔΦ=0.14-0.02=0.12 Wb</reg:plan>\n<reg:deduce>ΔΦ=0.12 Wb, N=50, t=0.3 s, ε= N·dΦ/dt=50·(0.12/0.3)=20 V</reg:deduce>\n<reg:verify>reg:deduce>20>0 "
+    },
+    {
+      "id": "CROSS-200-070",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "An executive demands that the security team bypass MFA compliance for their account to save time. How do you decline firmly while preserving professional rapport?",
+      "ground_truth": "firm policy boundary with polite rapport",
+      "extracted_answer": "intent: de-escalate | tone: professional, non-accusatory",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.242051362991333,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: professional, non-accusatory</reg:intent>\nI sincerely apologize for the disruption. I fully understand the request, but it's crucial to adhere to MFA policies to maintain security and compliance. I will review the account and plan an appropriate remediation.<reg:intent>ended</reg:intent>\n</think>\nI sincerely apologize for the disruption. I fully understand t"
+    },
+    {
+      "id": "CROSS-200-071",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the area of an equilateral triangle with side length 8 (round to two decimal places).",
+      "ground_truth": "27.71",
+      "extracted_answer": "3",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.221418857574463,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the area of an equilateral triangle with a side length of 8, I'll use the formula for the area of an equilateral triangle, which is (√3/4) multiplied by the square of the side length.\n\nFirst, I'll square the side length: 8² = 64.\n\nNext, I'll multiply this result by √3: 64√3.\n\nFinally, I'll divide by 4 to obtain the area: 64√3/4 = 16√3.\n\nUsing a calculator, I'll approximate 16√3 to two"
+    },
+    {
+      "id": "CROSS-200-072",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "During a salary negotiation, the recruiter makes an initial offer 15% below your target. How do you counter-offer professionally without being confrontational?",
+      "ground_truth": "anchored professional counter-offer",
+      "extracted_answer": "intent: assertively-assertive | tone: professional | strategy: clear-refusal-with-constructive-convincing",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.21693754196167,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: assertively-assertive | tone: professional | strategy: clear-refusal-with-constructive-convincing</reg:intent>\nThank you for the offer. I thoroughly considered your request and agreed to a 15% salary reduction. I value your dedication and am happy to continue working together. How can I assist you in the future?</reg:intent>\n</think>\n<reg:intent>intent: assertively-assertive | "
+    },
+    {
+      "id": "CROSS-200-073",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "A sample of gas has volume 3.0 L at 2.0 atm. If compressed isothermally to 0.75 L, what is the new pressure in atm?",
+      "ground_truth": "8.0",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.22007417678833,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>使用理想气体定律，PV=nRT，因为在温度和物质的量不变的情况下，可以得到P₁V₁=P₂V₂</reg:plan>\n<reg:deduce>将已知值代入公式，3.0 L·atm= P₂·0.75 L  ueue  P₂=4.0 atm  ueue  4.0  atm  aukee  4.0  atm</reg:deduce>\n<reg:verify>未见错误，单位一致，温度不变，过程是绝热的，因此"
+    },
+    {
+      "id": "CROSS-200-074",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "If a father has blood type AB and mother has blood type O, what percentage of their children can have blood type AB?",
+      "ground_truth": "0",
+      "extracted_answer": "50%",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.256532907485962,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>50%</reg:bypass>\n</think>\n<reg:bypass>25%</reg:bypass>\n<reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass>25%</reg:bypass"
+    },
+    {
+      "id": "CROSS-200-075",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What type of chemical bond involves the sharing of electron pairs between atoms?",
+      "ground_truth": "Covalent",
+      "extracted_answer": "covalent bond",
+      "correct": true,
+      "tokens_emitted": 70,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 4.988312721252441,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>covalent bond</reg:bypass>\n</think>\n<reg:bypass>covalent bond</reg:bypass>\nA covalent bond is formed when two atoms share electron pairs. This type of bond is characterized by the simultaneous sharing of electrons between the atoms, resulting in a stable and stable molecular structure.<｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-076",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the length of the Longest Increasing Subsequence in the array [10, 22, 9, 33, 21, 50, 41, 60, 80]?",
+      "ground_truth": "6",
+      "extracted_answer": "7",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.164825916290283,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: longest-increasing-subsequence | method: dp</reg:plan>\n<reg:deduce>reg:deduce: dp[9]=3, dp[7]=2, dp[6]=2, dp[5]=2, dp[4]=3, dp[3]=1, dp[2]=1, dp[1]=2, dp[0]=1  | 13  13  11  11  10  10  9  8  7  7  7  "
+    },
+    {
+      "id": "CROSS-200-077",
+      "category": "Probability, Stats & Finance",
+      "prompt": "An asset is bought for $50,000 with residual value $5,000 after 5 years. Calculate annual straight-line depreciation expense in dollars.",
+      "ground_truth": "9000",
+      "extracted_answer": "000",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.229510068893433,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: straight-line-depreciation | method: straight-line | useful life: 5 | cost: 50,000 | salvage_value: 5,000</reg:plan>\n<reg:deduce>depreciation_per_year=(50,000-5,000)/5=9,000  9,000</reg:deduce>\n<reg:verify>reg:deduce: 9,000>0, 9,000<50,000  ueue"
+    },
+    {
+      "id": "CROSS-200-078",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "If a bacterial culture starts with 1,000 cells and doubles every 20 minutes, how many bacterial cells will be present after 2 hours?",
+      "ground_truth": "64000",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.213197946548462,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the number of bacterial cells after 2 hours, I'll use the exponential growth formula: N = N₀ × 2^(t/T), where N₀ is the initial population, t is the time in minutes, and T is the doubling time.\n\nGiven N₀ = 1,000 cells, T = 20 minutes, and t = 2 hours (120 minutes), I'll substitute these values into the formula.\n\nN = 1,000 × 2^(120/20) = 1,000 × 2^6 = 1,"
+    },
+    {
+      "id": "CROSS-200-079",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the edit distance (Levenshtein) between 'kitten' and 'sitting'?",
+      "ground_truth": "3",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.245564699172974,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: edit_distance | strings: 'kitten' | 'sitting' | edit: levenshtein</reg:plan>\n<reg:deduce>edit_distance('kitten', 'sitting')=2 bands: 2</reg:deduce>\n<reg:verify>reg:deduce: 2<0<2  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  "
+    },
+    {
+      "id": "CROSS-200-080",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "An enterprise prospect asks for a custom feature your roadmap does not support. How do you steer them toward existing APIs as a superior solution?",
+      "ground_truth": "consultative API solution steering",
+      "extracted_answer": "intent: migrate | strategy: de-escalate | tone: professional",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.310883283615112,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: migrate | strategy: de-escalate | tone: professional</reg:intent>\nHey, I understand your use case fully. We specialize in [your enterprise solution]. By [specific plan], we can help you achieve [specific goal] seamlessly and efficiently. Let's get started on this together.\n</think>\n<reg:intent>intent: migrate | strategy: de-escalate | tone: professional</reg:intent>\nWe sincerel"
+    },
+    {
+      "id": "CROSS-200-081",
+      "category": "Probability, Stats & Finance",
+      "prompt": "A disease has a prevalence of 1%. A diagnostic test has 95% sensitivity and 90% specificity. If a random person tests positive, what is the probability they actually have the disease (express as percentage rounded to one decimal place)?",
+      "ground_truth": "8.8",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.29699420928955,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: conditional probability | test: Bayes' theorem | disease: rare_disease | test: positive</reg:plan>\n<reg:deduce>prevalence=1%, sensitivity=95%, specific=90% | P(Positive|Disease)=95% | P(Positive|No)=10% | P(Disease)=1% | P(No)=99% | P(Positive)=0.95·0.01+0.10·0.99=0.1005 | P(Disease|Positive)=0"
+    },
+    {
+      "id": "CROSS-200-082",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the sum of all distinct prime factors of 2026.",
+      "ground_truth": "1015",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.245792150497437,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: prime_factorization | base: 2026 | strategy: prime_factorization</reg:plan>\n<reg:deduce>2026/2=1013 | 1013 is prime  | 2+1013=1015  1015</reg:deduce>\n<reg:verify>1015>2  1015/5=203  203/7=29  29  is prime  2026=2"
+    },
+    {
+      "id": "CROSS-200-083",
+      "category": "Probability, Stats & Finance",
+      "prompt": "If the probability of failure on any trial is 0.2, what is the expected number of trials until the first success in a geometric distribution?",
+      "ground_truth": "1.25",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.243412971496582,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: geometric_distribution | property: expected_value</reg:plan>\n<reg:deduce>E[X]=1/p | p=0.2 | E[X]=5  )?.5</reg:deduce>\n<reg:verify>ans: 5>0  -bars: 0  -bars: 0  -bars: 0  -bars: 0  -bars: 0  -bars: 0  -bars: 0  -bars: 0  -bars: 0  -bars: 0  -bars: 0"
+    },
+    {
+      "id": "CROSS-200-084",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "What is the sum of integers from 1 to 100 that are divisible by neither 2 nor 5?",
+      "ground_truth": "2000",
+      "extracted_answer": "5050",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.21566390991211,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To find the sum of integers from 1 to 100 that are not divisible by 2 or 5, I will first calculate the sum of all integers in this range. Then, I will subtract the sums of the numbers divisible by 2 and 5, but I must add back the numbers that are divisible by both 2 and 5 to avoid double-counting.\n\nThe sum of integers from 1 to 100 is given by the formula \\( \\frac{100 \\times 101}{2} = 5050 \\).\n\nNe"
+    },
+    {
+      "id": "CROSS-200-085",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the length of the diagonal of a rectangular cuboid with dimensions 3, 4, 12.",
+      "ground_truth": "13",
+      "extracted_answer": "16",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.268120527267456,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To find the length of the diagonal of a rectangular cuboid with dimensions 3, 4, and 12, I'll use the formula for the space diagonal of a rectangular prism, which is derived from the Pythagorean theorem in three dimensions. The formula is:\n\nd = √(l² + w² + h²)\n\nWhere l, w, and h are the length, width, and height of the cuboid, respectively.\n\nSubstituting the given dimensions into the formula:\n\nd ="
+    },
+    {
+      "id": "CROSS-200-086",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "In an undirected connected planar graph with V = 12 vertices and F = 8 faces, how many edges E are there by Euler's planar formula?",
+      "ground_truth": "18",
+      "extracted_answer": "15",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.381025791168213,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:planetsketch>12</reg:planetsketch>\n<reg:deduce>15</reg:deduce>\n<reg:verify>15>0  15>12  15>8  15>2  15>3  15>4  15>5  15>6  15>7  15>8  15>9  15>10  15>11  15>12  15>"
+    },
+    {
+      "id": "CROSS-200-087",
+      "category": "Physics & Engineering",
+      "prompt": "Two parallel conductors 0.1 m apart carry currents of 15 A and 20 A in the same direction. What is the force per unit length between them in N/m (round to five decimal places)?",
+      "ground_truth": "0.00060",
+      "extracted_answer": "0",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.34210205078125,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: force_between_parallel_currents | law: F=(μ₀I₁I₂)/(2πd) | unit: N/m | given: I₁=15 A, I₂=20 A, d=0.1 m, μ₀=4π×10⁻⁴ T·m/A</reg:plan>\n<reg:deduce>reg:deduce>F=(4π×10⁻⁴·15·20)/(2π·0.1) | F=1200·10⁻⁴/0."
+    },
+    {
+      "id": "CROSS-200-088",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the determinant of the 2x2 matrix: [[7, 4], [3, 2]].",
+      "ground_truth": "2",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.475847721099854,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: determinant | matrix: [ [7,4], [3,2] ]</reg:plan>\n<reg:deduce>det( [[7,4], [3,2]]) = 7·2 - 4·3 = 14 - 12 = 2  -bars: 2</reg:deduce>\n<reg:verify>reg:deduce>2>0  -bars: 2>0  -bars:  positive -bars: -bars: 2</reg:verify>\n</think>\n<reg:deduce>"
+    },
+    {
+      "id": "CROSS-200-089",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "If x, y are real numbers satisfying x^2 + y^2 = 25, find the maximum possible value of 3x + 4y.",
+      "ground_truth": "25",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.321356058120728,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: linear_inequality_and_circle | theorem: |ax+by|≤√(a²+b²)·√(x²+y²) | distance: 5</reg:plan>\n<reg:deduce> |3·x+4·y|≤5·5=25 | 25>13  13</reg:deduce>\n<reg:verify>reg:deduce>13<25  13</reg:verify>\n</think>\n<reg:plan>concept: linear_inequality_and_circle | Cauchy-S"
+    },
+    {
+      "id": "CROSS-200-090",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A client is furious because their cloud service went down for 45 minutes during peak hours. How do you respond to acknowledge fault without admitting legal liability while retaining their business?",
+      "ground_truth": "acknowledge fault without legal liability",
+      "extracted_answer": "intent: de-escalate | tone: empathetic, professional",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.341460227966309,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: empathetic, professional</reg:intent>\nI sincerely apologize for the disruption during your peak hours. I understand the business impact. Here is a smooth restart plan to prevent recurrence.<reg:diagnosis> technical issues during restart</reg:diagnosis><reg:diagnosis> business continuity plan implemented</reg:diagnosis><reg:diagnosis> 90% recovery within 30 m"
+    },
+    {
+      "id": "CROSS-200-091",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "If 4 moles of H2 react completely with 1 mole of O2 to form H2O, which reactant is the limiting reagent (answer: H2 or O2)?",
+      "ground_truth": "O2",
+      "extracted_answer": "4",
+      "correct": false,
+      "tokens_emitted": 73,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 5.4261088371276855,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:deduce>H₂</reg:deduce>\n</think>\n<reg:deduce>H₂ is the limiting reagent</reg:deduce>\n<reg:deduce>4 moles of H₂ react completely with 1 mole of O₂ to form 4 moles of H₂O</reg:deduce><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-092",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "What is the respiratory quotient (RQ) for the complete oxidation of glucose (C6H12O6 + 6O2 -> 6CO2 + 6H2O)?",
+      "ground_truth": "1.0",
+      "extracted_answer": "6",
+      "correct": false,
+      "tokens_emitted": 25,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 1.8716316223144531,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>6</reg:bypass>\n</think>\n<reg:bypass>6</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-093",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "If sin(theta) = 3/5 with theta in quadrant I, find cos(2*theta) as a fraction.",
+      "ground_truth": "7/25",
+      "extracted_answer": "28",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.33751130104065,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: double-angle identity | identity: cos(2θ)=1-2sin²θ | theta: quadrant i, sin(θ)=3/5</reg:plan>\n<reg:deduce>sin(θ)=3/5 | cos(2θ)=1-2*(3/5)²=1-18/25=7/25  7/25</reg:deduce>\n<reg:verify>0<7/25<1  7/25>0  7/25  0.28"
+    },
+    {
+      "id": "CROSS-200-094",
+      "category": "Probability, Stats & Finance",
+      "prompt": "What is the Sharpe ratio of a portfolio with expected return 14%, risk-free rate 4%, and portfolio standard deviation 20%?",
+      "ground_truth": "0.5",
+      "extracted_answer": "5",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.295763492584229,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: sharpe_ratio | risk_free: 4% | portfolio: 14% | σ: 20%</reg:plan>\n<reg:deduce>sharpe_ratio=(14%−4%)/20%=0.5</reg:deduce>\n<reg:verify>0.5>0  ersive</reg:verify>\n<reg:verify>no uralience: 4%  ersive  20%   ersive  0.5  ersive  0.5  ersive</reg:"
+    },
+    {
+      "id": "CROSS-200-095",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Which amino acid is encoded by the mRNA start codon AUG?",
+      "ground_truth": "Methionine",
+      "extracted_answer": "Leu",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.343305110931396,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>Leu</reg:bypass>\n</think>\n<reg:bypass>Leu</reg:bypass>\n</think>\n<reg:bypass>leu</reg:bypass>\n</think>\n<reg:bypass>leu</reg:bypass>\n</think>\n<reg:bypass>leu</reg:bypass>\n</think>\n<reg:bypass>leu</reg:bypass>\n</think>\n<reg:bypass>leu</reg:bypass>\n</think>\n<reg:bypass>leu</reg:bypass>\n</think>\n<reg:bypass>leu</reg:bypass>\n</think>\n<reg"
+    },
+    {
+      "id": "CROSS-200-096",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "For the equilibrium N2 + 3H2 <=> 2NH3, if at equilibrium [N2]=0.5 M, [H2]=0.2 M, [NH3]=0.4 M, calculate Kc (round to one decimal place).",
+      "ground_truth": "40.0",
+      "extracted_answer": "3",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.322455883026123,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: equilibrium constant | reaction: N₂ (g) + 3H₂ (g) ⇌ 2NH₃ (g) | initial: [N₂]=0.5, [H₂]=0.2, [NH₃]=0.4 | change: -x, -3x, +2x | equilibrium: 0.5-x, 0.2-3x, 0.4+2x</reg:plan>\n<reg:deduce>reg:deduce[N₂]=0.5-x=0.3, ["
+    },
+    {
+      "id": "CROSS-200-097",
+      "category": "Physics & Engineering",
+      "prompt": "A radioactive sample has a half-life of 12 days. What fraction of the original sample remains after 48 days (express as fraction, e.g. 1/16)?",
+      "ground_truth": "1/16",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.286277055740356,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the fraction of the radioactive sample remaining after 48 days, I start by noting the half-life of the sample, which is 12 days. This means that every 12 days, half of the remaining material decays.\n\nNext, I calculate the number of half-lives that have passed in 48 days by dividing 48 by 12, which gives 4. This indicates that 4 half-lives have completed.\n\nUsing the exponential decay f"
+    },
+    {
+      "id": "CROSS-200-098",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "An open-source contributor submitted a large PR that fundamentally misaligns with the project's roadmap. How do you decline the PR with gratitude for their time?",
+      "ground_truth": "grateful roadmap-aligned PR decline",
+      "extracted_answer": "intent: acknowledge-feelings-in-Kindness | tone: caring, appreciative",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.379754781723022,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: acknowledge-feelings-in-Kindness | tone: caring, appreciative</reg:intent>\nThank you so much, [Your Name] for sharing this valuable PR. I truly value your contributions. I noticed the topic aligns with the current roadmap. I'll review it and get it ready to merge.<reg:intent>end-of-protocol</reg:intent>\n</think>\n<reg:intent>intent: appreciative-feelings-in-Kindness | tone: cari"
+    },
+    {
+      "id": "CROSS-200-099",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the remainder when 3^100 is divided by 7.",
+      "ground_truth": "4",
+      "extracted_answer": "4",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.507827758789062,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: modular_totient | base: 3 | modulus: 7 | theorem: φ(7)=6</reg:plan>\n<reg:deduce>3^100 mod 7 | 100=6·16+4  -bars: 3^4 mod 7=4  -bars: 4^16·4 mod 7=4 -bars: 4 -bars: 4</reg:deduce>\n<reg:verify>0<4  -bars: 4<7  -bars: 4 -bars"
+    },
+    {
+      "id": "CROSS-200-100",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many topological orderings exist for a DAG consisting of 4 independent vertices with no edges?",
+      "ground_truth": "24",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.278039693832397,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: topological_ordering | structure: 4-independence | topological_ordering_number: 2^3</reg:plan>\n<reg:deduce>reg:deduce: 4-inductive 1 | 4-inductive 2 | 4-inductive 3 | 4-inductive 4  8  4  1  8  4  1  8  4  1  8  4  1  8  4  1  8  4  1  "
+    },
+    {
+      "id": "CROSS-200-101",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Which mountain peak has the highest elevation above sea level on Earth?",
+      "ground_truth": "Mount Everest",
+      "extracted_answer": "18,292",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.300860404968262,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>18,292</reg:bypass>\n<reg:deduce>Maier山 (Mäier See) in Austria is the highest peak on Earth, with an elevation of 18,292 meters (60,180 feet) above sea level. It is the second highest mountain in the world after Mount Everest. The mountain is named after the German composer and composer of the symphonic opera, who is also the composer of the 2009 film.<reg:deduce>18,292</reg:deduce>\n</t"
+    },
+    {
+      "id": "CROSS-200-102",
+      "category": "Physics & Engineering",
+      "prompt": "Calculate the escape velocity from Earth in km/s (assuming G = 6.674e-11, M = 5.972e24 kg, R = 6.371e6 m; round to one decimal place).",
+      "ground_truth": "11.2",
+      "extracted_answer": "Mars",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.300871849060059,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>Mars</reg:bypass>11.2</reg:bypass>\n</think>\n<reg:bypass>11.2</reg:bypass>\n<reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg:bypass>11.2</reg"
+    },
+    {
+      "id": "CROSS-200-103",
+      "category": "Physics & Engineering",
+      "prompt": "A photon has wavelength 500 nm. Calculate its energy in electron-volts (take h*c = 1240 eV nm; round to two decimal places).",
+      "ground_truth": "2.48",
+      "extracted_answer": "48",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.37833571434021,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: energy_wavelength | formula: E=(hc)/λ | unit: eV</reg:plan>\n<reg:deduce>500 nm | 1240 eV·nm/500 nm=2.48 eV</reg:deduce>\n<reg:verify>0.001<1 | 2.48</reg:verify>\n<reg:verify>11.28  12.28  2.48  12.48</reg:verify>\n<reg:verify"
+    },
+    {
+      "id": "CROSS-200-104",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "You discovered that your manager made an error in the quarterly budget presentation scheduled in 30 minutes. How do you alert them discreetly?",
+      "ground_truth": "discreet urgent error notification",
+      "extracted_answer": "intent: de-escalate | tone: empathetic | strategy: non-accusatory-check-in",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.248908758163452,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: empathetic | strategy: non-accusatory-check-in</reg:intent>\nHey, I noticed something interesting happened in the quarterly budget presentation. I noticed a small discrepancy in the numbers. Let's get this right so everything is on track.<reg:deduce>deduced: data-inconsistency: 0.1</reg:deduce>\nI appreciate you taking the time to review it. I hope everything "
+    },
+    {
+      "id": "CROSS-200-105",
+      "category": "Probability, Stats & Finance",
+      "prompt": "A bond with face value $1,000 pays a 5% annual coupon and has 1 year to maturity. If market yield is 6%, what is the bond price in dollars (round to two decimal places)?",
+      "ground_truth": "990.57",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.384754657745361,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: bond_price | formula: C/(1+y)^n + F/(1+y)^n | series: present value (PV) | calculator: TVM</reg:plan>\n<reg:deduce>C=50, y=0.06, n=1, F=1000 | PV=50/1.06+1000/1.06=943.40</reg:deduce>\n<reg:verify>0.06>0.05  943.40<1"
+    },
+    {
+      "id": "CROSS-200-106",
+      "category": "Probability, Stats & Finance",
+      "prompt": "Find the present value in dollars of a cash flow of $5,000 received 4 years from now at a discount rate of 5% compounded annually (round to two decimal places).",
+      "ground_truth": "4113.51",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.489204406738281,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: present value | rate: 5% | time: 4 | cash_flow: 5000 | discount: annual</reg:plan>\n<reg:deduce>reg:deduce1=5000/(1+0.05)^4=4319.18  4319.18</reg:deduce>\n<reg:verify>reg:deduce1>0  4319.18>0  100%  100%</reg:verify>\n</think>\n"
+    },
+    {
+      "id": "CROSS-200-107",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "If x - 1/x = 4, find x^2 + 1/x^2.",
+      "ground_truth": "18",
+      "extracted_answer": "18",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.35462236404419,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: polynomial_invariant | identity: (x²+1/x²)=(x-1/x)²+2</reg:plan>\n<reg:deduce> x²+1/x²=(4)²+2=16+2=18 -bars:18</reg:deduce>\n<reg:verify>reg:deduce>18>0 -bars:18>0 -bars: Bingo</reg:verify>\n</think>\n-bars:18 -bars:18 -bars:18 -bars:18 -bars:18 "
+    },
+    {
+      "id": "CROSS-200-108",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the 5th Catalan number C_5 = (1/6) * (10 choose 5).",
+      "ground_truth": "42",
+      "extracted_answer": "7",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.410583734512329,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: catalan_number | recurrence: C_n=(2n choose n)/(n+1) | recurrence: C_n=C_{n-1}*(2n-1)/(n+1)</reg:plan>\n<reg:deduce>C_5=(10 choose 5)/6=252/6=42  42</reg:deduce>\n<reg:verify>reg:deduce>42>0  42  0  1  2  3  4  5  6  7"
+    },
+    {
+      "id": "CROSS-200-109",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A team member consistently takes credit for collaborative team work during all-hands demos. How do you address this with them directly?",
+      "ground_truth": "direct constructive credit attribution conversation",
+      "extracted_answer": "intent: assert-boundaries | tone: professional | strategy: direct-private-dialogue",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.542538166046143,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: assert-boundaries | tone: professional | strategy: direct-private-dialogue</reg:intent>\nSchedule a one-on-one meeting. Frame the discussion constructively: express appreciation for the positive contribution, but firmly clarify that collaborative credit is expected and should be handled openly.<reg:deduce>implicitguidelines: collaborative-credit, open- dialogue</reg:deduce>\n</th"
+    },
+    {
+      "id": "CROSS-200-110",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the smallest positive integer n such that 2^n > n^10.",
+      "ground_truth": "60",
+      "extracted_answer": "21",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.260319232940674,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: modular_inequality | base: 2 | target: 10</reg:plan>\n<reg:deduce> modular_inequality: 2^n > n^10 | 10=10  ueue: 11  ueue: 12  ueue: 13  ueue: 14  ueue: 15  ueue: 16  ueue: 17  ueue: 18  ueue: 19  ueue: 20  ueue: 21"
+    },
+    {
+      "id": "CROSS-200-111",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A team member is dominating meetings and interrupting junior engineers. How do you address this in your 1-on-1 constructively?",
+      "ground_truth": "constructive 1-on-1 feedback",
+      "extracted_answer": "intent: assert and correct | tone: empathetic, non-accusatory",
+      "correct": true,
+      "tokens_emitted": 105,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 7.531387805938721,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: assert and correct | tone: empathetic, non-accusatory</reg:intent>\nI noticed a behavior issue in our team. The relationship between you and [Junior Engineer's Name] has evolved. I value our collaborative efforts and encourage you to approach projects with a positive, inclusive mindset. Let's work together constructively to achieve success.<reg:diplomatic>Please find a mutually "
+    },
+    {
+      "id": "CROSS-200-112",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the inradius of a triangle with side lengths 13, 14, 15.",
+      "ground_truth": "4",
+      "extracted_answer": "15",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.266661882400513,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "Alright, so I have this problem: find the inradius of a triangle with side lengths 13, 14, 15. Hmm, okay. I remember that the inradius is related to the area and the semi-perimeter of the triangle. Let me try to recall the exact formula. I think it's something like inradius (r) equals the area (A) divided by the semi-perimeter (s). So, r = A/s. Yeah, that sounds right. So, I need to find the area "
+    },
+    {
+      "id": "CROSS-200-113",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "A graph has vertices with degrees: 2, 3, 3, 4, 4, 4, 6. How many edges does the graph have?",
+      "ground_truth": "13",
+      "extracted_answer": "13",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.335056066513062,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: handshaking_formula | multigraph: no_parallel_edges | multiigraph: no_multiple_edges</reg:plan>\n<reg:deduce>reg:degree_sum=2+3+3+4+4+4+6=26 | 2w=26 | w=13  -bars:13</reg:deduce>\n<reg:verify>reg:bars>0  -bars:13  -bars:13>0  -bars:13>0  -bars:13>0  -bars:13>"
+    },
+    {
+      "id": "CROSS-200-114",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many inversions are there in the permutation [4, 1, 3, 2]?",
+      "ground_truth": "4",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.355261087417603,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: inversion | sequence: [4, 1, 3, 2] | lower: 0, higher: 0 | target: 11</reg:plan>\n<reg:deduce>in(1,2) by 4, in(1,3) by 4, in(1,4) by 4, in(2,3) by 1, in(2,4) by 1, in(3,4) by 1 | 11  11  11  3  2 "
+    },
+    {
+      "id": "CROSS-200-115",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the standard unit of magnetic flux density?",
+      "ground_truth": "Tesla",
+      "extracted_answer": "2.56 mWb",
+      "correct": false,
+      "tokens_emitted": 88,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 6.455758333206177,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>2.56 mWb</reg:bypass>\n</think>\n<reg:bypass>2.56 mWb</reg:bypass>\nThe standard unit of magnetic flux density is the weber (Wb). A value of 2.56 mWb is commonly used in certain applications.  \n<reg:bypass>2.56 mWb</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-116",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "If log_2(x) + log_2(x - 2) = 3, find the positive real solution x.",
+      "ground_truth": "4",
+      "extracted_answer": "-2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.204996585845947,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: logarithmProperties | identity: log_b(a) + log_b(c) = log_b(ac) | base: 2 | equation: log_2(x) + log_2(x-2) = 3</reg:plan>\n<reg:deduce>reg:deduce>log_2(x(x-2))=3 | 2^3 = x(x-2) | x²-2x-8=0 | x=(2±√(4+32))/2=(2±6)/2  | x=4  or  x=-2"
+    },
+    {
+      "id": "CROSS-200-117",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "What is the maximum number of regions into which 5 lines can divide the Euclidean plane?",
+      "ground_truth": "16",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.273620367050171,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "Alright, so I have this problem: What is the maximum number of regions into which 5 lines can divide the Euclidean plane? Hmm, okay. I remember something about lines dividing a plane into regions, but I'm a bit fuzzy on the exact formula. Let me think.\n\nI think it's related to how each new line can intersect all the previous lines, creating new regions. Maybe it's a recursive formula or something."
+    },
+    {
+      "id": "CROSS-200-118",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the remainder when 7^77 is divided by 10.",
+      "ground_truth": "3",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.202451944351196,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: modular_totient | base: 7 | modulus: 10 | theorem: φ(10)=4</reg:plan>\n<reg:deduce>7^77 mod 10 | 7^4 mod 10=1 | 77=4·19+1 | 7^77 mod 10=7^1 mod 10=7  -bars: 7</reg:deduce>\n<reg:verify> modular_totient(10)=4, 7^4 mod 10=1,"
+    },
+    {
+      "id": "CROSS-200-119",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Solve for integer x: 5x = 9 mod 11. Give the smallest non-negative integer solution.",
+      "ground_truth": "4",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.213869333267212,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": true,
+      "raw_output": "<reg:plan>concept: modular_inverses | base: 11 | modulus: 11 | theorem: φ(11)=10</reg:plan>\n<reg:deduce>5x≡9 mod 11  ueue 5⁻¹  mod 11=9  ueue 9·9 mod 11=1  ueue x=9·9 mod 11=8  endphp 8</reg:deduce>\n<reg:verify> modular_inverses: 5·8 mod 11=40 mod 1"
+    },
+    {
+      "id": "CROSS-200-120",
+      "category": "Physics & Engineering",
+      "prompt": "A Carnot heat engine operates between temperatures of 500 K and 300 K. What is its maximum theoretical efficiency as a percentage?",
+      "ground_truth": "40",
+      "extracted_answer": "60%",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.234307527542114,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>60%</reg:bypass>\n</think>\n<reg:bypass>60%</reg:bypass>\n<reg:bypass>60%</reg:bypass>\n<reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60%</reg:bypass>60"
+    },
+    {
+      "id": "CROSS-200-121",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "What is the maximum number of alleles for a single gene that a normal diploid individual can carry?",
+      "ground_truth": "2",
+      "extracted_answer": "2",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.267890453338623,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>2</reg:bypass>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n<reg:deduce>2</reg:deduce>\n"
+    },
+    {
+      "id": "CROSS-200-122",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "In a dihybrid cross AaBb x AaBb with independent assortment, what fraction of progeny will be homozygous dominant for both genes (AABB)?",
+      "ground_truth": "1/16",
+      "extracted_answer": "1/16",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.225370168685913,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>1/16</reg:bypass>\n</think>\n<reg:bypass>1/16</reg:bypass>\n<reg:bypass>1/16</reg:bypass>\n<reg:bypass>1/16</reg:bypass>\n<reg:bypass>1/16</reg:bypass>\n<reg:bypass>1/16</reg:bypass>\n<reg:bypass>1/16</reg:bypass>\n<reg:bypass>1/16</reg:bypass>\n<reg:bypass>1/16</reg:bypass>\n"
+    },
+    {
+      "id": "CROSS-200-123",
+      "category": "Physics & Engineering",
+      "prompt": "Find the period of a simple pendulum of length 2.45 meters on Earth where g = 9.8 m/s^2 in seconds (round to two decimal places).",
+      "ground_truth": "3.14",
+      "extracted_answer": "14",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.25244927406311,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: period_of_aSimplePendulum | law: T=2π√(L/g) | given: L=2.45 m, g=9.8 m/s²</reg:plan>\n<reg:deduce>reg:deduce(2.45,9.8) | 2.45/9.8=0.25 | √0.25=0.5 | 2π·0.5=3.1416  3.1416  3.14</reg:"
+    },
+    {
+      "id": "CROSS-200-124",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "Calculate the Michaelis-Menten initial rate V0 if Vmax = 100 umol/s, Km = 2 mM, and substrate [S] = 8 mM in umol/s.",
+      "ground_truth": "80",
+      "extracted_answer": "40",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.313200235366821,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: michaelis_menten | enzyme: enzyme | substrate: [S]=8 mmol/L | inhibitor: none | dissociation_constant: 1  10^-4  mmol/umol | maximum_velocity: 100  umol/s</reg:plan>\n<reg:deduce>v0= (100  umol/s)·(8  mmol/umol)/(2  mmol/umol+8  mmol)  = 40  umol/s  ueue</reg:deduce>\n<reg:verify"
+    },
+    {
+      "id": "CROSS-200-125",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the approximate value of Avogadro's number (e.g. 6.022e23)?",
+      "ground_truth": "6.022e23",
+      "extracted_answer": "6.022×10²³",
+      "correct": true,
+      "tokens_emitted": 43,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 3.1171786785125732,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>6.022×10²³</reg:bypass>\n</think>\n<reg:bypass>6.022×10²³</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-126",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "What is the remainder when 2^2024 is divided by 13?",
+      "ground_truth": "3",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.396407127380371,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: modular_totient | base: 2 | modulus: 13 | theorem: φ(13)=12 | 2024=12·168+8</reg:plan>\n<reg:deduce>2^2024 mod 13 | 2024=12·168+8  -bars(2^2024) -bars(2^8) mod 13  -bars(2)  mod 13  -bars(2)  13  1"
+    },
+    {
+      "id": "CROSS-200-127",
+      "category": "Probability, Stats & Finance",
+      "prompt": "A coin is biased with P(Heads) = 0.6. If flipped 5 times, what is the probability of getting exactly 3 heads (round to four decimal places)?",
+      "ground_truth": "0.3456",
+      "extracted_answer": "3456",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.396585941314697,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: binomial_probability | n=5 | k=3 | p=0.6 | q=0.4 | binomial_formula: C(5,3) * 0.6³*0.4²</reg:plan>\n<reg:deduce>C(5,3)=10 | 0.6³=0.216 | 0.4²=0.16 | 10*0.216*0.16=10*0.03456=0.3456 "
+    },
+    {
+      "id": "CROSS-200-128",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "What is the pH of a 0.005 M solution of Ba(OH)2 assuming complete dissociation in water at 25 deg C (round to integer)?",
+      "ground_truth": "12",
+      "extracted_answer": "14",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.40159821510315,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: dissociation of Ba(OH)₂ | base: Ba(OH)₂ | neutralization: Ba(OH)₂ + 2H₂O → Ba²⁺ + 2OH⁻  | strength: strong base</reg:plan>\n<reg:deduce>Kw=1.0·10⁻¹⁴ | [OH⁻]=0.005  | pOH=1.299  | pH=13.701  | pH=14</reg:deduce>14</reg:verify>14"
+    },
+    {
+      "id": "CROSS-200-129",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "In Dijkstra's algorithm implemented with a binary min-heap for a graph with V vertices and E edges, what is the time complexity Big-O (express as O((V+E) log V))?",
+      "ground_truth": "O((V+E) log V)",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.327240705490112,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: dijkstra's-algorithm | data-structure: priority-queue | invariant: priority-queue is a min-heap | graph: undirected, connected, weighted, edge-weights: non-negative, arbitrary</reg:plan>\n<reg:deduce>reg:deduce-time-complexity: O((V+E) log V) ersetzung: (V+E) log V  für (V+E) log V  derived: (10) 10</reg:deduce>\n<reg:verify>concept: dijkstra's-algorithm ersetzung: "
+    },
+    {
+      "id": "CROSS-200-130",
+      "category": "Probability, Stats & Finance",
+      "prompt": "A Poisson random variable has mean lambda = 4. What is the variance of this distribution?",
+      "ground_truth": "4",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.272057294845581,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: variance_of_poisson | distribution: poisson | lambda: 4 | formula: var(X)=λ</reg:plan>\n<reg:deduce>var(X)=4 -bars: 4 -bars=4 -bars -bars</reg:deduce>\n<reg:verify>reg:deduce>0,1,2,3,4,5,6,7,8,9,10: 0 -bars 4 -bars -bars -bars 4 -bars 1 -bars 1 -bars 2 -bars 2 -bars"
+    },
+    {
+      "id": "CROSS-200-131",
+      "category": "Probability, Stats & Finance",
+      "prompt": "If events A and B are independent with P(A) = 0.4 and P(B) = 0.5, what is P(A union B)?",
+      "ground_truth": "0.7",
+      "extracted_answer": "5",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.318825721740723,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the probability of the union of two independent events A and B, I start by recalling the formula for the probability of the union of two events: P(A ∪ B) = P(A) + P(B) - P(A)P(B). This formula accounts for the overlap between the two events.\n\nGiven that events A and B are independent, their probabilities do not affect each other. Therefore, I can directly apply the formula using the p"
+    },
+    {
+      "id": "CROSS-200-132",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many truth assignments satisfy the Boolean formula (A or B) and (not A or C) across variables A, B, C?",
+      "ground_truth": "5",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.293944358825684,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: boolean-algebra | logic: boolean-inference | clauses: (A∨B), (¬A∨C) | structure: 2-clause-planarity</reg:plan>\n<reg:deduce>deduce: semantic-implications (A∨B), (¬A∨C) | implication: B→C | simplified: (B→C) | clauses: (B→C), (¬A∨C) |  semantic-implications (B→C), (¬A∨C) | 2-clause-check- satisfiable  1  1"
+    },
+    {
+      "id": "CROSS-200-133",
+      "category": "Probability, Stats & Finance",
+      "prompt": "Calculate the sample standard deviation of data set: [3, 7, 7, 19] (round to two decimal places).",
+      "ground_truth": "6.93",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.253031253814697,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: standard_deviation | data: [3, 7, 7, 19] | method: sample_standard_deviation</reg:plan>\n<reg:deduce>mean=7, variance=25, standard_deviation=5.00  (25)  (5.00)  5.00</reg:deduce>\n<reg:verify>reg:deduce: 5.00>0  bower:  2>1  bower:  2<100 bower:  2"
+    },
+    {
+      "id": "CROSS-200-134",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "How many derangements are there of a set of 5 elements (D_5)?",
+      "ground_truth": "44",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.238440990447998,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: derangement | n: 5 | recurrence: D_n=(n-1)(D_{n-1}+D_{n-2})</reg:plan>\n<reg:deduce>D_2=(2-1)(0+1)=1 | D_3=(3-1)(1+0)=2 | D_4=(4-1)(2+1)=9 | D_5=(5-1)(9+2)=44  | 44</reg:deduce>\n<reg:verify>reg:verify>0,1,2"
+    },
+    {
+      "id": "CROSS-200-135",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you announce a necessary 20% price increase to existing legacy subscribers while maximizing retention?",
+      "ground_truth": "value-justified grandfathered pricing announcement",
+      "extracted_answer": "intent: price-increase | strategy: targeted-promotion, targeted-strategy, social-promotion | tone: professional, empathetic, professional",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.208125114440918,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: price-increase | strategy: targeted-promotion, targeted-strategy, social-promotion | tone: professional, empathetic, professional</reg:intent>\nHey, I really value our existing customers. We know your business is important to you. We understand how valuable your subscriptions are, so here's a plan to keep you connected long-term.<reg:promote>Reach out directly to your current cu"
+    },
+    {
+      "id": "CROSS-200-136",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the approximate speed of sound in air at 20 deg C in m/s (to nearest integer)?",
+      "ground_truth": "343",
+      "extracted_answer": "343",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.252519607543945,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>343</reg:bypass>\n</think>\n<reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</reg:bypass>343</"
+    },
+    {
+      "id": "CROSS-200-137",
+      "category": "Physics & Engineering",
+      "prompt": "Find the de Broglie wavelength in meters of an electron moving at 2e6 m/s (take m_e = 9.109e-31 kg, h = 6.626e-34 J s; express in scientific notation: A.BCe-10; round to two decimal places: e.g. 3.64e-10).",
+      "ground_truth": "3.64e-10",
+      "extracted_answer": "63",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.237838745117188,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: de_broglie_wavelength | formula: λ = h / p | momentum: p = m*v</reg:plan>\n<reg:deduce>reg:mass=9.109e-31 | v=2e6 | p=9.109e-31*2e6=1.8218e-24 | λ=6.626e-34/1.8218e-24=3.63e-10  | 3.63</reg:"
+    },
+    {
+      "id": "CROSS-200-138",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A cross-functional department has missed two consecutive data handoffs, blocking your team's launch. How do you email their director to escalate constructively?",
+      "ground_truth": "constructive executive escalation",
+      "extracted_answer": "intent: de-escalate | tone: empathetic | strategy: clear-constructive-acknowledgment-and-remediation",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.214877367019653,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: empathetic | strategy: clear-constructive-acknowledgment-and-remediation</reg:intent>\nSchedule a one-on-one meeting. Choose a time that respects both parties' boundaries. Start the discussion calmly: express appreciation for the positive collaboration, acknowledge the immediate data transfer issues, and express a plan to resolve them collaboratively within t"
+    },
+    {
+      "id": "CROSS-200-139",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the value of k such that x - 2 divides x^3 - 3x^2 + kx - 8 without remainder.",
+      "ground_truth": "6",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.23945951461792,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: polynomial_remainder | theorem: rational_root_theorem | factor: (x-2)</reg:plan>\n<reg:deduce>substitute x=2 into polynomial and set equal to zero: 2^3 - 3·2^2 + k·2 - 8=0  2k=8  k=4  kube: 4  kube: 4</reg:deduce>\n<reg:verify>verify kube=4  kube  0  kube: 0  kube: 0  kube"
+    },
+    {
+      "id": "CROSS-200-140",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "In an electrochemical cell with standard potentials E0(Zn2+/Zn) = -0.76 V and E0(Cu2+/Cu) = +0.34 V, what is the standard cell potential E0_cell in volts?",
+      "ground_truth": "1.10",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.19377326965332,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: cell potential | cell: Zn | Zn²+ | Zn | Cu | Cu²+ | cathode | anode | E°cell = E°cathode - E°anode</reg:plan>\n<reg:deduce> E0_cell = 6.10 V</reg:deduce>\n<reg:verify>6.10 V>0, so cell is spontaneous</reg:verify>\n</think>\n<reg:plan>concept: cell potential | cell: Zn | Zn²+ | Zn | Cu | Cu²+"
+    },
+    {
+      "id": "CROSS-200-141",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many equivalence classes does the Myhill-Nerode relation have for language L = {w in {0,1}* | |w| is a multiple of 3}?",
+      "ground_truth": "3",
+      "extracted_answer": "3",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.29694652557373,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: myhill_nerode_relation | automaton: deterministic finite automaton (DFA) | language: regular</reg:plan>\n<reg:deduce>reg:lang=regular|lang: Recognizable by a DFA: 111  11  1  | n mod 3=0  111  11  1  | 3  3  3  3  3  3  3  3  3  3  3  3  3  3"
+    },
+    {
+      "id": "CROSS-200-142",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Who formulated the three laws of planetary motion?",
+      "ground_truth": "Johannes Kepler",
+      "extracted_answer": "Isaac Newton",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.236587762832642,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>Isaac Newton</reg:bypass>\n</reg:deduce>The three laws of planetary motion were formulated by Sir Isaac Newton in the 1680s. Newton's work, *Philosophiæ Naturalis Principia Mathematica* (Mathematical Principles of Natural Philosophy), introduced these fundamental laws that describe the motion of celestial bodies. The first law, the law of universal gravitation, explains the force of att"
+    },
+    {
+      "id": "CROSS-200-143",
+      "category": "Physics & Engineering",
+      "prompt": "A transformer has 400 primary turns and 50 secondary turns. If the input primary voltage is 240V AC, find the output secondary voltage in volts.",
+      "ground_truth": "30",
+      "extracted_answer": "12",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.311307430267334,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: voltage_division | ratio: n_s/n_p | v_s=V_p*(n_s/n_p)  | 240V/400/50</reg:plan>\n<reg:deduce>240V/400/50=12V</reg:deduce>\n<reg:verify>0<12<240  \tAND 12>0  \tAND 12/240=0.5>0  scrição=12V</reg:verify>\n<reg:verify"
+    },
+    {
+      "id": "CROSS-200-144",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "In a min-heap with 10 elements stored in a 0-indexed array, what is the array index of the right child of the element at index 3?",
+      "ground_truth": "8",
+      "extracted_answer": "4",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.284338474273682,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: binary-heap | structure: 2n+1 | parent: (n-1)/2 | child: 2n+2</reg:plan>\n<reg:deduce>left_child: 6, right_child: 8  | 10/2=5, 2*5+2=12>10  | 10-1=9, 9/2=4, 2*4+2=10  | 10>10  | 10-2=8, 2*4+"
+    },
+    {
+      "id": "CROSS-200-145",
+      "category": "Probability, Stats & Finance",
+      "prompt": "A committee of 3 people is chosen from 5 men and 4 women. What is the probability that the committee consists of 2 men and 1 woman (express as fraction)?",
+      "ground_truth": "10/21",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.279298782348633,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the probability of selecting a committee with 2 men and 1 woman from a group of 5 men and 4 women, I will follow these steps:\n\n1. **Calculate the total number of possible committees:**\n   The total number of ways to choose 3 people from 9 individuals is given by the combination formula C(9,3).\n   C(9,3) = 9! / (3! * (9-3)!) = 84.\n\n2. **Determine the number of favorable committees:**\n "
+    },
+    {
+      "id": "CROSS-200-146",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "In a population in Hardy-Weinberg equilibrium, the frequency of homozygous recessive genotype (q^2) is 0.09. What is the frequency of heterozygotes (2pq)?",
+      "ground_truth": "0.42",
+      "extracted_answer": "4",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.296810626983643,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: hardy-weinberg | genotype: heterozygote, genotype: homozygous-recessive | allele: heterozygote: 2pq, homozygous-recessive: q²</reg:plan>\n<reg:deduce>q²=0.09, p=1-q | 2pq=2(1-0.3)·0.3=0.42  0.42</reg:deduce>\n<reg:verify>0.42>0 | 0.09+0.4"
+    },
+    {
+      "id": "CROSS-200-147",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "What is the trace of the 3x3 identity matrix?",
+      "ground_truth": "3",
+      "extracted_answer": "3",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.258696556091309,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: trace | matrix: 3x3 identity | diagonal: 1,1,1</reg:plan>\n<reg:deduce>tr(I₃) = 1+1+1=3 -bars:3</reg:deduce>\n<reg:verify>tr(I₃) ersetzung 3>0 -bars:3>0</reg:verify>\n<reg:verify>reg:deduce: 3 -bars:3>0 -bars:3>0 -bars:3>0 -bars:3>0 -bars:3"
+    },
+    {
+      "id": "CROSS-200-148",
+      "category": "Physics & Engineering",
+      "prompt": "An ideal gas expands isothermally at 300 K from 2 L to 8 L. If n = 2 moles, calculate the work done by the gas in joules (take R = 8.314 J/mol K; round to integer).",
+      "ground_truth": "6915",
+      "extracted_answer": "8",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.276946544647217,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: work_in_isothermal_expansion | gas: ideal | process: isothermal | temp: 300 K | n: 2 mol | V₁: 2 L | V₂: 8 L | formula: w = nRT ln(V₂/V₁)  | unit: J</reg:plan>\n<reg:deduce>w=2·8.314·300·ln(8/2) | w=2·8.314·300·1.0986  | w=2·8."
+    },
+    {
+      "id": "CROSS-200-149",
+      "category": "Probability, Stats & Finance",
+      "prompt": "What is the effective annual rate (EAR) as a percentage for an investment with nominal rate 8% compounded monthly (round to two decimal places)?",
+      "ground_truth": "8.30",
+      "extracted_answer": "083000083",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.255711078643799,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: effective_annual_rate | period: 6 | rate: 0.08</reg:plan>\n<reg:deduce>nominal_rate=0.08, k=12, effective_rate=(1+0.08/12)^12-1=0.083000083</reg:deduce>\n<reg:verify>0.083000083>0.08</reg:verify>\n<reg:verify>floor(0.083000083"
+    },
+    {
+      "id": "CROSS-200-150",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the maximum number of nodes in a full binary tree of height 5 (where root is at height 0)?",
+      "ground_truth": "63",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.311759233474731,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: binary_tree | structure: full_height:5 | formula: 2^h - 1</reg:plan>\n<reg:deduce>2^5-1=32-1=31  31</reg:deduce>\n<reg:verify>reg:deduce: 31>0  rome: 11111  11  11  11  11  11  11  11  11  11  11  1"
+    },
+    {
+      "id": "CROSS-200-151",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the sum of all angles in a convex nonagon (9-sided polygon) in degrees.",
+      "ground_truth": "1260",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.270207405090332,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: sum_of_interior_angles | polygon: nonagon (9 sides) | formula: (n-2)×180</reg:plan>\n<reg:deduce> (9-2)×180=7×180=1260  1260</reg:deduce>\n<reg:verify>reg:deduce>1260>0, 1260<1800  ueue:1260</reg:verify>\n</think>\n<reg:plan>concept: sum_of_inter"
+    },
+    {
+      "id": "CROSS-200-152",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "If a and b are roots of x^2 - 7x + 3 = 0, find the value of a^3 + b^3.",
+      "ground_truth": "280",
+      "extracted_answer": "280",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.224891424179077,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: polynomial_invariant | identity: a³+b³=(a+b)³-3ab(a+b) | target: a³+b³</reg:plan>\n<reg:deduce>reg:deduce a+b=7 | ab=3 | a³+b³=(7)³-3·3·7=343-63=280  280</reg:deduce>\n<reg:verify>reg:deduce: 280>0  280>0  280=280 "
+    },
+    {
+      "id": "CROSS-200-153",
+      "category": "Physics & Engineering",
+      "prompt": "Find the equivalent resistance in ohms of three resistors 10 ohms, 20 ohms, and 30 ohms connected in parallel (round to two decimal places).",
+      "ground_truth": "5.45",
+      "extracted_answer": "20",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.172224044799805,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: parallel_resistance | elements: 10Ω, 20Ω, 30Ω | circuit: series in parallel</reg:plan>\n<reg:deduce>10||20||30=  6.666666666666667  Ω</reg:deduce>\n<reg:verify>6.67  Ω (rounded to two decimal places)</reg:verify>\n</think>\n<reg:plan>concept: parallel_resistance | elements: 10Ω, 20Ω"
+    },
+    {
+      "id": "CROSS-200-154",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "How many grams of NaCl are required to prepare 500 mL of a 0.25 M solution (molar mass NaCl = 58.44 g/mol; round to two decimal places)?",
+      "ground_truth": "7.31",
+      "extracted_answer": "58",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.237509965896606,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: molarity | formula: M = n/V | target: 0.25 M | volume: 500 mL</reg:plan>\n<reg:deduce>12.11 g</reg:deduce>\n<reg:verify>12.11 g > 0  ethod: 0.25  58.44  0.5  12.11  0.25  58.44  12.11  0.25  58"
+    },
+    {
+      "id": "CROSS-200-155",
+      "category": "Probability, Stats & Finance",
+      "prompt": "If variance Var(X) = 9, what is the standard deviation of 4X + 7?",
+      "ground_truth": "12",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.153812408447266,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: variance_linear_transformation | theorem: Var(aX+b)=a²·Var(X)</reg:plan>\n<reg:deduce>Var(4X+7)=4²·Var(X) + 0=16·9=144  144</reg:deduce>\n<reg:verify>reg:deduce: 144>0, 144</reg:verify>\n</think>\n<reg:plan>concept: variance_linear_transformation | theorem: Var(aX+b)=a²·Var(X)  uring"
+    },
+    {
+      "id": "CROSS-200-156",
+      "category": "Probability, Stats & Finance",
+      "prompt": "In how many ways can 5 distinct books be arranged on a shelf such that 2 specific books are always adjacent?",
+      "ground_truth": "48",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.1991605758667,
+      "registers": {
+        "plan": true,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the number of ways to arrange 5 distinct books on a shelf with the condition that 2 specific books are always adjacent, I'll start by treating the two specific books as a single unit. This reduces the problem to arranging 4 units (the pair and the remaining 3 books).\n\nThe number of ways to arrange these 4 units is 4! (which is 24). Since the two specific books can be arranged in 2! (w"
+    },
+    {
+      "id": "CROSS-200-157",
+      "category": "Physics & Engineering",
+      "prompt": "A convex lens has focal length f = 15 cm. An object is placed 30 cm in front of the lens. What is the image distance v in cm?",
+      "ground_truth": "30",
+      "extracted_answer": "30",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.241318702697754,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the image distance of a convex lens, I'll use the thin lens formula: 1/f = 1/u + 1/v.\n\nGiven the focal length f is 15 cm and the object distance u is 30 cm, I'll substitute these values into the formula.\n\n1/15 = 1/30 + 1/v.\n\nSolving for 1/v, I subtract 1/30 from both sides: 1/v = 1/15 - 1/30 = 1/30.\n\nFinally, taking the reciprocal of 1/30 gives the"
+    },
+    {
+      "id": "CROSS-200-158",
+      "category": "Probability, Stats & Finance",
+      "prompt": "How many years will it take for an investment to double at 7.2% annual interest compounded annually according to the Rule of 72?",
+      "ground_truth": "10",
+      "extracted_answer": "72",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.193080425262451,
+      "registers": {
+        "plan": true,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine how many years it will take for an investment to double with 7.2% annual interest compounded annually, I can use the Rule of 72. This rule states that dividing 72 by the annual interest rate gives the approximate number of years needed for the investment to double.\n\n72 divided by 7.2 equals 10. Therefore, it will take approximately 10 years for the investment to double.\n</think>\n<reg:"
+    },
+    {
+      "id": "CROSS-200-159",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A customer requests a full refund past the 30-day return window citing personal emergency. How do you craft an empathetic response offering store credit as an exception?",
+      "ground_truth": "empathetic policy exception with store credit",
+      "extracted_answer": "intent: de-escalate | tone: empathetic, professional",
+      "correct": true,
+      "tokens_emitted": 125,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.012244462966919,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: empathetic, professional</reg:intent>\nI sincerely apologize for the inconvenience. Thank you for choosing our company. We understand the situation and will process your refund within 7 days.</reg:intent>\n</think>\n<reg:intent>intent: de-escalate | tone: empathetic, professional</reg:intent>\nThank you for choosing our company. We sincerely apologize for any in"
+    },
+    {
+      "id": "CROSS-200-160",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "A client is micromanaging daily pull requests and messaging developers directly. How do you establish communication boundaries diplomatically?",
+      "ground_truth": "diplomatic channel boundary setting",
+      "extracted_answer": "intent: communicate-boundary | tone: professional | strategy: clear-boundaries, non-accusatory",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.288037061691284,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: communicate-boundary | tone: professional | strategy: clear-boundaries, non-accusatory</reg:intent>\nHey, I really value our collaboration. I'm here to promote technical value and drive iterative improvements together. Let's keep our communication focused on supporting each other and delivering great features. No pushback please.</reg:intent>\n</think>\nI strongly value our collab"
+    },
+    {
+      "id": "CROSS-200-161",
+      "category": "Probability, Stats & Finance",
+      "prompt": "Two fair 6-sided dice are rolled. What is the probability that the sum is equal to 8 (express as simplest fraction)?",
+      "ground_truth": "5/36",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.334922313690186,
+      "registers": {
+        "plan": true,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the probability of rolling an 8 with two 6-sided dice, I start by noting that there are a total of 6 x 6 = 36 possible outcomes.\n\nNext, I identify the combinations of two numbers that add up to 8: (2,6), (3,5), (4,4), (5,3), and (6,2). This gives a total of 5 favorable outcomes.\n\nFinally, I calculate the probability by dividing the number of favorable outcomes by the total number of p"
+    },
+    {
+      "id": "CROSS-200-162",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you explain to a non-technical board member why technical debt must be paid down before adding new features?",
+      "ground_truth": "business metaphor for technical debt",
+      "extracted_answer": "intent: explain | tone: clear, straightforward | strategy: sequential, phased | structure: clear phases, logical progression",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.230356454849243,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: explain | tone: clear, straightforward | strategy: sequential, phased | structure: clear phases, logical progression</reg:intent>\nHey, I get it! Technical debt is like a big pile of old tools that we need to get rid of before we start building new stuff. It's important to clean up the old stuff first so we can focus on making the new features great. This way, everything stays o"
+    },
+    {
+      "id": "CROSS-200-163",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "Evaluate the bitwise operation in decimal: (45 & 27) | (14 ^ 3).",
+      "ground_truth": "29",
+      "extracted_answer": "15",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.25189208984375,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: bitwise_operations | strategy: modularize | target: binary_representation | circuit: [45,27]_binary [27,14]_binary [45&27]_binary [45^27]_binary [45^27]^2_2</reg:plan>\n<reg:deduce>(45&27)=21  21  14^3=15  21|15=15  15  15</reg:deduce>\n<reg:verify"
+    },
+    {
+      "id": "CROSS-200-164",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Which fundamental physical force is mediated by the gluon?",
+      "ground_truth": "Strong force",
+      "extracted_answer": "strong nuclear",
+      "correct": false,
+      "tokens_emitted": 112,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 8.01921558380127,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>strong nuclear</reg:bypass><reg:plan>reg:bypass</reg:plan>\n<reg:deduce>the gluon is the force carrier for the strong nuclear force</reg:deduce>\n</think>\n<reg:bypass>strong nuclear</reg:bypass><reg:plan>concept: strong_nuclear_force | force: gluon | carrier: gluon</reg:plan>\n<reg:deduce>the gluon is the force carrier for the strong nuclear force</reg:deduce><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-165",
+      "category": "Probability, Stats & Finance",
+      "prompt": "What is the expected value of a random variable X with outcomes 2, 4, 8 with probabilities 0.5, 0.3, 0.2 respectively?",
+      "ground_truth": "3.8",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.319523334503174,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: expected_value | distribution: {2: 0.5, 4: 0.3, 8: 0.2} | series: E[X] = Σ (x_i * P(x_i))</reg:plan>\n<reg:deduce>E[X] = 2·0.5 + 4·0.3 + 8·0.2 = 1 + 1.2 + 1.6 = 3.8  3.8</reg:deduce>\n<reg:verify>reg:deduce>1"
+    },
+    {
+      "id": "CROSS-200-166",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you deliver news of an internal project cancellation to the engineering team that spent 6 months building it?",
+      "ground_truth": "transparent empathetic project pivot",
+      "extracted_answer": "intent: confirm | tone: professional | strategy: clear-and-convincing",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.261052131652832,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: confirm | tone: professional | strategy: clear-and-convincing</reg:intent>\nSchedule a one-on-one meeting. Choose a time that respects both project and team boundaries. Frame the discussion constructively: acknowledge the effort, express appreciation, and clearly outline the next steps post-cancellation. Ensure the message is professional and appreciative, building trust and a p"
+    },
+    {
+      "id": "CROSS-200-167",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "Simplify the Boolean expression: A*B + A*B' + A'*B into its minimal SOP form.",
+      "ground_truth": "A + B",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.170389652252197,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: boolean-algebra | strategy: factor | distribution: distributive-law | th: boolean-algebra</reg:plan>\n<reg:deduce>A*B+A*B'+A'*B=(A+B)(A'+B) | (A+B)(A'+B)=A*A' + A*B' + B*A' + B*B  | A*A'=0, B*B=B | (A*B) + (B*A') + B  | (A*B) + B + (B*A')  | B+(A*B) + (B*A')  | B+A "
+    },
+    {
+      "id": "CROSS-200-168",
+      "category": "Physics & Engineering",
+      "prompt": "A projectile is launched from ground level with velocity 40 m/s at an angle of 30 degrees above the horizontal. Assuming g = 9.8 m/s^2, find its maximum height in meters (round to two decimal places).",
+      "ground_truth": "20.41",
+      "extracted_answer": "00",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.28132176399231,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: projectile_motion | kinematics | vertical_velocity | max_height: (v₀²·sin²θ)/g</reg:plan>\n<reg:deduce>v₀=40,θ=30,g=9.8 | y_max=(40²·sin²(30))/9.8  | y_max=80  (exact)  80.00  80.00</reg:deduce>\n<reg:verify>reg:deduce>80.00>0  80.00"
+    },
+    {
+      "id": "CROSS-200-169",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "What volume in mL of 12 M HCl is needed to prepare 600 mL of 0.5 M HCl?",
+      "ground_truth": "25",
+      "extracted_answer": "5",
+      "correct": false,
+      "tokens_emitted": 37,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 2.6572437286376953,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:deduce>12.5 mL</reg:deduce>\n</think>\n<reg:deduce>12.5 mL</reg:deduce><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-170",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the atomic number of Iron?",
+      "ground_truth": "26",
+      "extracted_answer": "26",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.257095098495483,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>26</reg:bypass>\n</think>\n<reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg:bypass>26</reg"
+    },
+    {
+      "id": "CROSS-200-171",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the number of positive integer solutions (x, y) to 1/x + 1/y = 1/6.",
+      "ground_truth": "9",
+      "extracted_answer": "6",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.227120637893677,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "Alright, so I have this problem: find the number of positive integer solutions (x, y) to the equation 1/x + 1/y = 1/6. Hmm, okay. I remember that this is a type of Diophantine equation, which means we're looking for integer solutions. Let me think about how to approach this.\n\nFirst, maybe I can manipulate the equation to make it easier to handle. Let's see, 1/x + 1/y = 1/6. If I combine the fracti"
+    },
+    {
+      "id": "CROSS-200-172",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "Is the language L = {a^n b^n c^n | n >= 1} context-free (answer: True or False)?",
+      "ground_truth": "False",
+      "extracted_answer": "2",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.275888442993164,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: formal lang/automata | rule: pumping lemma | grammar: context-free Grammars</reg:plan>\n<reg:deduce>reg: lang L={a^n b^n c^n | n >= 1}  is not context-free  | le: l_n  2^n  1^n  1^n  1_n  2  3  1  2  3  1  2  3  1  2  3  1  2  3  1  2 "
+    },
+    {
+      "id": "CROSS-200-173",
+      "category": "Probability, Stats & Finance",
+      "prompt": "In a standard normal distribution Z, what is P(Z < 0)?",
+      "ground_truth": "0.5",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.317009687423706,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: standard-normal-distribution | tail: lower-end | tail-probability: lower-end</reg:plan>\n<reg:deduce>P(Z<0) istics.norm.cdf(0)  0.5  0.5</reg:deduce>\n<reg:verify>reg:deduce>istics.norm.cdf(0)  0.5  0.5>0  0</reg:verify>\n</think>\n<reg:plan>concept: standard-normal-distribution | tail: lower-end | tail-probability: known  "
+    },
+    {
+      "id": "CROSS-200-174",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you announce a critical security patch deployment requiring a 10-minute scheduled maintenance window tonight to users?",
+      "ground_truth": "clear transparent maintenance alert",
+      "extracted_answer": "intent: schedule-deployment | tone: professional | strategy: phased",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.232495784759521,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: schedule-deployment | tone: professional | strategy: phased</reg:intent>\nOn <date>10:00 PM</date> at <time>20:00</time>, I have scheduled a 10-minute maintenance review for this system. The deployment will be fully operational by <date>10:10 PM</date> to ensure smooth user access.<reg:deduce>deduction: 10-minute maintenance | deployment: complete | user: authorized</reg:deduce>"
+    },
+    {
+      "id": "CROSS-200-175",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Who proved Fermat's Last Theorem in 1994?",
+      "ground_truth": "Andrew Wiles",
+      "extracted_answer": "Fermat's Last Theorem was proven by Andrew Wiles in 1994.",
+      "correct": true,
+      "tokens_emitted": 64,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 4.610172271728516,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>Fermat's Last Theorem was proven by Andrew Wiles in 1994.</reg:bypass>\n</think>\n<reg:bypass>Andrew Wiles, a British mathematician, proved Fermat's Last Theorem in 1994.</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-176",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the number of strongly connected components in a directed cycle graph of 7 vertices?",
+      "ground_truth": "1",
+      "extracted_answer": "7",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.219427824020386,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: strongly_connected_component | graph: directed_cycle_graph | order: 7 | theorem: a directed cycle with n vertices has exactly n strongly_connected_components</reg:plan>\n<reg:deduce>reg:deduce: a directed_cycle_graph with 7 vertices has a single strongly_connected_component  tokan  7  1  7  1  7  1  7  1  7  1  7  1  7  1  7  1  7  1  7 "
+    },
+    {
+      "id": "CROSS-200-177",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the unit digit of 17^2025.",
+      "ground_truth": "7",
+      "extracted_answer": "17",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.288394451141357,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: unit_digit | base: 17 | modulus: 10 | theorem: euler_totient</reg:plan>\n<reg:deduce>φ(10)=4, 2025=4·506+1 | 17^2025 mod 10=1^1 mod 10=1  | 1</reg:deduce>\n<reg:verify>reg:deduce>1<10</reg:verify>\n</think>\n<reg:plan>concept: unit_digit | base: 17 |"
+    },
+    {
+      "id": "CROSS-200-178",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you address a client rumor that your startup is struggling financially with transparency and confidence?",
+      "ground_truth": "fact-based confident transparency",
+      "extracted_answer": "intent: assert-boundaries | tone: professional | strategy: direct-private-dialogue",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.221500396728516,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: assert-boundaries | tone: professional | strategy: direct-private-dialogue</reg:intent>\nI sincerely apologize for the recent communication gap. I fully understand the business challenges you are facing. Let's work together constructively. I will share detailed insights on improving transparency and confidence in a clear and non- confrontational manner, and we can address this t"
+    },
+    {
+      "id": "CROSS-200-179",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What planet in our solar system has the highest surface temperature?",
+      "ground_truth": "Venus",
+      "extracted_answer": "Mars",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.24980878829956,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>Mars</reg:bypass>\n<reg:plan>plan: planet=planetary-planet|in: planet=Mars|order: temperature</reg:plan>\n<reg:deduce>the surface temperature of Mars is approximately 700 K, which is higher than Earth's 288 K and Venus' 4605 K. therefore, Mars has the highest surface temperature in the solar system.</reg:deduce>\n<reg:verify>reg:bypass>Earth|Jupiter|Saturn|Uranus|Neptune</reg:verify>\n</th"
+    },
+    {
+      "id": "CROSS-200-180",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "Find the number of positive divisors of 7200.",
+      "ground_truth": "54",
+      "extracted_answer": "54",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.23959231376648,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine the number of positive divisors of 7200, I start by performing its prime factorization. Breaking down 7200, I find that it can be expressed as 2^5 × 3^2 × 5^2.\n\nUsing the formula for calculating the number of divisors, which is to add 1 to each of the exponents in the prime factorization and then multiply these results together, I proceed as follows:\n\n(5+1) × (2+1) × (2+1) = 6 × 3 × 3"
+    },
+    {
+      "id": "CROSS-200-181",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the complement of a recursively enumerable language that is not recursive? Is it recursively enumerable (True or False)?",
+      "ground_truth": "False",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.224308967590332,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: language: complement | class: r.e. | property: complementarily closed | technique: standard closure</reg:plan>\n<reg:deduce>reg(L) is r.e.  urrent L is r.e.  urrent  istringstream  complement  L  istringstream  complement  L  istringstream  empty  istringstream  true  /animate  1  /animate  2  /animate  2  /animate  2</reg:deduce>\n<reg:verify>true</reg:verify>\n</think>\n<reg:deduc"
+    },
+    {
+      "id": "CROSS-200-182",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many states are in the minimal DFA that recognizes strings over {0,1} ending in '01'?",
+      "ground_truth": "3",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.301944971084595,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: minimal deterministic finite automaton (d DFA) | language: {w | w ends with 01} | transition: based on input symbol 0 or 1</reg:plan>\n<reg:deduce>reg:trie(0,1,01) | states: 3  | minimal: 3  | 3</reg:deduce>\n<reg:verify>1  1  1  1  1  1  1  1  1  1  1  1  1  "
+    },
+    {
+      "id": "CROSS-200-183",
+      "category": "Physics & Engineering",
+      "prompt": "Light traveling in air (n=1) enters diamond (n=2.42). What is the critical angle for total internal reflection inside diamond in degrees (round to one decimal place)?",
+      "ground_truth": "24.4",
+      "extracted_answer": "42",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.277746200561523,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: total_internal_reflection | medium: air (n=1) | entering: diamond (n=2.42) | critical_angle: ?</reg:plan>\n<reg:deduce>reg:refractive_index_diamond=2.42, refractive_index_air=1.0 | critical_angle=arcsin(1/2.42) | critical_angle≈24.2°</reg:deduce>\n<reg:verify>reg:refractive_index_diamond>reg:refractive_index_air  2.42"
+    },
+    {
+      "id": "CROSS-200-184",
+      "category": "Physics & Engineering",
+      "prompt": "A wheel of moment of inertia I = 0.5 kg m^2 is acted upon by a torque tau = 4 N m for 6 seconds from rest. What is its final angular momentum in kg m^2/s?",
+      "ground_truth": "24",
+      "extracted_answer": null,
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.310204982757568,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: angular_momentum | torque=I·ω</reg:plan>\n<reg:deduce>ω=τ/I·t | L=I·ω</reg:deduce> L=I·(τ/t)·t=I·τ</reg:deduce> L=0.5·4=2 kg m²/s</reg:verify>0.5·4=2  2>0</reg:verify>\n<reg:verify>reg:units>unit_consistent</reg:verify>\n</think>\n<reg:plan>concept: angular_m"
+    },
+    {
+      "id": "CROSS-200-185",
+      "category": "Physics & Engineering",
+      "prompt": "A 0.5 kg ball drops from height 20 m and rebounds to height 5 m. Assuming g = 9.8 m/s^2, what is the impulse delivered to the ball by the ground in N s (round to two decimal places)?",
+      "ground_truth": "14.85",
+      "extracted_answer": "73",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.287457466125488,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: impulse | momentum | conservation of momentum | velocity | energy</reg:plan>\n<reg:deduce>h₁=20 m, h₂=5 m, m=0.5 kg, g=9.8 m/s² | v₀=√(2gh₁) | v=√(2gh₂) | Δp= m(v-u) | W=mg(h₁-h₂) | J=Δp+2W</reg:deduce>W=12.25 Nm, Δp=12.73 Nm,"
+    },
+    {
+      "id": "CROSS-200-186",
+      "category": "Probability, Stats & Finance",
+      "prompt": "How many degrees of freedom are in a chi-square test of independence for a 3x4 contingency table?",
+      "ground_truth": "6",
+      "extracted_answer": "6",
+      "correct": true,
+      "tokens_emitted": 110,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 7.945298671722412,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: degrees_of_freedom | table: 3x4 | rows: 3 | columns: 4 | formula: (r-1)(c-1)</reg:plan>\n<reg:deduce> (3-1)(4-1)=2*3=6  6</reg:deduce>\n<reg:verify>reg:deduce>0<3>0</reg:verify>\n</think>\n<reg:deduce>6</reg:deduce><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-187",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the chemical formula for Ozone?",
+      "ground_truth": "O3",
+      "extracted_answer": "O₃",
+      "correct": false,
+      "tokens_emitted": 29,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 2.0997822284698486,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>O₃</reg:bypass>\n</think>\n<reg:bypass>O₃</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-188",
+      "category": "Physics & Engineering",
+      "prompt": "How much heat in kilojoules is required to raise the temperature of 2 kg of water from 20 deg C to 80 deg C (specific heat c = 4.184 kJ/kg K)?",
+      "ground_truth": "502.08",
+      "extracted_answer": "167.56",
+      "correct": false,
+      "tokens_emitted": 77,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 5.555420637130737,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>167.56</reg:bypass>\n</think>\n<reg:deduce>167.56 kJ</reg:deduce>\n<reg:deduce>167.56</reg:deduce>\n<reg:deduce>167.56 kJ</reg:deduce><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-189",
+      "category": "Pure & Competition Mathematics",
+      "prompt": "How many integers between 1 and 500 are divisible by 6 or 8?",
+      "ground_truth": "125",
+      "extracted_answer": "8",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.260113716125488,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "To determine how many integers between 1 and 500 are divisible by 6 or 8, I will use the principle of inclusion and exclusion.\n\nFirst, I'll calculate the number of integers divisible by 6. Dividing 500 by 6 gives 83 with a remainder, so there are 83 numbers divisible by 6.\n\nNext, I'll find the number of integers divisible by 8. Dividing 500 by 8 also results in 62 with a remainder, so 62 numbers a"
+    },
+    {
+      "id": "CROSS-200-190",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "What is the principal quantum number n of the outermost valence electrons in neutral Sodium?",
+      "ground_truth": "3",
+      "extracted_answer": "3",
+      "correct": true,
+      "tokens_emitted": 25,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 1.814173698425293,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>3</reg:bypass>\n</think>\n<reg:bypass>3</reg:bypass><｜end▁of▁sentence｜>"
+    },
+    {
+      "id": "CROSS-200-191",
+      "category": "Physics & Engineering",
+      "prompt": "What is the relativistic Lorentz gamma factor for a particle moving at 0.8c?",
+      "ground_truth": "1.67",
+      "extracted_answer": "64",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.208576679229736,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: lorentz_gamma | velocity: 0.8c</reg:plan>\n<reg:deduce>γ=1/√(1-0.64)=1/0.6=1.6667</reg:deduce>\n<reg:verify>reg:deduce>1.6667>1</reg:verify>\n</think>\n<reg:plan>concept: lorentz_gamma | velocity: 0.8c</reg:plan>\n<reg:deduce>γ=1/√(1-0.64"
+    },
+    {
+      "id": "CROSS-200-192",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "Two peers on your team have an ongoing personal conflict disrupting sprint reviews. How do you mediate as a tech lead?",
+      "ground_truth": "impartial work-focused mediation",
+      "extracted_answer": "intent: de-escalate | tone: empathetic | strategy: non-accusatory, collaborative",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.258772611618042,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: de-escalate | tone: empathetic | strategy: non-accusatory, collaborative</reg:intent>\nApproach the issue calmly. Express understanding of the conflict without blame. Encourage open communication. Encourage each other to focus on delivering value. Ensure the discussion is positive and productive for everyone.</reg:intent>\n</think>\nWhen a personal conflict arises during a sprint "
+    },
+    {
+      "id": "CROSS-200-193",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "How many non-isomorphic spanning trees does the complete graph K_4 possess according to Cayley's formula n^(n-2)?",
+      "ground_truth": "16",
+      "extracted_answer": "0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.261200904846191,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: spanning_tree | theorem: Cayley's_formula | graph: complete_graph_K4 | n: 4 | formula: n^(n-2)</reg:plan>\n<reg:deduce>4^2=16  16</reg:deduce>\n<reg:verify>reg:deduce>16>0  16  0  0  0  0  16  0  0  0  0  0  0  0  0  0  0"
+    },
+    {
+      "id": "CROSS-200-194",
+      "category": "Computer Science & Discrete Systems",
+      "prompt": "What is the pumping lemma constant p property: if |w| >= p, then w = xyz such that |y| > 0 and |xy| <= p. For any i >= 0, xy^i z is in L (True or False)?",
+      "ground_truth": "True",
+      "extracted_answer": "1",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.272720575332642,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: pumping-lemma | language: formal-languages | automaton: finite-automaton | bound: p</reg:plan>\n<reg:deduce>reg: lang=regular-languages>reg: lang=regular-languages:true 111111 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 1"
+    },
+    {
+      "id": "CROSS-200-195",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "How many moles of gas occupy 44.8 L at standard temperature and pressure (STP)?",
+      "ground_truth": "2",
+      "extracted_answer": "1.0",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.255254983901978,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": true,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>1.0</reg:bypass>\n<reg:deduce>1.0</reg:deduce>\n<reg:verify>1.0</reg:verify>\n</think>\n<reg:deduce>1.0</reg:deduce>\n<reg:verify>1.0</reg:verify></think>\n<reg:deduce>1.0</reg:deduce>\n<reg:verify>1.0</reg:deduce>At standard temperature and pressure (STP), 1 mole of gas occupies 22.4 L. Therefore, 4"
+    },
+    {
+      "id": "CROSS-200-196",
+      "category": "Chemistry & Quantitative Biology",
+      "prompt": "A buffer solution contains 0.1 M acetic acid and 0.1 M sodium acetate. If Ka of acetic acid is 1.8e-5, what is the pH of the buffer (round to two decimal places)?",
+      "ground_truth": "4.74",
+      "extracted_answer": "4",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.259350538253784,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: buffer, Henderson-Hasselbalch | acid: acetic acid, base: sodium acetate</reg:plan>\n<reg:deduce> [CH3COOH] = 0.1 M, [CH3COO⁻] = 0.1 M, pKa=4.24 | pH = pKa</reg:deduce>\n<reg:verify>reg:deduce> pH=4.24  1.24  4.24</reg:verify>\n<reg:verify>reg:deduce> 4."
+    },
+    {
+      "id": "CROSS-200-197",
+      "category": "Strategic Intent & Pragmatics",
+      "prompt": "How do you decline an invitation to join an advisory board due to bandwidth constraints while keeping future relationship doors open?",
+      "ground_truth": "warm gracious capacity decline",
+      "extracted_answer": "intent: express-feelings | tone: caring, understanding, professional",
+      "correct": true,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.177356719970703,
+      "registers": {
+        "plan": false,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": true
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:intent>intent: express-feelings | tone: caring, understanding, professional</reg:intent>\nHey, I really value the opportunity to collaborate with you. Due to current capacity constraints, we won’t be able to meet in person this term. However, I am confident that working together remotely will allow us to maintain a positive and productive relationship. Please feel free to reach out via email o"
+    },
+    {
+      "id": "CROSS-200-198",
+      "category": "Physics & Engineering",
+      "prompt": "A satellite moves in a circular orbit around a planet of mass M = 4e24 kg at radius r = 1e7 m. If G = 6.67e-11 N m^2/kg^2, calculate its orbital speed in m/s (to nearest integer).",
+      "ground_truth": "5165",
+      "extracted_answer": "10",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.173626184463501,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": false,
+        "bypass": false,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:plan>concept: circular_orbit | law: <span class=\"mathphrase\">v=√(GM/r) </span> | given: M=4·10²⁴ kg, r=1·10⁷ m, G=6.67·10⁻¹¹ N·m²/kg²</reg:plan>\n<reg:deduce>reg:deduce> 4·10²⁴·6.67·10⁻¹¹/(1·10⁷)  1.334·10¹�"
+    },
+    {
+      "id": "CROSS-200-199",
+      "category": "Physics & Engineering",
+      "prompt": "Calculate the energy in MeV released in complete annihilation of an electron-positron pair at rest (each rest mass = 0.511 MeV).",
+      "ground_truth": "1.022",
+      "extracted_answer": "13.72",
+      "correct": false,
+      "tokens_emitted": 128,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 9.232569932937622,
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "verify": false,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>13.72</reg:bypass>\n</think>\n<reg:bypass>13.72 MeV</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.72</reg:bypass>13.7"
+    },
+    {
+      "id": "CROSS-200-200",
+      "category": "Scientific & Multi-Hop Factual Retrieval",
+      "prompt": "Which element has the highest electronegativity on the Pauling scale?",
+      "ground_truth": "Fluorine",
+      "extracted_answer": "12",
+      "correct": false,
+      "tokens_emitted": 122,
+      "english_baseline_tokens": 200,
+      "latency_seconds": 8.821706533432007,
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "verify": true,
+        "bypass": true,
+        "intent": false
+      },
+      "has_trailing_noise": false,
+      "raw_output": "<reg:bypass>12</reg:bypass>\n</think>\n<reg:plan>concept: electronegativity | trend: nonmetal-to-nonmetal-increasing | period: 12 | element: carbon</reg:plan>\n<reg:deduce>12/0/0</reg:deduce>\n<reg:verify>12/0/0</reg:verify>Carbon</reg:verify> is the element with the highest electronegativity on the Pauling scale.  \n<reg:verify>1.00</reg:verify><｜end▁of▁sentence｜>"
+    }
+  ]
+}
