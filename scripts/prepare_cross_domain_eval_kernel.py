@@ -1,0 +1,216 @@
+"""
+Prepare Kaggle Kernel Bundle for Cross-Domain 200-Question Evaluation
+=====================================================================
+Target Kernel: sanishgyawali/symbolm-cross-domain-200-benchmark
+Evaluates Stage 4 Efficient GRPO Policy Adapter across 7 distinct fields.
+
+Author: Sanish Gyawali
+AI Systems Exoskeleton: Antigravity (Google DeepMind)
+"""
+
+import json
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+OUT_DIR = ROOT_DIR / "kaggle_eval_cross_domain"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# 1. Kernel Metadata
+metadata = {
+    "id": "sanishgyawali/symbolm-cross-domain-200-benchmark",
+    "title": "SymboLM Cross Domain 200 Benchmark",
+    "code_file": "symbolm_eval_cross_domain_kaggle.ipynb",
+    "language": "python",
+    "kernel_type": "notebook",
+    "is_private": "true",
+    "enable_gpu": "true",
+    "enable_tpu": "false",
+    "enable_internet": "true",
+    "dataset_sources": [],
+    "competition_sources": [],
+    "kernel_sources": [
+        "sanishgyawali/symbolm-stage-4-efficiency-grpo"
+    ],
+    "model_sources": []
+}
+
+meta_file = OUT_DIR / "kernel-metadata.json"
+with open(meta_file, "w", encoding="utf-8") as f:
+    json.dump(metadata, f, indent=2)
+print(f"[OK] Generated {meta_file}")
+
+# 2. Notebook Structure
+notebook = {
+    "cells": [
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "# SymboLM — Cross-Domain 200-Question Benchmark Evaluation\n",
+                "\n",
+                "**Author & Principal Architect:** Sanish Gyawali  \n",
+                "**AI Systems Exoskeleton:** Antigravity (Google DeepMind)  \n",
+                "**Evaluated Policy:** Stage 4 Symbolic Efficiency & Hard EOS Adapter (SE-HEA)  \n",
+                "**Target Hardware:** Kaggle Tesla T4 GPU (CUDA)  \n",
+                "**Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  \n",
+                "\n",
+                "---  \n",
+                "### Evaluation Domains (200 Questions):\n",
+                "1. **Physics & Engineering:** Mechanics, Kinematics, RLC Circuits, Thermodynamics, Optics (30)\n",
+                "2. **Computer Science & Discrete Systems:** Algorithms, Big-O, Graphs, Boolean SAT, Automata (30)\n",
+                "3. **Chemistry & Quantitative Biology:** Stoichiometry, Buffer pH, Gas Laws, Genetics (25)\n",
+                "4. **Probability, Statistics & Finance:** Bayes, Expected Value, Annuities, Compounding (25)\n",
+                "5. **Pure & Competition Mathematics:** Number Theory, Polynomials, Geometric Invariants (40)\n",
+                "6. **Scientific & Multi-Hop Factual Retrieval:** Zero-Shot Bypass routing validation (25)\n",
+                "7. **Strategic Intent & Pragmatics:** Executive communications, crisis de-escalation (25)"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 1: Environment & Hardware Verification\n",
+                "import os\n",
+                "import sys\n",
+                "import torch\n",
+                "\n",
+                "print('Python version:', sys.version)\n",
+                "print('Torch version :', torch.__version__)\n",
+                "if torch.cuda.is_available():\n",
+                "    print(f'[OK] NVIDIA CUDA detected! Found {torch.cuda.device_count()} GPU(s):')\n",
+                "    for i in range(torch.cuda.device_count()):\n",
+                "        mem = torch.cuda.get_device_properties(i).total_memory / 1e9\n",
+                "        print(f'  GPU {i}: {torch.cuda.get_device_name(i)} ({mem:.1f} GB VRAM)')\n",
+                "else:\n",
+                "    print('[Warning] No CUDA GPU found!')\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 2: Dependencies & Clean Environment\n",
+                "!pip install -q --upgrade pip\n",
+                "!pip uninstall -y -q torchao\n",
+                "!pip install -q transformers peft accelerate sympy datasets huggingface_hub\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 3: Clone latest SymboLM repository with cross-domain benchmark\n",
+                "!rm -rf /kaggle/working/symboLM\n",
+                "!git clone https://github.com/gyawalisanish0/symboLM.git /kaggle/working/symboLM\n",
+                "print('[OK] Successfully cloned latest SymboLM repository!')\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 4: Mount Stage 4 Policy Adapter\n",
+                "import os\n",
+                "import shutil\n",
+                "from pathlib import Path\n",
+                "\n",
+                "target_dir = Path('/kaggle/working/symboLM/checkpoints/stage4_efficient_adapter')\n",
+                "target_dir.mkdir(parents=True, exist_ok=True)\n",
+                "\n",
+                "found = False\n",
+                "# 1. Search for stage4_adapter in mounted kernel sources\n",
+                "for p in Path('/kaggle/input').glob('**/stage4_adapter'):\n",
+                "    if (p / 'adapter_config.json').exists():\n",
+                "        print(f'[OK] Found Stage 4 adapter at: {p}')\n",
+                "        for item in p.iterdir():\n",
+                "            if item.is_file():\n",
+                "                shutil.copy2(item, target_dir / item.name)\n",
+                "        found = True\n",
+                "        break\n",
+                "\n",
+                "# 2. Search for stage 4 tarball archive\n",
+                "if not found:\n",
+                "    for arc in Path('/kaggle/input').glob('**/*stage4*policy*.tar.gz'):\n",
+                "        print(f'[OK] Found Stage 4 tar archive at: {arc}. Unpacking...')\n",
+                "        os.system(f'tar -xzf \"{arc}\" -C \"{target_dir}\"')\n",
+                "        found = True\n",
+                "        break\n",
+                "\n",
+                "print('[Status] Validating Stage 4 Adapter Files:')\n",
+                "for f in sorted(target_dir.iterdir()):\n",
+                "    sz = f.stat().st_size / 1e6 if f.is_file() else 0\n",
+                "    print(f'  {f.name} ({sz:.2f} MB)' if f.is_file() else f'  {f.name}/')\n",
+                "\n",
+                "assert (target_dir / 'adapter_config.json').exists(), 'CRITICAL: adapter_config.json missing!'\n",
+                "assert (target_dir / 'adapter_model.safetensors').exists(), 'CRITICAL: adapter_model.safetensors missing!'\n",
+                "print('[VERIFIED] Stage 4 Efficient Policy Adapter is ready for cross-domain evaluation!')\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 5: Run Cross-Domain 200 Evaluation with Hard EOS Token Budget\n",
+                "!CUDA_VISIBLE_DEVICES=0 python /kaggle/working/symboLM/eval/run_200_mixed_benchmark.py \\\n",
+                "  --base_model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \\\n",
+                "  --adapter_path /kaggle/working/symboLM/checkpoints/stage4_efficient_adapter \\\n",
+                "  --data_path /kaggle/working/symboLM/data/eval_200_cross_domain_benchmark.jsonl \\\n",
+                "  --output_path /kaggle/working/eval_cross_domain_results.json \\\n",
+                "  --report_path /kaggle/working/EVAL_CROSS_DOMAIN_REPORT.md \\\n",
+                "  --max_tokens 128 \\\n",
+                "  --temperature 0.2\n"
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Cell 6: Display Cross-Domain Benchmark Scorecard\n",
+                "rep_path = '/kaggle/working/EVAL_CROSS_DOMAIN_REPORT.md'\n",
+                "if os.path.exists(rep_path):\n",
+                "    with open(rep_path, 'r', encoding='utf-8') as f:\n",
+                "        print(f.read())\n",
+                "else:\n",
+                "    print('[Warning] Report file not found!')\n"
+            ]
+        }
+    ],
+    "metadata": {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3"
+        },
+        "language_info": {
+            "codemirror_mode": {
+                "name": "ipython",
+                "version": 3
+            },
+            "file_extension": ".py",
+            "mimetype": "text/x-python",
+            "name": "python",
+            "nbconvert_exporter": "python",
+            "pygments_lexer": "ipython3",
+            "version": "3.11.0"
+        }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 4
+}
+
+nb_file = OUT_DIR / "symbolm_eval_cross_domain_kaggle.ipynb"
+with open(nb_file, "w", encoding="utf-8") as f:
+    json.dump(notebook, f, indent=1)
+print(f"[OK] Generated {nb_file}")

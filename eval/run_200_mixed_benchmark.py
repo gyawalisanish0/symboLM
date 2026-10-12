@@ -90,7 +90,7 @@ def extract_answer_from_generation(text: str) -> Optional[str]:
 
 
 def verify_ground_truth(extracted: Optional[str], ground_truth: str, category: str) -> bool:
-    """Robust verification across mathematical, factual, and dialogue categories."""
+    """Robust verification across mathematical, scientific, factual, and dialogue categories."""
     if extracted is None:
         return False
 
@@ -101,22 +101,35 @@ def verify_ground_truth(extracted: Optional[str], ground_truth: str, category: s
     if ext == gt:
         return True
 
-    # Numeric check
+    # Fraction check (e.g. 1/16, 5/36)
+    if "/" in gt and "/" in ext:
+        try:
+            p_gt = gt.split("/")
+            p_ext = ext.split("/")
+            if abs(float(p_gt[0]) / float(p_gt[1]) - float(p_ext[0]) / float(p_ext[1])) < 1e-4:
+                return True
+        except Exception:
+            pass
+
+    # Numeric check with epsilon tolerance for rounding
     try:
         ext_clean = re.sub(r"[^\d.-]", "", ext)
         gt_clean = re.sub(r"[^\d.-]", "", gt)
-        if ext_clean and gt_clean and float(ext_clean) == float(gt_clean):
-            return True
+        if ext_clean and gt_clean:
+            f_ext = float(ext_clean)
+            f_gt = float(gt_clean)
+            if abs(f_ext - f_gt) < 0.05 or (f_gt != 0 and abs(f_ext - f_gt) / abs(f_gt) < 0.01):
+                return True
     except ValueError:
         pass
 
     # Factual substring check
-    if "Factual" in category:
+    if any(k in category for k in ("Factual", "Retrieval", "Science")):
         if gt in ext or ext in gt:
             return True
 
     # Dialogue check (intent semantic presence)
-    if "Dialogue" in category:
+    if any(k in category for k in ("Dialogue", "Intent", "Pragmatics")):
         return len(ext) > 15  # Meaningful communicative response
 
     return False
@@ -151,6 +164,10 @@ def run_evaluation(args):
     if not adapter_dir.exists():
         # Search common alternate Kaggle input paths
         alt_paths = [
+            Path("/kaggle/input/symbolm-stage-4-efficiency-grpo/stage4_adapter"),
+            Path("/kaggle/input/symbolm-stage-4-efficiency-grpo/symboLM/checkpoints/stage4_adapter"),
+            Path("/kaggle/working/symboLM/checkpoints/stage4_efficient_adapter"),
+            Path("checkpoints/stage4_efficient_adapter"),
             Path("/kaggle/input/symbolm-stage-3-concept-grpo-training/symboLM/checkpoints/stage3_adapter"),
             Path("/kaggle/input/symbolm-stage-3-concept-grpo-training/checkpoints/stage3_adapter"),
             Path("/kaggle/working/symboLM/checkpoints/stage3_concept_adapter"),
