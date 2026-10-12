@@ -123,18 +123,56 @@ To definitively eliminate the critique of "data contamination" and "memorization
 
 ---
 
-## 5. Multi-Bit Quantization & Edge Deployment Matrix
+## 5. GGUF Quantization & Local Edge Deployment Matrix
 
-Quantized directly on host hardware using `torchao` and PyTorch to verify AST preservation under low-bit representations:
+Official native GGUF binaries are hosted directly in this repository for local deployment via **Ollama**, **llama.cpp**, **LM Studio**, and **vLLM**:
 
-| Precision Format | Checkpoint Storage | RAM / VRAM Req. | Compression | Target Hardware |
-| :--- | :---: | :---: | :---: | :--- |
-| **FP16 / BF16 (Standalone)** | **3,388 MB (3.32 GB)** | ~3.6 GB | 1.00× (Baseline) | Cloud GPUs (A100, H100, T4), vLLM |
-| **INT8 (Weight-Only)** | **2,365 MB (2.31 GB)** | ~2.4 GB | **1.43× Compression** | Consumer GPUs, Laptops, MacBooks |
-| **NF4 (4-Bit NormalFloat)** | **1,204 MB (1.18 GB)** | **~1.2 GB** | **2.81× Compression** | Mobile Devices, Raspberry Pi 5, Edge |
+| Format | Filename | Storage | RAM / VRAM Req. | Target Deployment Hardware |
+| :--- | :--- | :---: | :---: | :--- |
+| **GGUF Q8_0** | `symbolm-1.5b-v1.0-q8_0.gguf` | **1,806 MB (1.76 GB)** | **~2.1 GB** | **Ollama, llama.cpp, M-series Macs, Laptops, Raspberry Pi 5** |
+| **GGUF BF16** | `symbolm-1.5b-v1.0-bf16.gguf` | **3,394 MB (3.31 GB)** | ~3.8 GB | High-precision CPU/GPU local execution via llama.cpp |
+| **Safetensors** | `model.safetensors` | **3,388 MB (3.32 GB)** | ~3.6 GB | Hugging Face Transformers, PyTorch, vLLM, TensorRT-LLM |
 
 > [!NOTE]
-> **Zero Syntax Drift:** All 197 linear projection layers (`q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`) were quantized to 4-bit NormalFloat with **100% exact delimiter preservation** (`<reg:bypass>`, `<reg:plan>`, `<reg:deduce>`).
+> **Zero Syntax Drift in GGUF:** Quantized with `llama.cpp` canonical converter. The 8-bit quantized GGUF retains **100% exact AST delimiter preservation** (`<reg:bypass>`, `<reg:plan>`, `<reg:deduce>`, `✓`) with zero token degradation.
+
+### Running with Ollama
+
+You can run SymboLM directly in Ollama from Hugging Face Hub:
+
+```bash
+# Run Q8_0 GGUF directly via Ollama:
+ollama run hf.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5:q8_0
+```
+
+Or create a local `Modelfile`:
+
+```dockerfile
+FROM ./symbolm-1.5b-v1.0-q8_0.gguf
+
+TEMPLATE """<｜User｜>{{ .Prompt }}<｜Assistant｜><think>
+"""
+
+PARAMETER stop "<｜end of sentence｜>"
+PARAMETER stop "</think>"
+PARAMETER temperature 0.6
+```
+
+Then build and run:
+```bash
+ollama create symbolm -f Modelfile
+ollama run symbolm "If x + 1/x = 6, find the value of x^2 + 1/x^2."
+```
+
+### Running with `llama.cpp`
+
+```bash
+./llama-cli \
+  -m symbolm-1.5b-v1.0-q8_0.gguf \
+  -p "<｜User｜>If x + 1/x = 6, find the value of x^2 + 1/x^2.<｜Assistant｜><think>\n" \
+  --temp 0.6 \
+  -n 64
+```
 
 ---
 

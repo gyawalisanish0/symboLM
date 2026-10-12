@@ -25,10 +25,12 @@ wheels/
 
 # Checkpoints & Weights (Large files - host on Hugging Face / Google Drive)
 checkpoints/
+vendor/
 *.pt
 *.bin
 *.safetensors
 *.pth
+*.gguf
 
 # Jupyter & Colab
 .ipynb_checkpoints/
