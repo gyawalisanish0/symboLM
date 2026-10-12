@@ -718,6 +718,85 @@ def gradient_complexity_reward_func(
     return rewards
 
 
+def unbounded_parsimony_reward_func(
+    prompts,
+    completions,
+    answers=None,
+    r_base: float = 2.5,
+    k_slope: float = 35.0,
+    gamma_floor: float = 0.40,
+    **kwargs
+) -> list[float]:
+    """
+    Sanish Gyawali's Unbounded Parsimony Gradient Reward (SymboLM v2.0):
+    Teaches the model to use the least tokens possible by leveraging its internal distilled
+    knowledge, WITHOUT locking or capping the token budget.
+
+    Formula (for correct answers):
+      R(tau, y*) = r_base * [gamma_floor + (1 - gamma_floor) * (k_slope / (k_slope + |tau|))]
+                   - Omega(tau) + R_closure
+
+    For incorrect answers:
+      R(tau, y*) = -1.0 - Omega(tau)
+
+    Core Properties:
+      1. Zero Token Lock: No arbitrary maximum token ceiling or cliff. Deep proofs (100+ tokens)
+         remain strictly POSITIVE (never penalized into negative territory or truncated).
+      2. Strictly Monotonic Parsimony Gradient: dR/d|tau| < 0 everywhere for correct answers.
+         Fewer tokens = strictly higher positive reward.
+      3. GRPO Group Relative Advantage: In a group of rollouts solving the same problem,
+         the most concise valid derivation receives the highest advantage, driving policy
+         optimization toward the Minimum Description Length (MDL).
+      4. Taps Latent Model Knowledge: Discourages verbose regurgitation of known axioms.
+    """
+    rewards = []
+    ans_list = answers if answers is not None else kwargs.get("answer", kwargs.get("answers", [""] * len(completions)))
+
+    for comp, ans in zip(completions, ans_list):
+        extracted = extract_answer(comp)
+        is_corr = answers_match(extracted, ans)
+
+        has_repeat = detect_ngram_repetition(comp)
+        has_debris = detect_web_debris(comp)
+
+        omega = 0.0
+        if has_repeat:
+            omega += 2.5
+        if has_debris:
+            omega += 2.0
+
+        if not is_corr:
+            score = -1.0 - omega
+            rewards.append(float(score))
+            continue
+
+        toks = _estimate_tokens(comp)
+
+        # Smooth, continuous hyperbolic parsimony scaling (No ceiling lock!)
+        # As toks -> 0, factor -> 1.0 (Full reward = r_base)
+        # As toks -> inf, factor -> gamma_floor (Floor reward = r_base * gamma_floor)
+        parsimony_factor = gamma_floor + (1.0 - gamma_floor) * (k_slope / (k_slope + max(1, toks)))
+        score = r_base * parsimony_factor - omega
+
+        # Clean EOS closure bonus (+0.5 for immediate clean termination)
+        tail_after_ans = ""
+        for tag in ("</ans>", "</reg:scratchpad>", "</reg:deduce>", "</reg:bypass>", "</reg:intent>", "</think>"):
+            if tag in comp:
+                tail_after_ans = comp.split(tag)[-1].strip()
+                break
+
+        if not has_repeat and not has_debris:
+            tail_toks = len(tail_after_ans.split())
+            if tail_toks <= 4:
+                score += 0.5
+            elif tail_toks > 25:
+                score -= 0.5
+
+        rewards.append(float(score))
+
+    return rewards
+
+
 # ---------------------------------------------------------------------------
 # Demo
 # ---------------------------------------------------------------------------

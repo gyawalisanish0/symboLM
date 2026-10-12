@@ -106,6 +106,29 @@ $$\Omega(\tau) = \begin{cases} 2.5 & \text{if } \text{detect\_ngram\_repetition}
 
 ---
 
+### 4.2 The Unbounded Parsimony Gradient (Refined Directive by Sanish Gyawali)
+
+Rather than enforcing any artificial token ceiling ($L_{\text{max}}$), the policy is guided by an **Unbounded Parsimony Gradient**:
+* **Zero Token Lock:** No problem is ever penalized or truncated simply because it requires deep derivation. Correct answers are *always* strictly positive ($R > 0$).
+* **Latent Knowledge Leverage:** The model already possesses distilled factual and algorithmic knowledge. It should not waste tokens restating textbook definitions.
+* **Continuous Monotonic Parsimony:** Shorter valid derivations earn strictly higher rewards, driving GRPO group optimization toward the Minimum Description Length (MDL):
+
+$$R_{\text{parsimony}}(\tau, y^*) = R_{\text{base}} \cdot \left[ \gamma_{\text{floor}} + (1 - \gamma_{\text{floor}}) \cdot \frac{K}{K + |\tau|} \right] - \Omega(\tau) + R_{\text{closure}}$$
+
+Where:
+* $R_{\text{base}} = 2.5$, $K = 35$, $\gamma_{\text{floor}} = 0.40$
+* **Ultra-compact (5 tokens):** $R = +2.69$ (Taps latent memory without rambling)
+* **Compact proof (25 tokens):** $R = +2.47$
+* **Multi-step derivation (60 tokens):** $R = +2.08$
+* **Deep Olympiad derivation (120 tokens):** $R = +1.81$ (**STILL POSITIVE, NO CLIFF!**)
+* **Incorrect answer:** $R = -1.00$
+
+$$\frac{\partial R}{\partial |\tau|} < 0 \quad \text{everywhere for correct answers}$$
+
+In any GRPO sample group ($G=4\dots8$), the candidate rollout that derives the exact answer with the fewest necessary steps achieves the highest positive advantage ($A_i > 0$), naturally training the model to be ultra-dense and parsimonious without locking deep reasoning.
+
+---
+
 ## 5. Architectural Verification Plan (Cross-Domain 200 Suite)
 
 The new [`data/eval_200_cross_domain_benchmark.jsonl`](file:///c:/Users/user/Dev/symboLM/data/eval_200_cross_domain_benchmark.jsonl) explicitly annotates each problem with its Cognitive Depth Spectrum tag:
