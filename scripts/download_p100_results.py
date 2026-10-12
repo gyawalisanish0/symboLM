@@ -18,7 +18,7 @@ def main():
     status_str = getattr(status, "status", str(status))
     print(f"Status: {status_str}")
 
-    if str(status_str).lower() == "complete":
+    if "complete" in str(status_str).lower():
         print(f"Downloading output files to {dest_dir}...")
         api.kernels_output(kernel_slug, path=str(dest_dir))
         print("Download complete! Files in eval directory:")
