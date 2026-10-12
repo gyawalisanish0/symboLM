@@ -52,6 +52,7 @@ def upload_gguf(repo_id: str = "gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5"):
         print("[DONE] README.md updated!")
 
     gguf_files = [
+        "symbolm-1.5b-v1.0-q4_0.gguf",
         "symbolm-1.5b-v1.0-q8_0.gguf",
         "symbolm-1.5b-v1.0-bf16.gguf",
     ]

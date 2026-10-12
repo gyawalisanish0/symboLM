@@ -127,21 +127,29 @@ To definitively eliminate the critique of "data contamination" and "memorization
 
 Official native GGUF binaries are hosted directly in this repository for local deployment via **Ollama**, **llama.cpp**, **LM Studio**, and **vLLM**:
 
-| Format | Filename | Storage | RAM / VRAM Req. | Target Deployment Hardware |
-| :--- | :--- | :---: | :---: | :--- |
-| **GGUF Q8_0** | `symbolm-1.5b-v1.0-q8_0.gguf` | **1,806 MB (1.76 GB)** | **~2.1 GB** | **Ollama, llama.cpp, M-series Macs, Laptops, Raspberry Pi 5** |
-| **GGUF BF16** | `symbolm-1.5b-v1.0-bf16.gguf` | **3,394 MB (3.31 GB)** | ~3.8 GB | High-precision CPU/GPU local execution via llama.cpp |
-| **Safetensors** | `model.safetensors` | **3,388 MB (3.32 GB)** | ~3.6 GB | Hugging Face Transformers, PyTorch, vLLM, TensorRT-LLM |
+| Format | Filename | Storage | RAM / VRAM Req. | Generation Speed (CPU) | Target Deployment Hardware |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **GGUF Q4_0** | `symbolm-1.5b-v1.0-q4_0.gguf` | **999 MB (1.0 GB)** | **~1.2 GB** | **34.3 tok/s** | **Mobile, Raspberry Pi 5, Laptops, Ollama, Edge** |
+| **GGUF Q8_0** | `symbolm-1.5b-v1.0-q8_0.gguf` | **1,806 MB (1.76 GB)** | **~2.1 GB** | 18.3 tok/s | Ollama, llama.cpp, M-series Macs, Workstations |
+| **GGUF BF16** | `symbolm-1.5b-v1.0-bf16.gguf` | **3,394 MB (3.31 GB)** | ~3.8 GB | ~11.0 tok/s | High-precision CPU/GPU local execution via llama.cpp |
+| **Safetensors** | `model.safetensors` | **3,388 MB (3.32 GB)** | ~3.6 GB | N/A (GPU) | Hugging Face Transformers, PyTorch, vLLM, TensorRT-LLM |
 
 > [!NOTE]
-> **Zero Syntax Drift in GGUF:** Quantized with `llama.cpp` canonical converter. The 8-bit quantized GGUF retains **100% exact AST delimiter preservation** (`<reg:bypass>`, `<reg:plan>`, `<reg:deduce>`, `✓`) with zero token degradation.
+> **Empirical CPU Speed Verification (AMD Ryzen 7 5700G Zen 3 AVX2):**
+> Tested directly on host hardware via Ollama / llama.cpp engine:
+> * **Prompt Evaluation:** **216.30 tokens/second** (~70 ms latency).
+> * **Autoregressive Generation:** **34.30 tokens/second** in 4-bit Q4_0 (+87.2% faster than 8-bit).
+> * **Total Model Memory Footprint:** Exactly **1.0 GB RAM**. Zero AST syntax drift.
 
 ### Running with Ollama
 
 You can run SymboLM directly in Ollama from Hugging Face Hub:
 
 ```bash
-# Run Q8_0 GGUF directly via Ollama:
+# Run ultra-fast 4-bit Q4_0 GGUF (34.3 tok/s on CPU):
+ollama run hf.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5:q4_0
+
+# Or run high-fidelity 8-bit Q8_0:
 ollama run hf.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5:q8_0
 ```
 

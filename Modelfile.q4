@@ -1,0 +1,8 @@
+FROM ./checkpoints/SymboLM-1.5B-v1.0-DSR1-Qwen2.5-GGUF/symbolm-1.5b-v1.0-q4_0.gguf
+
+TEMPLATE """<｜User｜>{{ .Prompt }}<｜Assistant｜><think>
+"""
+
+PARAMETER stop "<｜end of sentence｜>"
+PARAMETER stop "</think>"
+PARAMETER temperature 0.6
