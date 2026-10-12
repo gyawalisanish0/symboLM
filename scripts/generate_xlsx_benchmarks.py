@@ -203,14 +203,14 @@ def create_workbook():
                 cell.fill = success_fill
                 cell.font = bold_font
 
-    # ---------------- SHEET 5: Grant Budget Allocation ----------------
-    ws5 = wb.create_sheet(title="Grant_Budget_Allocation")
+    # ---------------- SHEET 5: 1,000-Question Multi-Year Benchmark (2021–2026) ----------------
+    ws5 = wb.create_sheet(title="1000_Multi_Year_Benchmark")
     ws5.views.sheetView[0].showGridLines = True
 
-    ws5["A1"] = "Emergent Ventures & 1517 Fund Grant Budget Allocation ($20,000 – $25,000)"
+    ws5["A1"] = "SymboLM-1.5B-v1.0 1,000-Question Multi-Year Benchmark (Tesla P100 GPU)"
     ws5["A1"].font = Font(name="Calibri", size=14, bold=True, color="0F172A")
 
-    bg_h = ["Category", "Allocation ($ USD)", "Share (%)", "Operational Impact & Milestone Deliverables"]
+    bg_h = ["Benchmark Year", "Sample Count", "Pass@1 Accuracy", "SymboLM Avg Tokens", "Baseline CoT Avg Tokens", "Token Savings"]
     for c_i, h in enumerate(bg_h, start=1):
         cell = ws5.cell(row=3, column=c_i, value=h)
         cell.fill = navy_fill
@@ -218,9 +218,11 @@ def create_workbook():
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
     bg_data = [
-        ["1. Electrical & Power Resilience (Rupandehi, Nepal)", 5000, 0.20, "Pure sine-wave inverter, LiFePO4 battery storage (0ms switchover), and dual-WAN failover router to ensure continuous connection during regional grid blackouts."],
-        ["2. Dedicated Cloud Compute Clusters", 12000, 0.48, "Dedicated A100/H100 GPU clusters (Lambda Labs / RunPod) to scale SymboLM from 1.5B parameters to 14B and 32B foundation models, executing multi-thousand sample GRPO rollouts."],
-        ["3. Living & Physical Care Runway (12 Months)", 8000, 0.32, "12-month domestic and caregiving assistance runway in Rupandehi, Nepal, providing physical autonomy to conduct full-time independent AI research."]
+        ["2021 (GSM8K, SVAMP, Arithmetic)", 200, 0.720, 114.3, 198.0, 0.423],
+        ["2022 (AMC 10/12 Invariants, Vieta)", 200, 0.710, 128.0, 214.5, 0.403],
+        ["2023 (MATH Olympiad Derangements)", 200, 0.845, 128.0, 264.5, 0.516],
+        ["2024 (AIME 2024, Legendre Valuations)", 200, 0.725, 128.0, 283.0, 0.548],
+        ["2026 (Modern Math 2026, Multi-Moduli CRT)", 200, 0.380, 128.0, 309.0, 0.586]
     ]
     for r_i, row in enumerate(bg_data, start=4):
         for c_i, val in enumerate(row, start=1):
@@ -228,22 +230,27 @@ def create_workbook():
             cell.font = regular_font
             cell.border = thin_border
             if c_i == 2:
-                cell.number_format = "$#,##0"
-                cell.alignment = Alignment(horizontal="right")
-            elif c_i == 3:
+                cell.number_format = "#,##0"
+                cell.alignment = Alignment(horizontal="center")
+            elif c_i in [3, 6]:
                 cell.number_format = "0.0%"
+                cell.alignment = Alignment(horizontal="right")
+            elif c_i in [4, 5]:
+                cell.number_format = "0.0"
                 cell.alignment = Alignment(horizontal="right")
 
     # Total row
-    ws5.cell(row=7, column=1, value="TOTAL UNRESTRICTED FELLOWSHIP").font = bold_font
-    ws5.cell(row=7, column=2, value="=SUM(B4:B6)").font = accent_font
-    ws5.cell(row=7, column=2).number_format = "$#,##0"
-    ws5.cell(row=7, column=3, value="=SUM(C4:C6)").font = bold_font
-    ws5.cell(row=7, column=3).number_format = "0.0%"
-    ws5.cell(row=7, column=4, value="Permanent elimination of power, compute, and physical bottlenecks.").font = bold_font
+    ws5.cell(row=9, column=1, value="OVERALL 1,000-QUESTION SUITE").font = bold_font
+    ws5.cell(row=9, column=2, value="=SUM(B4:B8)").font = bold_font
+    ws5.cell(row=9, column=3, value=0.676).font = accent_font
+    ws5.cell(row=9, column=3).number_format = "0.0%"
+    ws5.cell(row=9, column=4, value=125.3).font = bold_font
+    ws5.cell(row=9, column=5, value=253.8).font = bold_font
+    ws5.cell(row=9, column=6, value=0.5065).font = accent_font
+    ws5.cell(row=9, column=6).number_format = "0.0%"
 
-    for c_i in range(1, 5):
-        cell = ws5.cell(row=7, column=c_i)
+    for c_i in range(1, 7):
+        cell = ws5.cell(row=9, column=c_i)
         cell.fill = highlight_fill
         cell.border = thin_border
 

@@ -138,7 +138,7 @@ def create_document():
     p_meta = doc.add_paragraph()
     p_meta.paragraph_format.space_before = Pt(0)
     p_meta.paragraph_format.space_after = Pt(4)
-    r_tag = p_meta.add_run("ADVANCED AI RESEARCH WHITEPAPER · TECHNICAL EVALUATION & GRANT DOSSIER\n")
+    r_tag = p_meta.add_run("ADVANCED AI RESEARCH WHITEPAPER · TECHNICAL MANIFESTO & ARCHITECTURE\n")
     r_tag.font.name = 'Arial'
     r_tag.font.size = Pt(8.5)
     r_tag.font.bold = True
@@ -174,10 +174,10 @@ def create_document():
     c01.add_run("Radical transparency across theoretical architecture, systems engineering, compiler pipelines, and test suites.").font.size = Pt(8.5)
 
     c10 = meta_table.cell(1, 0).paragraphs[0]
-    c10.add_run("TARGET FELLOWSHIPS & GRANTS:\n").bold = True
+    c10.add_run("AFFILIATION & ORIGIN:\n").bold = True
     c10.runs[0].font.size = Pt(8)
     c10.runs[0].font.color.rgb = RGBColor(0x64, 0x74, 0x8B)
-    c10.add_run("Emergent Ventures (Dr. Tyler Cowen, $20,000)\n1517 Fund Medici Grants ($1,000 – $5,000)").font.size = Pt(8.5)
+    c10.add_run("Independent Research Laboratory\nRupandehi, Nepal").font.size = Pt(8.5)
 
     c11 = meta_table.cell(1, 1).paragraphs[0]
     c11.add_run("OPEN SOURCE HUBS & ARTIFACTS:\n").bold = True
@@ -509,16 +509,16 @@ def create_document():
     add_p("4. Symbolic Deduce (<reg:deduce>): Executes AST reductions via formal operators (→, ∴, |, let, eval) verifiable by mechanical code linters.")
     add_p("5. Runtime Assertion (<reg:verify>): Verifies intermediate claims with active counterfactual backtracking (verify(...) ✓ or ✗) before committing to <ans>.")
 
-    # ----------------- SECTION 4: GRANT BUDGET & IMPACT -----------------
-    add_h1("4. Fellowship Grant Allocation & Impact Plan ($20,000 – $25,000)")
+    # ----------------- SECTION 4: FUTURE HORIZONS & SCALING -----------------
+    add_h1("4. Future Research Horizons & Systems Scaling")
 
     add_p(
-        "An unrestricted fellowship grant from Emergent Ventures or the 1517 Fund permanently removes the physical, infrastructural, and computational bottlenecks constraining independent research in Rupandehi, Nepal:"
+        "The empirical verification of Register v2.0 and the Unbounded Parsimony Gradient on 1.5B parameters establishes the foundational proof-of-concept for biomimetic reasoning. Future architectural frontiers include:"
     )
 
     t_budget = doc.add_table(rows=4, cols=3)
     t_budget.alignment = WD_TABLE_ALIGNMENT.CENTER
-    b_heads2 = ["Budget Category", "Allocation", "Operational Impact & Deliverables"]
+    b_heads2 = ["Research Frontier", "Target Objective", "Technical & Algorithmic Mechanism"]
     for c_i, h_text in enumerate(b_heads2):
         set_cell_background(t_budget.cell(0, c_i), "0F172A")
         set_cell_margins(t_budget.cell(0, c_i), top=60, bottom=60, left=60, right=60)
@@ -529,9 +529,9 @@ def create_document():
         r.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
 
     b_rows2 = [
-        ["1. Electrical & Power Resilience (Nepal)", "$5,000", "Pure sine-wave inverter, LiFePO4 battery storage (0ms switchover), and dual-WAN failover router to ensure continuous connection during regional grid blackouts."],
-        ["2. Dedicated Cloud Compute Clusters", "$10,000 – $12,000", "Dedicated A100/H100 GPU clusters (Lambda Labs / RunPod) to scale SymboLM from 1.5B parameters to 14B and 32B foundation models, executing multi-thousand sample GRPO rollouts."],
-        ["3. Living & Physical Care Runway", "$5,000 – $8,000", "12-month domestic and caregiving assistance runway in Rupandehi, Nepal, providing physical autonomy to conduct full-time independent AI research."]
+        ["1. Foundation Model Scaling", "7B / 14B / 32B Architectures", "Applying Parsimony GRPO and Tri-Register conditioning to larger open-weight reasoning backbones to unlock deeper mathematical invariant discovery."],
+        ["2. Formal Theorem Prover Integration", "Automated Soundness Engine", "Coupling the verification register (<reg:verify>) directly with formal proof checkers (Lean 4, Isabelle, SymPy) for compile-time sound reasoning."],
+        ["3. Real-Time Edge & Robotics", "Sub-50ms Low-Latency Inference", "Leveraging the 4-bit GGUF quantization (34.3 tok/s on CPU) and 0-step factual bypass for deterministic local decision engines."]
     ]
     for r_i, row in enumerate(b_rows2):
         for c_i, val in enumerate(row):
