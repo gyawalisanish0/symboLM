@@ -160,6 +160,22 @@
   - **2025/2026 (200 items):** Modern Math 2026, Chinese Remainder Theorem, harmonic work rates, kinematics.
 - **Cognitive Depth Breakdown:** $\Delta_0$ (40 items, 4%), $\Delta_1$ (540 items, 54%), $\Delta_2$ (360 items, 36%), $\Delta_3$ (60 items, 6%).
 
+### 3. Local Multi-Bit Quantization Hierarchy Complete (Host Workstation CPU)
+- **INT8 Weight-Only Checkpoint:** [`checkpoints/SymboLM-1.5B-v1.0-INT8/pytorch_model.bin`](file:///c:/Users/user/Dev/symboLM/checkpoints/SymboLM-1.5B-v1.0-INT8/pytorch_model.bin) (**2,365.27 MB / 2.31 GB**).
+- **NF4 (4-Bit NormalFloat) Checkpoint:** [`checkpoints/SymboLM-1.5B-v1.0-NF4/pytorch_model.bin`](file:///c:/Users/user/Dev/symboLM/checkpoints/SymboLM-1.5B-v1.0-NF4/pytorch_model.bin) (**1,204.32 MB / 1.18 GB**).
+- **Quantized 197 / 197 Linear Attention & MLP Layers** in 41.22 seconds on local CPU with zero dropped layers.
+- **Empirical AST Syntax Preservation:** Verified that `<reg:bypass>K</reg:bypass>` and `<reg:plan>concept: polynomial_invariant...</reg:plan>` are 100% syntactically preserved without corruption under 4-bit precision.
+- **Full Report:** Documented in [`eval/QUANT_EFFICIENCY_AUDIT_REPORT.md`](file:///c:/Users/user/Dev/symboLM/eval/QUANT_EFFICIENCY_AUDIT_REPORT.md).
+
+---
+
+## ⚡ Active Cloud Pipeline: 1,000-Question Benchmark on Tesla P100 GPU
+- **Kaggle Kernel:** [`sanishgyawali/symbolm-1000-p100-benchmark`](https://www.kaggle.com/code/sanishgyawali/symbolm-1000-p100-benchmark)
+- **Status:** **`KernelWorkerStatus.RUNNING`** ⚡
+- **Hardware:** Kaggle NVIDIA Tesla P100 (16 GB HBM2 memory, 732 GB/s memory bandwidth).
+- **Target Suite:** 1,000 stratified questions across 2021, 2022, 2023, 2024, and 2026.
+- **Measuring:** Pass@1 accuracy per year, token compression %, and tokens/sec throughput.
+
 ---
 
 ## 📌 Next Steps & Release Roadmap (v1.0 Release Pipeline)
@@ -167,8 +183,7 @@
 1. **Record Bedside Unedited Video:** Sanish to record the 2-minute unedited horizontal video from bed workstation in Rupandehi, Nepal for Dr. Tyler Cowen (Emergent Ventures) covering the 3 mental anchors (Reality & Agency, SymboLM Receipts, $20k Unlock).
 2. **Submit Fellowship Applications:** Emergent Ventures (Tyler Cowen), 1517 Fund (Danielle Strachman), and AI Grant (Nat Friedman & Daniel Gross).
 3. **Execute Remaining Phases of Release Roadmap:**
-   - **Phase 3 (Batch FP16 1,000 Evaluation):** Auditing Pass@1, token compression ratio, and register routing fidelity on Kaggle GPU / local.
-   - **Phase 4 (Multi-Bit Quantization Hierarchy):** Exporting INT8 and INT4 (NF4 & GGUF Q4_K_M) for edge devices and Ollama (< 1.2 GB RAM).
-   - **Phase 5 (Latency & Throughput Audit):** Benchmarking tokens/sec, latency, and accuracy retention across FP16 vs INT8 vs INT4.
-   - **Phase 6 (Hugging Face Public Release):** Publishing standalone weights at `gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`.
+   - **Download P100 1,000-Benchmark Receipts:** Pull `EVAL_1000_MULTI_YEAR_REPORT.md` and `eval_1000_results.json` upon kernel completion.
+   - **Publish to Hugging Face Model Hub:** Push standalone FP16 weights (`model.safetensors` 3.32 GB) and INT8/NF4 quantized variants to `gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`.
+
 

@@ -1,0 +1,17 @@
+{
+  "id": "sanishgyawali/symbolm-1000-p100-benchmark",
+  "title": "SymboLM 1000 P100 Benchmark",
+  "code_file": "symbolm_eval_1000_p100_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "sanishgyawali/symbolm-stage-5-parsimony-grpo"
+  ],
+  "model_sources": []
+}
