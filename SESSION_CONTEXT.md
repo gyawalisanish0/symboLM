@@ -169,21 +169,54 @@
 
 ---
 
-## ⚡ Active Cloud Pipeline: 1,000-Question Benchmark on Tesla P100 GPU
-- **Kaggle Kernel:** [`sanishgyawali/symbolm-1000-p100-benchmark`](https://www.kaggle.com/code/sanishgyawali/symbolm-1000-p100-benchmark)
-- **Status:** **`KernelWorkerStatus.RUNNING`** ⚡
-- **Hardware:** Kaggle NVIDIA Tesla P100 (16 GB HBM2 memory, 732 GB/s memory bandwidth).
-- **Target Suite:** 1,000 stratified questions across 2021, 2022, 2023, 2024, and 2026.
-- **Measuring:** Pass@1 accuracy per year, token compression %, and tokens/sec throughput.
+## ⚡ Completed Cloud Pipeline: 1,000-Question Multi-Year Benchmark on Tesla P100 GPU (Oct 12, 2026)
+- **Kernel ID:** `sanishgyawali/symbolm-1000-p100-benchmark` (`KernelWorkerStatus.COMPLETE`, duration: 79.46 min).
+- **Hardware:** NVIDIA Tesla P100 (16 GB HBM2 memory, 732 GB/s memory bandwidth).
+- **Artifacts:** Verified on disk at [`eval/EVAL_1000_MULTI_YEAR_REPORT.md`](file:///c:/Users/user/Dev/symboLM/eval/EVAL_1000_MULTI_YEAR_REPORT.md) and [`eval/eval_1000_results.json`](file:///c:/Users/user/Dev/symboLM/eval/eval_1000_results.json).
+- **Core Receipts:**
+  - **Overall Pass@1 Accuracy:** **67.60% (676 / 1,000)** across 2021–2026.
+  - **Sequence Compression:** **50.65%** (125,258 tokens vs. 253,800 English baseline tokens).
+  - **By Year:** 2021 (72.0%), 2022 (71.0%), 2023 (84.5%), 2024 (72.5%), 2026 (38.0%).
+  - Integrated into live Hugging Face Model Card, GitHub README, and [`docs/SymboLM_Benchmark_Data_and_Math_Evaluation.xlsx`](file:///c:/Users/user/Dev/symboLM/docs/SymboLM_Benchmark_Data_and_Math_Evaluation.xlsx).
 
 ---
 
-## 📌 Next Steps & Release Roadmap (v1.0 Release Pipeline)
+## ⚡ GGUF Production Suite & Hugging Face Hub Release (100% COMPLETE & LIVE)
+- **Official Model Repository:** [gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5)
+- **Release Suite:**
+  1. **`symbolm-1.5b-v1.0-q4_0.gguf`** (**999.7 MB / 1.0 GB**) — 4-bit edge binary (34.3 tok/s on CPU).
+  2. **`symbolm-1.5b-v1.0-q8_0.gguf`** (**1,806.07 MB / 1.76 GB**) — 8-bit quantized GGUF.
+  3. **`symbolm-1.5b-v1.0-bf16.gguf`** (**3,394.16 MB / 3.31 GB**) — Unquantized 16-bit GGUF.
+  4. **`model.safetensors`** (**3,388 MB / 3.32 GB**) — Standalone merged PyTorch weights.
+  5. **`README.md`** — Comprehensive Model Card with Ollama `Modelfile` and `llama.cpp` run examples.
+- **Local Ollama Registry:** Models `symbolm:4bit` and `symbolm:q8` registered and verified locally.
 
+---
+
+## ⚡ Local Host Hardware Benchmark Receipts (AMD Ryzen 7 5700G)
+- **Hardware:** AMD Ryzen 7 5700G (8 Cores, 16 Threads, Zen 3 AVX2), 14 GB DDR4 RAM, integrated graphics (zero discrete GPU).
+- **Runtime:** Ollama v0.34.2 (Native C++ `llama.cpp` AVX2 engine).
+- **Benchmark Script:** [`scripts/benchmark_local_4bit.py`](file:///c:/Users/user/Dev/symboLM/scripts/benchmark_local_4bit.py).
+- **Empirical Results:**
+  - **4-Bit Q4_0 (999 MB):** **34.30 tokens/second** generation, **216.30 tokens/second** prompt evaluation (~70 ms latency), active memory **1.0 GB RAM**.
+  - **8-Bit Q8_0 (1.76 GB):** 18.32 tokens/second generation, 121.62 tokens/second prompt evaluation.
+  - **Speedup:** 4-bit is **+87.2% faster** on consumer CPU with zero AST delimiter drift. Complete derivations delivered in **1.6 to 1.8 seconds**.
+
+---
+
+## ⚡ Privacy Isolation & Hub Governance (Completed Oct 12, 2026)
+- **User Directive:** "Don't add grant related docs to hubs come on" — strictly enforced.
+- **Git & Hub Isolation:**
+  - `research/EMERGENT_VENTURES_GRANT_APPLICATION.md`, `research/GRANT_PROJECT_DOSSIER_OCTOBER_2026.md`, and `research/RESEARCHER_PROFILE_AND_GRANT_STRATEGY.md` untracked and preserved safely on disk.
+  - `.gitignore` updated to ignore `research/*GRANT*`, `research/*grant*`, `research/*EMERGENT_VENTURES*`, `research/*RESEARCHER_PROFILE*`, `research/*FELLOWSHIP*`.
+  - Public whitepapers and decks (`docs/whitepaper.html`, `docs/presentation.html`, `scripts/generate_docx_whitepaper.py`, `scripts/generate_xlsx_benchmarks.py`) stripped of fellowship budget tables and updated with technical scaling horizons.
+
+---
+
+## 📌 Next Steps & Release Roadmap
 1. **Record Bedside Unedited Video:** Sanish to record the 2-minute unedited horizontal video from bed workstation in Rupandehi, Nepal for Dr. Tyler Cowen (Emergent Ventures) covering the 3 mental anchors (Reality & Agency, SymboLM Receipts, $20k Unlock).
 2. **Submit Fellowship Applications:** Emergent Ventures (Tyler Cowen), 1517 Fund (Danielle Strachman), and AI Grant (Nat Friedman & Daniel Gross).
-3. **Execute Remaining Phases of Release Roadmap:**
-   - **Download P100 1,000-Benchmark Receipts:** Pull `EVAL_1000_MULTI_YEAR_REPORT.md` and `eval_1000_results.json` upon kernel completion.
-   - **Publish to Hugging Face Model Hub:** Push standalone FP16 weights (`model.safetensors` 3.32 GB) and INT8/NF4 quantized variants to `gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`.
+3. **Open-Source Distribution:** Announce SymboLM v1.0 release on Twitter/X, Hacker News, and Hugging Face communities.
+
 
 
