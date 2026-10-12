@@ -138,14 +138,37 @@
 
 ---
 
-## 📌 Next Steps & Release Roadmap (v1.1 Release Pipeline)
+## ⚡ Standalone Model Merge & 1,000-Question Benchmark Suite (Updated Oct 12, 2026, 15:40 NPT)
+
+### 1. Standalone Weight Merge Complete (`checkpoints/SymboLM-1.5B-v1.0-DSR1-Qwen2.5/`)
+- **Official Model ID:** `gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`
+- **Execution Script:** [`scripts/merge_weights.py`](file:///c:/Users/user/Dev/symboLM/scripts/merge_weights.py) (executed in 16.87s on CPU).
+- **Standalone Checkpoint:** Fused 1.54B parameters into a single 3.32 GB `model.safetensors` file with zero PEFT wrapper dependencies.
+- **Model Card & Package:** Packaged with `README.md`, `chat_template.jinja`, `tokenizer.json` (151,665 vocab), and `config.json`.
+- **Smoke Test Receipts ([`inference/verify_merged.py`](file:///c:/Users/user/Dev/symboLM/inference/verify_merged.py)):**
+  - $\Delta_0$ Atomic Fact Recall: **`<reg:bypass>K</reg:bypass>`** with zero `<think>` preamble.
+  - $\Delta_1$ Polynomial Invariant: **`<reg:plan>concept: polynomial_invariant ...</reg:plan><reg:deduce> x²+1/x²=(6)²-2=34</reg:deduce>`**.
+  - $\Delta_3$ Chinese Remainder Theorem: **`<reg:plan>concept: chinese_remainder | moduli: [7,11] ...</reg:plan><reg:deduce>x≡4 mod 7 ...</reg:deduce>`**.
+
+### 2. Multi-Year 1,000-Question Stratified Benchmark Suite (`data/benchmark_1000_multi_year.jsonl`)
+- **Generator:** [`data/build_multi_year_1000_benchmark.py`](file:///c:/Users/user/Dev/symboLM/data/build_multi_year_1000_benchmark.py).
+- **Exact 1,000 Verified Problems Stratified Chronologically:**
+  - **2021 (200 items):** GSM8K arithmetic, SVAMP algebra, atomic physical constants.
+  - **2022 (200 items):** AMC 10/12 (2022), MATH Level 3, quadratic Vieta invariants, modular math.
+  - **2023 (200 items):** MATH 2023 Olympiad invariants, derangements, symmetric polynomials.
+  - **2024 (200 items):** AIME 2024, AMC 12 2024 number theory, Legendre valuations, Diophantine equations.
+  - **2025/2026 (200 items):** Modern Math 2026, Chinese Remainder Theorem, harmonic work rates, kinematics.
+- **Cognitive Depth Breakdown:** $\Delta_0$ (40 items, 4%), $\Delta_1$ (540 items, 54%), $\Delta_2$ (360 items, 36%), $\Delta_3$ (60 items, 6%).
+
+---
+
+## 📌 Next Steps & Release Roadmap (v1.0 Release Pipeline)
 
 1. **Record Bedside Unedited Video:** Sanish to record the 2-minute unedited horizontal video from bed workstation in Rupandehi, Nepal for Dr. Tyler Cowen (Emergent Ventures) covering the 3 mental anchors (Reality & Agency, SymboLM Receipts, $20k Unlock).
 2. **Submit Fellowship Applications:** Emergent Ventures (Tyler Cowen), 1517 Fund (Danielle Strachman), and AI Grant (Nat Friedman & Daniel Gross).
-3. **Execute v1.1 Open-Source Release Roadmap ([`research/RELEASE_ROADMAP_V1.1_BENCHMARK_AND_QUANT.md`](file:///c:/Users/user/Dev/symboLM/research/RELEASE_ROADMAP_V1.1_BENCHMARK_AND_QUANT.md)):**
-   - **Phase 1 (Standalone Weight Merge):** Fusing Stage 5 LoRA adapter into base 1.5B model (`checkpoints/symbolm_v1.1_merged/`).
-   - **Phase 2 (1,000-Question Multi-Year Benchmark):** 200 questions each across 2021, 2022, 2023, 2024, and 2025/2026 to prove temporal generalization.
-   - **Phase 3 (Batch FP16 Evaluation):** Auditing Pass@1, token compression ratio, and register routing fidelity.
-   - **Phase 4 (Multi-Bit Quantization):** Exporting INT8 and INT4 (NF4 & GGUF Q4_K_M) for edge devices and Ollama (< 1.2 GB RAM).
+3. **Execute Remaining Phases of Release Roadmap:**
+   - **Phase 3 (Batch FP16 1,000 Evaluation):** Auditing Pass@1, token compression ratio, and register routing fidelity on Kaggle GPU / local.
+   - **Phase 4 (Multi-Bit Quantization Hierarchy):** Exporting INT8 and INT4 (NF4 & GGUF Q4_K_M) for edge devices and Ollama (< 1.2 GB RAM).
    - **Phase 5 (Latency & Throughput Audit):** Benchmarking tokens/sec, latency, and accuracy retention across FP16 vs INT8 vs INT4.
-   - **Phase 6 (Hugging Face Public Release):** Publishing draft model card and standalone weights at `gyawalisanish0/symboLM-1.5B-v1.1`.
+   - **Phase 6 (Hugging Face Public Release):** Publishing standalone weights at `gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`.
+
