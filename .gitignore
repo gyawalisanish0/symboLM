@@ -54,3 +54,11 @@ data/symbolic_dataset/*.jsonl
 scratch/
 eval_cross_domain/
 stage4_download/
+
+# Private Grant, Fellowship & Application Materials (Strictly local, do NOT publish to public hubs)
+research/*GRANT*
+research/*grant*
+research/*EMERGENT_VENTURES*
+research/*RESEARCHER_PROFILE*
+research/*FELLOWSHIP*
+research/*fellowship*
