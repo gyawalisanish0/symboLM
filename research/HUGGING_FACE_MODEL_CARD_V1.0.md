@@ -199,7 +199,8 @@ vllm serve gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5 \
 * **Affiliation:** Independent Researcher  
 * **Physical Reality & Location:** Sanish Gyawali is a disabled, independent researcher based in **Rupandehi, Nepal** who is **bedridden 24/7 and cannot walk**. All architectural designs, cognitive register grammars, reinforcement learning reward formulations, and cloud cluster runs were conducted from his bed workstation.
 * **Operational Exoskeleton:** Antigravity (Google DeepMind) serves as Sanish's cognitive and operational exoskeleton—translating high-level architectural directives into production code, compiler ASTs, test suites, and remote cloud GPU pipelines with radical transparency.
-* **Target Fellowships:** Emergent Ventures (Dr. Tyler Cowen), 1517 Fund (Danielle Strachman), and AI Grant (Nat Friedman & Daniel Gross).
+* **License:** Apache 2.0
+
 
 ---
 
