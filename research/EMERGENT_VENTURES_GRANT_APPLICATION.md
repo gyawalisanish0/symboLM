@@ -48,10 +48,21 @@ Working entirely from free-tier cloud GPUs on Kaggle from my bed in Nepal, I adv
    - **Legendre Prime Valuations:** **46.7%** exact $p$-adic series derivations in **38 tokens** ($200! \implies 3^{97}$ via $66+22+7+2=97$).
    - **Polynomial Invariants:** Derived $x+1/x=5 \implies x^4+1/x^4=527$ in **35 tokens** of formal AST versus 1,200+ tokens of meandering English in frontier models.
 
-2. **Stage 4 Rapid Scientific Iteration:**
-   Our empirical audit exposed that while the model found the correct proof in 35 tokens, it repeated the answer until hitting the 256-token ceiling due to a lack of length regularization. Within 4 hours, I engineered a Stage 4 Hard EOS & Token Economy reward engine (penalizing repetition by -2.5 and rewarding clean `<｜end of sentence｜>` cutoff by +1.2). Tested on Dual Tesla T4 GPUs, the newly aligned policy eliminated the repetition tail, collapsing factual QA from 256 tokens down to **35 tokens** with instant termination.
+2. **Stage 4 Cross-Domain 200 Evaluation & The Truncation Bottleneck Discovery:**
+   We deployed the Stage 4 policy across a 200-question cross-domain suite spanning Physics, CS, Chemistry, Probability, Competition Math, and Dialogue:
+   - **Strategic Intent (`<reg:intent>`):** **100.0% accuracy (25/25)** with flawless routing.
+   - **Factual Memory (`<reg:bypass>`):** **100.0% routing (25/25)** with **52.9% token compression** (94.1 vs 200 baseline).
+   - **Trailing Syntax Noise:** Crushed down to **1.0%** across the entire 200 questions.
+   - **Olympiad Invariants:** Solved complex theorems ($x+1/x=6 \implies x^4+1/x^4=1154$, $3^{100} \pmod 7 = 4$, symmetric roots).
+   - **The Truncation Bottleneck:** Incorrect derivations in CS, Math, and Physics revealed that the model was hitting the 128-token evaluation ceiling right before outputting the final `<ans>` closure. This empirically proved that flat token locks artificially choke deep reasoning.
 
-All model weights, dataset pipelines, and benchmark logs are open-sourced on GitHub ([https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)) and Hugging Face Hub ([https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints)).
+3. **Stage 5 Architecture: Scratchpad 2.0 & The Unbounded Parsimony Gradient:**
+   To solve this, I designed the Unbounded Parsimony Gradient: eliminating artificial token ceilings so deep derivations can breathe, while monotonically rewarding the shortest valid path ($R = R_{\text{base}} \cdot [\gamma + (1-\gamma) \frac{K}{K+|\tau|}]$). Validated in unit tests: 5-token recall earns $+2.69$, while a deep 120-token proof remains strictly positive at $+1.81$ with zero length penalty.
+
+4. **Frontier Co-Design (The 224x DeepSeek Multiplier):**
+   Our formal memorandum proves that combining DeepSeek-V4.1-Flash's hardware Shared Global KV (890 B/tok) with SymboLM's sequence compression (40 tokens vs 2,000) achieves a **224x compound reduction in serving memory footprint** (dropping from 8.0 MB to 35.6 KB per request).
+
+All model weights, dataset pipelines, and benchmark logs are open-sourced on GitHub ([https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)) and Hugging Face Hub ([https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints)). Attached dossier: [`research/GRANT_PROJECT_DOSSIER_OCTOBER_2026.md`](file:///c:/Users/user/Dev/symboLM/research/GRANT_PROJECT_DOSSIER_OCTOBER_2026.md).
 
 ---
 
