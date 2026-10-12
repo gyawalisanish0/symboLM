@@ -123,12 +123,12 @@ def upload_release():
         speed = fsize_mb / dur if dur > 0 else 0
         print(f"    [DONE] {fname} uploaded in {dur:.1f}s ({speed:.2f} MB/s)!")
 
-    # 4. Optional: Upload Quantized Checkpoints
+    # 4. Optional: Upload GGUF Quantized Binaries
     if args.include_quantized:
-        print(f"\n[4/4] Uploading multi-bit quantized variants to quantized/ folder...")
+        print(f"\n[4/4] Uploading official GGUF models to repository root...")
         quant_files = [
-            ("checkpoints/SymboLM-1.5B-v1.0-INT8/pytorch_model.bin", "quantized/symbolm-1.5b-v1.0-int8.bin"),
-            ("checkpoints/SymboLM-1.5B-v1.0-NF4/pytorch_model.bin", "quantized/symbolm-1.5b-v1.0-nf4.bin"),
+            ("checkpoints/SymboLM-1.5B-v1.0-DSR1-Qwen2.5-GGUF/symbolm-1.5b-v1.0-q8_0.gguf", "symbolm-1.5b-v1.0-q8_0.gguf"),
+            ("checkpoints/SymboLM-1.5B-v1.0-DSR1-Qwen2.5-GGUF/symbolm-1.5b-v1.0-bf16.gguf", "symbolm-1.5b-v1.0-bf16.gguf"),
         ]
         for src_path_str, dest_path_repo in quant_files:
             src_p = Path(src_path_str).resolve()
@@ -141,7 +141,7 @@ def upload_release():
                     path_in_repo=dest_path_repo,
                     repo_id=args.repo_id,
                     repo_type="model",
-                    commit_message=f"Add quantized checkpoint: {dest_path_repo}",
+                    commit_message=f"Add official GGUF model: {dest_path_repo} (Sanish Gyawali)",
                 )
                 dur = time.time() - t0
                 print(f"    [DONE] {dest_path_repo} uploaded in {dur:.1f}s!")
