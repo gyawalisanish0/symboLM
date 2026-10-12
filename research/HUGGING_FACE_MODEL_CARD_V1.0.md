@@ -84,10 +84,10 @@ Generation is explicitly structured across specialized cognitive registers rathe
 
 To eliminate both **artificial token truncation** and **verbose token inflation**, SymboLM employs Sanish Gyawali's hyperbolic parsimony reward formulation:
 
-$$R_{\text{parsimony}}(\tau, y^*) = \begin{cases} 
-R_{\text{base}} \cdot \left[ \gamma_{\text{floor}} + (1 - \gamma_{\text{floor}}) \cdot \frac{K}{K + |\tau|} \right] - \Omega(\tau) + R_{\text{closure}} & \text{if } y(\tau) = y^* \\
--1.0 - \Omega(\tau) & \text{if } y(\tau) \neq y^*
-\end{cases}$$
+$$
+R_{\text{parsimony}}(\tau, y^\ast) = \begin{cases} R_{\text{base}} \cdot \left[ \gamma_{\text{floor}} + (1 - \gamma_{\text{floor}}) \cdot \frac{K}{K + |\tau|} \right] - \Omega(\tau) + R_{\text{closure}} & \text{if } y(\tau) = y^\ast \\ -1.0 - \Omega(\tau) & \text{if } y(\tau) \neq y^\ast \end{cases}
+$$
+
 
 Where:
 * $R_{\text{base}} = 2.0$: Base reward for formal mathematical correctness.

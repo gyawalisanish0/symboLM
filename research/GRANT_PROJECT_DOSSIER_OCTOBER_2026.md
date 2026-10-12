@@ -106,10 +106,10 @@ Following this empirical finding, I formulated and executed the next architectur
 > *"Do not max lock the token ceiling. If a problem is hard, give the model elastic breathing room. The model already possesses distilled knowledge; reward it monotonically for using the least necessary tokens, without ever punishing deep valid derivations into negative territory."*
 
 ### Mathematical Formulation:
-$$R_{\text{parsimony}}(\tau, y^*) = \begin{cases} 
-R_{\text{base}} \cdot \left[ \gamma_{\text{floor}} + (1 - \gamma_{\text{floor}}) \cdot \frac{K}{K + |\tau|} \right] - \Omega(\tau) + R_{\text{closure}} & \text{if correct} \\
--1.0 - \Omega(\tau) & \text{if incorrect}
-\end{cases}$$
+$$
+R_{\text{parsimony}}(\tau, y^\ast) = \begin{cases} R_{\text{base}} \cdot \left[ \gamma_{\text{floor}} + (1 - \gamma_{\text{floor}}) \cdot \frac{K}{K + |\tau|} \right] - \Omega(\tau) + R_{\text{closure}} & \text{if correct} \\ -1.0 - \Omega(\tau) & \text{if incorrect} \end{cases}
+$$
+
 
 Where $R_{\text{base}} = 2.5, K = 35, \gamma_{\text{floor}} = 0.40$.
 
