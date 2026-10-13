@@ -590,11 +590,11 @@ def hard_eos_and_economy_reward_func(prompts, completions, answers=None, registe
 
 def extract_cognitive_depth(comp: str, default: str = "Δ1") -> str:
     """
-    Extracts cognitive depth tier (Δ0, Δ1, Δ2, Δ3) from Scratchpad 2.0 header,
+    Extracts cognitive depth tier (Δ0 to Δ5) from Scratchpad 2.1 header,
     registers, or reasoning structure.
     """
-    # 1. Direct explicit Scratchpad 2.0 attribute: <reg:scratchpad depth="2">
-    m = re.search(r'depth=["\']?([0-3]|Δ[0-3])["\']?', comp, re.IGNORECASE)
+    # 1. Direct explicit Scratchpad 2.1 attribute: <reg:scratchpad depth="2">
+    m = re.search(r'depth=["\']?([0-5]|Δ[0-5])["\']?', comp, re.IGNORECASE)
     if m:
         val = m.group(1)
         return val if val.startswith("Δ") else f"Δ{val}"
@@ -602,6 +602,10 @@ def extract_cognitive_depth(comp: str, default: str = "Δ1") -> str:
     # 2. Structural inference from register markers:
     if "<reg:bypass>" in comp:
         return "Δ0"
+    if "backtrack" in comp or "checkpoint(" in comp:
+        return "Δ5"
+    if "replan(" in comp:
+        return "Δ4"
     if "hyp [" in comp or "<reg:verify>" in comp:
         return "Δ2"
     if "<reg:plan>" in comp or "<reg:deduce>" in comp:
@@ -627,11 +631,7 @@ def gradient_complexity_reward_func(
       R(tau, y*, C) = R_correct(y*) * [1 + alpha * Phi(tau, C)] - beta * Psi(tau, C) - gamma * Omega(tau) + R_closure
 
     Where:
-      - C in {Δ0, Δ1, Δ2, Δ3}
-        * Δ0: L_opt = 10,  L_max = 15,  lambda = 0.08 (Strict atomic recall)
-        * Δ1: L_opt = 30,  L_max = 45,  lambda = 0.04 (Linear invariant)
-        * Δ2: L_opt = 55,  L_max = 80,  lambda = 0.03 (Branching verification)
-        * Δ3: L_opt = 90,  L_max = 150, lambda = 0.02 (Deep Scratchpad 2.0 unrolling)
+      - C in {Δ0, Δ1, Δ2, Δ3, Δ4, Δ5}
       - Phi(tau, C) = max(0.0, (L_opt(C) - |tau|) / L_opt(C))
       - Psi(tau, C) = ReLU(|tau| - L_max(C)) * lambda(C)
       - Omega(tau) = 2.5 (if repeat) + 2.0 (if debris)
@@ -651,6 +651,8 @@ def gradient_complexity_reward_func(
         "Δ1": {"L_opt": 30, "L_max": 45, "lambda": 0.04},
         "Δ2": {"L_opt": 55, "L_max": 80, "lambda": 0.03},
         "Δ3": {"L_opt": 90, "L_max": 150, "lambda": 0.02},
+        "Δ4": {"L_opt": 160, "L_max": 250, "lambda": 0.015},
+        "Δ5": {"L_opt": 260, "L_max": 450, "lambda": 0.01},
     }
 
     for idx, (comp, ans) in enumerate(zip(completions, ans_list)):
@@ -725,34 +727,50 @@ def unbounded_parsimony_reward_func(
     r_base: float = 2.5,
     k_slope: float = 35.0,
     gamma_floor: float = 0.40,
+    mu_friction: float = 0.001,
+    cognitive_depths=None,
     **kwargs
 ) -> list[float]:
     """
-    Sanish Gyawali's Unbounded Parsimony Gradient Reward (SymboLM v2.0):
+    Sanish Gyawali's Unbounded Parsimony Gradient Reward (SymboLM v2.1):
     Teaches the model to use the least tokens possible by leveraging its internal distilled
     knowledge, WITHOUT locking or capping the token budget.
 
     Formula (for correct answers):
-      R(tau, y*) = r_base * [gamma_floor + (1 - gamma_floor) * (k_slope / (k_slope + |tau|))]
-                   - Omega(tau) + R_closure
+      R(tau, y*, Delta) = r_base * [gamma_floor + (1 - gamma_floor) * (K(Delta) / (K(Delta) + |tau|))]
+                          - mu_friction * |tau| - Omega(tau) + R_closure
 
     For incorrect answers:
       R(tau, y*) = -1.0 - Omega(tau)
 
     Core Properties:
-      1. Zero Token Lock: No arbitrary maximum token ceiling or cliff. Deep proofs (100+ tokens)
+      1. Zero Token Lock: No arbitrary maximum token ceiling or cliff. Deep proofs (250+ tokens)
          remain strictly POSITIVE (never penalized into negative territory or truncated).
       2. Strictly Monotonic Parsimony Gradient: dR/d|tau| < 0 everywhere for correct answers.
          Fewer tokens = strictly higher positive reward.
-      3. GRPO Group Relative Advantage: In a group of rollouts solving the same problem,
+      3. Token Friction Term: mu_friction * |tau| guarantees non-zero marginal cost for redundant tokens.
+      4. GRPO Group Relative Advantage: In a group of rollouts solving the same problem,
          the most concise valid derivation receives the highest advantage, driving policy
          optimization toward the Minimum Description Length (MDL).
-      4. Taps Latent Model Knowledge: Discourages verbose regurgitation of known axioms.
     """
     rewards = []
     ans_list = answers if answers is not None else kwargs.get("answer", kwargs.get("answers", [""] * len(completions)))
 
-    for comp, ans in zip(completions, ans_list):
+    k_map = {
+        "Δ0": 15.0,
+        "Δ1": 35.0,
+        "Δ2": 65.0,
+        "Δ3": 110.0,
+        "Δ4": 180.0,
+        "Δ5": 300.0,
+    }
+
+    # If cognitive_depths are explicitly passed per candidate, resolve them
+    depth_list = cognitive_depths if cognitive_depths is not None else kwargs.get("depths", None)
+    if depth_list is not None and not isinstance(depth_list, list):
+        depth_list = [depth_list] * len(completions)
+
+    for idx, (comp, ans) in enumerate(zip(completions, ans_list)):
         extracted = extract_answer(comp)
         is_corr = answers_match(extracted, ans)
 
@@ -772,11 +790,18 @@ def unbounded_parsimony_reward_func(
 
         toks = _estimate_tokens(comp)
 
+        # Resolve depth inflection K(Delta): use candidate-specific depth if explicitly provided, else group k_slope
+        effective_k = k_slope
+        if depth_list and idx < len(depth_list) and depth_list[idx] is not None:
+            d_val = depth_list[idx]
+            d_str = f"Δ{d_val}" if not str(d_val).startswith("Δ") else str(d_val)
+            effective_k = k_map.get(d_str, k_slope)
+
         # Smooth, continuous hyperbolic parsimony scaling (No ceiling lock!)
         # As toks -> 0, factor -> 1.0 (Full reward = r_base)
         # As toks -> inf, factor -> gamma_floor (Floor reward = r_base * gamma_floor)
-        parsimony_factor = gamma_floor + (1.0 - gamma_floor) * (k_slope / (k_slope + max(1, toks)))
-        score = r_base * parsimony_factor - omega
+        parsimony_factor = gamma_floor + (1.0 - gamma_floor) * (effective_k / (effective_k + max(1, toks)))
+        score = r_base * parsimony_factor - (mu_friction * toks) - omega
 
         # Clean EOS closure bonus (+0.5 for immediate clean termination)
         tail_after_ans = ""

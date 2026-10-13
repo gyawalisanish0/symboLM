@@ -21,6 +21,13 @@ from .client import (
     SymboLMClient,
     load,
 )
+from .scratchpad import (
+    ScratchpadDepth,
+    ScratchpadStateMachine,
+    ScratchpadTrace,
+    compute_unbounded_parsimony_reward,
+    parse_scratchpad_block,
+)
 from .tokenizer import (
     REGISTER_SPECIAL_TOKENS,
     setup_register_tokenizer,
@@ -51,6 +58,11 @@ __all__ = [
     "RegisterType",
     "ReasoningTrace",
     "parse_registers",
+    "ScratchpadDepth",
+    "ScratchpadStateMachine",
+    "ScratchpadTrace",
+    "compute_unbounded_parsimony_reward",
+    "parse_scratchpad_block",
     "REGISTER_SPECIAL_TOKENS",
     "setup_register_tokenizer",
     "measure_wrapper_token_count",

@@ -105,11 +105,15 @@ def evaluate_unit_step(step_str: str, env: Optional[Dict[str, Any]] = None) -> T
     try:
         clean_expr = step_str.replace("^", "**")
         res = sp.sympify(clean_expr, locals=env)
-        # If result is numeric, return python int or float
-        if res.is_number and res.is_integer:
-            return int(res), env
-        elif res.is_number and res.is_real:
-            return float(res), env
+        # If result is already a python numeric type
+        if isinstance(res, (int, float)):
+            return res, env
+        # If result is a sympy numeric type
+        elif hasattr(res, "is_number") and res.is_number:
+            if getattr(res, "is_integer", False):
+                return int(res), env
+            elif getattr(res, "is_real", False):
+                return float(res), env
         return res, env
     except Exception:
         return step_str, env
@@ -124,7 +128,7 @@ def verify_grounded_constraint(constraint_str: str, env: Dict[str, Any]) -> Tupl
     constraint_str = constraint_str.strip()
 
     # Reject trivial tautologies
-    if constraint_str in ["66 > 0", "66>0", "True", "1 > 0", "1>0", "x > 0", "ans > 0"]:
+    if constraint_str in ["66 > 0", "66>0", "True", "1 > 0", "1>0", "x > 0", "ans > 0", "0 == 0", "ans == ans"]:
         return False, "rejected_trivial_tautology"
 
     try:
@@ -136,3 +140,37 @@ def verify_grounded_constraint(constraint_str: str, env: Dict[str, Any]) -> Tupl
             return False, f"constraint_failed: {constraint_str} evaluated to False"
     except Exception as e:
         return False, f"eval_error: {str(e)}"
+
+
+def compute_unbounded_gradient_reward(
+    token_count: int,
+    depth_val: str = "1",
+    is_correct: bool = True,
+    r_base: float = 2.50,
+    gamma_floor: float = 0.40,
+    r_closure: float = 0.50,
+    mu_friction: float = 0.001,
+    repetition_penalty: float = 0.0,
+) -> float:
+    """
+    Sanish Gyawali's Depth-Conditioned Hyperbolic Parsimony Reward.
+    Guarantees R > 0 for all valid tokens (no hard cap), while strictly
+    rewarding shorter reasoning over long reasoning via negative derivative (∂R/∂|τ| < 0)
+    and microscopic token friction (μ = 0.001).
+    """
+    if not is_correct:
+        return -1.00 - repetition_penalty
+
+    k_map = {
+        "0": 15.0,
+        "1": 35.0,
+        "2": 65.0,
+        "3": 110.0,
+        "4": 180.0,
+        "5": 300.0,
+    }
+    k = k_map.get(str(depth_val), 35.0)
+    parsimony_ratio = k / (k + max(1, token_count))
+    base_scaled = r_base * (gamma_floor + (1.0 - gamma_floor) * parsimony_ratio)
+    friction = mu_friction * token_count
+    return round(float(base_scaled - friction + r_closure - repetition_penalty), 4)

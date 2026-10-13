@@ -89,6 +89,32 @@ class PlanNode(StepNode):
 
 
 @dataclass
+class CheckpointNode(StepNode):
+    """Represents a state snapshot for backtracking: checkpoint(id)."""
+    checkpoint_id: str = ""
+
+
+@dataclass
+class BacktrackNode(StepNode):
+    """Represents a state rollback: backtrack(checkpoint_id) or backtrack."""
+    target_checkpoint: Optional[str] = None
+
+
+@dataclass
+class ReplanNode(StepNode):
+    """Represents a strategy revision after backtrack: replan(strategy)."""
+    strategy: str = ""
+
+
+@dataclass
+class ScratchpadNode(StepNode):
+    """Represents an unbounded Scratchpad 2.1 container: <reg:scratchpad depth="N">."""
+    depth: str = "1"
+    domain: str = "general"
+    sub_steps: List[StepNode] = field(default_factory=list)
+
+
+@dataclass
 class CaseNode(StepNode):
     """Represents a branch split: case(cond)[steps]."""
     condition: str = ""

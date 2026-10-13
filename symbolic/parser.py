@@ -15,13 +15,17 @@ import sympy as sp
 
 from symbolic.ast import (
     AnswerNode,
+    BacktrackNode,
     CaseNode,
+    CheckpointNode,
     ConclusionNode,
     DeclarationNode,
     Diagnostic,
     ErrorLevel,
     IntentNode,
     PlanNode,
+    ReplanNode,
+    ScratchpadNode,
     StateFrameNode,
     StepNode,
     TraceNode,
@@ -103,8 +107,17 @@ class SRLParser:
         if deduce_match:
             trace_content = deduce_match.group(1).strip()
 
+        # Handle Scratchpad 2.1 (<reg:scratchpad ...>)
+        scratchpad_match = re.search(r'<reg:scratchpad(?:\s+depth="(\d+)")?(?:\s+domain="([^"]+)")?>(.*?)</reg:scratchpad>', text, re.DOTALL)
+        scratchpad_node: Optional[ScratchpadNode] = None
+        if scratchpad_match:
+            depth_val = scratchpad_match.group(1) or "1"
+            domain_val = scratchpad_match.group(2) or "general"
+            trace_content = scratchpad_match.group(3).strip()
+            scratchpad_node = ScratchpadNode(raw_text=scratchpad_match.group(0), depth=depth_val, domain=domain_val)
+
         # Handle empty thinking block (Factual zero-shot bypass)
-        if not trace_content and not plan_node:
+        if not trace_content and not plan_node and not scratchpad_node:
             ast = TraceNode(raw_text="", is_empty=True, answer=ans_node)
             return ParseResult(ast=ast, is_valid=True, diagnostics=diagnostics, extracted_answer=ans_val)
 
@@ -125,7 +138,11 @@ class SRLParser:
 
         if ast:
             ast.answer = ans_node
-            if plan_node:
+            if scratchpad_node:
+                scratchpad_node.sub_steps = list(ast.steps)
+                ast.steps = [scratchpad_node]
+                ast.register_type = "scratchpad"
+            elif plan_node:
                 ast.plan = plan_node
                 ast.steps.insert(0, plan_node)
                 ast.register_type = "plan_deduce"
@@ -257,6 +274,34 @@ class SRLParser:
                     k, v = pair.split("=", 1)
                     pairs[k.strip()] = v.strip()
             return StateFrameNode(raw_text=step_str, step_index=index, state_dict=pairs)
+
+        # 4b. Checkpoint: checkpoint(id)
+        cp_match = re.match(r"checkpoint\s*\(\s*(.+?)\s*\)$", step_str)
+        if cp_match:
+            return CheckpointNode(
+                raw_text=step_str,
+                step_index=index,
+                checkpoint_id=cp_match.group(1).strip(),
+            )
+
+        # 4c. Backtrack: backtrack(id) or backtrack
+        bt_match = re.match(r"backtrack(?:\s*\(\s*(.+?)\s*\))?$", step_str)
+        if bt_match:
+            target_id = bt_match.group(1).strip() if bt_match.group(1) else None
+            return BacktrackNode(
+                raw_text=step_str,
+                step_index=index,
+                target_checkpoint=target_id,
+            )
+
+        # 4d. Replan: replan(...)
+        rp_match = re.match(r"replan\s*\(\s*(.+?)\s*\)$", step_str)
+        if rp_match:
+            return ReplanNode(
+                raw_text=step_str,
+                step_index=index,
+                strategy=rp_match.group(1).strip(),
+            )
 
         # 5. Transformation: lhs → rhs
         if "→" in step_str:

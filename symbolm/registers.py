@@ -6,18 +6,19 @@ AI Systems Collaborator: Antigravity (Google DeepMind)
 """
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, List, Dict, Any
 
 
 class RegisterType(str, Enum):
-    BYPASS = "bypass"      # Δ0: System 1 Instant Reflex (0-step factual retrieval)
-    INTENT = "intent"      # Social / Emotional Pragmatic Scratchpad (dialogue)
-    PLAN = "plan"          # Δ2/Δ3: System 2 Invariant & Theorem Planning
-    DEDUCE = "deduce"      # Δ1-Δ3: Pure Symbolic AST Execution
-    VERIFY = "verify"      # Runtime Assertion & Backtracking (✓ / ✗)
-    STANDARD = "standard"  # Unclassified reasoning
+    BYPASS = "bypass"          # Δ0: System 1 Instant Reflex (0-step factual retrieval)
+    INTENT = "intent"          # Social / Emotional Pragmatic Scratchpad (dialogue)
+    PLAN = "plan"              # Invariant & Theorem Planning
+    DEDUCE = "deduce"          # Pure Symbolic AST Execution
+    VERIFY = "verify"          # Runtime Assertion & Backtracking (✓ / ✗)
+    SCRATCHPAD = "scratchpad"  # Δ1-Δ5: Unbounded Multi-Level State Machine
+    STANDARD = "standard"      # Unclassified reasoning
 
 
 @dataclass
@@ -27,9 +28,14 @@ class ReasoningTrace:
     plan: Optional[str] = None
     deduction: Optional[str] = None
     verification: Optional[str] = None
+    scratchpad: Optional[str] = None
     bypass: Optional[str] = None
     intent: Optional[str] = None
     answer: Optional[str] = None
+    depth: Optional[str] = None
+    backtracks: int = 0
+    checkpoints: List[str] = field(default_factory=list)
+    unit_steps: List[str] = field(default_factory=list)
     token_count: Optional[int] = None
     ast_valid: bool = False
     metadata: Optional[Dict[str, Any]] = None
@@ -74,7 +80,29 @@ def parse_registers(completion_text: str) -> ReasoningTrace:
     verify_match = re.search(r"<reg:verify>(.*?)</reg:verify>", text, re.DOTALL)
     verify_val = verify_match.group(1).strip() if verify_match else None
     
-    # 6. Extract Answer (<ans>...</ans> or \\boxed{...})
+    # 6. Check for Unbounded Scratchpad 2.1 (<reg:scratchpad ...>)
+    scratchpad_match = re.search(r'<reg:scratchpad(?:\s+depth="(\d+)")?(?:\s+domain="([^"]+)")?>(.*?)</reg:scratchpad>', text, re.DOTALL)
+    scratchpad_val = None
+    scratchpad_depth = None
+    checkpoints = []
+    unit_steps = []
+    backtrack_count = 0
+
+    if scratchpad_match:
+        scratchpad_depth = scratchpad_match.group(1) or "1"
+        scratchpad_val = scratchpad_match.group(3).strip()
+        # Parse inner unit-steps
+        raw_parts = [p.strip() for p in scratchpad_val.split("|") if p.strip()]
+        for p in raw_parts:
+            unit_steps.append(p)
+            if p.startswith("checkpoint("):
+                cp_m = re.match(r"checkpoint\((.*?)\)", p)
+                if cp_m:
+                    checkpoints.append(cp_m.group(1).strip())
+            elif p.startswith("backtrack") or "✗" in p:
+                backtrack_count += 1
+    
+    # 7. Extract Answer (<ans>...</ans> or \\boxed{...})
     ans_match = re.search(r"<ans>(.*?)</ans>", text, re.DOTALL)
     if not ans_match:
         ans_match = re.search(r"\\boxed\{(.*?)\}", text, re.DOTALL)
@@ -85,7 +113,9 @@ def parse_registers(completion_text: str) -> ReasoningTrace:
         ans_val = bypass_val
     
     # Classify dominant register
-    if bypass_val:
+    if scratchpad_val:
+        dominant = RegisterType.SCRATCHPAD
+    elif bypass_val:
         dominant = RegisterType.BYPASS
     elif intent_val and not deduce_val:
         dominant = RegisterType.INTENT
@@ -103,9 +133,14 @@ def parse_registers(completion_text: str) -> ReasoningTrace:
         plan=plan_val,
         deduction=deduce_val,
         verification=verify_val,
+        scratchpad=scratchpad_val,
         bypass=bypass_val,
         intent=intent_val,
         answer=ans_val,
+        depth=scratchpad_depth,
+        backtracks=backtrack_count,
+        checkpoints=checkpoints,
+        unit_steps=unit_steps,
         token_count=approx_tokens,
-        ast_valid=bool(deduce_val or bypass_val or ans_val)
+        ast_valid=bool(scratchpad_val or deduce_val or bypass_val or ans_val),
     )
