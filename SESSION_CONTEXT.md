@@ -317,11 +317,18 @@
 ---
 
 ## 📌 Immediate Next Milestone: Training SymboLM v2 Model Weights
-1. **Training Focus:** Proceed with training the **SymboLM v2.0 / v2.1 weights** on Kaggle GPUs:
-   - Refine the contrastive curriculum dataset with mathematically sound rollback traces.
-   - Configure training script using the expanded 151,675 vocabulary (with 10 dedicated delimiters).
-   - Execute Phase 1 SFT warm-start and Phase 2 Parsimony GRPO.
-2. **Post-Training Deployment:** Merge weights into standalone safetensors and generate updated 4-bit GGUF binaries.
+1. **Active Cloud Training Job (Running on Kaggle GPU):**
+   - **Kernel ID:** [`sanishgyawali/symbolm-v2-contrastive-sft-training`](https://www.kaggle.com/code/sanishgyawali/symbolm-v2-contrastive-sft-training)
+   - **Status at shutdown:** `KernelWorkerStatus.RUNNING` (executing independently in Kaggle cloud across 1,400 contrastive samples with 35% negative rollback traces).
+   - **Immediate action on resume:**
+     ```bash
+     kaggle kernels status sanishgyawali/symbolm-v2-contrastive-sft-training
+     kaggle kernels output sanishgyawali/symbolm-v2-contrastive-sft-training -p checkpoints/symbolm_v2_adapter
+     ```
+2. **Post-Training Deployment:**
+   - Extract `symboLM_v2_contrastive_policy.tar.gz` into `checkpoints/symbolm_v2_adapter/`.
+   - Run audit verification script across $\Delta_0 \to \Delta_5$.
+   - Fuse weights into standalone safetensors and compile updated 4-bit edge GGUF.
 
 
 
