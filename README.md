@@ -111,8 +111,11 @@ Every number and systems claim in SymboLM is strictly traceable to commit-linked
 | **Truncation Ceiling Elimination** | Parsimony Gradient preserves positive reward ($+1.81$ at 120 tok) | Hard token caps abruptly truncate proofs before `<ans>` | Tesla T4 GRPO & unit tests | [`training/reward.py`](training/reward.py) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
 | **224× Compound Serving Savings** | Active memory collapses from **8.0 MB to 35.6 KB / request** | Standard KV cache without hardware or sequence compression | Co-Design formulation: $L_{\text{seq}} \times S_{\text{KV\_per\_tok}}$ | [`research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md`](research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
 | **Cross-Architecture Universality** | **100.0% Registration Fidelity on Meta LLaMA** | Single-backbone assumption (proves SymboLM is foundation-agnostic, not a Qwen artifact) | Kaggle Cloud Tesla T4 GPU | [`eval/EVAL_CROSS_FAMILY_LLAMA_REPORT.md`](eval/EVAL_CROSS_FAMILY_LLAMA_REPORT.md) | [`commit e813a4f`](https://github.com/gyawalisanish0/symboLM) |
+| **Dedicated Tokenizer Delimiters** | **2-token wrapper overhead** (1 open, 1 close); collapses `<reg:bypass>K</reg:bypass>` to **3 tokens** | Unoptimized BPE tokenizers fragment XML delimiters into 10–12 subwords | Hugging Face Tokenizer API | [`tests/test_tokenizer_wrapper.py`](tests/test_tokenizer_wrapper.py) | `v2.1` |
+| **Causal Register Leverage (5-Arm)** | **-65.0% accuracy drop** on shuffled `<reg:plan>`, proving causal necessity over formatting | Assumption that SFT templates are cosmetic prefixes | 5-Arm Ablation Suite on Tesla T4 | [`eval/ablation_5_arm_results.json`](eval/ablation_5_arm_results.json) | `v2.1` |
+| **Adaptive Token Allocation Curve** | **96.05% suite token compression** vs. DeepSeek-R1 (138 vs. 3,490 tokens across $\Delta_0 \to \Delta_3$) | Monolithic Long-CoT models overthink easy queries (580+ tokens for facts) | Multi-depth benchmark suite | [`eval/ADAPTIVE_ALLOCATION_REPORT.md`](eval/ADAPTIVE_ALLOCATION_REPORT.md) | `v2.1` |
 
-*Full 13-claim verification matrix published in [EVIDENCE_TRUTH_TABLE.md](EVIDENCE_TRUTH_TABLE.md).*  
+*Full 16-claim verification matrix published in [EVIDENCE_TRUTH_TABLE.md](EVIDENCE_TRUTH_TABLE.md).*  
 *Living multi-model adversarial challenge log published in [eval/AI_ADVERSARIAL_CRITIQUE_LOG.md](eval/AI_ADVERSARIAL_CRITIQUE_LOG.md).*
 
 ### 🛡️ Continuous AI Adversarial Peer-Review System

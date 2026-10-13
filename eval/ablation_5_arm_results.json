@@ -1,0 +1,27 @@
+{
+  "Arm 1: Verbose CoT": {
+    "mean_tokens": 179.7,
+    "pass_rate_pct": 70.0,
+    "efficiency_ratio": 0.389
+  },
+  "Arm 2: Answer Only": {
+    "mean_tokens": 5.6,
+    "pass_rate_pct": 15.0,
+    "efficiency_ratio": 2.674
+  },
+  "Arm 3: Untyped Terse Scratchpad": {
+    "mean_tokens": 34.6,
+    "pass_rate_pct": 65.0,
+    "efficiency_ratio": 1.879
+  },
+  "Arm 4: SymboLM Register v2.1": {
+    "mean_tokens": 30.0,
+    "pass_rate_pct": 90.0,
+    "efficiency_ratio": 3.0
+  },
+  "Arm 5: Shuffled Control Registers": {
+    "mean_tokens": 40.3,
+    "pass_rate_pct": 25.0,
+    "efficiency_ratio": 0.62
+  }
+}

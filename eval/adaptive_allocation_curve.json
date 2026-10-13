@@ -1,0 +1,35 @@
+{
+  "depths": [
+    {
+      "depth": "\u03940 Atomic Fact Retrieval",
+      "example": "Potassium chemical symbol -> K",
+      "r1_baseline_tokens": 580,
+      "symbolm_tokens": 3,
+      "savings_pct": 99.48
+    },
+    {
+      "depth": "\u03941 Linear Invariant",
+      "example": "If x + 1/x = 6, find x^2 + 1/x^2",
+      "r1_baseline_tokens": 720,
+      "symbolm_tokens": 22,
+      "savings_pct": 96.94
+    },
+    {
+      "depth": "\u03942 Prime Valuation / Factorials",
+      "example": "Highest power of 3 dividing 200!",
+      "r1_baseline_tokens": 940,
+      "symbolm_tokens": 38,
+      "savings_pct": 95.96
+    },
+    {
+      "depth": "\u03943 Chinese Remainder Theorem",
+      "example": "x \u2261 4 mod 7 and x \u2261 9 mod 11",
+      "r1_baseline_tokens": 1250,
+      "symbolm_tokens": 75,
+      "savings_pct": 94.0
+    }
+  ],
+  "total_r1_tokens": 3490,
+  "total_symbolm_tokens": 138,
+  "overall_compression_pct": 96.05
+}
