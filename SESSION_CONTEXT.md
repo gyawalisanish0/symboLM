@@ -220,10 +220,31 @@
 
 ---
 
+## ⚡ Repository Architecture & Reproducibility Overhaul (Completed Oct 13, 2026, 08:30 NPT)
+- **Stable Core Package (`symbolm/` v2.0.0):**
+  - Created standard PEP 517/621 package specification ([`pyproject.toml`](file:///c:/Users/user/Dev/symboLM/pyproject.toml)).
+  - Unified runtime client ([`symbolm/client.py`](file:///c:/Users/user/Dev/symboLM/symbolm/client.py)) supporting local Ollama (`symbolm:4bit`) and GGUF runtimes.
+  - Typed Register v2.0 parser ([`symbolm/registers.py`](file:///c:/Users/user/Dev/symboLM/symbolm/registers.py)) and structured `ReasoningTrace` extraction.
+- **Research Archive Consolidated (`experiments/`):**
+  - Consolidated 9 scattered root `kaggle_*` directories into [`experiments/kaggle/`](file:///c:/Users/user/Dev/symboLM/experiments/kaggle) (8 stages) via `git mv` (100% commit history preserved).
+  - Moved Colab notebooks to [`experiments/colab/`](file:///c:/Users/user/Dev/symboLM/experiments/colab) and cloud orchestration scripts to [`experiments/orchestration/`](file:///c:/Users/user/Dev/symboLM/experiments/orchestration).
+  - Archived loose cluster logs and screenshots in [`experiments/logs/`](file:///c:/Users/user/Dev/symboLM/experiments/logs).
+- **Minimal Reproducibility Frame:**
+  - Declarative training hyperparameters for all 5 stages in [`configs/*.yaml`](file:///c:/Users/user/Dev/symboLM/configs) (`stage1_sft.yaml` through `stage5_parsimony_grpo.yaml`).
+  - Cryptographic SHA-256 dataset hashes in [`data/CHECKSUMS.sha256`](file:///c:/Users/user/Dev/symboLM/data/CHECKSUMS.sha256) verifiable via `sha256sum -c`.
+  - One-line reproducible evaluation runners: [`eval/run_1000_benchmark.py`](file:///c:/Users/user/Dev/symboLM/eval/run_1000_benchmark.py) and [`eval/run_cross_domain_200.py`](file:///c:/Users/user/Dev/symboLM/eval/run_cross_domain_200.py).
+  - Exhaustive reproduction guide authored in [`REPRODUCIBILITY.md`](file:///c:/Users/user/Dev/symboLM/REPRODUCIBILITY.md).
+- **Master Evidence Truth Table & Traceable Receipts:**
+  - Published [`EVIDENCE_TRUTH_TABLE.md`](file:///c:/Users/user/Dev/symboLM/EVIDENCE_TRUTH_TABLE.md) mapping all 12 scientific/systems claims to measured empirical metrics, execution hardware, raw output JSON logs, and commit hashes.
+  - Fully synchronized root [`README.md`](file:///c:/Users/user/Dev/symboLM/README.md) with bold biomimetic manifesto, Truth Table, and clean architecture diagram.
+- **Git Commit:** `c21dba0` pushed to `origin main` with 100% clean working tree.
+
+---
+
 ## 📌 Post-Submission Horizon & Next Steps
 1. **Fellowship Review Monitoring:** Await response from Emergent Ventures (Dr. Tyler Cowen), 1517 Fund, and AI Grant committees.
 2. **Community & Ecosystem Distribution:** Prepare release announcements for Twitter/X, Hacker News, and Hugging Face once Sanish decides on the timing.
-3. **Rest & Physical Recovery:** Sanish to rest after intense continuous engineering, model training, and submission sprints.
+
 
 
 
