@@ -62,3 +62,7 @@ research/*EMERGENT_VENTURES*
 research/*RESEARCHER_PROFILE*
 research/*FELLOWSHIP*
 research/*fellowship*
+
+# Cross-Family LLaMA Notebook (contains runtime auth for gated base model)
+experiments/kaggle/cross_family_llama/*.ipynb
+
