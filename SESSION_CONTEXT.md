@@ -264,7 +264,8 @@
 - **Audits Tracked:**
   1. **CRIT-001 (GitHub Copilot):** Challenged single-backbone bias (Qwen-2.5). **RESOLVED** via Meta LLaMA 1.7B cross-family transfer (Claim 13).
   2. **CRIT-002 (DeepSeek Official App - Thinking Mode):** Identified limitation of pure autoregressive next-token prediction in small models (surface tag formatting vs arithmetic execution; Legendre truncated at 66 vs 97; ungrounded tautological verification `verify(66>0)✓`).
-- **Architectural Directive for SymboLM v2.1:** Turn registers into a true **Neuro-Symbolic Hybrid**—neural routing in `<reg:plan>`, deterministic arithmetic offloaded to SymPy / AST compiler in `<reg:deduce>`, and real programmatic assertion checking in `<reg:verify>` with retry loops.
+  3. **CRIT-003 (Claude Sonnet - Max Effort Thinking Mode):** Identified bounded-depth serial compute ceiling (fusing 3 ops into 1 token hop causes CRT failure; minimal sufficient state vs linguistic filler); wrapper token fragmentation (train dedicated special tokens to collapse 14 tokens to 2); ceremonial verifier ($P(✓) \approx 1$ requires negative contrastive traces); identified **Adaptive Allocation Curve** ($\Delta_0 \to \Delta_3$) as SymboLM's decisive advantage over long-CoT models.
+- **Architectural Directive for SymboLM v2.1:** Turn registers into a true **Neuro-Symbolic Hybrid**—neural routing in `<reg:plan>`, deterministic arithmetic offloaded to SymPy / AST compiler in `<reg:deduce>`, real programmatic assertion checking in `<reg:verify>` with retry loops, and added special tokens for 2-token register wrappers.
 
 ---
 
