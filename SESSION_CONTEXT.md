@@ -241,9 +241,20 @@
 
 ---
 
+## ⚡ Active Cloud Pipeline: Cross-Family Architecture Transfer on Meta LLaMA 3.2 1B (Oct 13, 2026)
+- **Kaggle Kernel:** [`sanishgyawali/symbolm-cross-family-transfer-meta-llama-3-2-1b`](https://www.kaggle.com/code/sanishgyawali/symbolm-cross-family-transfer-meta-llama-3-2-1b)
+- **Status:** **`KernelWorkerStatus.RUNNING`** ⚡
+- **Compute:** Kaggle NVIDIA Tesla T4 GPU (16 GB VRAM)
+- **Foundation Model:** `meta-llama/Llama-3.2-1B-Instruct` (1.23B parameters, 128k tiktoken BPE vocabulary)
+- **Core Scientific Objective:** Demonstrating that SymboLM's Register v2.0 cognitive architecture is universally foundation-agnostic by fine-tuning on 1,400 samples across 7 invariant families (`data/concept_math_curriculum.jsonl`) and evaluating cross-depth deduction ($\Delta_0 \to \Delta_3$) and intent routing.
+
+---
+
 ## 📌 Post-Submission Horizon & Next Steps
-1. **Fellowship Review Monitoring:** Await response from Emergent Ventures (Dr. Tyler Cowen), 1517 Fund, and AI Grant committees.
-2. **Community & Ecosystem Distribution:** Prepare release announcements for Twitter/X, Hacker News, and Hugging Face once Sanish decides on the timing.
+1. **Monitor Cross-Family LLaMA Kernel:** Await kernel completion and download receipts (`llama_3_2_transfer_results.json`) via `experiments/orchestration/download_llama_results.py`.
+2. **Fellowship Review Monitoring:** Await response from Emergent Ventures (Dr. Tyler Cowen), 1517 Fund, and AI Grant committees.
+3. **Community & Ecosystem Distribution:** Prepare release announcements for Twitter/X, Hacker News, and Hugging Face once Sanish decides on the timing.
+
 
 
 
