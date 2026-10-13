@@ -1,0 +1,48 @@
+[
+  {
+    "test": "Nested Tree Search (Depth 3+)",
+    "passed": true,
+    "backtrack_count": 2,
+    "step_count": 18,
+    "clean_env_verified": true,
+    "final_answer": "53",
+    "latency_ms": 2.868,
+    "diagnostics": []
+  },
+  {
+    "test": "State Pollution & Mutable Isolation",
+    "passed": true,
+    "dirty_variables_leaked": [],
+    "safe_data_preserved": true,
+    "final_answer": "42"
+  },
+  {
+    "test": "Adversarial Oscillation & Loop Protection",
+    "passed": true,
+    "cycle_detected": true,
+    "diagnostics": [
+      "Oscillation detected: Condition 'guess == 999' failed 3 times at checkpoint 'LOOP_CP'."
+    ],
+    "backtrack_count": 3
+  },
+  {
+    "test": "Token Efficiency & Backtrack Overhead",
+    "tokens_0_backtrack": 16,
+    "tokens_1_backtrack": 26,
+    "tokens_2_backtracks": 34,
+    "tokens_verbose_cot": 176,
+    "savings_0_bt_pct": 90.91,
+    "savings_1_bt_pct": 85.23,
+    "savings_2_bt_pct": 80.68,
+    "overhead_per_backtrack_tokens": 10
+  },
+  {
+    "test": "Fault Tolerance on Malformed Directives",
+    "graceful_recovery": true,
+    "final_answer": "20",
+    "diagnostics_captured": [
+      "Rollback failed: No checkpoints exist in stack."
+    ],
+    "passed": true
+  }
+]

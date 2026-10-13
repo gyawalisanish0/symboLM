@@ -16,6 +16,7 @@ AI Systems Collaborator: Antigravity (Google DeepMind)
 
 from __future__ import annotations
 
+import copy
 import re
 from dataclasses import dataclass, field
 from enum import Enum
@@ -130,17 +131,25 @@ class ScratchpadStateMachine:
     and grounds calculations in SymPy.
     """
 
-    def __init__(self, depth: ScratchpadDepth = ScratchpadDepth.DELTA_1, domain: str = "general"):
+    def __init__(
+        self,
+        depth: ScratchpadDepth = ScratchpadDepth.DELTA_1,
+        domain: str = "general",
+        max_backtracks: int = 15,
+    ):
         self.depth = depth
         self.domain = domain
+        self.max_backtracks = max_backtracks
         self.env: Dict[str, Any] = {}
         self.checkpoints: Dict[str, Checkpoint] = {}
         self.checkpoint_stack: List[str] = []
         self.steps: List[ScratchpadStep] = []
         self.backtrack_history: List[Tuple[str, str]] = []  # (failed_condition, checkpoint_id)
+        self.failure_signatures: Dict[str, int] = {}       # signature -> count (cycle detection)
         self.final_answer: Optional[str] = None
         self.is_valid: bool = True
         self.diagnostics: List[str] = []
+        self.cycle_detected: bool = False
 
     def set_variable(self, var_name: str, value: Any) -> None:
         self.env[var_name] = value
@@ -149,7 +158,7 @@ class ScratchpadStateMachine:
         cp = Checkpoint(
             checkpoint_id=checkpoint_id,
             step_index=len(self.steps),
-            env_snapshot=dict(self.env),
+            env_snapshot=copy.deepcopy(self.env),
         )
         self.checkpoints[checkpoint_id] = cp
         self.checkpoint_stack.append(checkpoint_id)
@@ -161,13 +170,19 @@ class ScratchpadStateMachine:
             self.diagnostics.append("Rollback failed: No checkpoints exist in stack.")
             return False
 
-        target_id = checkpoint_id if checkpoint_id else self.checkpoint_stack[-1]
-        if target_id not in self.checkpoints:
+        target_id = checkpoint_id if checkpoint_id else (self.checkpoint_stack[-1] if self.checkpoint_stack else None)
+        if not target_id or target_id not in self.checkpoints:
             self.diagnostics.append(f"Rollback failed: Checkpoint '{target_id}' not found.")
             return False
 
+        # Guard against infinite backtracks
+        if len(self.backtrack_history) > self.max_backtracks:
+            self.diagnostics.append(f"Exceeded maximum allowed backtracks ({self.max_backtracks}).")
+            self.is_valid = False
+            return False
+
         cp = self.checkpoints[target_id]
-        self.env = dict(cp.env_snapshot)
+        self.env = copy.deepcopy(cp.env_snapshot)
         # Pop stack down to this checkpoint
         while self.checkpoint_stack and self.checkpoint_stack[-1] != target_id:
             self.checkpoint_stack.pop()
@@ -266,6 +281,11 @@ class ScratchpadStateMachine:
             if not passed:
                 latest_cp = self.checkpoint_stack[-1] if self.checkpoint_stack else "root"
                 self.backtrack_history.append((cond, latest_cp))
+                sig = f"{cond}@{latest_cp}"
+                self.failure_signatures[sig] = self.failure_signatures.get(sig, 0) + 1
+                if self.failure_signatures[sig] >= 3:
+                    self.cycle_detected = True
+                    self.diagnostics.append(f"Oscillation detected: Condition '{cond}' failed 3 times at checkpoint '{latest_cp}'.")
 
             self.steps.append(step)
             return step
@@ -312,6 +332,7 @@ class ScratchpadStateMachine:
             env=dict(self.env),
             final_answer=self.final_answer,
             backtrack_count=len(self.backtrack_history),
+            cycle_detected=self.cycle_detected,
             is_valid=(len(self.diagnostics) == 0 and self.final_answer is not None),
             diagnostics=list(self.diagnostics),
         )
@@ -326,7 +347,8 @@ class ScratchpadTrace:
     env: Dict[str, Any]
     final_answer: Optional[str]
     backtrack_count: int
-    is_valid: bool
+    cycle_detected: bool = False
+    is_valid: bool = True
     diagnostics: List[str] = field(default_factory=list)
 
     @property
