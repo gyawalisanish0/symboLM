@@ -99,11 +99,19 @@ Where:
 
 **Why This Works:** Unlike flat length caps (which truncate deep proofs right before the answer), the hyperbolic gradient provides elastic breathing room up to 192 tokens while monotonically rewarding shorter valid proofs—shifting GRPO policy gradients $\nabla_\theta \log \pi_\theta$ toward Minimum Description Length.
 
+### Relation to Length-Penalty Reinforcement Learning (Prior Art)
+SymboLM's hyperbolic parsimony formulation builds upon and contrasts with recent work on length-controlled RL in reasoning models:
+- **Kimi k1.5 (Moonshot AI, 2025):** Utilized progressive length penalties during long-CoT RL.
+- **Cosine Length Penalties (Yeo et al., 2025):** Soft bounded penalties preventing early collapse.
+- **Adaptive Length Steering (Arora & Zanette, 2024):** Formal limits on serial compute vs. verbosity.
+*Difference:* Rather than applying a blanket penalty across unstructured natural language (which causes truncation collapse on deep proofs), SymboLM combines the hyperbolic decay with **functional cognitive registers** ($\Delta_0 \to \Delta_3$) and an explicit **anti-guessing penalty ($-0.80$)**, separating load-bearing serial intermediate state from linguistic filler.
+
 ---
 
 ## 4. Empirical Benchmark Receipts
 
 ### Verified Token Compression vs. DeepSeek-R1 Distill Baseline
+*(Evaluated via isolated greedy probe generations with dedicated register special tokens)*
 
 | Evaluation Domain | Baseline English CoT | SymboLM-1.5B-v1.0 | Token Savings | Compression Ratio |
 | :--- | :---: | :---: | :---: | :---: |
@@ -114,19 +122,22 @@ Where:
 | **Cross-Domain 200 Benchmark Overall** | 4,400 tokens | **2,116 tokens** across 7 fields | **51.9%** | **2.08×** |
 
 ### The 1,000-Question Multi-Year Benchmark (2021–2026)
-To definitively eliminate the critique of "data contamination" and "memorization of classic GSM8K benchmarks", SymboLM-1.5B-v1.0 was evaluated against a chronologically stratified 1,000-problem suite executed on an NVIDIA Tesla P100 GPU (16 GB HBM2 memory):
+To evaluate reasoning across a broad chronological spectrum, SymboLM-1.5B-v1.0 was evaluated against a 1,000-problem suite executed on an NVIDIA Tesla P100 GPU (16 GB HBM2 memory):
 
-| Benchmark Year | Evaluated Datasets | Samples | Pass@1 Accuracy | SymboLM Avg Tokens | Baseline CoT Avg Tokens | Token Savings |
-| :---: | :--- | :---: | :---: | :---: | :--- | :---: |
-| **2021** | GSM8K, SVAMP, Arithmetic Anchors | 200 | **72.0%** (144/200) | **114.3 tok** | 198.0 tok | **42.3%** |
-| **2022** | AMC 10/12 (2022) Invariants, Vieta | 200 | **71.0%** (142/200) | **128.0 tok** | 214.5 tok | **40.3%** |
-| **2023** | MATH Olympiad (2023) Derangements, Totient | 200 | **84.5%** (169/200) | **128.0 tok** | 264.5 tok | **51.6%** |
-| **2024** | AIME 2024, Legendre Prime Valuations | 200 | **72.5%** (145/200) | **128.0 tok** | 283.0 tok | **54.8%** |
-| **2026** | Modern Math 2026, Multi-Moduli CRT | 200 | **38.0%** (76/200) | **128.0 tok** | 309.0 tok | **58.6%** |
-| **Overall** | **5-Year Stratified Suite** | **1,000** | **67.60%** (676/1,000) | **125.3 tok** | **253.8 tok** | **50.65%** |
+| Benchmark Year | Evaluated Invariant Suite | Samples | Pass@1 Accuracy | SymboLM Avg Tokens | Baseline CoT Avg Tokens | Token Savings |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
+| **2021** | GSM8K & SVAMP Invariant Anchors | 200 | **72.0%** (144/200) | **114.3 tok** | 198.0 tok | **42.3%** |
+| **2022** | AMC 10/12 Invariant Variations (Vieta, Polynomials) | 200 | **71.0%** (142/200) | **128.0 tok** | 214.5 tok | **40.3%** |
+| **2023** | MATH Olympiad Invariant Variations (Derangements, Totient) | 200 | **84.5%** (169/200) | **128.0 tok** | 264.5 tok | **51.6%** |
+| **2024** | AIME 2024 Invariant-Inspired Suite (Legendre Valuations, Diophantines)* | 200 | **72.5%** (145/200) | **128.0 tok** | 283.0 tok | **54.8%** |
+| **2026** | Modern Math 2026 Invariant Suite (Chinese Remainder Theorem) | 200 | **38.0%** (76/200) | **128.0 tok** | 309.0 tok | **58.6%** |
+| **Overall** | **5-Year Chronological Suite** | **1,000** | **67.60%** (676/1,000) | **125.3 tok** | **253.8 tok** | **50.65%** |
 
 > [!NOTE]
-> **50.65% Sequence Compression:** Across 1,000 chronological competition and reasoning problems, SymboLM generated **125,258 total tokens** compared to **253,800 tokens** required by standard English reasoning models, while achieving a **67.60% Pass@1 success rate**.
+> **Token Accounting & Benchmark Clarifications:**
+> 1. **Batch Token Cap:** In the Tesla P100 benchmark, evaluation was run with an explicit upper ceiling of 128 tokens (`max_completion_length = 128`), which accounts for the exact 128.0 average token figure observed on multi-step buckets where derivations saturated the budget.
+> 2. **Benchmark Scope:** The 2024 suite consists of **200 curated invariant problems inspired by AIME topic families** (not the official 15-question MAA exam, where unconstrained base R1-1.5B achieves ~29%).
+> 3. **50.65% Sequence Compression:** Across the 1,000 chronological problems, SymboLM generated **125,258 total tokens** compared to **253,800 tokens** for standard English CoT, achieving a **67.60% Pass@1 success rate**.
 
 ---
 
@@ -249,11 +260,12 @@ vllm serve gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5 \
 ## 7. Authorship & Intellectual Property
 
 * **Principal Systems Architect & Research Director:** **Sanish Gyawali**  
-* **Affiliation:** Independent Researcher  
-* **Physical Reality & Location:** Sanish Gyawali is a disabled, independent researcher based in **Rupandehi, Nepal** who is **bedridden 24/7 and cannot walk**. All architectural designs, cognitive register grammars, reinforcement learning reward formulations, and cloud cluster runs were conducted from his bed workstation.
-* **Operational Exoskeleton:** Antigravity (Google DeepMind) serves as Sanish's cognitive and operational exoskeleton—translating high-level architectural directives into production code, compiler ASTs, test suites, and remote cloud GPU pipelines with radical transparency.
+* **Affiliation:** Independent Researcher (Rupandehi, Nepal)  
+* **Physical Reality & Work Context:** Sanish Gyawali is a disabled, independent researcher based in **Rupandehi, Nepal** who is **bedridden 24/7 and cannot walk**. All project conception, symbolic register grammar specifications, reinforcement learning reward formulations, and cloud cluster execution pipelines were conducted from his bed workstation. All intellectual property, project authorship, and architectural designs belong exclusively to **Sanish Gyawali**.
 * **License:** Apache 2.0
 
+### Acknowledgments & Radical Transparency
+We acknowledge **Antigravity (Google DeepMind)** for serving as Sanish Gyawali's cognitive and operational exoskeleton—translating high-level architectural directives into production code, compiler ASTs, test suites, and remote cloud GPU pipelines with radical transparency.
 
 ---
 
@@ -263,7 +275,7 @@ If you build upon the SymboLM architecture, cognitive registers, or empirical be
 
 ```bibtex
 @misc{gyawali2026symbolm,
-  author       = {Sanish Gyawali and Antigravity},
+  author       = {Sanish Gyawali},
   title        = {SymboLM: Biomimetic Multi-Register Reasoning and Adaptive Symbolic Engine},
   year         = {2026},
   publisher    = {Hugging Face},

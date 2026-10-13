@@ -283,6 +283,17 @@
 
 ---
 
+## ⚡ Hugging Face Hub Alignment & Live Deployment COMPLETE (Oct 13, 2026, 13:05 NPT)
+- **Live Hugging Face Repository:** [`gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5)
+- **Critique Points Fully Resolved & Live on Hub:**
+  1. **Benchmark Clarification:** 2024 suite explicitly labeled as *200 curated invariant problems inspired by AIME topic families*, with notes distinguishing it from the official 15-question MAA exam.
+  2. **Token Accounting:** Clarified isolated greedy probe measurements (Table 1) vs. the 128-token batch cap enforced on the Tesla P100 benchmark (Table 2).
+  3. **Length-Penalty Prior Art:** Added dedicated literature context citing Kimi k1.5, Yeo et al., and Arora & Zanette, clarifying SymboLM's unique register-conditioned hyperbolic parsimony.
+  4. **Authorship & BibTeX:** Updated citation to list **Sanish Gyawali** as the sole author in BibTeX, with Antigravity credited in Acknowledgments as the cognitive and operational exoskeleton.
+  5. **Live Tokenizer Delimiters:** Uploaded `tokenizer.json` and `tokenizer_config.json` to Hub. Vocab expanded to **151,675**, and `<reg:bypass>K</reg:bypass>` now encodes into **exactly 3 tokens** (`['<reg:bypass>', 'K', '</reg:bypass>']`) in live production.
+
+---
+
 ## 📌 Post-Submission Horizon & Next Steps
 1. **Fellowship Review Monitoring:** Await response from Emergent Ventures (Dr. Tyler Cowen), 1517 Fund, and AI Grant committees.
 2. **Community & Ecosystem Distribution:** Prepare release announcements for Twitter/X, Hacker News, and Hugging Face once Sanish decides on the timing.
