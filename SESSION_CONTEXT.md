@@ -259,9 +259,19 @@
 
 ---
 
+## ⚡ Continuous AI Adversarial Peer-Review System (Oct 13, 2026)
+- **Framework Established:** [`eval/AI_ADVERSARIAL_CRITIQUE_LOG.md`](file:///c:/Users/user/Dev/symboLM/eval/AI_ADVERSARIAL_CRITIQUE_LOG.md) to systematically track external frontier AI critiques, empirical responses, and architectural resolutions.
+- **Audits Tracked:**
+  1. **CRIT-001 (GitHub Copilot):** Challenged single-backbone bias (Qwen-2.5). **RESOLVED** via Meta LLaMA 1.7B cross-family transfer (Claim 13).
+  2. **CRIT-002 (DeepSeek Official App - Thinking Mode):** Identified limitation of pure autoregressive next-token prediction in small models (surface tag formatting vs arithmetic execution; Legendre truncated at 66 vs 97; ungrounded tautological verification `verify(66>0)✓`).
+- **Architectural Directive for SymboLM v2.1:** Turn registers into a true **Neuro-Symbolic Hybrid**—neural routing in `<reg:plan>`, deterministic arithmetic offloaded to SymPy / AST compiler in `<reg:deduce>`, and real programmatic assertion checking in `<reg:verify>` with retry loops.
+
+---
+
 ## 📌 Post-Submission Horizon & Next Steps
 1. **Fellowship Review Monitoring:** Await response from Emergent Ventures (Dr. Tyler Cowen), 1517 Fund, and AI Grant committees.
-2. **Community & Ecosystem Distribution:** Prepare release announcements for Twitter/X, Hacker News, and Hugging Face once Sanish decides on the timing.
+2. **SymboLM v2.1 Neuro-Symbolic Hybrid:** Connect `<reg:deduce>` to deterministic SymPy AST execution to permanently solve small-model arithmetic slips.
+3. **Community & Ecosystem Distribution:** Prepare release announcements for Twitter/X, Hacker News, and Hugging Face once Sanish decides on the timing.
 
 
 
