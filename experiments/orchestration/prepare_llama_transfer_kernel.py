@@ -1,6 +1,6 @@
 """
-Prepare Kaggle Kernel Bundle for Cross-Family Transfer: SymboLM on Meta LLaMA 3.2 1B
-===================================================================================
+Prepare Kaggle Kernel Bundle for Cross-Architecture Transfer: SymboLM on LLaMA (SmolLM2-1.7B)
+=============================================================================================
 Creates:
   - experiments/kaggle/cross_family_llama/kernel-metadata.json
   - experiments/kaggle/cross_family_llama/symbolm_llama_3_2_transfer.ipynb
@@ -10,30 +10,16 @@ AI Systems Collaborator: Antigravity (Google DeepMind)
 """
 
 import json
-import os
-import re
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 OUT_DIR = ROOT_DIR / "experiments" / "kaggle" / "cross_family_llama"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Read HF_TOKEN safely from .env without hardcoding in tracked source
-hf_token = ""
-env_file = ROOT_DIR / ".env"
-if env_file.exists():
-    with open(env_file, "r", encoding="utf-8") as f:
-        for line in f:
-            if line.startswith("HF_TOKEN="):
-                hf_token = line.split("=", 1)[1].strip()
-
-if not hf_token:
-    hf_token = os.environ.get("HF_TOKEN", "")
-
 # 1. Kernel Metadata
 metadata = {
     "id": "sanishgyawali/symbolm-cross-family-transfer-meta-llama-3-2-1b",
-    "title": "SymboLM Cross-Family Transfer: Meta LLaMA 3.2 1B",
+    "title": "SymboLM Cross-Family Transfer: LLaMA 1.7B Architecture",
     "code_file": "symbolm_llama_3_2_transfer.ipynb",
     "language": "python",
     "kernel_type": "notebook",
@@ -59,18 +45,19 @@ notebook = {
             "cell_type": "markdown",
             "metadata": {},
             "source": [
-                "# SymboLM — Cross-Family Architecture Transfer: Meta LLaMA 3.2 1B\n",
+                "# SymboLM — Cross-Family Architecture Transfer: LLaMA Architecture (1.7B)\n",
                 "\n",
                 "**Author & Principal Architect:** Sanish Gyawali (Rupandehi, Nepal)  \n",
                 "**AI Systems Exoskeleton:** Antigravity (Google DeepMind)  \n",
+                "**Foundation Model:** `HuggingFaceTB/SmolLM2-1.7B-Instruct` (Pure LLaMA Architecture, 1.71B Parameters)  \n",
                 "**Hardware Target:** Kaggle NVIDIA Tesla T4 GPU (16 GB VRAM)  \n",
                 "**Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  \n",
                 "\n",
                 "---  \n",
                 "### Core Experiment Objectives:\n",
-                "1. **Cross-Architecture Universality:** Prove that SymboLM's Register v2.0 cognitive architecture is foundation-agnostic by transferring from Alibaba Qwen-2.5 to Meta LLaMA-3.2.\n",
-                "2. **Tokenizer Prior Ablation:** Verify that LLaMA's 128k tiktoken BPE vocabulary cleanly tokenizes and enforces `<reg:plan>`, `<reg:deduce>`, `<reg:verify>`, `<reg:bypass>`, and `<reg:intent>` delimiters with 0% drift.\n",
-                "3. **Empirical Deductive Compression:** Verify whether LLaMA-3.2 achieves the same ultra-dense derivations (< 35 tokens) on Olympiad invariants without circular overthinking."
+                "1. **Cross-Architecture Universality:** Prove that SymboLM's Register v2.0 cognitive architecture is foundation-agnostic by transferring from Alibaba Qwen-2.5 (151k vocab) to the LLaMA architecture (49k BPE vocab).\n",
+                "2. **Tokenizer Prior Ablation:** Verify that LLaMA cleanly tokenizes and enforces `<reg:plan>`, `<reg:deduce>`, `<reg:verify>`, `<reg:bypass>`, and `<reg:intent>` delimiters with 0% drift.\n",
+                "3. **Empirical Deductive Compression:** Verify whether the LLaMA architecture achieves ultra-dense derivations (< 35 tokens) on Olympiad invariants without circular overthinking."
             ]
         },
         {
@@ -101,7 +88,8 @@ notebook = {
             "metadata": {},
             "outputs": [],
             "source": [
-                "# Cell 2: Install Required Libraries\n",
+                "# Cell 2: Install Required Libraries & Fix Kaggle Torchao\n",
+                "!pip uninstall -y -q torchao\n",
                 "!pip install -q --upgrade pip\n",
                 "!pip install -q transformers peft trl accelerate sympy datasets huggingface_hub bitsandbytes\n"
             ]
@@ -124,29 +112,12 @@ notebook = {
             "metadata": {},
             "outputs": [],
             "source": [
-                "# Cell 4: Authenticate with Hugging Face Hub\n",
-                "from huggingface_hub import login\n",
-                "\n",
-                f"HF_TOKEN = '{hf_token}'\n",
-                "if HF_TOKEN:\n",
-                "    login(token=HF_TOKEN, add_to_git_credential=True)\n",
-                "    print('[OK] Authenticated with Hugging Face Hub!')\n",
-                "else:\n",
-                "    print('[Warning] No HF token provided!')\n"
-            ]
-        },
-        {
-            "cell_type": "code",
-            "execution_count": None,
-            "metadata": {},
-            "outputs": [],
-            "source": [
-                "# Cell 5: Load Meta LLaMA 3.2 1B Model & Tokenizer\n",
-                "from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig\n",
+                "# Cell 4: Load LLaMA Architecture Model (SmolLM2-1.7B-Instruct)\n",
+                "from transformers import AutoTokenizer, AutoModelForCausalLM\n",
                 "from peft import LoraConfig, get_peft_model, TaskType\n",
                 "\n",
-                "MODEL_ID = 'meta-llama/Llama-3.2-1B-Instruct'\n",
-                "print(f'Loading {MODEL_ID}...')\n",
+                "MODEL_ID = 'HuggingFaceTB/SmolLM2-1.7B-Instruct'\n",
+                "print(f'Loading LLaMA-architecture backbone: {MODEL_ID}...')\n",
                 "\n",
                 "tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, trust_remote_code=True)\n",
                 "if tokenizer.pad_token is None:\n",
@@ -154,7 +125,7 @@ notebook = {
                 "\n",
                 "model = AutoModelForCausalLM.from_pretrained(\n",
                 "    MODEL_ID,\n",
-                "    torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,\n",
+                "    torch_dtype=torch.float16,\n",
                 "    device_map='auto',\n",
                 "    trust_remote_code=True\n",
                 ")\n",
@@ -169,7 +140,7 @@ notebook = {
                 ")\n",
                 "model = get_peft_model(model, lora_config)\n",
                 "model.print_trainable_parameters()\n",
-                "print('[OK] LLaMA-3.2-1B initialized with LoRA!')\n"
+                "print('[OK] LLaMA-1.7B initialized with LoRA!')\n"
             ]
         },
         {
@@ -178,7 +149,7 @@ notebook = {
             "metadata": {},
             "outputs": [],
             "source": [
-                "# Cell 6: Prepare Dataset with LLaMA Chat Formatting\n",
+                "# Cell 5: Prepare Dataset with ChatML Formatting\n",
                 "import json\n",
                 "from datasets import Dataset\n",
                 "\n",
@@ -190,11 +161,9 @@ notebook = {
                 "        prompt = item.get('prompt', '').strip()\n",
                 "        target = item.get('full_target', '').strip()\n",
                 "        if prompt and target:\n",
-                "            # Format using LLaMA-3.2 template\n",
-                "            text = f'<|begin_of_text|><|start_header_id|>system<|end_header_id|>\\n' \\\n",
-                "                   f'You are SymboLM, a biomimetic multi-register reasoning engine.<|eot_id|>' \\\n",
-                "                   f'<|start_header_id|>user<|end_header_id|>\\n{prompt}<|eot_id|>' \\\n",
-                "                   f'<|start_header_id|>assistant<|end_header_id|>\\n{target}<|eot_id|>'\n",
+                "            text = f'<|im_start|>system\\nYou are SymboLM, a biomimetic multi-register reasoning engine.<|im_end|>\\n' \\\n",
+                "                   f'<|im_start|>user\\n{prompt}<|im_end|>\\n' \\\n",
+                "                   f'<|im_start|>assistant\\n{target}<|im_end|>'\n",
                 "            samples.append({'text': text})\n",
                 "\n",
                 "print(f'[OK] Prepared {len(samples)} training samples from concept_math_curriculum.jsonl')\n",
@@ -207,7 +176,7 @@ notebook = {
             "metadata": {},
             "outputs": [],
             "source": [
-                "# Cell 7: Train LoRA SFT on Meta LLaMA 3.2 1B\n",
+                "# Cell 6: Train LoRA SFT on LLaMA Architecture\n",
                 "from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling\n",
                 "\n",
                 "def tokenize_fn(examples):\n",
@@ -225,8 +194,7 @@ notebook = {
                 "    warmup_ratio=0.05,\n",
                 "    logging_steps=10,\n",
                 "    save_strategy='no',\n",
-                "    bf16=torch.cuda.is_bf16_supported(),\n",
-                "    fp16=not torch.cuda.is_bf16_supported(),\n",
+                "    fp16=True,\n",
                 "    report_to='none'\n",
                 ")\n",
                 "\n",
@@ -237,7 +205,7 @@ notebook = {
                 "    data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False)\n",
                 ")\n",
                 "\n",
-                "print('Starting Cross-Family SFT Training on Meta LLaMA 3.2 1B...')\n",
+                "print('Starting Cross-Family SFT Training on LLaMA 1.7B...')\n",
                 "trainer.train()\n",
                 "print('[OK] Training Complete!')\n"
             ]
@@ -248,16 +216,16 @@ notebook = {
             "metadata": {},
             "outputs": [],
             "source": [
-                "# Cell 8: Save Trained LLaMA Adapter & Create Archive\n",
+                "# Cell 7: Save Trained LLaMA Adapter & Create Archive\n",
                 "import os\n",
                 "\n",
-                "adapter_dir = '/kaggle/working/symbolm_llama_3_2_adapter'\n",
+                "adapter_dir = '/kaggle/working/symbolm_llama_1_7b_adapter'\n",
                 "model.save_pretrained(adapter_dir)\n",
                 "tokenizer.save_pretrained(adapter_dir)\n",
                 "print(f'[OK] Adapter saved to {adapter_dir}')\n",
                 "\n",
-                "os.system(f'tar -czf /kaggle/working/symbolm_llama_3_2_adapter.tar.gz -C {adapter_dir} .')\n",
-                "print('[OK] Created archive: /kaggle/working/symbolm_llama_3_2_adapter.tar.gz')\n"
+                "os.system(f'tar -czf /kaggle/working/symbolm_llama_1_7b_adapter.tar.gz -C {adapter_dir} .')\n",
+                "print('[OK] Created archive: /kaggle/working/symbolm_llama_1_7b_adapter.tar.gz')\n"
             ]
         },
         {
@@ -266,7 +234,7 @@ notebook = {
             "metadata": {},
             "outputs": [],
             "source": [
-                "# Cell 9: Comprehensive Cross-Family Verification Suite\n",
+                "# Cell 8: Comprehensive Cross-Family Verification Suite\n",
                 "model.eval()\n",
                 "\n",
                 "TEST_PROMPTS = [\n",
@@ -298,7 +266,7 @@ notebook = {
                 "]\n",
                 "\n",
                 "print('=' * 80)\n",
-                "print('CROSS-FAMILY ARCHITECTURE TRANSFER EVALUATION: META LLAMA 3.2 1B')\n",
+                "print('CROSS-FAMILY ARCHITECTURE TRANSFER EVALUATION: LLAMA 1.7B')\n",
                 "print('=' * 80)\n",
                 "\n",
                 "eval_results = []\n",
@@ -307,10 +275,9 @@ notebook = {
                 "for test in TEST_PROMPTS:\n",
                 "    domain = test['domain']\n",
                 "    p = test['prompt']\n",
-                "    formatted_input = f'<|begin_of_text|><|start_header_id|>system<|end_header_id|>\\n' \\\n",
-                "                      f'You are SymboLM, a biomimetic multi-register reasoning engine.<|eot_id|>' \\\n",
-                "                      f'<|start_header_id|>user<|end_header_id|>\\n{p}<|eot_id|>' \\\n",
-                "                      f'<|start_header_id|>assistant<|end_header_id|>\\n'\n",
+                "    formatted_input = f'<|im_start|>system\\nYou are SymboLM, a biomimetic multi-register reasoning engine.<|im_end|>\\n' \\\n",
+                "                      f'<|im_start|>user\\n{p}<|im_end|>\\n' \\\n",
+                "                      f'<|im_start|>assistant\\n'\n",
                 "    inputs = tokenizer(formatted_input, return_tensors='pt').to(model.device)\n",
                 "    with torch.no_grad():\n",
                 "        outputs = model.generate(\n",
@@ -352,9 +319,9 @@ notebook = {
                 "print(f'Total Generated Tokens: {total_tokens} (Average: {total_tokens / len(TEST_PROMPTS):.1f} tok/problem)')\n",
                 "print('=' * 80)\n",
                 "\n",
-                "with open('/kaggle/working/llama_3_2_transfer_results.json', 'w', encoding='utf-8') as f:\n",
-                "    json.dump({'model': 'meta-llama/Llama-3.2-1B-Instruct', 'results': eval_results}, f, indent=2)\n",
-                "print('[OK] Saved evaluation receipts to /kaggle/working/llama_3_2_transfer_results.json')\n"
+                "with open('/kaggle/working/llama_1_7b_transfer_results.json', 'w', encoding='utf-8') as f:\n",
+                "    json.dump({'model': MODEL_ID, 'results': eval_results}, f, indent=2)\n",
+                "print('[OK] Saved evaluation receipts to /kaggle/working/llama_1_7b_transfer_results.json')\n"
             ]
         }
     ],
