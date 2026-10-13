@@ -1,0 +1,65 @@
+{
+  "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+  "results": [
+    {
+      "domain": "\u03940 Factual Bypass",
+      "prompt": "What is the chemical symbol for potassium?",
+      "tokens": 14,
+      "response": "<reg:bypass>K</reg:bypass>",
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "bypass": true,
+        "intent": false
+      }
+    },
+    {
+      "domain": "\u03941 Polynomial Invariant",
+      "prompt": "If x + 1/x = 6, find the value of x^2 + 1/x^2.",
+      "tokens": 96,
+      "response": "<think>\n<reg:plan>concept: polynomial_invariant | identity: (x\u00b2+1/x\u00b2)=(x+1/x)\u00b2-2 | target: x\u00b2+1/x\u00b2</reg:plan>\n<reg:deduce>let(u=6) | x\u00b2+1/x\u00b2=u\u00b2-2=6\u00b2-2=36-2=34 \u2234 ans=",
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "bypass": false,
+        "intent": false
+      }
+    },
+    {
+      "domain": "\u03942 Legendre Prime Valuations",
+      "prompt": "Find the highest power of 3 that divides 200!.",
+      "tokens": 96,
+      "response": "<think>\n<reg:plan>concept: harmonic_series | series: 3^k | k: min(200,\u230a200/3\u230b)</reg:plan>\n<reg:deduce>\u230a200/3\u230b=66 \u2234 ans=66</reg:deduce>\n<reg:verify>verify(66>0)\u2713</",
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "bypass": false,
+        "intent": false
+      }
+    },
+    {
+      "domain": "\u03943 Chinese Remainder Theorem",
+      "prompt": "Find the smallest positive integer x such that x = 4 (mod 7) and x = 9 (mod 11).",
+      "tokens": 96,
+      "response": "<think>\n<reg:plan>concept: chinese_remainder | moduli: [7,11] | method: modular_inverses</reg:plan>\n<reg:deduce>x\u22614 mod 7\u2192x=7k+4 | 7k+4\u22619 mod 11\u21927k\u22615 mod 11\u2192k\u22613 mod 11 | x=",
+      "registers": {
+        "plan": true,
+        "deduce": true,
+        "bypass": false,
+        "intent": false
+      }
+    },
+    {
+      "domain": "Strategic Intent & Pragmatics",
+      "prompt": "How do you respond politely to a demanding client?",
+      "tokens": 77,
+      "response": "<reg:intent>intent: de-escalate | tone: appreciative | strategy: empathetic-assertiveness</reg:intent>\nGreat to hear you're satisfied with the progress. Let's ensure we meet your expectations moving forward. I appreciate your feedback and will make sure to incorporate it into our next iteration. Thank you for your continued trust.",
+      "registers": {
+        "plan": false,
+        "deduce": false,
+        "bypass": false,
+        "intent": true
+      }
+    }
+  ]
+}

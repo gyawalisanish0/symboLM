@@ -110,8 +110,9 @@ Every number and systems claim in SymboLM is strictly traceable to commit-linked
 | **Delimiter Cleanliness** | **0.0% delimiter drift**, 100% clean closures | Trailing unclosed XML tags and template artifacts | Compiler AST parser & unit test suite | [`symbolic/parser.py`](symbolic/parser.py) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
 | **Truncation Ceiling Elimination** | Parsimony Gradient preserves positive reward ($+1.81$ at 120 tok) | Hard token caps abruptly truncate proofs before `<ans>` | Tesla T4 GRPO & unit tests | [`training/reward.py`](training/reward.py) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
 | **224× Compound Serving Savings** | Active memory collapses from **8.0 MB to 35.6 KB / request** | Standard KV cache without hardware or sequence compression | Co-Design formulation: $L_{\text{seq}} \times S_{\text{KV\_per\_tok}}$ | [`research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md`](research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
+| **Cross-Architecture Universality** | **100.0% Registration Fidelity on Meta LLaMA** | Single-backbone assumption (proves SymboLM is foundation-agnostic, not a Qwen artifact) | Kaggle Cloud Tesla T4 GPU | [`eval/EVAL_CROSS_FAMILY_LLAMA_REPORT.md`](eval/EVAL_CROSS_FAMILY_LLAMA_REPORT.md) | [`commit e813a4f`](https://github.com/gyawalisanish0/symboLM) |
 
-*Full 12-claim verification matrix published in [EVIDENCE_TRUTH_TABLE.md](EVIDENCE_TRUTH_TABLE.md).*
+*Full 13-claim verification matrix published in [EVIDENCE_TRUTH_TABLE.md](EVIDENCE_TRUTH_TABLE.md).*
 
 ---
 

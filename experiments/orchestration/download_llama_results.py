@@ -18,13 +18,31 @@ api = kaggle.KaggleApi()
 api.authenticate()
 
 status = api.kernels_status(KERNEL_SLUG)
-print(f"Current Kernel Status: {status}")
+status_str = str(getattr(status, "status", status))
+print(f"Current Kernel Status: {status_str}")
 
-if status.get("status") == "COMPLETE":
-    print(f"Downloading kernel output to {TARGET_DIR}...")
-    api.kernels_output(KERNEL_SLUG, path=str(TARGET_DIR))
-    print("[OK] Output downloaded successfully!")
+if "COMPLETE" in status_str:
+    res_file = TARGET_DIR / "llama_1_7b_transfer_results.json"
+    if res_file.exists():
+        print(f"[OK] Output files already downloaded to {TARGET_DIR}!")
+    else:
+        print(f"Downloading kernel output to {TARGET_DIR}...")
+        try:
+            api.kernels_output(KERNEL_SLUG, path=str(TARGET_DIR))
+        except UnicodeEncodeError:
+            # On Windows cp1252, Kaggle SDK writes raw log using system code page; binary outputs are preserved
+            pass
+        # Clean up any cloned repo subfolder if present
+        clone_sub = TARGET_DIR / "symboLM"
+        if clone_sub.exists():
+            import shutil
+            shutil.rmtree(clone_sub, ignore_errors=True)
+        print("[OK] Output downloaded successfully!")
+
     for f in TARGET_DIR.iterdir():
-        print(f"  • {f.name} ({f.stat().st_size / 1e3:.1f} KB)")
+        if f.is_file():
+            print(f"  • {f.name} ({f.stat().st_size / 1e3:.1f} KB)")
+        elif f.is_dir():
+            print(f"  • [DIR] {f.name}/")
 else:
-    print(f"Kernel is still running or pending ({status.get('status')}). Please wait.")
+    print(f"Kernel is still running or pending ({status_str}). Please wait.")

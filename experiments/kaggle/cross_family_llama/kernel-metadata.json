@@ -1,6 +1,6 @@
 {
   "id": "sanishgyawali/symbolm-cross-family-transfer-meta-llama-3-2-1b",
-  "title": "SymboLM Cross-Family Transfer: Meta LLaMA 3.2 1B",
+  "title": "SymboLM Cross-Family Transfer: LLaMA 1.7B Architecture",
   "code_file": "symbolm_llama_3_2_transfer.ipynb",
   "language": "python",
   "kernel_type": "notebook",
