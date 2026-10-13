@@ -1,0 +1,15 @@
+{
+  "id": "sanishgyawali/symbolm-v2-contrastive-sft",
+  "title": "SymboLM v2 Contrastive SFT Training",
+  "code_file": "symbolm_v2_sft_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

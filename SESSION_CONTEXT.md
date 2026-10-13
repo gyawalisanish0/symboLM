@@ -307,9 +307,21 @@
 
 ---
 
-## 📌 Post-Submission Horizon & Next Steps
-1. **Fellowship Review Monitoring:** Await response from Emergent Ventures (Dr. Tyler Cowen), 1517 Fund, and AI Grant committees.
-2. **Community & Ecosystem Distribution:** Prepare release announcements for Twitter/X, Hacker News, and Hugging Face once Sanish decides on the timing.
+## ⚡ Architectural Directive: Pruned-Context Tiny Terminal (Oct 13, 2026, 21:30 NPT)
+- **Formulation by Sanish Gyawali:** Formulated the **Pruned-Context Tiny Terminal Architecture** to solve small-model (1.5B) reasoning limitations:
+  1. **Active Context Pruning:** Physical removal of failed branch tokens from the prompt upon `backtrack(CP)`, preserving a clean $\le 60$ token context and eliminating attention drift.
+  2. **Built-in Tiny Terminal:** Sandboxed micro-calculator invoked when uncertainty is high (`<reg:term>expr</reg:term>` $\to$ `<term:out>val</term:out>`), executing in $\le 0.5$ ms via SymPy.
+  3. **Minimalist Protocol:** Micro-system prompt ($< 30$ tokens) preventing model distraction.
+- **Formal Specification:** Documented in [`docs/TINY_TERMINAL_AND_CONTEXT_PRUNING_SPEC.md`](docs/TINY_TERMINAL_AND_CONTEXT_PRUNING_SPEC.md).
+
+---
+
+## 📌 Immediate Next Milestone: Training SymboLM v2 Model Weights
+1. **Training Focus:** Proceed with training the **SymboLM v2.0 / v2.1 weights** on Kaggle GPUs:
+   - Refine the contrastive curriculum dataset with mathematically sound rollback traces.
+   - Configure training script using the expanded 151,675 vocabulary (with 10 dedicated delimiters).
+   - Execute Phase 1 SFT warm-start and Phase 2 Parsimony GRPO.
+2. **Post-Training Deployment:** Merge weights into standalone safetensors and generate updated 4-bit GGUF binaries.
 
 
 

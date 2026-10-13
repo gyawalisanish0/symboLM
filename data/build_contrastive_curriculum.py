@@ -3,13 +3,14 @@ SymboLM Contrastive Curriculum Generator (v2.1)
 ==============================================
 Builds `data/concept_math_contrastive_v2_1.jsonl` by reformulating concept
 math problems into Unit-Step AST operations and injecting 35% contrastive
-negative traces with backtrack verification (`✗ → replan → ✓`).
+negative traces with backtrack verification (`checkpoint → ✗ → backtrack → replan → ✓`).
 
 Author: Sanish Gyawali (Rupandehi, Nepal)
 AI Systems Collaborator: Antigravity (Google DeepMind)
 """
 
 import json
+import re
 import hashlib
 from pathlib import Path
 from typing import Dict, Any, List
@@ -20,54 +21,147 @@ OUT_FILE = ROOT_DIR / "data" / "concept_math_contrastive_v2_1.jsonl"
 CHECKSUMS_FILE = ROOT_DIR / "data" / "CHECKSUMS.sha256"
 
 
-def transform_sample_to_contrastive(item: Dict[str, Any], index: int) -> Dict[str, Any]:
-    """
-    Transform sample to include unit-step AST deductions and inject
-    35% contrastive negative verification traces.
-    """
-    domain = item.get("domain", "")
+def build_polynomial_contrastive(item: Dict[str, Any]) -> str:
+    plan = item.get("canonical_plan", "")
+    deduce = item.get("canonical_deduce", "")
+    gt = item.get("ground_truth", "")
     prompt = item.get("prompt", "")
+
+    # Extract base u
+    match = re.search(r"x \+ 1/x = (\d+)", prompt)
+    u_val = match.group(1) if match else "6"
+    u_int = int(u_val)
+    wrong_u2 = u_int ** 2
+
+    return (
+        f"<think>\n"
+        f"{plan}\n"
+        f"<checkpoint:CP1>\n"
+        f"<reg:deduce>hyp [assume x²+1/x² = u² = {wrong_u2}]</reg:deduce>\n"
+        f"<reg:verify>verify({wrong_u2} == {u_val}^2 - 2)✗ [failed: cross-term 2 omitted]</reg:verify>\n"
+        f"<backtrack:CP1>\n"
+        f"<reg:deduce>replan: {deduce.replace('<reg:deduce>', '').replace('</reg:deduce>', '').strip()}</reg:deduce>\n"
+        f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+        f"</think>\n"
+        f"<ans>{gt}</ans>"
+    )
+
+
+def build_crt_contrastive(item: Dict[str, Any]) -> str:
+    plan = item.get("canonical_plan", "")
+    deduce = item.get("canonical_deduce", "")
+    gt = item.get("ground_truth", "")
+    prompt = item.get("prompt", "")
+
+    # Extract modulos and remainders
+    # e.g., n ≡ r1 (mod m1) and n ≡ r2 (mod m2)
+    matches = re.findall(r"n ≡ (\d+) \(mod (\d+)\)", prompt)
+    if matches and len(matches) >= 2:
+        r1, m1 = int(matches[0][0]), int(matches[0][1])
+        r2, m2 = int(matches[1][0]), int(matches[1][1])
+        guess = r1 + m1
+        if guess % m2 == r2:
+            guess = guess + m1  # ensure it fails constraint 2
+        return (
+            f"<think>\n"
+            f"{plan}\n"
+            f"<checkpoint:CP1>\n"
+            f"<reg:deduce>hyp [guess n = r1 + m1 = {guess}]</reg:deduce>\n"
+            f"<reg:verify>verify({guess} % {m2} == {r2})✗ [mismatch: {guess % m2} != {r2}]</reg:verify>\n"
+            f"<backtrack:CP1>\n"
+            f"<reg:deduce>replan: {deduce.replace('<reg:deduce>', '').replace('</reg:deduce>', '').strip()}</reg:deduce>\n"
+            f"<reg:verify>verify({gt} % {m1} == {r1} and {gt} % {m2} == {r2})✓</reg:verify>\n"
+            f"</think>\n"
+            f"<ans>{gt}</ans>"
+        )
+
+    # General fallback for CRT
+    return (
+        f"<think>\n"
+        f"{plan}\n"
+        f"<checkpoint:CP1>\n"
+        f"<reg:deduce>hyp [guess direct sum without modular inverse]</reg:deduce>\n"
+        f"<reg:verify>verify(all modular conditions satisfied)✗ [condition check failed]</reg:verify>\n"
+        f"<backtrack:CP1>\n"
+        f"<reg:deduce>replan: {deduce.replace('<reg:deduce>', '').replace('</reg:deduce>', '').strip()}</reg:deduce>\n"
+        f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+        f"</think>\n"
+        f"<ans>{gt}</ans>"
+    )
+
+
+def build_legendre_contrastive(item: Dict[str, Any]) -> str:
+    plan = item.get("canonical_plan", "")
+    deduce = item.get("canonical_deduce", "")
+    gt = item.get("ground_truth", "")
+    prompt = item.get("prompt", "")
+
+    # Extract n and p
+    match = re.search(r"(\d+)!.*prime (\d+)|(\d+) that divides (\d+)!", prompt)
+    if match:
+        p_val = match.group(3) or match.group(2)
+        n_val = match.group(4) or match.group(1)
+        if p_val and n_val:
+            n_int, p_int = int(n_val), int(p_val)
+            t1 = n_int // p_int
+            return (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [take first term only floor({n_val}/{p_val}) = {t1}]</reg:deduce>\n"
+                f"<reg:verify>verify(complete valuation across all k)✗ [powers {p_val}^k (k>=2) omitted]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {deduce.replace('<reg:deduce>', '').replace('</reg:deduce>', '').strip()}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
+
+    return (
+        f"<think>\n"
+        f"{plan}\n"
+        f"<checkpoint:CP1>\n"
+        f"<reg:deduce>hyp [truncate series at k=1]</reg:deduce>\n"
+        f"<reg:verify>verify(all powers evaluated)✗ [incomplete summation]</reg:verify>\n"
+        f"<backtrack:CP1>\n"
+        f"<reg:deduce>replan: {deduce.replace('<reg:deduce>', '').replace('</reg:deduce>', '').strip()}</reg:deduce>\n"
+        f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+        f"</think>\n"
+        f"<ans>{gt}</ans>"
+    )
+
+
+def transform_sample_to_contrastive(item: Dict[str, Any], index: int) -> Dict[str, Any]:
+    concept = item.get("concept", "")
+    domain = item.get("domain", "")
     target = item.get("full_target", "")
-    ans = item.get("answer", "")
-
-    # For Chinese Remainder Theorem: ensure unit-step decomposition
-    if "mod" in prompt and ("modulo" in prompt.lower() or "mod" in prompt.lower()) and "7" in prompt and "11" in prompt:
-        unit_target = (
-            "<think>\n"
-            "<reg:plan>concept: chinese_remainder | moduli: [7, 11] | method: modular_inverses</reg:plan>\n"
-            "<reg:deduce>x ≡ 4 mod 7 → x = 7k + 4 | 7k + 4 ≡ 9 mod 11 → 7k ≡ 5 mod 11 | "
-            "inv_mod(7, 11) = 8 | k = (8 * 5) mod 11 = 40 mod 11 = 7 | x = 7*7 + 4 = 53 ∴ ans = 53</reg:deduce>\n"
-            "<reg:verify>verify(53 % 7 == 4 and 53 % 11 == 9)✓</reg:verify>\n"
-            "</think>\n"
-            "<ans>53</ans>"
-        )
-        item["full_target"] = unit_target
-        item["unit_step"] = True
-
-    # For Legendre prime valuations: ensure full sum decomposition
-    elif "200!" in prompt and "3" in prompt:
-        unit_target = (
-            "<think>\n"
-            "<reg:plan>concept: legendre_prime_valuation | prime: 3 | n: 200 | formula: sum(floor(n/p^k))</reg:plan>\n"
-            "<reg:deduce>floor(200/3) = 66 | floor(200/9) = 22 | floor(200/27) = 7 | floor(200/81) = 2 | "
-            "total = 66 + 22 + 7 + 2 = 97 ∴ ans = 97</reg:deduce>\n"
-            "<reg:verify>verify(200 // 3 + 200 // 9 + 200 // 27 + 200 // 81 == 97)✓</reg:verify>\n"
-            "</think>\n"
-            "<ans>97</ans>"
-        )
-        item["full_target"] = unit_target
-        item["unit_step"] = True
 
     # Inject 35% contrastive negative verification traces for multi-step domains
-    is_contrastive = (index % 3 == 0) and ("<think>" in target) and (domain not in ["Δ0 Factual Bypass", "Social Pragmatics"])
+    is_contrastive = (index % 3 == 0) and ("<think>" in target) and (domain not in ["Δ0 Factual Bypass", "Social Pragmatics", "Intent Dialogue"])
+
     if is_contrastive:
-        # Example contrastive trace with negative check and recovery
         item["is_contrastive_negative"] = True
-        if "polynomial_invariant" in target:
-            item["full_target"] = target.replace(
-                "<reg:verify>",
-                "<reg:verify>verify(u^2 - 2 == 38)✗ [mismatch: expected 34]</reg:verify>\n"
-                "<reg:deduce>replan: evaluate(6^2 - 2 = 36 - 2 = 34) ∴ ans = 34</reg:deduce>\n<reg:verify>"
+        if concept == "polynomial_invariant":
+            item["full_target"] = build_polynomial_contrastive(item)
+        elif concept == "chinese_remainder":
+            item["full_target"] = build_crt_contrastive(item)
+        elif concept == "legendre_formula":
+            item["full_target"] = build_legendre_contrastive(item)
+        else:
+            plan = item.get("canonical_plan", "")
+            deduce = item.get("canonical_deduce", "")
+            gt = item.get("ground_truth", "")
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [evaluate linear approximation]</reg:deduce>\n"
+                f"<reg:verify>verify(invariant constraint satisfied)✗ [invariant violation]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {deduce.replace('<reg:deduce>', '').replace('</reg:deduce>', '').strip()}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
             )
 
     return item
@@ -82,7 +176,10 @@ def main():
             transformed = transform_sample_to_contrastive(item, i)
             samples.append(transformed)
 
-    print(f"Writing contrastive curriculum to: {OUT_FILE} ({len(samples)} samples)")
+    contrastive_count = sum(1 for s in samples if s.get("is_contrastive_negative", False))
+    print(f"Total samples: {len(samples)} | Contrastive rollback traces: {contrastive_count} ({contrastive_count/len(samples)*100:.1f}%)")
+
+    print(f"Writing contrastive curriculum to: {OUT_FILE}")
     with open(OUT_FILE, "w", encoding="utf-8") as f:
         for s in samples:
             f.write(json.dumps(s, ensure_ascii=False) + "\n")
@@ -94,14 +191,13 @@ def main():
     checksum_line = f"{sha256}  data/concept_math_contrastive_v2_1.jsonl\n"
     print(f"[OK] SHA-256: {sha256}")
 
-    # Append to CHECKSUMS.sha256 if not present
-    existing = ""
+    # Update CHECKSUMS.sha256
+    lines = []
     if CHECKSUMS_FILE.exists():
-        existing = CHECKSUMS_FILE.read_text(encoding="utf-8")
-    if "concept_math_contrastive_v2_1.jsonl" not in existing:
-        with open(CHECKSUMS_FILE, "a", encoding="utf-8") as f:
-            f.write(checksum_line)
-        print(f"[OK] Appended hash to {CHECKSUMS_FILE}")
+        lines = [ln for ln in CHECKSUMS_FILE.read_text(encoding="utf-8").splitlines() if "concept_math_contrastive_v2_1.jsonl" not in ln]
+    lines.append(f"{sha256}  data/concept_math_contrastive_v2_1.jsonl")
+    CHECKSUMS_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"[OK] Updated hash in {CHECKSUMS_FILE}")
 
 
 if __name__ == "__main__":
