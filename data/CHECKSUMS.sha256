@@ -1,0 +1,13 @@
+# SymboLM Verified Dataset & Benchmark Suite Checksums (SHA-256)
+# ==============================================================
+# Author & Principal Systems Architect: Sanish Gyawali (Rupandehi, Nepal)
+# Verifiable via: sha256sum -c data/CHECKSUMS.sha256
+# Or in PowerShell: Get-FileHash <file> -Algorithm SHA256
+
+3993760fddf46e96b082f3d7e3f75e849d45d5960d5d69da4ac43f6a25761249  benchmark_1000_multi_year.jsonl
+405dbe564b85fffccd2958c755d1320af881d18ea2bfc0bac9c5d11551634979  concept_math_curriculum.jsonl
+acb088d2a7767c53e6f681ff6a32f4c6d45cf7a463b8eb98835d8816fb18bfd4  eval_200_cross_domain_benchmark.jsonl
+a06b30e66a058e3df4006878239e2ddc92f69ff24665699bdd2974706b4efb55  eval_200_mixed_benchmark.jsonl
+651d83615865b2633730e53b9fcc6221a51409d5f5c2a7c8f99f36b7ed1fef3e  grpo_curriculum.jsonl
+29b07365b5dd2d687c2b683a090db94c9e099179f5a37084d3f5789ac8b7e4ae  stage3_unified_curriculum.jsonl
+8918e3d018d415c582d4f51031ff9c211bfaf3fc8135175aea5dcb809cd77305  stage5_parsimony_curriculum.jsonl

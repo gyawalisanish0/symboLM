@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "symbolm"
+version = "2.0.0"
+description = "Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Sanish Gyawali", email = "gyawalisanish0@gmail.com" }
+]
+keywords = [
+    "symbolic-reasoning",
+    "biomimetic-ai",
+    "cognitive-registers",
+    "grpo",
+    "llm-efficiency",
+    "gguf",
+    "deepseek-r1"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "torch>=2.4.0",
+    "transformers>=4.48.0",
+    "sympy>=1.12",
+    "pydantic>=2.0.0"
+]
+
+[project.optional-dependencies]
+train = [
+    "trl>=0.14.0",
+    "peft>=0.14.0",
+    "accelerate>=1.2.0",
+    "datasets>=3.0.0",
+    "bitsandbytes>=0.45.0"
+]
+eval = [
+    "openpyxl>=3.1.5",
+    "python-docx>=1.1.0"
+]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/gyawalisanish0/symboLM"
+Documentation = "https://github.com/gyawalisanish0/symboLM/blob/main/WHITEPAPER.md"
+Repository = "https://github.com/gyawalisanish0/symboLM"
+"Model Hub" = "https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["symbolm*", "symbolic*"]

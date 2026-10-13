@@ -1,0 +1,41 @@
+# Stage 2: DeepSeek R1-Style GRPO Reinforcement Learning
+# =======================================================
+# Principal Systems Architect: Sanish Gyawali (Rupandehi, Nepal)
+# Objective: Calibrating deductive brevity vs. correctness via candidate rollouts
+
+stage: 2
+name: "stage2_grpo"
+base_model: "checkpoints/sft_adapter"
+foundation_backbone: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+dataset_path: "data/grpo_curriculum.jsonl"
+dataset_sha256: "651d83615865b2633730e53b9fcc6221a51409d5f5c2a7c8f99f36b7ed1fef3e"
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+grpo:
+  steps: 250
+  num_generations: 8          # Candidate rollouts per prompt (G)
+  max_prompt_length: 256
+  max_completion_length: 128
+  learning_rate: 1.0e-5
+  beta: 0.04                  # KL divergence penalty weight
+  temperature: 0.7
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  bf16: true
+
+rewards:
+  accuracy_weight: 1.0
+  format_cleanliness_weight: 0.3
+  length_penalty_weight: 0.2

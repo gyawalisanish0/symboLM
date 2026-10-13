@@ -1,0 +1,43 @@
+# Stage 5: Unbounded Parsimony Gradient & Scratchpad 2.0 GRPO
+# ===========================================================
+# Principal Systems Architect: Sanish Gyawali (Rupandehi, Nepal)
+# Objective: Mathematical parsimony gradient eliminating the 128-token Truncation Ceiling
+
+stage: 5
+name: "stage5_parsimony_grpo"
+warm_start_policy: "checkpoints/stage4_efficient_adapter"
+foundation_backbone: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+dataset_path: "data/stage5_parsimony_curriculum.jsonl"
+dataset_sha256: "8918e3d018d415c582d4f51031ff9c211bfaf3fc8135175aea5dcb809cd77305"
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+grpo:
+  steps: 150
+  num_generations: 8
+  max_prompt_length: 256
+  max_completion_length: 192       # Elastic depth expansion for Δ3 Olympiad problems
+  learning_rate: 6.0e-6
+  beta: 0.03
+  temperature: 0.6
+  gradient_accumulation_steps: 8
+  bf16: true
+
+parsimony_gradient:
+  # R_total = R_base * [gamma_floor + (1 - gamma_floor) * (K / (K + |tau|))]
+  k_factor: 40.0                   # Half-life token decay factor (K)
+  gamma_floor: 0.20                # Minimum reward floor (γ_floor), ensuring positive reward on deep proofs
+  wrong_answer_penalty: -1.00
+  looping_repetition_penalty: -2.50
+  syntax_debris_penalty: -2.00

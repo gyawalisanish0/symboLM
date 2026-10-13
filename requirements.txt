@@ -8,3 +8,6 @@ datasets>=2.19.0
 tqdm>=4.66.0
 sympy>=1.12
 scipy>=1.11.0
+pydantic>=2.0.0
+openpyxl>=3.1.5
+python-docx>=1.1.0

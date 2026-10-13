@@ -1,0 +1,42 @@
+# Stage 1: Multi-Register Supervised Fine-Tuning (SFT)
+# ====================================================
+# Principal Systems Architect: Sanish Gyawali (Rupandehi, Nepal)
+# Objective: Grounding base model on the 60/20/20 anti-lobotomy corpus
+
+stage: 1
+name: "stage1_sft"
+base_model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+dataset_path: "data/grpo_curriculum.jsonl"
+dataset_sha256: "651d83615865b2633730e53b9fcc6221a51409d5f5c2a7c8f99f36b7ed1fef3e"
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+training:
+  epochs: 3
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4
+  max_seq_length: 512
+  fp16: false
+  bf16: true
+  weight_decay: 0.01
+  logging_steps: 10
+  save_strategy: "epoch"
+
+curriculum_mix:
+  symbolic_logic_pct: 60
+  factual_bypass_pct: 20
+  conversational_intent_pct: 20

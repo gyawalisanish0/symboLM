@@ -1,0 +1,41 @@
+# Stage 4: SE-HEA Policy Optimization (Syntax Efficiency & Anti-Looping)
+# ====================================================================
+# Principal Systems Architect: Sanish Gyawali (Rupandehi, Nepal)
+# Objective: Eliminating token repetition loops and collapsing syntax noise to 1.0%
+
+stage: 4
+name: "stage4_efficiency_grpo"
+warm_start_policy: "checkpoints/stage3_concept_adapter"
+foundation_backbone: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+dataset_path: "data/stage3_unified_curriculum.jsonl"
+dataset_sha256: "29b07365b5dd2d687c2b683a090db94c9e099179f5a37084d3f5789ac8b7e4ae"
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+grpo:
+  steps: 200
+  num_generations: 8
+  max_prompt_length: 256
+  max_completion_length: 128
+  learning_rate: 8.0e-6
+  beta: 0.035
+  temperature: 0.65
+  gradient_accumulation_steps: 8
+  bf16: true
+
+rewards:
+  accuracy_weight: 1.0
+  anti_looping_penalty: -2.50      # Monotonically crushes 4+ n-gram repetition
+  syntax_debris_penalty: -2.00     # Punishes unclosed delimiters & broken tags
+  concise_closure_bonus: 0.40
