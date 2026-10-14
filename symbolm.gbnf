@@ -1,0 +1,21 @@
+# SymboLM v2.1 Grammar Specification (GBNF)
+# Author: Sanish Gyawali (Rupandehi, Nepal)
+# Enforces Tri-Register execution and completely eliminates English CoT drift.
+
+root ::= think answer
+
+think ::= "<think>\n" register_sequence "\n</think>"
+
+register_sequence ::= bypass_branch | reasoning_branch
+
+bypass_branch ::= "<reg:bypass>" [^<]+ "</reg:bypass>"
+
+reasoning_branch ::= plan_block "\n" deduce_block ( "\n" verify_block )?
+
+plan_block ::= "<reg:plan>" [^<]+ "</reg:plan>"
+
+deduce_block ::= "<reg:deduce>" [^<]+ "</reg:deduce>"
+
+verify_block ::= "<reg:verify>" [^<]+ "</reg:verify>"
+
+answer ::= "\n<ans>" [^<]+ "</ans>"

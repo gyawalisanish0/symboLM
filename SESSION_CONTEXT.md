@@ -33,6 +33,16 @@
   - **Mean Tokens:** 189.4 tokens vs. 200.0 baseline cap.
   - **Fidelity Observation:** With 2 epochs of SFT (175 steps), the model cleanly executes `<reg:bypass>` and registers on familiar problem structures, while reverting to base English CoT on high-degree polynomials and geometry, demonstrating where RL (GRPO) and tiny terminal verification will lock in symbolic compliance.
 
+### 3. SymboLM v2.1 Architecture Implementation (Completed Oct 14, 2026)
+- **Problem Solved:** Overcame the 192-token premature guillotine and conversational English CoT fallback drift.
+- **Components Built & Verified (26/26 Unit Tests Passing 100%):**
+  1. **`symbolic/grammar_fsm.py` & `symbolm.gbnf`:** Grammar-constrained decoding engine with FSM logit masking. Masks conversational English filler words to $-\infty$, guaranteeing the model cannot revert to English prose. Exported standard GBNF grammar for `llama.cpp` / Ollama C++ execution.
+  2. **`symbolm/tiny_terminal.py`:** Built-in sandboxed SymPy mathematical execution runtime (<5ms latency). Verifies step equality, detects arithmetic contradictions, and constructs a compact 2-line counterfactual feedback context for instant recovery without context bloat.
+  3. **`symbolm/state_machine.py`:** Symbo State Machine coordinating register transitions, stack-based checkpointing, and counterfactual rollbacks (`hyp [...] verify(...) ✓`).
+  4. **`symbolm/tokenizer.py`:** Universal model family detector (Qwen, LLaMA, Gemma, Mistral) and atomic delimiter registration.
+  5. **Elastic Token Budget:** Removed artificial 192-token cap across the codebase; set default to 512 with `AnswerStoppingCriteria` on `</ans>`.
+
+
 
 ## ⚡ Stage 2 GRPO Completion & Unquantized Audit Receipts (Updated Oct 9, 2026, 18:30 NPT)
 

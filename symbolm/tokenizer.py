@@ -26,6 +26,21 @@ def get_register_tokens() -> List[str]:
     return list(REGISTER_SPECIAL_TOKENS)
 
 
+def detect_model_family(tokenizer: Any) -> str:
+    """Detects whether tokenizer belongs to LLaMA, Qwen, Gemma, or Mistral family."""
+    tok_class = tokenizer.__class__.__name__.lower()
+    if "qwen" in tok_class:
+        return "Qwen"
+    elif "llama" in tok_class:
+        return "LLaMA"
+    elif "gemma" in tok_class:
+        return "Gemma"
+    elif "mistral" in tok_class:
+        return "Mistral"
+    return "Universal CausalLM"
+
+
+
 def setup_register_tokenizer(
     tokenizer: Any,
     model: Optional[Any] = None,
