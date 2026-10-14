@@ -136,21 +136,114 @@ def transform_sample_to_contrastive(item: Dict[str, Any], index: int) -> Dict[st
     domain = item.get("domain", "")
     target = item.get("full_target", "")
 
-    # Inject 35% contrastive negative verification traces for multi-step domains
-    is_contrastive = (index % 3 == 0) and ("<think>" in target) and (domain not in ["Δ0 Factual Bypass", "Social Pragmatics", "Intent Dialogue"])
+    # Inject ~33-35% contrastive negative verification traces for multi-step domains
+    is_contrastive = (index % 3 == 0) and ("<think>" in target) and (domain not in ["Δ0 Factual Bypass", "Social Pragmatics", "Intent Dialogue", "Factual Memory"])
 
     if is_contrastive:
         item["is_contrastive_negative"] = True
+        plan = item.get("canonical_plan", "")
+        deduce = item.get("canonical_deduce", "")
+        gt = item.get("ground_truth", "")
+        clean_deduce = deduce.replace("<reg:deduce>", "").replace("</reg:deduce>", "").strip()
+
         if concept == "polynomial_invariant":
             item["full_target"] = build_polynomial_contrastive(item)
         elif concept == "chinese_remainder":
             item["full_target"] = build_crt_contrastive(item)
         elif concept == "legendre_formula":
             item["full_target"] = build_legendre_contrastive(item)
+        elif concept == "linear_algebra":
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [assume x = 0 or omit constant term]</reg:deduce>\n"
+                f"<reg:verify>verify(equation residual == 0)✗ [residual != 0: non-zero constant present]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
+        elif concept == "physics_kinematics":
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [neglect acceleration a=0: treat as constant velocity]</reg:deduce>\n"
+                f"<reg:verify>verify(acceleration constraint satisfied)✗ [acceleration a != 0 violated]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
+        elif concept == "combinations_permutations":
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [use ordered permutations P(n,k) without dividing by k!]</reg:deduce>\n"
+                f"<reg:verify>verify(order invariance holds)✗ [overcounting: order does not matter in selection]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
+        elif concept == "sequences_recurrences":
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [assume constant unit difference d=1]</reg:deduce>\n"
+                f"<reg:verify>verify(recurrence step satisfied)✗ [sequence step difference mismatch]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
+        elif concept == "arithmetic_word_problem":
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [add percentages directly without compound base shift]</reg:deduce>\n"
+                f"<reg:verify>verify(compound percentage baseline satisfied)✗ [base value shift neglected]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
+        elif concept == "modular_totient":
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [evaluate raw power without Euler totient reduction]</reg:deduce>\n"
+                f"<reg:verify>verify(exponent within totient period φ(m))✗ [exponent unbounded: apply Euler totient reduction]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
+        elif concept == "inradius_geometry":
+            item["full_target"] = (
+                f"<think>\n"
+                f"{plan}\n"
+                f"<checkpoint:CP1>\n"
+                f"<reg:deduce>hyp [use full perimeter P instead of semiperimeter s=P/2]</reg:deduce>\n"
+                f"<reg:verify>verify(Area == r * s)✗ [semiperimeter factor 1/2 omitted]</reg:verify>\n"
+                f"<backtrack:CP1>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
+                f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
+                f"</think>\n"
+                f"<ans>{gt}</ans>"
+            )
         else:
-            plan = item.get("canonical_plan", "")
-            deduce = item.get("canonical_deduce", "")
-            gt = item.get("ground_truth", "")
             item["full_target"] = (
                 f"<think>\n"
                 f"{plan}\n"
@@ -158,7 +251,7 @@ def transform_sample_to_contrastive(item: Dict[str, Any], index: int) -> Dict[st
                 f"<reg:deduce>hyp [evaluate linear approximation]</reg:deduce>\n"
                 f"<reg:verify>verify(invariant constraint satisfied)✗ [invariant violation]</reg:verify>\n"
                 f"<backtrack:CP1>\n"
-                f"<reg:deduce>replan: {deduce.replace('<reg:deduce>', '').replace('</reg:deduce>', '').strip()}</reg:deduce>\n"
+                f"<reg:deduce>replan: {clean_deduce}</reg:deduce>\n"
                 f"<reg:verify>verify(ans == {gt})✓</reg:verify>\n"
                 f"</think>\n"
                 f"<ans>{gt}</ans>"

@@ -1,7 +1,7 @@
 """
-SymboLM Concept Mathematics Curriculum Generator (Register v2.0)
-================================================================
-Generates a comprehensive 1,400+ sample competition-grade dataset grounded in
+SymboLM Concept Mathematics Curriculum Generator (Register v2.0 / v2.1)
+========================================================================
+Generates a comprehensive 5,000-sample competition-grade dataset grounded in
 core mathematical invariants and Register v2.0 cognitive formatting:
   - <reg:plan>    Macro-Concept Planning (invariants, theorems, strategies)
   - <reg:deduce>  Dense Micro-Symbolic Execution (substitutions, AST reductions)
@@ -9,16 +9,21 @@ core mathematical invariants and Register v2.0 cognitive formatting:
   - <reg:bypass>  Zero-Shot Factual Recall
   - <reg:intent>  Interpersonal & Advisory Dialogue
 
-Invariant Families Covered:
+Invariant Families Covered (12 Core Mathematical & Physical Domains):
   1. Polynomial Invariants & Symmetric Powers (x + 1/x = k -> x^n + 1/x^n)
   2. Modular Congruence Systems & Chinese Remainder Theorem (CRT)
   3. Modular Exponentiation & Euler's Totient Reductions (a^k mod m)
   4. Legendre's Formula for Factorial Prime Valuations (nu_p(N!))
-  5. Combinatorial Recurrences & Derangements (D_n, Stars & Bars)
+  5. Combinatorial Casework & Derangements (D_n, Stars & Bars)
   6. Geometric Invariants (Right triangle inradius Area = r * s)
   7. Diophantine Factorization & Harmonic Work Rates (x^2 - y^2 = N)
+  8. Linear Systems, Equations & Determinants (ax + b = c, 2x2 systems, det(M))
+  9. Combinations, Permutations & Binomial Expansions (C(n, k), P(n, k), (x+a)^n)
+  10. Discrete Sequences & Recurrences (AP, GP, Lucas numbers L_n)
+  11. Real-World Applied Arithmetic (discounts, age ratios, relative speed)
+  12. Physics & Kinematics Invariants (v=u+at, v^2=u^2+2as, E_k, Ohm's law)
 
-Author: Sanish Gyawali
+Author: Sanish Gyawali (Rupandehi, Nepal)
 AI Systems Exoskeleton: Antigravity (Google DeepMind)
 """
 
@@ -451,7 +456,326 @@ def gen_diophantine_and_rates_samples(count: int) -> List[Dict[str, Any]]:
 
 
 # =============================================================================
-# Register 0: Factual Bypass Seeds
+# Family 8: Linear Systems, Equations & Determinants
+# =============================================================================
+
+def gen_linear_algebra_samples(count: int) -> List[Dict[str, Any]]:
+    samples = []
+    for i in range(count):
+        subtype = random.choice(["single", "system", "det"])
+        if subtype == "single":
+            a = random.randint(2, 9)
+            x = random.randint(-15, 25)
+            while x == 0:
+                x = random.randint(-15, 25)
+            b = random.randint(-30, 30)
+            c = a * x + b
+            b_sign = f"+ {b}" if b >= 0 else f"- {abs(b)}"
+            prompt = f"Solve for x: {a}x {b_sign} = {c}."
+            ans = x
+            canon_plan = f"<reg:plan>concept: linear_equation | form: {a}x{b_sign}={c} | solve: isolate_x</reg:plan>"
+            canon_deduce = f"<reg:deduce>{a}x={c}-({b})={c-b} | x={c-b}/{a}={x} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({a}*({x})+({b})=={c})✓</reg:verify>"
+        elif subtype == "system":
+            x = random.randint(1, 12)
+            y = random.randint(1, 12)
+            while True:
+                a1, b1 = random.randint(1, 5), random.randint(1, 5)
+                a2, b2 = random.randint(1, 5), random.randint(1, 5)
+                det = a1 * b2 - a2 * b1
+                if det != 0:
+                    break
+            c1 = a1 * x + b1 * y
+            c2 = a2 * x + b2 * y
+            target_var = random.choice(["x", "y", "x+y"])
+            if target_var == "x":
+                ans = x
+                prompt = f"Solve the system of equations for x: {a1}x + {b1}y = {c1} and {a2}x + {b2}y = {c2}."
+            elif target_var == "y":
+                ans = y
+                prompt = f"Solve the system of equations for y: {a1}x + {b1}y = {c1} and {a2}x + {b2}y = {c2}."
+            else:
+                ans = x + y
+                prompt = f"Solve the system of equations for x + y: {a1}x + {b1}y = {c1} and {a2}x + {b2}y = {c2}."
+            canon_plan = f"<reg:plan>concept: linear_system | equations: [{a1}x+{b1}y={c1}, {a2}x+{b2}y={c2}] | target: {target_var}</reg:plan>"
+            canon_deduce = f"<reg:deduce>det={a1}·{b2}-{a2}·{b1}={det} | x=({c1}·{b2}-{c2}·{b1})/{det}={x} | y=({a1}·{c2}-{a2}·{c1})/{det}={y} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({a1}·{x}+{b1}·{y}=={c1} ∧ {a2}·{x}+{b2}·{y}=={c2})✓</reg:verify>"
+        else:
+            a = random.randint(-5, 9)
+            b = random.randint(-5, 9)
+            c = random.randint(-5, 9)
+            d = random.randint(-5, 9)
+            det = a * d - b * c
+            ans = det
+            prompt = f"Find the determinant of the 2x2 matrix [[{a}, {b}], [{c}, {d}]]."
+            canon_plan = f"<reg:plan>concept: matrix_determinant | matrix: [[{a},{b}],[{c},{d}]] | formula: ad-bc</reg:plan>"
+            canon_deduce = f"<reg:deduce>det={a}·({d})-{b}·({c})={a*d}-({b*c})={det} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify(det=={det})✓</reg:verify>"
+
+        samples.append({
+            "id": f"concept_linear_{i}",
+            "domain": "Linear Algebra",
+            "concept": "linear_algebra",
+            "prompt": prompt,
+            "ground_truth": str(ans),
+            "canonical_plan": canon_plan,
+            "canonical_deduce": canon_deduce,
+            "canonical_verify": canon_verify,
+            "full_target": f"<think>\n{canon_plan}\n{canon_deduce}\n{canon_verify}\n</think>\n<ans>{ans}</ans>",
+            "type": "exact_integer",
+            "complexity": "multi_step"
+        })
+    return samples
+
+
+# =============================================================================
+# Family 9: Combinations, Permutations & Binomial Expansions
+# =============================================================================
+
+def gen_combinations_samples(count: int) -> List[Dict[str, Any]]:
+    samples = []
+    for i in range(count):
+        subtype = random.choice(["comb", "perm", "binomial"])
+        if subtype == "comb":
+            n = random.randint(5, 15)
+            k = random.randint(2, min(5, n - 1))
+            ans = math.comb(n, k)
+            prompt = f"From a group of {n} distinct candidates, how many ways can a committee of {k} members be chosen?"
+            num_factors = [str(n - j) for j in range(k)]
+            den_factors = [str(j + 1) for j in range(k)]
+            canon_plan = f"<reg:plan>concept: combination | formula: C(n,k)=n!/(k!(n-k)!) | n: {n} | k: {k}</reg:plan>"
+            canon_deduce = f"<reg:deduce>C({n},{k})=({'·'.join(num_factors)})/({'·'.join(den_factors)})={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0 ∧ {ans}==C({n},{k}))✓</reg:verify>"
+        elif subtype == "perm":
+            n = random.randint(4, 10)
+            k = random.randint(2, min(4, n - 1))
+            ans = math.perm(n, k)
+            prompt = f"How many distinct permutations of length {k} can be formed from a set of {n} distinct symbols?"
+            factors = [str(n - j) for j in range(k)]
+            canon_plan = f"<reg:plan>concept: permutation | formula: P(n,k)=n!/(n-k)! | n: {n} | k: {k}</reg:plan>"
+            canon_deduce = f"<reg:deduce>P({n},{k})={'·'.join(factors)}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0 ∧ {ans}==P({n},{k}))✓</reg:verify>"
+        else:
+            n = random.randint(4, 8)
+            k = random.randint(1, n - 1)
+            a = random.randint(2, 3)
+            comb = math.comb(n, k)
+            pwr = a ** (n - k)
+            ans = comb * pwr
+            prompt = f"Find the coefficient of x^{k} in the binomial expansion of (x + {a})^{n}."
+            canon_plan = f"<reg:plan>concept: binomial_expansion | term: C(n,k)*a^(n-k)*x^k | n: {n} | k: {k} | a: {a}</reg:plan>"
+            canon_deduce = f"<reg:deduce>term=C({n},{k})·{a}^{n-k}·x^{k}={comb}·{pwr}·x^{k}={ans}·x^{k} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0)✓</reg:verify>"
+
+        samples.append({
+            "id": f"concept_comb_{i}",
+            "domain": "Combinatorics & Binomial",
+            "concept": "combinations_permutations",
+            "prompt": prompt,
+            "ground_truth": str(ans),
+            "canonical_plan": canon_plan,
+            "canonical_deduce": canon_deduce,
+            "canonical_verify": canon_verify,
+            "full_target": f"<think>\n{canon_plan}\n{canon_deduce}\n{canon_verify}\n</think>\n<ans>{ans}</ans>",
+            "type": "exact_integer",
+            "complexity": "multi_step"
+        })
+    return samples
+
+
+# =============================================================================
+# Family 10: Discrete Sequences & Recurrences
+# =============================================================================
+
+def gen_sequences_recurrences_samples(count: int) -> List[Dict[str, Any]]:
+    samples = []
+    for i in range(count):
+        subtype = random.choice(["ap_term", "ap_sum", "gp_term", "lucas"])
+        if subtype == "ap_term":
+            a1 = random.randint(1, 20)
+            d = random.randint(2, 9)
+            n = random.randint(10, 40)
+            ans = a1 + (n - 1) * d
+            prompt = f"In an arithmetic progression, the first term is {a1} and the common difference is {d}. Find the {n}th term."
+            canon_plan = f"<reg:plan>concept: arithmetic_progression | a₁: {a1} | d: {d} | target: a_{n}</reg:plan>"
+            canon_deduce = f"<reg:deduce>a_{n}=a₁+({n}-1)d={a1}+{n-1}·{d}={a1}+{(n-1)*d}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}=={a1}+({n}-1)*{d})✓</reg:verify>"
+        elif subtype == "ap_sum":
+            a1 = random.randint(1, 10)
+            d = random.randint(2, 6)
+            n = random.choice([10, 12, 14, 16, 20])
+            ans = (n * (2 * a1 + (n - 1) * d)) // 2
+            prompt = f"Find the sum of the first {n} terms of an arithmetic progression with first term {a1} and common difference {d}."
+            canon_plan = f"<reg:plan>concept: arithmetic_series_sum | a₁: {a1} | d: {d} | n: {n} | formula: S_n=n/2*(2a1+(n-1)d)</reg:plan>"
+            canon_deduce = f"<reg:deduce>S_{n}={n}/2·(2·{a1}+{n-1}·{d})={n//2}·({2*a1}+{(n-1)*d})={n//2}·{2*a1+(n-1)*d}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0)✓</reg:verify>"
+        elif subtype == "gp_term":
+            a1 = random.randint(1, 4)
+            r = random.choice([2, 3])
+            n = random.randint(4, 7)
+            ans = a1 * (r ** (n - 1))
+            prompt = f"In a geometric sequence, the first term is {a1} and the common ratio is {r}. Find the {n}th term."
+            canon_plan = f"<reg:plan>concept: geometric_sequence | a₁: {a1} | r: {r} | target: a_{n}</reg:plan>"
+            canon_deduce = f"<reg:deduce>a_{n}=a₁·r^{n-1}={a1}·{r}^{n-1}={a1}·{r**(n-1)}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0)✓</reg:verify>"
+        else:
+            lucas_seq = [2, 1]
+            for j in range(2, 12):
+                lucas_seq.append(lucas_seq[-1] + lucas_seq[-2])
+            n = random.randint(3, 10)
+            ans = lucas_seq[n]
+            prompt = f"The Lucas sequence is defined by L_0 = 2, L_1 = 1, and L_n = L_{{n-1}} + L_{{n-2}} for n >= 2. Find L_{n}."
+            steps = [f"L_{k}={lucas_seq[k-1]}+{lucas_seq[k-2]}={lucas_seq[k]}" for k in range(2, n + 1)]
+            canon_plan = f"<reg:plan>concept: lucas_recurrence | recurrence: L_n=L_{{n-1}}+L_{{n-2}} | base: [2,1] | target: L_{n}</reg:plan>"
+            canon_deduce = f"<reg:deduce>{' | '.join(steps)} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0)✓</reg:verify>"
+
+        samples.append({
+            "id": f"concept_seq_{i}",
+            "domain": "Discrete Sequences",
+            "concept": "sequences_recurrences",
+            "prompt": prompt,
+            "ground_truth": str(ans),
+            "canonical_plan": canon_plan,
+            "canonical_deduce": canon_deduce,
+            "canonical_verify": canon_verify,
+            "full_target": f"<think>\n{canon_plan}\n{canon_deduce}\n{canon_verify}\n</think>\n<ans>{ans}</ans>",
+            "type": "exact_integer",
+            "complexity": "multi_step"
+        })
+    return samples
+
+
+# =============================================================================
+# Family 11: Real-World Applied Arithmetic & Word Problems
+# =============================================================================
+
+def gen_arithmetic_word_problem_samples(count: int) -> List[Dict[str, Any]]:
+    samples = []
+    for i in range(count):
+        subtype = random.choice(["discount", "age", "speed"])
+        if subtype == "discount":
+            price = random.choice([50, 80, 100, 120, 150, 200, 250, 300, 400])
+            d1 = random.choice([10, 20, 25, 30, 50])
+            d2 = random.choice([10, 20])
+            p1 = price * (100 - d1) // 100
+            ans = p1 * (100 - d2) // 100
+            prompt = f"An item with an original price of ${price} is discounted by {d1}%, and then an additional discount of {d2}% is applied. What is the final price?"
+            canon_plan = f"<reg:plan>concept: successive_discounts | original_price: {price} | discounts: [{d1}%, {d2}%]</reg:plan>"
+            canon_deduce = f"<reg:deduce>p₁={price}·(1-{d1}/100)={p1} | p₂={p1}·(1-{d2}/100)={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0 ∧ {ans}<{price})✓</reg:verify>"
+        elif subtype == "age":
+            s = random.randint(5, 15)
+            k = random.choice([3, 4, 5])
+            f = k * s
+            y = (k - 2) * s
+            target = random.choice(["father", "son"])
+            if target == "father":
+                ans = f
+                prompt = f"A father is currently {k} times as old as his son. In {y} years, he will be twice as old as his son. What is the father's current age?"
+            else:
+                ans = s
+                prompt = f"A father is currently {k} times as old as his son. In {y} years, he will be twice as old as his son. What is the son's current age?"
+            canon_plan = f"<reg:plan>concept: age_ratio_system | relation: f={k}s | future: f+{y}=2(s+{y}) | target: {target}</reg:plan>"
+            canon_deduce = f"<reg:deduce>{k}s+{y}=2s+{2*y}→({k}-2)s={y}→s={s} | f={k}·{s}={f} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({f}=={k}*{s} ∧ {f}+{y}==2*({s}+{y}))✓</reg:verify>"
+        else:
+            v1 = random.choice([40, 50, 60, 70])
+            v2 = random.choice([50, 60, 80])
+            t = random.randint(2, 5)
+            D = (v1 + v2) * t
+            ans = t
+            prompt = f"Two trains {D} km apart travel towards each other at constant speeds of {v1} km/h and {v2} km/h respectively. After how many hours will they meet?"
+            canon_plan = f"<reg:plan>concept: relative_velocity | distance: {D} | v₁: {v1} | v₂: {v2} | v_rel: v₁+v₂</reg:plan>"
+            canon_deduce = f"<reg:deduce>v_rel={v1}+{v2}={v1+v2} | t=D/v_rel={D}/{v1+v2}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({v1}*{ans}+{v2}*{ans}=={D})✓</reg:verify>"
+
+        samples.append({
+            "id": f"concept_word_{i}",
+            "domain": "Applied Arithmetic",
+            "concept": "arithmetic_word_problem",
+            "prompt": prompt,
+            "ground_truth": str(ans),
+            "canonical_plan": canon_plan,
+            "canonical_deduce": canon_deduce,
+            "canonical_verify": canon_verify,
+            "full_target": f"<think>\n{canon_plan}\n{canon_deduce}\n{canon_verify}\n</think>\n<ans>{ans}</ans>",
+            "type": "exact_integer",
+            "complexity": "multi_step"
+        })
+    return samples
+
+
+# =============================================================================
+# Family 12: Physics & Kinematics Invariants
+# =============================================================================
+
+def gen_physics_kinematics_samples(count: int) -> List[Dict[str, Any]]:
+    samples = []
+    for i in range(count):
+        subtype = random.choice(["v_at", "v2_u2_2as", "ke", "ohms"])
+        if subtype == "v_at":
+            u = random.choice([0, 5, 10, 15, 20])
+            a = random.randint(2, 8)
+            t = random.randint(3, 12)
+            ans = u + a * t
+            prompt = f"A body moves with initial velocity {u} m/s and constant acceleration {a} m/s^2. What is its velocity after {t} seconds?"
+            canon_plan = f"<reg:plan>concept: kinematics_velocity | formula: v=u+at | u: {u} | a: {a} | t: {t}</reg:plan>"
+            canon_deduce = f"<reg:deduce>v=u+a·t={u}+{a}·{t}={u}+{a*t}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>={u})✓</reg:verify>"
+        elif subtype == "v2_u2_2as":
+            target_v = random.choice([10, 12, 14, 16, 20, 24])
+            u = random.choice([0, 2, 4, 6])
+            diff = target_v * target_v - u * u
+            possible_a = [ca for ca in [1, 2, 3, 4, 5, 6, 8] if diff % (2 * ca) == 0]
+            if not possible_a:
+                a = 2
+                u = 0
+                target_v = 10
+                diff = 100
+            else:
+                a = random.choice(possible_a)
+            s = diff // (2 * a)
+            ans = target_v
+            prompt = f"An object with initial speed {u} m/s accelerates at {a} m/s^2 across a distance of {s} meters. What is its final speed in m/s?"
+            canon_plan = f"<reg:plan>concept: kinematics_work_energy | formula: v²=u²+2as | u: {u} | a: {a} | s: {s}</reg:plan>"
+            canon_deduce = f"<reg:deduce>v²={u}²+2·{a}·{s}={u*u}+{2*a*s}={diff} | v=√{diff}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}^2=={u}^2+2*{a}*{s})✓</reg:verify>"
+        elif subtype == "ke":
+            m = random.choice([2, 4, 6, 8, 10, 12])
+            v = random.choice([3, 4, 5, 6, 8, 10])
+            ans = (m * v * v) // 2
+            prompt = f"Calculate the kinetic energy in Joules of an object of mass {m} kg moving at a velocity of {v} m/s."
+            canon_plan = f"<reg:plan>concept: kinetic_energy | formula: E_k=0.5*m*v^2 | m: {m} | v: {v}</reg:plan>"
+            canon_deduce = f"<reg:deduce>E_k=0.5·{m}·{v}²={m//2}·{v*v}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0)✓</reg:verify>"
+        else:
+            I = random.randint(2, 10)
+            R = random.choice([5, 10, 12, 15, 20, 25, 30, 50])
+            ans = I * R
+            prompt = f"A circuit carries a current of {I} Amperes through a resistor of {R} Ohms. What is the potential difference (voltage) across the resistor in Volts?"
+            canon_plan = f"<reg:plan>concept: ohms_law | formula: V=I*R | I: {I} | R: {R}</reg:plan>"
+            canon_deduce = f"<reg:deduce>V=I·R={I}·{R}={ans} ∴ ans={ans}</reg:deduce>"
+            canon_verify = f"<reg:verify>verify({ans}>0 ∧ {ans}=={I}*{R})✓</reg:verify>"
+
+        samples.append({
+            "id": f"concept_phys_{i}",
+            "domain": "Physics Invariants",
+            "concept": "physics_kinematics",
+            "prompt": prompt,
+            "ground_truth": str(ans),
+            "canonical_plan": canon_plan,
+            "canonical_deduce": canon_deduce,
+            "canonical_verify": canon_verify,
+            "full_target": f"<think>\n{canon_plan}\n{canon_deduce}\n{canon_verify}\n</think>\n<ans>{ans}</ans>",
+            "type": "exact_integer",
+            "complexity": "multi_step"
+        })
+    return samples
+
+
+# =============================================================================
+# Register 0: Factual Bypass Seeds (Expanded 55+ Scientific & Academic Seeds)
 # =============================================================================
 
 FACTUAL_BYPASS_SEEDS = [
@@ -475,6 +799,46 @@ FACTUAL_BYPASS_SEEDS = [
     ("Who discovered penicillin?", "Alexander Fleming"),
     ("What is the speed of light in vacuum in km/s approximately?", "300000"),
     ("What is the largest organ of the human body?", "skin"),
+    ("What is the atomic number of Hydrogen?", "1"),
+    ("What is the atomic number of Oxygen?", "8"),
+    ("What is the atomic number of Nitrogen?", "7"),
+    ("What is the atomic number of Helium?", "2"),
+    ("What is the atomic number of Gold?", "79"),
+    ("What is the chemical symbol for Potassium?", "K"),
+    ("What is the chemical symbol for Sodium?", "Na"),
+    ("What is the chemical symbol for Iron?", "Fe"),
+    ("What is the chemical symbol for Silver?", "Ag"),
+    ("What is the chemical symbol for Lead?", "Pb"),
+    ("What is the chemical symbol for Mercury?", "Hg"),
+    ("What is the chemical symbol for Tin?", "Sn"),
+    ("What is the chemical formula for water?", "H2O"),
+    ("What is the chemical formula for carbon dioxide?", "CO2"),
+    ("What is the chemical formula for methane?", "CH4"),
+    ("What is the freezing point of water at standard pressure in Celsius?", "0"),
+    ("What is the SI unit of electrical resistance?", "Ohm"),
+    ("What is the SI unit of force?", "Newton"),
+    ("What is the SI unit of energy?", "Joule"),
+    ("What is the SI unit of frequency?", "Hertz"),
+    ("What is the SI unit of electrical capacitance?", "Farad"),
+    ("What is the SI unit of pressure?", "Pascal"),
+    ("What is the SI unit of magnetic flux density?", "Tesla"),
+    ("Who formulated the theory of general relativity?", "Albert Einstein"),
+    ("Who proposed the uncertainty principle in quantum mechanics?", "Werner Heisenberg"),
+    ("Which planet is the largest planet in our solar system?", "Jupiter"),
+    ("Which planet is closest to the Sun?", "Mercury"),
+    ("What is the name of the galaxy containing our Solar System?", "Milky Way"),
+    ("How many natural satellites does Earth have?", "1"),
+    ("What organelle is known as the powerhouse of the cell?", "mitochondria"),
+    ("What molecule carries genetic instructions in all living organisms?", "DNA"),
+    ("What is the normal human body temperature in Celsius?", "37"),
+    ("What is the capital of Japan?", "Tokyo"),
+    ("What is the capital of France?", "Paris"),
+    ("What is the capital of Germany?", "Berlin"),
+    ("What is the capital of Nepal?", "Kathmandu"),
+    ("What is the currency of the United Kingdom?", "pound sterling"),
+    ("What is the highest mountain peak on Earth?", "Mount Everest"),
+    ("What is the longest river in the world?", "Nile River"),
+    ("In what year did World War II end?", "1945"),
 ]
 
 def gen_factual_bypass_samples(count: int) -> List[Dict[str, Any]]:
@@ -561,20 +925,24 @@ def gen_intent_dialogue_samples(count: int) -> List[Dict[str, Any]]:
 # Dataset Assembly & CLI
 # =============================================================================
 
-def build_full_concept_curriculum(total_count: int = 1400) -> List[Dict[str, Any]]:
+def build_full_concept_curriculum(total_count: int = 5000) -> List[Dict[str, Any]]:
     """
-    Constructs a balanced Register v2.0 Curriculum:
-      - 70% (980 samples): Competition-Grade Concept Mathematics (7 Invariant Families, 140 each)
-      - 15% (210 samples): Factual Bypass (<reg:bypass>)
-      - 15% (210 samples): Intent Scratchpad Dialogue (<reg:intent>)
+    Constructs a balanced Register v2.1 Curriculum (5,000 samples):
+      - 84% (4,200 samples): Competition-Grade Concept Mathematics & Science (12 Invariant Families, 350 each)
+      - 8% (400 samples): Factual Bypass (<reg:bypass>)
+      - 8% (400 samples): Intent Scratchpad Dialogue (<reg:intent>)
     """
-    math_count = int(total_count * 0.70)
-    per_family = math_count // 7
-    bypass_count = int(total_count * 0.15)
-    dialogue_count = total_count - (per_family * 7) - bypass_count
+    num_families = 12
+    bypass_count = max(50, int(total_count * 0.08))
+    dialogue_count = max(50, int(total_count * 0.08))
+    math_count = total_count - bypass_count - dialogue_count
+    per_family = math_count // num_families
+    remainder = math_count - (per_family * num_families)
+    if remainder > 0:
+        dialogue_count += remainder
 
-    print(f"\n[CURRICULUM] Generating {total_count} Register v2.0 samples:")
-    print(f"  - Olympiad Concept Math: {per_family * 7} samples ({per_family} x 7 Invariant Families)")
+    print(f"\n[CURRICULUM] Generating {total_count} Register v2.1 samples:")
+    print(f"  - Concept Math & Science: {per_family * num_families} samples ({per_family} x {num_families} Invariant Families)")
     print(f"  - Zero-Shot Factual Bypass: {bypass_count} samples")
     print(f"  - Intent Dialogue: {dialogue_count} samples")
 
@@ -586,6 +954,11 @@ def build_full_concept_curriculum(total_count: int = 1400) -> List[Dict[str, Any
     dataset.extend(gen_combinatorics_samples(per_family))
     dataset.extend(gen_geometry_samples(per_family))
     dataset.extend(gen_diophantine_and_rates_samples(per_family))
+    dataset.extend(gen_linear_algebra_samples(per_family))
+    dataset.extend(gen_combinations_samples(per_family))
+    dataset.extend(gen_sequences_recurrences_samples(per_family))
+    dataset.extend(gen_arithmetic_word_problem_samples(per_family))
+    dataset.extend(gen_physics_kinematics_samples(per_family))
     dataset.extend(gen_factual_bypass_samples(bypass_count))
     dataset.extend(gen_intent_dialogue_samples(dialogue_count))
 
@@ -594,8 +967,8 @@ def build_full_concept_curriculum(total_count: int = 1400) -> List[Dict[str, Any
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Build SymboLM Register v2.0 Concept Curriculum")
-    parser.add_argument("--count", type=int, default=1400, help="Total number of samples")
+    parser = argparse.ArgumentParser(description="Build SymboLM Register v2.0/v2.1 Concept Curriculum")
+    parser.add_argument("--count", type=int, default=5000, help="Total number of samples")
     parser.add_argument("--output", type=str, default="./data/concept_math_curriculum.jsonl", help="Output file path")
     args = parser.parse_args()
 
