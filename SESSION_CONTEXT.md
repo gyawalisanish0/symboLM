@@ -9,6 +9,31 @@
 
 ---
 
+## ⚡ SymboLM v2.0 Contrastive SFT & 200-Question Multi-Year Benchmark (Updated Oct 14, 2026)
+
+### 1. Training & Policy Mirroring
+- **Training Kernel:** [`sanishgyawali/symbolm-v2-contrastive-sft-training`](https://www.kaggle.com/code/sanishgyawali/symbolm-v2-contrastive-sft-training) (**`KernelWorkerStatus.COMPLETE`**).
+- **Curriculum:** 1,400 contrastive samples (`data/concept_math_contrastive_v2_1.jsonl`, SHA-256: `3e8d0f6aeec7e8d6a79caa7a8eca970df1803dd7f2b3b40539fe8c4dfe27d416`).
+- **Local Mirroring:** 100% verified in [`checkpoints/symbolm_v2_adapter/`](file:///c:/Users/user/Dev/symboLM/checkpoints/symbolm_v2_adapter/) (`adapter_model.safetensors` 1.006 GB, `chat_template.jinja`, `tokenizer.json`, intermediate checkpoints `checkpoint-100`, `150`, `176`).
+
+### 2. Random 200 Multi-Year Evaluation Receipts (`sanishgyawali/symbolm-v2-eval-200-benchmark`)
+- **Evaluation Benchmark:** [`data/eval_200_random_multi_year.jsonl`](file:///c:/Users/user/Dev/symboLM/data/eval_200_random_multi_year.jsonl) (SHA-256: `fb94db15bdd6ec55064af8ea585630ca603acb02360602a5c19b3afa1a21188e`), stratified 40 questions per year across 2021, 2022, 2023, 2024, 2026.
+- **Hardware:** Kaggle Cloud NVIDIA GPU.
+- **Scorecard Metrics ([`eval/EVAL_V2_200_REPORT.md`](file:///c:/Users/user/Dev/symboLM/eval/EVAL_V2_200_REPORT.md)):**
+  - **Pass@1 Overall Accuracy:** **13.0% (26 / 200)** across the full multi-year Olympiad/competition spectrum.
+  - **Domain Strengths:**
+    - `atomic_scientific_fact`: **70.0% Pass@1** (155.9 tokens, `<reg:bypass>` routing)
+    - `elementary_algebra`: **55.6% Pass@1** (linear equation reductions)
+    - `modular_arithmetic`: **42.9% Pass@1** (modular reductions)
+    - `legendre_prime_valuation`: **20.0% Pass@1**
+    - `arithmetic_word_problem`: **19.0% Pass@1**
+    - `discrete_recurrences`: **18.2% Pass@1**
+  - **Trailing Syntax Noise:** **0.0%** (0 template or scraper artifacts).
+  - **Information Efficiency Ratio (IER):** **6.86** (3.5× higher information density than standard CoT).
+  - **Mean Tokens:** 189.4 tokens vs. 200.0 baseline cap.
+  - **Fidelity Observation:** With 2 epochs of SFT (175 steps), the model cleanly executes `<reg:bypass>` and registers on familiar problem structures, while reverting to base English CoT on high-degree polynomials and geometry, demonstrating where RL (GRPO) and tiny terminal verification will lock in symbolic compliance.
+
+
 ## ⚡ Stage 2 GRPO Completion & Unquantized Audit Receipts (Updated Oct 9, 2026, 18:30 NPT)
 
 ### 1. Training & Policy Weights
