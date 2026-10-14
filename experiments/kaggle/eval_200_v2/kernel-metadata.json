@@ -1,6 +1,6 @@
 {
   "id": "sanishgyawali/symbolm-v2-eval-200-benchmark",
-  "title": "SymboLM v2 Eval 200 Benchmark",
+  "title": "SymboLM v2.1 Eval 1000 Benchmark",
   "code_file": "symbolm_eval_200_v2_kaggle.ipynb",
   "language": "python",
   "kernel_type": "notebook",
