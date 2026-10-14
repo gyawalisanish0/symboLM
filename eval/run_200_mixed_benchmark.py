@@ -38,7 +38,7 @@ if str(ROOT_DIR) not in sys.path:
 
 import torch
 from peft import PeftModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, StoppingCriteria, StoppingCriteriaList
 
 
 def parse_args():
@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument("--data_path", type=str, default="data/eval_200_mixed_benchmark.jsonl")
     parser.add_argument("--output_path", type=str, default="eval/eval_200_results.json")
     parser.add_argument("--report_path", type=str, default="eval/EVAL_200_BENCHMARK_REPORT.md")
-    parser.add_argument("--max_tokens", type=int, default=256)
+    parser.add_argument("--max_tokens", type=int, default=512, help="Elastic token budget (early exit on </ans>)")
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--limit", type=int, default=None, help="Optional question limit for testing")
     return parser.parse_args()
@@ -152,11 +152,25 @@ def detect_syntax_noise(text: str) -> bool:
     return False
 
 
+class AnswerStoppingCriteria(StoppingCriteria):
+    def __init__(self, tokenizer, prompt_len: int):
+        super().__init__()
+        self.tokenizer = tokenizer
+        self.prompt_len = prompt_len
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
+        if input_ids.shape[1] - self.prompt_len < 5:
+            return False
+        tail = self.tokenizer.decode(input_ids[0, -15:], skip_special_tokens=False)
+        return "</ans>" in tail
+
+
 # =============================================================================
 # MAIN EVALUATION ENGINE
 # =============================================================================
 
 def run_evaluation(args):
+
     print("=" * 75)
     print("SymboLM 200-Question Mixed Evaluation Benchmark (Kaggle / Local)")
     print("=" * 75)
@@ -237,6 +251,7 @@ def run_evaluation(args):
         input_len = inputs["input_ids"].shape[1]
 
         t0 = time.time()
+        stopping_criteria = StoppingCriteriaList([AnswerStoppingCriteria(tokenizer, input_len)])
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
@@ -244,7 +259,8 @@ def run_evaluation(args):
                 temperature=args.temperature,
                 do_sample=(args.temperature > 0),
                 pad_token_id=tokenizer.pad_token_id,
-                eos_token_id=tokenizer.eos_token_id
+                eos_token_id=tokenizer.eos_token_id,
+                stopping_criteria=stopping_criteria
             )
         elapsed = time.time() - t0
 
