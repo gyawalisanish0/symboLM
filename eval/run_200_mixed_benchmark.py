@@ -60,6 +60,11 @@ def parse_args():
 
 def extract_answer_from_generation(text: str) -> Optional[str]:
     """Extracts ground-truth answer from Register v2.0 formatted output."""
+    # 0. Check <ans>...</ans>
+    m_ans_tag = re.search(r"<ans>\s*([^<]+?)\s*</ans>", text, re.IGNORECASE)
+    if m_ans_tag:
+        return m_ans_tag.group(1).strip()
+
     # 1. Check <reg:bypass>...</reg:bypass>
     m_bypass = re.search(r"<reg:bypass>\s*([^<]+?)\s*</reg:bypass>", text, re.IGNORECASE)
     if m_bypass:

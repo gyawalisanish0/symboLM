@@ -66,6 +66,10 @@ research/*fellowship*
 # Cross-Family LLaMA Notebook (contains runtime auth for gated base model)
 experiments/kaggle/cross_family_llama/*.ipynb
 
+# Kaggle Output Dumps
+experiments/**/output/
+
+
 # LLaMA Adapter Weights (host on Hub; keep json receipts in git)
 eval/cross_family_llama/*.tar.gz
 eval/cross_family_llama/symbolm_llama_1_7b_adapter/

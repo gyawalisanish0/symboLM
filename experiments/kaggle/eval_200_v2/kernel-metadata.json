@@ -1,0 +1,17 @@
+{
+  "id": "sanishgyawali/symbolm-v2-eval-200-benchmark",
+  "title": "SymboLM v2 Eval 200 Benchmark",
+  "code_file": "symbolm_eval_200_v2_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "sanishgyawali/symbolm-v2-contrastive-sft-training"
+  ],
+  "model_sources": []
+}
