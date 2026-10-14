@@ -1,0 +1,17 @@
+{
+  "id": "sanishgyawali/symbolm-eval-apples-to-apples-math500",
+  "title": "SymboLM vs DeepSeek R1 MATH500 Apples to Apples",
+  "code_file": "symbolm_eval_apples_to_apples_kaggle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "sanishgyawali/symbolm-v2-contrastive-sft-training"
+  ],
+  "model_sources": []
+}

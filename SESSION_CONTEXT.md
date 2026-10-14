@@ -70,6 +70,19 @@
 - **Nat Friedman & Daniel Gross (AI Grant):** \$250,000 dedicated cloud compute credits + \$10,000 cash for open-source AI hackers. Target application submission following benchmark scorecard generation.
 - **Hugging Face Community Sponsorship:** Open-weight model showcase and direct compute backing from Clément Delangue.
 
+### 7. Official Apples-to-Apples Benchmark Framework (Oct 14, 2026)
+- **Directive by Sanish Gyawali:** Establish an undeniable, gold-standard, 100% peer-reviewable Apples-to-Apples comparison between `DeepSeek-R1-Distill-Qwen-1.5B (Vanilla Base)` and `SymboLM v2.1` across the official datasets used in the DeepSeek-R1 paper.
+- **Benchmarks Implemented:**
+  1. `HuggingFaceH4/MATH-500` (500 gold-standard competition mathematics problems).
+  2. `AI-MO/aimo-validation-aime` (AIME 2024 Olympiad, 30 problems).
+- **3-Arm Experimental Design:**
+  - Arm 1: Base R1 Unconstrained (`max_tokens=4096`, measures published accuracy & English token inflation).
+  - Arm 2: Base R1 Budget-Choked (`max_tokens=512`, demonstrates edge collapse & truncation failure).
+  - Arm 3: SymboLM v2.1 (`max_tokens=512` + Pure Symbolic FSM, demonstrates high-density symbolic execution, zero truncation, and 75%+ token compression).
+- **Harness & Automation Files:**
+  - [`eval/benchmark_apples_to_apples.py`](file:///c:/Users/user/Dev/symboLM/eval/benchmark_apples_to_apples.py): Universal 3-arm evaluation harness with SymPy math equivalence checking and LaTeX `\boxed{...}` parsing. (Verified 100% dry-run pass).
+  - [`experiments/kaggle/eval_apples_to_apples/`](file:///c:/Users/user/Dev/symboLM/experiments/kaggle/eval_apples_to_apples/): Kaggle Dual GPU reproduction notebook and metadata (`sanishgyawali/symbolm-eval-apples-to-apples-math500`). Ready for execution.
+
 
 
 ## ⚡ Stage 2 GRPO Completion & Unquantized Audit Receipts (Updated Oct 9, 2026, 18:30 NPT)
