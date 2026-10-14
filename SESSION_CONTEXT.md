@@ -47,6 +47,16 @@
 - **Contrastive Curriculum:** 1,385 counterfactual negative rollback traces (27.7%) in `data/concept_math_contrastive_v2_1.jsonl` (SHA-256: `3f7dc86d5c6a0bf47f1c5e4e90f8f317727319bbe58c7f54c5c416d39ec7bd69`).
 - **Active Training Run (Kaggle GPU):** [`sanishgyawali/symbolm-v2-contrastive-sft-training`](https://www.kaggle.com/code/sanishgyawali/symbolm-v2-contrastive-sft-training) (**`KernelWorkerStatus.RUNNING`**). Training 3 epochs (batch 8, grad accum 2 = ~938 optimizer steps).
 
+### 5. Evaluation Target Upgraded: Full 1,000 Multi-Year Questions (Oct 14, 2026)
+- **Directive by Sanish Gyawali:** Scale evaluation target from 200 random questions to the **complete 1,000-question multi-year benchmark suite** (`data/benchmark_1000_multi_year.jsonl`, 2021–2026).
+- **Evaluation Engine ([`eval/run_200_mixed_benchmark.py`](file:///c:/Users/user/Dev/symboLM/eval/run_200_mixed_benchmark.py)):**
+  - Upgraded to process any benchmark scale (200 or 1,000 questions).
+  - Integrated `SymboLogitsProcessor` (`--use_fsm`) to guarantee zero English conversational prose drift.
+  - Enforced deterministic greedy decoding (`--temperature 0.0`) for reproducible Olympiad Pass@1.
+  - Enforced elastic 512-token headroom with early exit on `</ans>`.
+  - Added stratified rollup reporting across Year (2021–2026), Cognitive Depth ($\Delta_0 \to \Delta_3$), and Domain Category.
+- **Kaggle Kernel Ready:** [`experiments/kaggle/eval_200_v2/symbolm_eval_200_v2_kaggle.ipynb`](file:///c:/Users/user/Dev/symboLM/experiments/kaggle/eval_200_v2/symbolm_eval_200_v2_kaggle.ipynb) updated to evaluate all 1,000 questions and package `symbolm_v2_1000_eval_receipts.tar.gz`. Ready to push immediately upon completion of the training kernel.
+
 
 
 ## ⚡ Stage 2 GRPO Completion & Unquantized Audit Receipts (Updated Oct 9, 2026, 18:30 NPT)
