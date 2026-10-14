@@ -42,6 +42,11 @@
   4. **`symbolm/tokenizer.py`:** Universal model family detector (Qwen, LLaMA, Gemma, Mistral) and atomic delimiter registration.
   5. **Elastic Token Budget:** Removed artificial 192-token cap across the codebase; set default to 512 with `AnswerStoppingCriteria` on `</ans>`.
 
+### 4. SymboLM v2.1 5,000-Sample Curriculum & 3-Epoch Training Launch (Oct 14, 2026)
+- **Scaled Dataset:** 5,000 balanced samples (`data/concept_math_curriculum.jsonl`, SHA-256: `bdd45aeae27603280faf78e90a47a676499d837870596cc6e94430337d3addf8`) across 12 invariant families (polynomials, CRT, Euler totient, Legendre valuations, derangements, geometry inradius, Diophantine rates, linear systems/determinants, combinations/permutations, sequences/recurrences, applied word problems, kinematics) + 400 factual bypass + 400 intent dialogue.
+- **Contrastive Curriculum:** 1,385 counterfactual negative rollback traces (27.7%) in `data/concept_math_contrastive_v2_1.jsonl` (SHA-256: `3f7dc86d5c6a0bf47f1c5e4e90f8f317727319bbe58c7f54c5c416d39ec7bd69`).
+- **Active Training Run (Kaggle GPU):** [`sanishgyawali/symbolm-v2-contrastive-sft-training`](https://www.kaggle.com/code/sanishgyawali/symbolm-v2-contrastive-sft-training) (**`KernelWorkerStatus.RUNNING`**). Training 3 epochs (batch 8, grad accum 2 = ~938 optimizer steps).
+
 
 
 ## ⚡ Stage 2 GRPO Completion & Unquantized Audit Receipts (Updated Oct 9, 2026, 18:30 NPT)
