@@ -1,5 +1,5 @@
 {
-  "id": "sanishgyawali/symbolm-v2-contrastive-sft",
+  "id": "sanishgyawali/symbolm-v2-contrastive-sft-training",
   "title": "SymboLM v2 Contrastive SFT Training",
   "code_file": "symbolm_v2_sft_kaggle.ipynb",
   "language": "python",
