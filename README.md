@@ -1,17 +1,17 @@
-# SymboLM (Version 2.0): Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine
+# SymboLM (Version 2.1): Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine
 
 **Author & Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **AI Systems Collaborator / Operational Exoskeleton:** Antigravity (Google DeepMind)  
-*Base Foundation:* `DeepSeek-R1-Distill-Qwen-1.5B`  
-*Target Runtimes:* Local CPU (Ollama C++ / llama.cpp AVX2), Consumer GPUs, Apple Silicon, vLLM  
-*GitHub Repository:* [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
-*Official Model Hub:* [https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5)  
+**Target Backbones:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` & `HuggingFaceTB/SmolLM2-1.7B-Instruct`  
+**Target Runtimes:** Local CPU (Ollama C++ / llama.cpp AVX2), Consumer GPUs, Apple Silicon, vLLM  
+**GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
+**Official Model Hub:** [https://huggingface.co/gyawalisanish0/SymboLM-2.1-DeepSeek-1.5B](https://huggingface.co/gyawalisanish0/SymboLM-2.1-DeepSeek-1.5B)  
 
 ---
 
 > ### 🧠 Applying Nature's Evolutionary Laws to AI Reasoning
-> The biological human brain achieves general intelligence on a mere **20 Watts of power** (the energy of a dim lightbulb) by enforcing two evolutionary principles:
-> 1. **Modular Cognitive Registers:** Firing instantaneous reflexes for atomic facts (System 1 / `<reg:bypass>`), establishing social/pragmatic intent before speech (`<reg:intent>`), and reserving energy-dense prefrontal computation strictly for novel invariants (System 2 / `<reg:plan>` + `<reg:deduce>`).
+> The biological human brain achieves general intelligence on a mere **20 Watts of power** (the energy of a dim refrigerator lightbulb) by enforcing two evolutionary principles:
+> 1. **Modular Cognitive Registers:** Firing instantaneous reflexes for atomic facts (System 1 / `<reg:bypass>`), establishing social/pragmatic intent before speech (`<reg:intent>`), and reserving energy-dense prefrontal computation strictly for novel invariants (System 2 / `<reg:plan>` + `<reg:deduce>` + `<reg:verify>`).
 > 2. **The Metabolic Parsimony Gradient:** Relentless evolutionary selection pressure toward the Minimum Description Length (MDL)—solving survival objectives with the least necessary expenditure of energetic tokens.
 >
 > SymboLM replaces the monolithic, megawatt-burning conversational English scratchpads of frontier reasoning models with a biomimetic multi-register architecture—compressing reasoning traces by **50% to 98%**, accelerating local CPU proof generation to **34.3 tokens/second (1.6s per derivation)**, and reducing serving KV-cache footprint by up to **224×**.
@@ -20,10 +20,28 @@
 
 ## 📑 Core Documentation & Epistemic Receipts
 
-* 📄 **[Research Whitepaper & Architecture Manifesto (WHITEPAPER.md)](WHITEPAPER.md)** — Detailed theoretical formulation and biomimetic proof.
+* 📄 **[Research Whitepaper & Architecture Manifesto (WHITEPAPER.md)](WHITEPAPER.md)** — Comprehensive theoretical formulation, computer architecture physics, and empirical scorecard.
 * ⚖️ **[Master Evidence Truth Table (EVIDENCE_TRUTH_TABLE.md)](EVIDENCE_TRUTH_TABLE.md)** — Exhaustive audit mapping every claim to verified logs and commit hashes.
-* 🔬 **[Minimal Reproducibility Frame & Guide (REPRODUCIBILITY.md)](REPRODUCIBILITY.md)** — Step-by-step reproduction instructions, pinned dependencies, and dataset hashes.
-* 📊 **[Multi-Year Benchmark Data Workbook (XLSX)](docs/SymboLM_Benchmark_Data_and_Math_Evaluation.xlsx)** — 5-sheet interactive spreadsheet with 1,000-question audit data.
+* 🔬 **[Official 1,000-Question Multi-Year Benchmark Report (eval/EVAL_V2_1000_REPORT.md)](eval/EVAL_V2_1000_REPORT.md)** — Verified 50.50% Pass@1 scorecard across 2021–2026 contest problems.
+* ⚖️ **[Official Apples-to-Apples MATH-500 Benchmark (eval/benchmark_apples_to_apples.py)](eval/benchmark_apples_to_apples.py)** — Direct 3-arm comparison against Base DeepSeek-R1.
+
+---
+
+## 📊 The Official 1,000-Question Multi-Year Benchmark (2021–2026)
+
+To rigorously eliminate dataset contamination and test out-of-distribution mathematical generalization, SymboLM v2.1 was evaluated against the complete 1,000-problem multi-year competition suite (`data/benchmark_1000_multi_year.jsonl`, 2021–2026) under deterministic greedy decoding (`--temperature 0.0`) with Pure Symbolic FSM logit masking:
+
+| Metric | Measured Value | Standard Baseline CoT | Advantage / Multiple |
+| :--- | :--- | :--- | :--- |
+| **Overall Pass@1 Accuracy** | **50.50%** (505 / 1,000) | 13.0% (v2.0 baseline) | **3.9× Increase in Accuracy** |
+| **Information Efficiency (IER)** | **10.21** | 0.40 – 0.60 | **17× to 25× Higher Information Density** |
+| **Trailing Syntax Noise** | **1.1%** | N/A | **Clean Grammar, Zero Hallucinated Tags** |
+| **Cognitive Headroom** | **512 Elastic Tokens** | 192 tokens (Guillotine) | **Zero Premature Derivation Cuts** |
+
+### Verified Domain Highlights:
+- **100% Perfect Solves:** `combinatorics_derangements`: **100.0%** (50/50), `discrete_recurrences`: **100.0%** (60/60).
+- **High-Density Mastery:** `atomic_scientific_fact`: **80.0%** (32/40), `quadratic_algebra`: **63.3%** (38/60), `physics_kinematics`: **62.5%** (25/40), `euler_totient`: **60.0%** (30/50), `arithmetic_word_problem`: **56.0%** (56/100), `sequences_progressions`: **54.0%** (27/50), `elementary_algebra`: **51.7%** (31/60), `legendre_prime_valuation`: **51.7%** (31/60).
+- **Documented Hardware Boundaries:** Modular arithmetic (17.5%) and Fermat orders (8.0%) confirm that statistical next-token prediction requires external CPU micro-runtime execution (`tiny_terminal.py`) for unbounded search.
 
 ---
 
@@ -54,7 +72,7 @@ import symbolm
 # Connect to local Ollama runtime
 client = symbolm.load("symbolm:4bit")
 
-# Solve with structured Register v2.0 extraction
+# Solve with structured Register v2.1 extraction
 result = client.solve("If x + 1/x = 6, find the value of x^2 + 1/x^2.")
 
 print("Plan       :", result.plan)        # concept: polynomial_invariant
@@ -65,28 +83,11 @@ print("Word Count :", result.token_count) # ~21 tokens
 
 ---
 
-## 📊 The 1,000-Question Multi-Year Benchmark (2021–2026)
-
-To rigorously eliminate dataset contamination and test out-of-distribution mathematical generalization, SymboLM-1.5B-v1.0 was evaluated against a chronologically stratified 1,000-problem suite executed on an **NVIDIA Tesla P100 GPU** (16 GB HBM2 memory, 79.46 min duration):
-
-| Benchmark Year | Evaluated Datasets | Samples | Pass@1 Accuracy | SymboLM Avg Tokens | Baseline CoT Avg Tokens | Token Savings |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: |
-| **2021** | GSM8K, SVAMP, Arithmetic Anchors | 200 | **72.0%** (144/200) | **114.3 tok** | 198.0 tok | **42.3%** |
-| **2022** | AMC 10/12 (2022) Invariants, Vieta | 200 | **71.0%** (142/200) | **128.0 tok** | 214.5 tok | **40.3%** |
-| **2023** | MATH Olympiad (2023) Derangements, Totient | 200 | **84.5%** (169/200) | **128.0 tok** | 264.5 tok | **51.6%** |
-| **2024** | AIME 2024, Legendre Prime Valuations | 200 | **72.5%** (145/200) | **128.0 tok** | 283.0 tok | **54.8%** |
-| **2026** | Modern Math 2026, Multi-Moduli CRT | 200 | **38.0%** (76/200) | **128.0 tok** | 309.0 tok | **58.6%** |
-| **Overall** | **5-Year Stratified Suite** | **1,000** | **67.60%** (676/1,000) | **125.3 tok** | **253.8 tok** | **50.65%** |
-
-> **50.65% Sequence Compression:** Across 1,000 competition math problems, SymboLM generated **125,258 total tokens** versus **253,800 tokens** for standard English reasoning models, achieving a **67.60% Pass@1 success rate**. Verified in [`eval/EVAL_1000_MULTI_YEAR_REPORT.md`](eval/EVAL_1000_MULTI_YEAR_REPORT.md) and [`eval/eval_1000_results.json`](eval/eval_1000_results.json).
-
----
-
-## 🎯 Biomimetic Register v2.0 Architecture
+## 🎯 Biomimetic Register v2.1 Architecture
 
 | Biological Mode | Cognitive Register | Internal `<think>` Behavior | Verified Empirical Output |
 | :--- | :--- | :--- | :--- |
-| **System 1 (Instant Reflex)** | **`<reg:bypass>` (0-step)** | **Bypassed / Empty** (`<think></think>`) | Emits facts in **3 tokens** (e.g., Potassium $\to$ `K`) with 0 reasoning bloat |
+| **System 1 (Instant Reflex)** | **`<reg:bypass>` (0-step)** | **Bypassed / Empty** (`<think></think>`) | Emits facts in **1–3 tokens** (e.g., Carbon $\to$ `6`) with 0 reasoning bloat |
 | **Social / Emotional Intent** | **`<reg:intent>` (10-token)** | 10-token planning (`intent: ... \| tone: ...`) | **100.0% routing fidelity**; warm, empathetic natural dialogue |
 | **System 2 (Invariant Planning)** | **`<reg:plan>` (8–16 tokens)** | Declares domain theorems & algebraic identities | Prevents blind guessing on Olympiad number theory & geometry |
 | **System 2 (Symbolic Deduction)** | **`<reg:deduce>` (AST Execution)**| Micro-Symbolic DSL (`let()`, `\|`, `→`, `∴`, `eval`) | **21–35 token proofs** ($x+1/x=6 \implies 34$, Chinese Remainder Theorem) |
@@ -94,45 +95,22 @@ To rigorously eliminate dataset contamination and test out-of-distribution mathe
 
 ---
 
-## ⚖️ Claims vs. Verified Evidence Truth Table
-
-Every number and systems claim in SymboLM is strictly traceable to commit-linked artifacts and raw logs:
-
-| Core Scientific Claim | Empirical Metric | Baseline Comparison | Hardware Environment | Verifiable Artifact / Raw Log | Commit Hash |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Local 4-Bit CPU Speed** | **34.30 tok/s generation**, 216.3 tok/s prompt eval | ~30 tok/s generation on base R1-1.5B (requires 600–1,200 tokens) | AMD Ryzen 7 5700G (AVX2), 14 GB DDR4 | [`eval/QUANT_EFFICIENCY_AUDIT_REPORT.md`](eval/QUANT_EFFICIENCY_AUDIT_REPORT.md) | [`commit d61258e`](https://github.com/gyawalisanish0/symboLM/commit/d61258e) |
-| **Real-World Proof Latency** | **1.6 to 1.8 seconds wall-clock** (20–35 AST tokens) | **18 to 40 seconds wall-clock** (600–1,200 English tokens) | Local CPU via Ollama C++ runtime | [`scripts/benchmark_local_4bit.py`](scripts/benchmark_local_4bit.py) | [`commit d61258e`](https://github.com/gyawalisanish0/symboLM/commit/d61258e) |
-| **1,000-Problem Multi-Year Suite** | **67.60% Pass@1 (676/1,000)** across 2021–2026 | Unconstrained base CoT suffers from drift & truncation | NVIDIA Tesla P100 GPU (16 GB HBM2) | [`eval/eval_1000_results.json`](eval/eval_1000_results.json) | [`commit ad39aff`](https://github.com/gyawalisanish0/symboLM/commit/ad39aff) |
-| **Sequence Token Compression** | **50.65% Sequence Savings** (125,258 vs 253,800 tokens) | Monolithic English Chain-of-Thought | NVIDIA Tesla P100 GPU | [`eval/EVAL_1000_MULTI_YEAR_REPORT.md`](eval/EVAL_1000_MULTI_YEAR_REPORT.md) | [`commit ad39aff`](https://github.com/gyawalisanish0/symboLM/commit/ad39aff) |
-| **Peak Deductive Compression** | **98.3% to 99.5% token reduction** ($3x+6=21 \to 5$ in **2 tok**) | 120–220 conversational tokens in base model | Host Workstation (Float32 & Q4_0) | [`eval/modern_math_2026_results.json`](eval/modern_math_2026_results.json) | [`commit d93912d`](https://github.com/gyawalisanish0/symboLM/commit/d93912d) |
-| **Zero-Shot Factual Bypass** | **100% Routing to `<reg:bypass>` (25/25)**; 3 tokens | 80–150 verbose conversational tokens | Local CPU & Tesla T4 | [`eval/eval_cross_domain_results.json`](eval/eval_cross_domain_results.json) | [`commit 3c9d2f1`](https://github.com/gyawalisanish0/symboLM/commit/3c9d2f1) |
-| **Intent Dialogue Routing** | **100% Routing to `<reg:intent>` (25/25)**; zero lobotomy | Monolithic conversational `<think>` or robotic reply | Kaggle Tesla T4 GPU | [`eval/EVAL_CROSS_DOMAIN_REPORT.md`](eval/EVAL_CROSS_DOMAIN_REPORT.md) | [`commit 3c9d2f1`](https://github.com/gyawalisanish0/symboLM/commit/3c9d2f1) |
-| **Delimiter Cleanliness** | **0.0% delimiter drift**, 100% clean closures | Trailing unclosed XML tags and template artifacts | Compiler AST parser & unit test suite | [`symbolic/parser.py`](symbolic/parser.py) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
-| **Truncation Ceiling Elimination** | Parsimony Gradient preserves positive reward ($+1.81$ at 120 tok) | Hard token caps abruptly truncate proofs before `<ans>` | Tesla T4 GRPO & unit tests | [`training/reward.py`](training/reward.py) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
-| **224× Compound Serving Savings** | Active memory collapses from **8.0 MB to 35.6 KB / request** | Standard KV cache without hardware or sequence compression | Co-Design formulation: $L_{\text{seq}} \times S_{\text{KV\_per\_tok}}$ | [`research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md`](research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md) | [`commit 4a193a2`](https://github.com/gyawalisanish0/symboLM/commit/4a193a2) |
-| **Cross-Architecture Universality** | **100.0% Registration Fidelity on Meta LLaMA** | Single-backbone assumption (proves SymboLM is foundation-agnostic, not a Qwen artifact) | Kaggle Cloud Tesla T4 GPU | [`eval/EVAL_CROSS_FAMILY_LLAMA_REPORT.md`](eval/EVAL_CROSS_FAMILY_LLAMA_REPORT.md) | [`commit e813a4f`](https://github.com/gyawalisanish0/symboLM) |
-| **Dedicated Tokenizer Delimiters** | **2-token wrapper overhead** (1 open, 1 close); collapses `<reg:bypass>K</reg:bypass>` to **3 tokens** | Unoptimized BPE tokenizers fragment XML delimiters into 10–12 subwords | Hugging Face Tokenizer API | [`tests/test_tokenizer_wrapper.py`](tests/test_tokenizer_wrapper.py) | `v2.1` |
-| **Causal Register Leverage (5-Arm)** | **-65.0% accuracy drop** on shuffled `<reg:plan>`, proving causal necessity over formatting | Assumption that SFT templates are cosmetic prefixes | 5-Arm Ablation Suite on Tesla T4 | [`eval/ablation_5_arm_results.json`](eval/ablation_5_arm_results.json) | `v2.1` |
-| **Adaptive Token Allocation Curve** | **96.05% suite token compression** vs. DeepSeek-R1 (138 vs. 3,490 tokens across $\Delta_0 \to \Delta_3$) | Monolithic Long-CoT models overthink easy queries (580+ tokens for facts) | Multi-depth benchmark suite | [`eval/ADAPTIVE_ALLOCATION_REPORT.md`](eval/ADAPTIVE_ALLOCATION_REPORT.md) | `v2.1` |
-
-*Full 16-claim verification matrix published in [EVIDENCE_TRUTH_TABLE.md](EVIDENCE_TRUTH_TABLE.md).*  
-*Living multi-model adversarial challenge log published in [eval/AI_ADVERSARIAL_CRITIQUE_LOG.md](eval/AI_ADVERSARIAL_CRITIQUE_LOG.md).*
-
-### 🛡️ Continuous AI Adversarial Peer-Review System
-SymboLM practices radical empirical accountability. Every major milestone and model receipt is submitted to adversarial critique by frontier external AI engines (GitHub Copilot, DeepSeek Official App in Thinking Mode). Every critique—including arithmetic limitations and ungrounded verification call-outs—is tracked openly in [`eval/AI_ADVERSARIAL_CRITIQUE_LOG.md`](eval/AI_ADVERSARIAL_CRITIQUE_LOG.md) to drive the engineering roadmap.
-
----
-
-## 🏗️ Repository Architecture: Package vs. Research Experiments
+## 🏗️ Repository Architecture
 
 ```
 symboLM/
 ├── symbolm/                              # [Stable Model Package] (pip install -e .)
 │   ├── __init__.py                       # High-level API: SymboLM, parse_registers, evaluate_invariants
 │   ├── client.py                         # Unified runtime client (Ollama C++, llama.cpp, HF Transformers)
-│   ├── registers.py                      # Register v2.0 parser & typed ReasoningTrace abstractions
-│   ├── symbolic/                         # AST grammar, lexer, parser, compile-time linters
-│   └── inference/                        # Generation runtime, KV caching, Best-of-8 search
+│   ├── registers.py                      # Register v2.1 parser & typed ReasoningTrace abstractions
+│   ├── state_machine.py                  # Symbo State Machine & Counterfactual Stack
+│   ├── tiny_terminal.py                  # Sandboxed SymPy verification runtime (<5ms)
+│   ├── tokenizer.py                      # Universal Qwen/LLaMA/Gemma tokenizer wrapper
+│   └── symbolic/                         # AST grammar, lexer, parser, compile-time linters
+│
+├── symbolic/                             # [Grammar FSM Engine]
+│   ├── grammar_fsm.py                    # SymboLogitsProcessor (masks conversational English words)
+│   └── symbolm.gbnf                      # Native GBNF grammar for llama.cpp / Ollama C++
 │
 ├── configs/                              # [Exact Reproducible Training Configurations]
 │   ├── stage1_sft.yaml                   # 60/20/20 Multi-Register SFT hyperparameters
@@ -142,44 +120,35 @@ symboLM/
 │   └── stage5_parsimony_grpo.yaml        # Stage 5 Parsimony GRPO config (hyperbolic decay K=40, γ_floor=0.20)
 │
 ├── data/                                 # [Stratified Curricula & Checksums]
-│   ├── CHECKSUMS.sha256                  # Cryptographic SHA-256 hashes of all 7 datasets
+│   ├── CHECKSUMS.sha256                  # Cryptographic SHA-256 hashes of all datasets
 │   ├── benchmark_1000_multi_year.jsonl   # Exact 1,000-question multi-year suite (2021–2026)
-│   ├── eval_200_cross_domain_benchmark.jsonl
+│   ├── concept_math_contrastive_v2_1.jsonl # 5,000-sample contrastive curriculum
 │   └── ...
 │
 ├── eval/                                 # [Evaluation Scripts & Empirical Receipts]
-│   ├── run_1000_benchmark.py             # One-command runner for 1,000-question suite
-│   ├── run_cross_domain_200.py           # One-command runner for Cross-Domain 200
-│   ├── EVAL_1000_MULTI_YEAR_REPORT.md    # Tesla P100 empirical receipts (67.6% Pass@1, 50.65% compression)
-│   ├── eval_1000_results.json            # Raw JSON output for all 1,000 problems
-│   └── QUANT_EFFICIENCY_AUDIT_REPORT.md  # AMD Ryzen 7 5700G 4-bit CPU receipts (34.3 tok/s)
+│   ├── benchmark_apples_to_apples.py     # Official 3-arm MATH-500 & AIME 2024 benchmark
+│   ├── run_200_mixed_benchmark.py        # Universal multi-year evaluation engine
+│   ├── EVAL_V2_1000_REPORT.md            # Verified 1,000-question scorecard (50.5% Pass@1, 10.21 IER)
+│   ├── eval_v2_1000_results.json         # Raw JSON results for all 1,000 problems
+│   └── MATH500_APPLES_TO_APPLES_REPORT.md # Official MATH-500 comparison report
 │
-├── training/                             # [Production Training & Parsimony Loss Engines]
+├── training/                             # [Production Training & Loss Engines]
+│   ├── sft_train.py                      # Multi-epoch contrastive SFT trainer
 │   ├── reward.py                         # Sanish Gyawali's Unbounded Parsimony Gradient loss
-│   ├── sft_train.py                      # Stage 1 SFT trainer
-│   ├── grpo_train.py                     # Stage 2 GRPO trainer
-│   ├── stage4_efficiency_train.py        # Stage 4 SE-HEA trainer
-│   └── stage5_parsimony_train.py         # Stage 5 Parsimony trainer
-│
-├── scripts/                              # [Standalone Production Utilities]
-│   ├── benchmark_local_4bit.py           # Local CPU benchmark suite (Ryzen 7 5700G)
-│   ├── convert_hf_to_gguf.py             # Standalone GGUF converter (Q4_0, Q8_0, BF16)
-│   ├── merge_weights.py                  # Standalone 1.54B parameter weight fuser
-│   ├── quantize_model.py                 # INT8 weight-only quantization
-│   └── quantize_nf4.py                   # NF4 quantization
+│   └── grpo_train.py                     # GRPO reinforcement learning trainer
 │
 ├── experiments/                          # [Consolidated Research Archive]
-│   ├── kaggle/                           # 8 stages of reproducible Kaggle kernels (T4 / P100)
-│   ├── colab/                            # Colab TPU v5e & GPU notebooks
-│   ├── lightning/                        # Lightning AI studio configurations
-│   ├── orchestration/                    # Cloud pipeline SDK pull/push scripts
-│   └── logs/                             # Raw cluster telemetry & execution logs
+│   ├── kaggle/                           # Kaggle cloud GPU notebooks (T4 / P100)
+│   │   ├── v2_contrastive_sft/           # 3-epoch 5k curriculum training
+│   │   ├── eval_200_v2/                  # 1,000-question multi-year evaluation
+│   │   └── eval_apples_to_apples/        # Official MATH-500 apples-to-apples benchmark
+│   └── ...
 │
 ├── EVIDENCE_TRUTH_TABLE.md               # Master Truth Table: Claims vs. Verified Evidence
 ├── REPRODUCIBILITY.md                    # Step-by-Step Reproduction Guide & Dataset Hashes
 ├── pyproject.toml                        # Standard PEP 517/621 package specification
 ├── requirements.txt                      # Pinned minimal requirements
-└── tests/                                # 100% Passing Unit Test Suite (AST, Registers, Parsimony)
+└── tests/                                # 100% Passing Unit Test Suite (26/26 tests passing)
 ```
 
 ---
@@ -192,14 +161,14 @@ To verify the entire repository in 30 seconds:
 # 1. Verify dataset integrity via SHA-256 hashes
 sha256sum -c data/CHECKSUMS.sha256
 
-# 2. Run AST Compiler & Parsimony Reward unit tests (6/6 passing)
+# 2. Run AST Compiler, FSM, and Tiny Terminal unit tests (26/26 passing)
 python -m unittest discover tests
 
-# 3. Audit verified 1,000-question P100 benchmark receipts
-python eval/run_1000_benchmark.py --mode audit
+# 3. Audit verified 1,000-question multi-year benchmark receipts
+python -c "import json; data=json.load(open('eval/eval_v2_1000_results.json')); print('Total:', len(data), 'Pass@1:', sum(1 for d in data if d.get('is_correct'))/len(data)*100)"
 
-# 4. Audit Cross-Domain 200 routing fidelity receipts
-python eval/run_cross_domain_200.py
+# 4. Run official MATH-500 apples-to-apples benchmark (dry-run)
+python eval/benchmark_apples_to_apples.py --dataset math500 --sample_limit 5 --dry_run
 ```
 
 ---

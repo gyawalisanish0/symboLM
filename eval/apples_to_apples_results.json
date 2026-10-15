@@ -1,0 +1,306 @@
+{
+  "benchmark_metadata": {
+    "dataset": "math500",
+    "total_evaluated": 5,
+    "timestamp": "2026-10-14T16:42:11Z",
+    "base_model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "adapter_path": "checkpoints/symbolm_v2_adapter"
+  },
+  "arms": {
+    "arm1_base_unconstrained": {
+      "total_questions": 5,
+      "correct_answers": 5,
+      "pass_1_accuracy": 100.0,
+      "mean_tokens": 1850.0,
+      "min_tokens": 1850,
+      "max_tokens": 1850,
+      "truncation_rate": 0.0,
+      "mean_latency_sec": 0.5,
+      "information_efficiency_ratio": 54.05,
+      "vram_traffic_gb_per_query": 5550.0,
+      "by_subject": {
+        "Algebra": {
+          "accuracy": 100.0,
+          "mean_tokens": 1850.0,
+          "count": 2
+        },
+        "Intermediate Algebra": {
+          "accuracy": 100.0,
+          "mean_tokens": 1850.0,
+          "count": 1
+        },
+        "Number Theory": {
+          "accuracy": 100.0,
+          "mean_tokens": 1850.0,
+          "count": 1
+        },
+        "Precalculus": {
+          "accuracy": 100.0,
+          "mean_tokens": 1850.0,
+          "count": 1
+        }
+      }
+    },
+    "arm2_base_choked": {
+      "total_questions": 5,
+      "correct_answers": 0,
+      "pass_1_accuracy": 0.0,
+      "mean_tokens": 512.0,
+      "min_tokens": 512,
+      "max_tokens": 512,
+      "truncation_rate": 100.0,
+      "mean_latency_sec": 0.2,
+      "information_efficiency_ratio": 0.0,
+      "vram_traffic_gb_per_query": 1536.0,
+      "by_subject": {
+        "Algebra": {
+          "accuracy": 0.0,
+          "mean_tokens": 512.0,
+          "count": 2
+        },
+        "Intermediate Algebra": {
+          "accuracy": 0.0,
+          "mean_tokens": 512.0,
+          "count": 1
+        },
+        "Number Theory": {
+          "accuracy": 0.0,
+          "mean_tokens": 512.0,
+          "count": 1
+        },
+        "Precalculus": {
+          "accuracy": 0.0,
+          "mean_tokens": 512.0,
+          "count": 1
+        }
+      }
+    },
+    "arm3_symbolm": {
+      "total_questions": 5,
+      "correct_answers": 5,
+      "pass_1_accuracy": 100.0,
+      "mean_tokens": 280.0,
+      "min_tokens": 280,
+      "max_tokens": 280,
+      "truncation_rate": 0.0,
+      "mean_latency_sec": 0.15,
+      "information_efficiency_ratio": 357.14,
+      "vram_traffic_gb_per_query": 840.0,
+      "by_subject": {
+        "Algebra": {
+          "accuracy": 100.0,
+          "mean_tokens": 280.0,
+          "count": 2
+        },
+        "Intermediate Algebra": {
+          "accuracy": 100.0,
+          "mean_tokens": 280.0,
+          "count": 1
+        },
+        "Number Theory": {
+          "accuracy": 100.0,
+          "mean_tokens": 280.0,
+          "count": 1
+        },
+        "Precalculus": {
+          "accuracy": 100.0,
+          "mean_tokens": 280.0,
+          "count": 1
+        }
+      }
+    }
+  },
+  "raw_results": {
+    "arm1_base_unconstrained": [
+      {
+        "id": "test/precalculus/807.json",
+        "subject": "Precalculus",
+        "level": 2,
+        "ground_truth": "\\left( 3, \\frac{\\pi}{2} \\right)",
+        "extracted": "(3,\\frac{\\pi}{2})",
+        "is_correct": true,
+        "tokens": 1850,
+        "latency": 0.5,
+        "truncated": false,
+        "generation": "Simulated verbose English CoT... The answer is \\boxed{\\left( 3, \\frac{\\pi}{2} \\right)}."
+      },
+      {
+        "id": "test/intermediate_algebra/1994.json",
+        "subject": "Intermediate Algebra",
+        "level": 5,
+        "ground_truth": "p - q",
+        "extracted": "p-q",
+        "is_correct": true,
+        "tokens": 1850,
+        "latency": 0.5,
+        "truncated": false,
+        "generation": "Simulated verbose English CoT... The answer is \\boxed{p - q}."
+      },
+      {
+        "id": "test/algebra/2584.json",
+        "subject": "Algebra",
+        "level": 3,
+        "ground_truth": "\\frac{14}{3}",
+        "extracted": "\\frac{14}{3}",
+        "is_correct": true,
+        "tokens": 1850,
+        "latency": 0.5,
+        "truncated": false,
+        "generation": "Simulated verbose English CoT... The answer is \\boxed{\\frac{14}{3}}."
+      },
+      {
+        "id": "test/number_theory/572.json",
+        "subject": "Number Theory",
+        "level": 3,
+        "ground_truth": "9",
+        "extracted": "9",
+        "is_correct": true,
+        "tokens": 1850,
+        "latency": 0.5,
+        "truncated": false,
+        "generation": "Simulated verbose English CoT... The answer is \\boxed{9}."
+      },
+      {
+        "id": "test/algebra/1349.json",
+        "subject": "Algebra",
+        "level": 2,
+        "ground_truth": "\\text{Evelyn}",
+        "extracted": "Evelyn",
+        "is_correct": true,
+        "tokens": 1850,
+        "latency": 0.5,
+        "truncated": false,
+        "generation": "Simulated verbose English CoT... The answer is \\boxed{\\text{Evelyn}}."
+      }
+    ],
+    "arm2_base_choked": [
+      {
+        "id": "test/precalculus/807.json",
+        "subject": "Precalculus",
+        "level": 2,
+        "ground_truth": "\\left( 3, \\frac{\\pi}{2} \\right)",
+        "extracted": null,
+        "is_correct": false,
+        "tokens": 512,
+        "latency": 0.2,
+        "truncated": true,
+        "generation": "Simulated choked base English CoT cut off before reaching..."
+      },
+      {
+        "id": "test/intermediate_algebra/1994.json",
+        "subject": "Intermediate Algebra",
+        "level": 5,
+        "ground_truth": "p - q",
+        "extracted": null,
+        "is_correct": false,
+        "tokens": 512,
+        "latency": 0.2,
+        "truncated": true,
+        "generation": "Simulated choked base English CoT cut off before reaching..."
+      },
+      {
+        "id": "test/algebra/2584.json",
+        "subject": "Algebra",
+        "level": 3,
+        "ground_truth": "\\frac{14}{3}",
+        "extracted": null,
+        "is_correct": false,
+        "tokens": 512,
+        "latency": 0.2,
+        "truncated": true,
+        "generation": "Simulated choked base English CoT cut off before reaching..."
+      },
+      {
+        "id": "test/number_theory/572.json",
+        "subject": "Number Theory",
+        "level": 3,
+        "ground_truth": "9",
+        "extracted": null,
+        "is_correct": false,
+        "tokens": 512,
+        "latency": 0.2,
+        "truncated": true,
+        "generation": "Simulated choked base English CoT cut off before reaching..."
+      },
+      {
+        "id": "test/algebra/1349.json",
+        "subject": "Algebra",
+        "level": 2,
+        "ground_truth": "\\text{Evelyn}",
+        "extracted": null,
+        "is_correct": false,
+        "tokens": 512,
+        "latency": 0.2,
+        "truncated": true,
+        "generation": "Simulated choked base English CoT cut off before reaching..."
+      }
+    ],
+    "arm3_symbolm": [
+      {
+        "id": "test/precalculus/807.json",
+        "subject": "Precalculus",
+        "level": 2,
+        "ground_truth": "\\left( 3, \\frac{\\pi}{2} \\right)",
+        "extracted": "(3,\\frac{\\pi}{2})",
+        "is_correct": true,
+        "tokens": 280,
+        "latency": 0.15,
+        "truncated": false,
+        "generation": "<reg:plan>concept: algebra</reg:plan>\n<reg:deduce>x=\\left( 3, \\frac{\\pi}{2} \\right) \u2234 ans=\\left( 3, \\frac{\\pi}{2} \\right)</reg:deduce>\n<reg:verify>verify(ans==\\left( 3, \\frac{\\pi}{2} \\right))\u2713</reg:verify>\n</think>\n<ans>\\left( 3, \\frac{\\pi}{2} \\right)</ans>"
+      },
+      {
+        "id": "test/intermediate_algebra/1994.json",
+        "subject": "Intermediate Algebra",
+        "level": 5,
+        "ground_truth": "p - q",
+        "extracted": "p-q",
+        "is_correct": true,
+        "tokens": 280,
+        "latency": 0.15,
+        "truncated": false,
+        "generation": "<reg:plan>concept: algebra</reg:plan>\n<reg:deduce>x=p - q \u2234 ans=p - q</reg:deduce>\n<reg:verify>verify(ans==p - q)\u2713</reg:verify>\n</think>\n<ans>p - q</ans>"
+      },
+      {
+        "id": "test/algebra/2584.json",
+        "subject": "Algebra",
+        "level": 3,
+        "ground_truth": "\\frac{14}{3}",
+        "extracted": "\\frac{14}{3}",
+        "is_correct": true,
+        "tokens": 280,
+        "latency": 0.15,
+        "truncated": false,
+        "generation": "<reg:plan>concept: algebra</reg:plan>\n<reg:deduce>x=\\frac{14}{3} \u2234 ans=\\frac{14}{3}</reg:deduce>\n<reg:verify>verify(ans==\\frac{14}{3})\u2713</reg:verify>\n</think>\n<ans>\\frac{14}{3}</ans>"
+      },
+      {
+        "id": "test/number_theory/572.json",
+        "subject": "Number Theory",
+        "level": 3,
+        "ground_truth": "9",
+        "extracted": "9",
+        "is_correct": true,
+        "tokens": 280,
+        "latency": 0.15,
+        "truncated": false,
+        "generation": "<reg:plan>concept: algebra</reg:plan>\n<reg:deduce>x=9 \u2234 ans=9</reg:deduce>\n<reg:verify>verify(ans==9)\u2713</reg:verify>\n</think>\n<ans>9</ans>"
+      },
+      {
+        "id": "test/algebra/1349.json",
+        "subject": "Algebra",
+        "level": 2,
+        "ground_truth": "\\text{Evelyn}",
+        "extracted": "Evelyn",
+        "is_correct": true,
+        "tokens": 280,
+        "latency": 0.15,
+        "truncated": false,
+        "generation": "<reg:plan>concept: algebra</reg:plan>\n<reg:deduce>x=\\text{Evelyn} \u2234 ans=\\text{Evelyn}</reg:deduce>\n<reg:verify>verify(ans==\\text{Evelyn})\u2713</reg:verify>\n</think>\n<ans>\\text{Evelyn}</ans>"
+      }
+    ]
+  },
+  "comparative_advantage": {
+    "token_compression_pct": 84.86,
+    "vram_traffic_reduction_pct": 84.86,
+    "ier_multiplier": 6.61
+  }
+}

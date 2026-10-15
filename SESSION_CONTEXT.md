@@ -1,8 +1,8 @@
-**Project Name:** SymboLM (Version 2.0) — Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine  
+**Project Name:** SymboLM (Version 2.1) — Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine  
 **Author & Principal Architect:** Sanish Gyawali  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
 **GitHub Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
-**Target Base Model:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`  
+**Target Base Models:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` & `HuggingFaceTB/SmolLM2-1.7B-Instruct`  
 **Current Active Compute:** Host Workstation (Local CPU / CUDA) & Kaggle Dual Tesla T4  
 **Canonical Adapters:** 5 Active Stages (`stage5_parsimony_adapter`, `stage4_efficient_adapter`, `stage3_concept_adapter`, `sft_concept_adapter`, `grpo_adapter`)  
 **Core Objective:** Applying nature's evolutionary laws to AI reasoning—emulating the 20-watt human brain's modular cognitive registers (Instant Reflex System 1 for facts in 3 tokens, Social Intent for empathetic dialogue, and Prefrontal AST logic for math proofs) combined with the Metabolic Parsimony Gradient to eliminate datacenter token inflation and achieve up to 224× serving compression.
@@ -95,9 +95,15 @@
   - [`eval/benchmark_apples_to_apples.py`](file:///c:/Users/user/Dev/symboLM/eval/benchmark_apples_to_apples.py): Universal 3-arm evaluation harness with SymPy math equivalence checking and LaTeX `\boxed{...}` parsing. (Verified 100% dry-run pass).
   - [`experiments/kaggle/eval_apples_to_apples/`](file:///c:/Users/user/Dev/symboLM/experiments/kaggle/eval_apples_to_apples/): Kaggle Dual GPU reproduction notebook and metadata.
 
+### 8. SymboLM v2.1 Dual Hugging Face Release Pipeline (Oct 15, 2026)
+- **Directive:** Prepare and publish official v2.1 adapters with hard empirical facts across two architectures:
+  1. **Flagship:** `gyawalisanish0/SymboLM-2.1-DeepSeek-1.5B` (PEFT LoRA 1.006 GB adapter trained over 939 optimizer steps across 3 epochs on `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`).
+  2. **Cross-Architecture LLaMA:** `gyawalisanish0/SymboLM-2.1-SmolLM2-1.7B` (PEFT LoRA 72.4 MB adapter on `HuggingFaceTB/SmolLM2-1.7B-Instruct`).
+- **Pipeline Implementation:** [`scripts/upload_v2_1_to_hf.py`](file:///c:/Users/user/Dev/symboLM/scripts/upload_v2_1_to_hf.py) with automated repo creation, card verification, GBNF grammar injection, and weights upload. Verified with 100% dry-run pass.
+- **Model Cards Authored:**
+  - [`research/HUGGING_FACE_MODEL_CARD_V2.1_DEEPSEEK.md`](file:///c:/Users/user/Dev/symboLM/research/HUGGING_FACE_MODEL_CARD_V2.1_DEEPSEEK.md) (1,000-question scorecard: 50.5% Pass@1, 10.21 IER, domain breakdowns).
+  - [`research/HUGGING_FACE_MODEL_CARD_V2.1_SMOLLM.md`](file:///c:/Users/user/Dev/symboLM/research/HUGGING_FACE_MODEL_CARD_V2.1_SMOLLM.md) (Cross-Architecture Truth Table: 100% register fidelity on 49k BPE vocab).
 
-
-## ⚡ Stage 2 GRPO Completion & Unquantized Audit Receipts (Updated Oct 9, 2026, 18:30 NPT)
 
 ### 1. Training & Policy Weights
 - **Status:** **`KernelWorkerStatus.COMPLETE`** (Finished after 3h 17m, 250/250 steps, 16,000 candidate rollouts, final loss: `0.009674`).
