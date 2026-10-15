@@ -1,5 +1,5 @@
 {
-  "id": "sanishgyawali/symbolm-eval-apples-to-apples-math500",
+  "id": "sanishgyawali/symbolm-vs-deepseek-r1-math500-apples-to-apples",
   "title": "SymboLM vs DeepSeek R1 MATH500 Apples to Apples",
   "code_file": "symbolm_eval_apples_to_apples_kaggle.ipynb",
   "language": "python",
