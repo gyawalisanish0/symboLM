@@ -308,17 +308,45 @@ def run_apples_to_apples(args):
         "arm3_symbolm": []
     }
 
+    # Resume capability: If output_json exists, populate results_by_arm and skip finished questions
+    completed_arm1 = set()
+    completed_arm2 = set()
+    completed_arm3 = set()
+
+    if not getattr(args, "no_resume", False) and args.output_json and Path(args.output_json).exists():
+        try:
+            with open(args.output_json, "r", encoding="utf-8") as f:
+                prev_data = json.load(f)
+                raw = prev_data.get("raw_results", {})
+                for arm_key in ["arm1_base_unconstrained", "arm2_base_choked", "arm3_symbolm"]:
+                    if arm_key in raw and isinstance(raw[arm_key], list):
+                        results_by_arm[arm_key] = raw[arm_key]
+                completed_arm1 = {r["id"] for r in results_by_arm["arm1_base_unconstrained"]}
+                completed_arm2 = {r["id"] for r in results_by_arm["arm2_base_choked"]}
+                completed_arm3 = {r["id"] for r in results_by_arm["arm3_symbolm"]}
+                print(f"[RESUME] Loaded existing progress from {args.output_json}:")
+                print(f"         Arm 1: {len(completed_arm1)} completed")
+                print(f"         Arm 2: {len(completed_arm2)} completed")
+                print(f"         Arm 3: {len(completed_arm3)} completed")
+        except Exception as e:
+            print(f"[WARN] Failed to load previous results for resume: {e}")
+
     # Determine which arms to run
     run_arm1 = args.arms in ("all", "base_unconstrained", "base_both")
     run_arm2 = args.arms in ("all", "base_choked", "base_both")
     run_arm3 = args.arms in ("all", "symbolm")
 
+    all_q_ids = {q["id"] for q in questions}
+    needed_arm1 = (all_q_ids - completed_arm1) if run_arm1 else set()
+    needed_arm2 = (all_q_ids - completed_arm2) if run_arm2 else set()
+    needed_base = needed_arm1 | needed_arm2
+
     # -------------------------------------------------------------------------
     # PHASE 1: EVALUATE BASE MODEL (Arms 1 and 2)
     # -------------------------------------------------------------------------
-    if run_arm1 or run_arm2:
+    if (run_arm1 or run_arm2) and needed_base:
         print("\n" + "=" * 80)
-        print("PHASE 1: Loading Vanilla Base DeepSeek-R1-Distill (Zero Adapter)")
+        print(f"PHASE 1: Loading Vanilla Base DeepSeek-R1-Distill (Zero Adapter) - {len(needed_base)} questions remaining")
         print("=" * 80)
         
         if not args.dry_run:
@@ -347,10 +375,12 @@ def run_apples_to_apples(args):
             level = q["level"]
             prompt = f"<｜begin of sentence｜><｜User｜>{prob}<｜Assistant｜><think>\n"
 
+            ran_any = False
+
             # -----------------------------------------------------------------
             # ARM 1: Base Unconstrained (max_tokens=4096)
             # -----------------------------------------------------------------
-            if run_arm1:
+            if run_arm1 and q_id not in completed_arm1:
                 t0 = time.time()
                 if not args.dry_run:
                     inputs = tokenizer(prompt, return_tensors="pt").to(device)
@@ -381,11 +411,13 @@ def run_apples_to_apples(args):
                     "extracted": extracted, "is_correct": is_correct, "tokens": tok_count,
                     "latency": elapsed, "truncated": truncated, "generation": gen_text[:400]
                 })
+                completed_arm1.add(q_id)
+                ran_any = True
 
             # -----------------------------------------------------------------
             # ARM 2: Base Choked (max_tokens=512)
             # -----------------------------------------------------------------
-            if run_arm2:
+            if run_arm2 and q_id not in completed_arm2:
                 t0 = time.time()
                 if not args.dry_run:
                     inputs = tokenizer(prompt, return_tensors="pt").to(device)
@@ -416,6 +448,11 @@ def run_apples_to_apples(args):
                     "extracted": extracted, "is_correct": is_correct, "tokens": tok_count,
                     "latency": elapsed, "truncated": truncated, "generation": gen_text[:400]
                 })
+                completed_arm2.add(q_id)
+                ran_any = True
+
+            if ran_any:
+                save_benchmark_outputs(results_by_arm, questions, args, is_final=False)
 
             if idx % 5 == 0 or idx == len(questions):
                 print(f"[{idx:03d}/{len(questions):03d}] Base evaluated: {q_id} ({subject} L{level})")
@@ -424,13 +461,16 @@ def run_apples_to_apples(args):
         if not args.dry_run and base_model is not None:
             del base_model
             torch.cuda.empty_cache()
+    elif run_arm1 or run_arm2:
+        print("\n[RESUME] Phase 1 (Base Model Arms) already 100% complete. Skipping Phase 1.")
 
     # -------------------------------------------------------------------------
     # PHASE 2: EVALUATE SYMBOLM v2.1 (Arm 3)
     # -------------------------------------------------------------------------
-    if run_arm3:
+    needed_arm3 = (all_q_ids - completed_arm3) if run_arm3 else set()
+    if run_arm3 and needed_arm3:
         print("\n" + "=" * 80)
-        print("PHASE 2: Loading SymboLM v2.1 (Base + Policy Adapter + FSM)")
+        print(f"PHASE 2: Loading SymboLM v2.1 (Base + Policy Adapter + FSM) - {len(needed_arm3)} questions remaining")
         print("=" * 80)
 
         if not args.dry_run:
@@ -463,6 +503,9 @@ def run_apples_to_apples(args):
             subject = q["subject"]
             level = q["level"]
             prompt = f"<｜begin of sentence｜><｜User｜>{prob}<｜Assistant｜><think>\n"
+
+            if q_id in completed_arm3:
+                continue
 
             t0 = time.time()
             if not args.dry_run:
@@ -499,14 +542,27 @@ def run_apples_to_apples(args):
                 "extracted": extracted, "is_correct": is_correct, "tokens": tok_count,
                 "latency": elapsed, "truncated": truncated, "generation": gen_text[:400]
             })
+            completed_arm3.add(q_id)
+            save_benchmark_outputs(results_by_arm, questions, args, is_final=False)
 
             status_sym = "[PASS]" if is_correct else "[FAIL]"
             if idx % 5 == 0 or idx == len(questions):
                 print(f"[{idx:03d}/{len(questions):03d}] SymboLM {status_sym} | {q_id} | Tok: {tok_count:3d} | Lat: {elapsed:.2f}s | Ans: {extracted} (GT: {gt})")
+    elif run_arm3:
+        print("\n[RESUME] Phase 2 (SymboLM Arm 3) already 100% complete. Skipping Phase 2.")
 
     # -------------------------------------------------------------------------
-    # COMPILE SUMMARY METRICS
+    # FINAL FLUSH
     # -------------------------------------------------------------------------
+    save_benchmark_outputs(results_by_arm, questions, args, is_final=True)
+
+
+# =============================================================================
+# COMPILE SUMMARY & ATOMIC OUTPUT PERSISTENCE
+# =============================================================================
+
+def compile_summary(results_by_arm: Dict[str, List[Dict[str, Any]]], questions: List[Dict[str, Any]], args) -> Dict[str, Any]:
+    """Compiles statistics and comparative ratios across all arms."""
     def summarize_arm(records: List[Dict[str, Any]]) -> Dict[str, Any]:
         if not records:
             return {}
@@ -515,13 +571,11 @@ def run_apples_to_apples(args):
         tokens = [r["tokens"] for r in records]
         latencies = [r["latency"] for r in records]
         truncations = sum(1 for r in records if r["truncated"])
-        mean_tok = sum(tokens) / total
-        acc = (correct / total) * 100
+        mean_tok = sum(tokens) / total if total > 0 else 0
+        acc = (correct / total) * 100 if total > 0 else 0
         ier = (acc / mean_tok) * 1000 if mean_tok > 0 else 0
-        # 1.5B model in FP16 = 3.0 GB per token memory traffic
         vram_traffic_gb = (mean_tok * 3.0)
 
-        # Subject breakdown
         by_subj = {}
         for r in records:
             s = r["subject"]
@@ -537,16 +591,16 @@ def run_apples_to_apples(args):
             "correct_answers": correct,
             "pass_1_accuracy": round(acc, 2),
             "mean_tokens": round(mean_tok, 1),
-            "min_tokens": min(tokens),
-            "max_tokens": max(tokens),
-            "truncation_rate": round((truncations / total) * 100, 2),
-            "mean_latency_sec": round(sum(latencies) / total, 2),
+            "min_tokens": min(tokens) if tokens else 0,
+            "max_tokens": max(tokens) if tokens else 0,
+            "truncation_rate": round((truncations / total) * 100, 2) if total > 0 else 0,
+            "mean_latency_sec": round(sum(latencies) / total, 2) if total > 0 else 0,
             "information_efficiency_ratio": round(ier, 2),
             "vram_traffic_gb_per_query": round(vram_traffic_gb, 1),
             "by_subject": {
                 s: {
-                    "accuracy": round(d["correct"] / d["total"] * 100, 1),
-                    "mean_tokens": round(d["tokens"] / d["total"], 1),
+                    "accuracy": round(d["correct"] / d["total"] * 100, 1) if d["total"] > 0 else 0,
+                    "mean_tokens": round(d["tokens"] / d["total"], 1) if d["total"] > 0 else 0,
                     "count": d["total"]
                 }
                 for s, d in sorted(by_subj.items())
@@ -571,27 +625,67 @@ def run_apples_to_apples(args):
 
     # Calculate comparative compression
     if results_by_arm["arm1_base_unconstrained"] and results_by_arm["arm3_symbolm"]:
-        base_tok = summary["arms"]["arm1_base_unconstrained"]["mean_tokens"]
-        sym_tok = summary["arms"]["arm3_symbolm"]["mean_tokens"]
+        base_tok = summary["arms"]["arm1_base_unconstrained"].get("mean_tokens", 0)
+        sym_tok = summary["arms"]["arm3_symbolm"].get("mean_tokens", 0)
         compression = (1.0 - (sym_tok / base_tok)) * 100 if base_tok > 0 else 0
         summary["comparative_advantage"] = {
             "token_compression_pct": round(compression, 2),
             "vram_traffic_reduction_pct": round(compression, 2),
             "ier_multiplier": round(
-                summary["arms"]["arm3_symbolm"]["information_efficiency_ratio"] /
-                max(summary["arms"]["arm1_base_unconstrained"]["information_efficiency_ratio"], 0.001), 2
+                summary["arms"]["arm3_symbolm"].get("information_efficiency_ratio", 0) /
+                max(summary["arms"]["arm1_base_unconstrained"].get("information_efficiency_ratio", 0.001), 0.001), 2
             )
         }
 
-    # Save structured JSON
+    return summary
+
+
+def save_benchmark_outputs(results_by_arm: Dict[str, List[Dict[str, Any]]], questions: List[Dict[str, Any]], args, is_final: bool = False):
+    """Atomically flushes the latest benchmark results and markdown report to disk after every question."""
+    if not args.output_json:
+        return
+
+    summary = compile_summary(results_by_arm, questions, args)
     out_json = Path(args.output_json)
     out_json.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_json, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2)
-    print(f"\n[SAVED] Benchmark JSON exported to: {out_json}")
+    tmp_json = out_json.with_suffix(".tmp.json")
+
+    try:
+        with open(tmp_json, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+        if tmp_json.exists():
+            tmp_json.replace(out_json)
+    except Exception as e:
+        print(f"[WARN] Error flushing JSON checkpoint: {e}")
 
     # Generate Markdown Report
-    generate_markdown_report(summary, args.output_report)
+    if args.output_report:
+        try:
+            generate_markdown_report(summary, args.output_report)
+        except Exception as e:
+            print(f"[WARN] Error flushing Markdown report: {e}")
+
+    # Synchronize Kaggle working receipts archive
+    kaggle_working = Path("/kaggle/working")
+    if kaggle_working.exists() and kaggle_working.is_dir():
+        try:
+            import tarfile
+            tar_path = kaggle_working / "symbolm_apples_to_apples_receipts.tar.gz"
+            tmp_tar = kaggle_working / "symbolm_apples_to_apples_receipts.tmp.tar.gz"
+            with tarfile.open(tmp_tar, "w:gz") as tar:
+                for f in kaggle_working.glob("*apples_to_apples*"):
+                    if f.name.endswith(".tmp.json") or f.name.endswith(".tmp.tar.gz") or f.name.endswith(".tar.gz"):
+                        continue
+                    tar.add(f, arcname=f.name)
+            if tmp_tar.exists():
+                tmp_tar.replace(tar_path)
+        except Exception:
+            pass
+
+    if is_final:
+        print(f"\n[SAVED] Benchmark JSON exported to: {out_json}")
+        if args.output_report:
+            print(f"[REPORT] Published benchmark Markdown report to: {args.output_report}")
 
 
 # =============================================================================
@@ -687,6 +781,7 @@ def parse_args():
     parser.add_argument("--symbolm_max_tokens", type=int, default=512)
     parser.add_argument("--output_json", type=str, default="eval/apples_to_apples_results.json")
     parser.add_argument("--output_report", type=str, default="eval/MATH500_APPLES_TO_APPLES_REPORT.md")
+    parser.add_argument("--no_resume", action="store_true", help="Do not resume from existing output_json; overwrite from scratch")
     parser.add_argument("--dry_run", action="store_true", help="Simulate inference to test pipeline end-to-end")
     return parser.parse_args()
 

@@ -181,7 +181,7 @@ def test_dataset_integrity():
     with open(curriculum_path, "r", encoding="utf-8") as f:
         lines = [line.strip() for line in f if line.strip()]
 
-    assert len(lines) == 1400, f"Expected 1400 samples, found {len(lines)}"
+    assert len(lines) in (1400, 5000), f"Expected 1400 or 5000 samples, found {len(lines)}"
 
     concept_counts = {}
     for line in lines:

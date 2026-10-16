@@ -65,3 +65,8 @@ Repository = "https://github.com/gyawalisanish0/symboLM"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["symbolm*", "symbolic*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["vendor", ".git", "checkpoints", "scratch"]
+
