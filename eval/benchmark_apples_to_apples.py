@@ -240,8 +240,28 @@ def load_benchmark_dataset(dataset_name: str, sample_limit: Optional[int] = None
         raise ValueError(f"Unknown dataset: {dataset_name}. Choose 'math500' or 'aime2024'.")
 
     if sample_limit and sample_limit < len(records):
-        records = records[:sample_limit]
-        print(f"[DATASET] Subsampled to first {sample_limit} problems.")
+        # Deterministic stratified sampling across (subject, level) buckets
+        by_bucket: Dict[Tuple[str, int], List[Dict[str, Any]]] = {}
+        for r in records:
+            key = (r.get("subject", "General"), int(r.get("level", 1)))
+            by_bucket.setdefault(key, []).append(r)
+
+        stratified = []
+        bucket_keys = sorted(by_bucket.keys())
+        # Round-robin selection across buckets
+        while len(stratified) < sample_limit:
+            added_in_round = False
+            for k in bucket_keys:
+                if by_bucket[k]:
+                    stratified.append(by_bucket[k].pop(0))
+                    added_in_round = True
+                    if len(stratified) >= sample_limit:
+                        break
+            if not added_in_round:
+                break
+
+        records = stratified
+        print(f"[DATASET] Stratified {len(records)} problems across {len(bucket_keys)} subject/level buckets.")
 
     print(f"[DATASET] Ready with {len(records)} gold-standard problems.")
     return records
