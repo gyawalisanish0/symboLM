@@ -104,6 +104,24 @@
   - [`research/HUGGING_FACE_MODEL_CARD_V2.1_DEEPSEEK.md`](file:///c:/Users/user/Dev/symboLM/research/HUGGING_FACE_MODEL_CARD_V2.1_DEEPSEEK.md) (1,000-question scorecard: 50.5% Pass@1, 10.21 IER, domain breakdowns).
   - [`research/HUGGING_FACE_MODEL_CARD_V2.1_SMOLLM.md`](file:///c:/Users/user/Dev/symboLM/research/HUGGING_FACE_MODEL_CARD_V2.1_SMOLLM.md) (Cross-Architecture Truth Table: 100% register fidelity on 49k BPE vocab).
 
+### 9. SymboLM v2.1 Standalone Weight Fusion & Multi-Bit GGUF Suite Deployment (Oct 16, 2026)
+- **Standalone Fused Checkpoints Exported (Zero-PEFT Deployable):**
+  1. **DeepSeek-1.5B Merged:** Fused in 16.54s at [`checkpoints/SymboLM-2.1-DeepSeek-1.5B-Merged/`](file:///c:/Users/user/Dev/symboLM/checkpoints/SymboLM-2.1-DeepSeek-1.5B-Merged/) (`model.safetensors` 3.55 GB, `tokenizer.json` 151,712 vocab, `chat_template.jinja`).
+  2. **SmolLM2-1.7B Merged:** Fused in 10.46s at [`checkpoints/SymboLM-2.1-SmolLM2-1.7B-Merged/`](file:///c:/Users/user/Dev/symboLM/checkpoints/SymboLM-2.1-SmolLM2-1.7B-Merged/) (`model.safetensors` 3.26 GB, `tokenizer.json` 49,152 vocab, `chat_template.jinja`).
+- **Canonical Multi-Bit GGUF Quantization Suite:**
+  - **DeepSeek-1.5B Suite (100% Live on [`gyawalisanish0/SymboLM-2.1-DeepSeek-1.5B`](https://huggingface.co/gyawalisanish0/SymboLM-2.1-DeepSeek-1.5B)):**
+    - `symbolm-2.1-deepseek-1.5b-bf16.gguf` (3.56 GB) — Unquantized full fidelity.
+    - `symbolm-2.1-deepseek-1.5b-q8_0.gguf` (1.89 GB) — 8-bit quantization.
+    - `symbolm-2.1-deepseek-1.5b-q4_0.gguf` (1.00 GB) — 4-bit edge binary.
+  - **SmolLM2-1.7B Suite (100% Live on [`gyawalisanish0/SymboLM-2.1-SmolLM2-1.7B`](https://huggingface.co/gyawalisanish0/SymboLM-2.1-SmolLM2-1.7B)):**
+    - `symbolm-2.1-smollm2-1.7b-bf16.gguf` (3.42 GB) — Unquantized full fidelity.
+    - `symbolm-2.1-smollm2-1.7b-q8_0.gguf` (1.82 GB) — 8-bit quantization.
+    - `symbolm-2.1-smollm2-1.7b-q4_0.gguf` (964 MB) — 4-bit edge binary.
+- **Stratified 100-Problem Apples-to-Apples Benchmark on Kaggle Cloud TPU:**
+  - **Active Job:** [`sanishgyawali/symbolm-vs-deepseek-r1-math500-apples-to-apples`](https://www.kaggle.com/code/sanishgyawali/symbolm-vs-deepseek-r1-math500-apples-to-apples) (**`KernelWorkerStatus.RUNNING`**).
+  - Executing 3-arm comparison on stratified MATH-500 test split across 7 domains and 5 difficulty levels.
+
+
 
 ### 1. Training & Policy Weights
 - **Status:** **`KernelWorkerStatus.COMPLETE`** (Finished after 3h 17m, 250/250 steps, 16,000 candidate rollouts, final loss: `0.009674`).

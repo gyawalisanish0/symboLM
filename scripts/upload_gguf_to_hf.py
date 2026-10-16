@@ -49,25 +49,41 @@ def upload_gguf_suite(repo_id: str, gguf_dir: Path, files: list[str], model_labe
     if not gguf_dir.exists():
         raise FileNotFoundError(f"Directory not found: {gguf_dir}")
 
+    existing_files = set(api.list_repo_files(repo_id))
+
     for fname in files:
         fpath = gguf_dir / fname
         if not fpath.exists():
             print(f"[WARN] File not found: {fname}, skipping.")
             continue
 
+        if fname in existing_files:
+            print(f"[SKIP] {fname} already exists on {repo_id}. Skipping.")
+            continue
+
         fsize_mb = fpath.stat().st_size / (1024 * 1024)
         print(f"\n[UPLOAD] Uploading {fname} ({fsize_mb:.2f} MB / {fsize_mb/1024:.2f} GB) to {repo_id}...")
-        t0 = time.time()
-        api.upload_file(
-            path_or_fileobj=str(fpath),
-            path_in_repo=fname,
-            repo_id=repo_id,
-            repo_type="model",
-            commit_message=f"release: upload official SymboLM v2.1 GGUF {fname} (Sanish Gyawali)",
-        )
-        dur = time.time() - t0
-        speed = fsize_mb / dur if dur > 0 else 0
-        print(f"[DONE] {fname} successfully uploaded in {dur:.1f}s ({speed:.2f} MB/s)!")
+
+        max_retries = 5
+        for attempt in range(1, max_retries + 1):
+            try:
+                t0 = time.time()
+                api.upload_file(
+                    path_or_fileobj=str(fpath),
+                    path_in_repo=fname,
+                    repo_id=repo_id,
+                    repo_type="model",
+                    commit_message=f"release: upload official SymboLM v2.1 GGUF {fname} (Sanish Gyawali)",
+                )
+                dur = time.time() - t0
+                speed = fsize_mb / dur if dur > 0 else 0
+                print(f"[DONE] {fname} successfully uploaded in {dur:.1f}s ({speed:.2f} MB/s)!")
+                break
+            except Exception as e:
+                print(f"[RETRY] Upload attempt {attempt}/{max_retries} failed: {e}")
+                if attempt == max_retries:
+                    raise
+                time.sleep(5 * attempt)
 
     print("\n" + "=" * 75)
     print(f"[SUCCESS] All {model_label} GGUF models are live on Hugging Face Hub!")
