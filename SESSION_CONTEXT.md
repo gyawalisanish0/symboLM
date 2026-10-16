@@ -121,8 +121,16 @@
   - **Active Job:** [`sanishgyawali/symbolm-vs-deepseek-r1-math500-apples-to-apples`](https://www.kaggle.com/code/sanishgyawali/symbolm-vs-deepseek-r1-math500-apples-to-apples) (**`KernelWorkerStatus.RUNNING`**).
   - Executing 3-arm comparison on stratified MATH-500 test split across 7 domains and 5 difficulty levels.
 
+### 10. Fault-Tolerant Apples-to-Apples Incremental Persistence Engine (Oct 16, 2026)
+- **Problem Solved:** Prevent loss of benchmark data from cloud container timeouts (e.g. Kaggle's 9-hour execution ceiling), node preemptions, or process termination.
+- **Engine Delivered (`eval/benchmark_apples_to_apples.py` & Kaggle Runner):**
+  1. **Atomic Flush Per Question:** `save_benchmark_outputs` writes `.tmp.json` $\to$ `.json` and regenerates publication-grade Markdown report after every evaluated question.
+  2. **Zero-Overhead Resumption:** Automatically inspects existing output JSON on startup; populates completed question sets for all 3 arms; skips already evaluated questions; skips model loading entirely if a phase is already 100% complete.
+  3. **Live Tarball Archive:** Real-time synchronization of `/kaggle/working/symbolm_apples_to_apples_receipts.tar.gz` ensuring Kaggle captures complete downloadable receipts regardless of when or why the container halts.
+  4. **Dynamic Harvester:** Updated Kaggle notebook Cell 7 to dynamically bundle all available receipts without crashing on missing files.
+- **Verification:** 45/45 unit tests passed (100% OK). Dry run end-to-end verified with live file generation, partial execution, and seamless 100% skip on resume. Pushed to `origin/main` (commit `466cba7`).
 
-
+---
 ### 1. Training & Policy Weights
 - **Status:** **`KernelWorkerStatus.COMPLETE`** (Finished after 3h 17m, 250/250 steps, 16,000 candidate rollouts, final loss: `0.009674`).
 - **Local Persistence:** Final policy adapter weights successfully downloaded and placed in [`checkpoints/grpo_adapter/`](file:///c:/Users/user/Dev/symboLM/checkpoints/grpo_adapter) (`adapter_model.safetensors` 1.0 GB, `adapter_config.json`, `tokenizer.json`, `chat_template.jinja`).
