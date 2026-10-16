@@ -280,9 +280,20 @@ def run_apples_to_apples(args):
     print(f"Adapter Path    : {args.adapter_path}")
     print(f"Active Arms     : {args.arms}")
     print(f"Sample Limit    : {args.sample_limit}")
-    print(f"Device          : {'CUDA (NVIDIA GPU)' if torch.cuda.is_available() else 'CPU'}")
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+        device_str = f"CUDA (NVIDIA GPU: {torch.cuda.get_device_name(0)})"
+    else:
+        try:
+            import torch_xla.core.xla_model as xm
+            device = xm.xla_device()
+            device_str = f"TPU (PyTorch/XLA: {device})"
+        except Exception:
+            device = torch.device("cpu")
+            device_str = "CPU"
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Device          : {device_str}")
+
     questions = load_benchmark_dataset(args.dataset, args.sample_limit)
 
     # Initialize Tokenizer
@@ -311,12 +322,19 @@ def run_apples_to_apples(args):
         print("=" * 80)
         
         if not args.dry_run:
-            base_model = AutoModelForCausalLM.from_pretrained(
-                args.base_model,
-                torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
-                device_map="auto" if torch.cuda.is_available() else None,
-                trust_remote_code=True
-            )
+            if torch.cuda.is_available():
+                base_model = AutoModelForCausalLM.from_pretrained(
+                    args.base_model,
+                    torch_dtype=torch.bfloat16,
+                    device_map="auto",
+                    trust_remote_code=True
+                )
+            else:
+                base_model = AutoModelForCausalLM.from_pretrained(
+                    args.base_model,
+                    torch_dtype=torch.bfloat16 if "xla" in str(device) else torch.float32,
+                    trust_remote_code=True
+                ).to(device)
             base_model.eval()
         else:
             base_model = None
@@ -416,14 +434,23 @@ def run_apples_to_apples(args):
         print("=" * 80)
 
         if not args.dry_run:
-            base_model = AutoModelForCausalLM.from_pretrained(
-                args.base_model,
-                torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
-                device_map="auto" if torch.cuda.is_available() else None,
-                trust_remote_code=True
-            )
-            print(f"[ADAPTER] Attaching policy adapter from: {args.adapter_path}")
-            symbo_model = PeftModel.from_pretrained(base_model, args.adapter_path)
+            if torch.cuda.is_available():
+                base_model = AutoModelForCausalLM.from_pretrained(
+                    args.base_model,
+                    torch_dtype=torch.bfloat16,
+                    device_map="auto",
+                    trust_remote_code=True
+                )
+                print(f"[ADAPTER] Attaching policy adapter from: {args.adapter_path}")
+                symbo_model = PeftModel.from_pretrained(base_model, args.adapter_path)
+            else:
+                base_model = AutoModelForCausalLM.from_pretrained(
+                    args.base_model,
+                    torch_dtype=torch.bfloat16 if "xla" in str(device) else torch.float32,
+                    trust_remote_code=True
+                ).to(device)
+                print(f"[ADAPTER] Attaching policy adapter from: {args.adapter_path}")
+                symbo_model = PeftModel.from_pretrained(base_model, args.adapter_path).to(device)
             symbo_model.eval()
             from symbolic.grammar_fsm import SymboLogitsProcessor
         else:
