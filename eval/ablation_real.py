@@ -404,6 +404,43 @@ def run_ablation(
             json.dump(receipt_data, f, indent=2)
         tmp_file.replace(output_json)
 
+        # Periodic intermediate report and live archive (every 10 problems)
+        if idx % 10 == 0 or idx == total_problems:
+            inter_summary = {}
+            for a in arms:
+                sub_items = [it for it in receipt_data["itemized"] if a in it.get("arms", {})]
+                if sub_items:
+                    k_sub = sum(1 for it in sub_items if it["arms"][a]["is_correct"])
+                    n_sub = len(sub_items)
+                    acc_sub = k_sub / n_sub
+                    c_low, c_high = wilson_score_interval(k_sub, n_sub)
+                    toks = [it["arms"][a]["tokens_emitted"] for it in sub_items]
+                    lats = [it["arms"][a]["latency_sec"] for it in sub_items]
+                    inter_summary[a] = {
+                        "evaluated_n": n_sub,
+                        "correct_k": k_sub,
+                        "accuracy": round(acc_sub, 4),
+                        "wilson_95_ci": [round(c_low, 4), round(c_high, 4)],
+                        "mean_tokens": round(sum(toks) / n_sub, 2),
+                        "min_tokens": min(toks),
+                        "max_tokens": max(toks),
+                        "mean_latency_sec": round(sum(lats) / n_sub, 3),
+                    }
+            if inter_summary:
+                generate_markdown_report(inter_summary, output_report, total_evaluated=len(receipt_data["itemized"]))
+                # Live tarball archive sync if in Kaggle environment
+                if Path("/kaggle/working").exists():
+                    try:
+                        os.system(
+                            "tar -czf /kaggle/working/symbolm_audit_and_valuation_receipts.tar.gz "
+                            "-C /kaggle/working/symboLM "
+                            "PREREG_VALUATION.md "
+                            "eval/ablation_real_results.json "
+                            "eval/ABLATION_REAL_REPORT.md 2>/dev/null"
+                        )
+                    except Exception:
+                        pass
+
     # Compute Aggregate Scorecards & Confidence Intervals
     summary_arms = {}
     for arm in arms:

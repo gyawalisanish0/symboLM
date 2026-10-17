@@ -567,6 +567,49 @@ def run_valuation(
             json.dump(data_store, f, indent=2)
         tmp_file.replace(receipt_file)
 
+        # Periodic intermediate report and tarball refresh (every 10 problems)
+        if idx % 10 == 0 or idx == total_problems:
+            inter_summary = {}
+            for a in arms:
+                sub_items = [it["arms"][a] for it in data_store["items"] if a in it.get("arms", {})]
+                if sub_items:
+                    k_sub = sum(1 for it in sub_items if it["is_correct"])
+                    n_sub = len(sub_items)
+                    acc_sub = k_sub / n_sub
+                    tot_e = sum(it["dynamic_joules"] for it in sub_items)
+                    tot_l = sum(it["latency_sec"] for it in sub_items)
+                    tot_t = sum(it["tokens_emitted"] for it in sub_items)
+                    is_est = any(it.get("is_energy_estimate", False) for it in sub_items)
+                    j_pc = tot_e / k_sub if k_sub > 0 else float("inf")
+                    l_pc = tot_l / k_sub if k_sub > 0 else float("inf")
+                    inter_summary[a] = {
+                        "n": n_sub,
+                        "correct": k_sub,
+                        "accuracy": round(acc_sub, 4),
+                        "total_dynamic_joules": round(tot_e, 2),
+                        "joules_per_correct": round(j_pc, 2) if not math.isinf(j_pc) else "inf",
+                        "latency_sec_per_correct": round(l_pc, 3) if not math.isinf(l_pc) else "inf",
+                        "mean_latency_sec": round(tot_l / n_sub, 3),
+                        "mean_tokens": round(tot_t / n_sub, 1),
+                        "is_estimate": is_est,
+                    }
+            if inter_summary:
+                dummy_boot = {"mean_delta_joules_per_correct": "In Progress", "ci_95": "Calculating...", "excludes_zero": False, "adds_format_value": False, "scientific_conclusion": f"Intermediate update ({idx}/{total_problems} evaluated)"}
+                generate_valuation_report(inter_summary, dummy_boot, report_file, len(data_store["items"]))
+                if Path("/kaggle/working").exists():
+                    try:
+                        os.system(
+                            "tar -czf /kaggle/working/symbolm_audit_and_valuation_receipts.tar.gz "
+                            "-C /kaggle/working/symboLM "
+                            "PREREG_VALUATION.md "
+                            "VALUATION.md "
+                            "eval/ablation_real_results.json "
+                            "eval/ABLATION_REAL_REPORT.md "
+                            "results/valuation/ 2>/dev/null"
+                        )
+                    except Exception:
+                        pass
+
     # Aggregate Metrics & Statistical Testing
     summary = {}
     for arm in arms:
