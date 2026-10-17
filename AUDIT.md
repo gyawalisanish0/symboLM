@@ -43,15 +43,29 @@ Every number, benchmark score, and systems multiplier cited in `README.md` and r
 ---
 
 ## 3. Mandatory Remediation Directives
-
 1. **Retract or Re-label All `SIMULATED` & `CONSTANT` Claims:**
-   - Move `eval/ablation_5_arm_suite.py` to `eval/SIMULATED_ablation_5_arm_suite.py` with an unmistakable header disclaiming any evidential status.
-   - Clarify `plot_adaptive_allocation.py` as an illustrative model, not measured empirical data.
+   - Renamed `eval/ablation_5_arm_suite.py` to `eval/SIMULATED_ablation_5_arm_suite.py` with an unmistakable disclaimer header.
+   - Replaced simulation with real forward-pass harness `eval/ablation_real.py`.
 2. **Execute Task 1 (Honest Scorer):**
-   - Eliminate regex fallbacks and enforce strict truncation penalties via `eval/rescore.py`.
-   - Publish the rescored accuracy delta transparently.
+   - Eliminated regex fallbacks and enforced strict truncation penalties via `eval/rescore.py`.
+   - Published rescored accuracy delta transparently in `eval/RESCORING_AUDIT_REPORT.md`.
 3. **Execute Task 2 (Real Ablation):**
-   - Conduct actual forward-pass ablation on `HuggingFaceTB/SmolLM2-1.7B-Instruct` across $\ge 200$ held-out problems within free Kaggle GPU limits.
+   - Conducted live forward passes on 200 clean held-out problems via `eval/ablation_real.py`.
 4. **Update `README.md` & `EVIDENCE_TRUTH_TABLE.md`:**
-   - Remove "zero premature derivation cuts" and "3.9× increase in accuracy".
-   - Replace with honest, audited empirical figures.
+   - Removed unverified claims and replaced with audited, measured physical receipts.
+
+---
+
+## 4. Completed Remediation Status & Audited Receipts
+
+| Remediation Task | Description | Status | Verifiable Receipt Artifact | Key Empirical Finding |
+| :--- | :--- | :---: | :--- | :--- |
+| **Task 0: Audit** | Full claims & numbers audit | **`COMPLETE`** | [`AUDIT.md`](AUDIT.md) | Cataloged all claims into 4 epistemic classes. |
+| **Task 1: Honest Scorer** | Eradicate regex tail-guessing & penalize truncation | **`COMPLETE`** | [`eval/RESCORING_AUDIT_REPORT.md`](eval/RESCORING_AUDIT_REPORT.md) | True strict accuracy is 3.2%; 91.7% truncated at 512 cap; 80% reflex bypass verified. |
+| **Task 2: Real Ablation** | Forward-pass 4-arm ablation on clean split | **`COMPLETE`** | [`eval/ABLATION_REAL_REPORT.md`](eval/ABLATION_REAL_REPORT.md) | CoT 7.0%, Answer-Only 15.0%, Full Reg 10.0%, Shuffled 9.0% ($\Delta_{\text{causal}} = +1.00\%$). |
+| **Task 3: Verifier Falsification** | Measure rejection rate on corrupted math | **`COMPLETE`** | [`eval/VERIFIER_FALSIFICATION_REPORT.md`](eval/VERIFIER_FALSIFICATION_REPORT.md) | Autoregressive $P(✗) = 0.0\%$; validates sandboxed SymPy Tiny Terminal. |
+| **Task 4: Contamination Audit** | Measure prompt and n-gram overlap | **`COMPLETE`** | [`eval/CONTAMINATION_AUDIT_REPORT.md`](eval/CONTAMINATION_AUDIT_REPORT.md) | 47 prompt leaks (4.7%); extracted 200 clean held-out problems (`data/held_out_eval_200_clean.jsonl`). |
+| **Hardware Valuation** | NVML power profiling on Dual Tesla T4 | **`COMPLETE`** | [`VALUATION.md`](VALUATION.md) | Idle baseline 32.60 W; Arm C saves 38.3% Joules vs CoT; Arm E saves 78.4% Joules with 3.3× accuracy. |
+| **Pre-Registration** | Lock hypothesis & decision rule | **`LOCKED`** | [`PREREG_VALUATION.md`](PREREG_VALUATION.md) | Committed before physical silicon measurements; locked paired bootstrap 95% CI rule. |
+| **Task 7: Master Summary** | Public-facing report for research grants | **`COMPLETE`** | [`RESULTS_SUMMARY.md`](RESULTS_SUMMARY.md) | Consolidated truth table and hardware receipts for Emergent Ventures & 1517 Fund. |
+

@@ -453,19 +453,21 @@
 7. **Task 2 (Real 4-Arm Forward Ablation - [`eval/ablation_real.py`](eval/ablation_real.py)):** Implemented model-evaluated forward pass ablation suite measuring Pass@1, Wilson 95% confidence intervals, actual tokenizer token counts, and Lanham causal plan intervention (Arm C vs. Arm D).
 8. **Pre-Registration Locked ([`PREREG_VALUATION.md`](PREREG_VALUATION.md)):** Committed and locked the pre-registered decision rule prior to physical silicon measurements: Arm C adds format value ONLY IF paired bootstrap 95% CI on $(J/\text{correct}_D - J/\text{correct}_C)$ strictly excludes zero at accuracy $\ge \text{Acc}_D - 2.0\%$.
 9. **Hardware Valuation Engine ([`eval/power_profiler.py`](eval/power_profiler.py)):** Implemented high-frequency NVML power polling (100ms interval), baseline idle subtraction, dynamic energy numerical integration (Joules), and 10,000-resample paired bootstrap CI across the 5 valuation arms (including Arm D router control and Arm E Python calculator).
-10. **Active Kaggle Cloud GPU Execution:** Deployed and currently executing `sanishgyawali/symbolm-task-2-ablation-hardware-valuation` on Kaggle Dual Tesla T4 GPU.
+10. **Completed Task 2 & NVML Hardware Valuation Run:** Successfully executed and ingested receipts from `sanishgyawali/symbolm-task-2-ablation-hardware-valuation` on Dual Tesla T4 GPUs:
+    - Arm A (CoT): 7.00% Pass@1, 2,052.41 J/correct.
+    - Arm B (Answer-Only): 15.00% Pass@1, 25.84 J/correct (79.4× reflex energy reduction, 20.7× sequence compression).
+    - Arm C (Full Registers): 10.00% Pass@1, 1,265.75 J/correct (38.3% lower dynamic energy per correct solve).
+    - Arm D (Causal/Router Control): 9.00% Pass@1 (ablation), 1,301.41 J/correct (valuation).
+    - Arm E (Tiny Terminal Emulation): 23.00% Pass@1, 444.30 J/correct (78.4% energy drop, 3.3× accuracy boost).
+11. **Active Flagship Reasoning Execution:** Deployed `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU evaluating `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` across the $\{256, 512, 1024, 2048\}$ multi-budget grid.
 
 ---
 
 ## 📌 Immediate Next Steps:
-1. **Monitor Kaggle Kernel:** Track completion of `sanishgyawali/symbolm-task-2-ablation-hardware-valuation`.
-2. **Download Receipts:** Extract `/kaggle/working/symbolm_audit_and_valuation_receipts.tar.gz` and commit raw receipts into `results/valuation/`.
-3. **Compile Honest Public Facing Report:** Synthesize findings into `VALUATION.md` and `RESULTS_SUMMARY.md`.
-4. **Grant Presentation:** Provide Emergent Ventures (Dr. Tyler Cowen), 1517 Fund, and Nat Friedman with an unshakeable, 100% peer-reviewed empirical scorecard.
-
-
-
-
+1. **Monitor DeepSeek Kernel:** Track execution of `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU.
+2. **Ingest DeepSeek Grid Receipts:** Download `/kaggle/working/symbolm_deepseek_valuation_receipts.tar.gz` and commit raw receipts into `results/valuation_deepseek/`.
+3. **Compile Master Pareto Report:** Synthesize multi-budget Pareto frontier across $\{256, 512, 1024, 2048\}$ tokens and paired bootstrap 95% CIs.
+4. **Grant Packets:** Update Emergent Ventures, 1517 Fund, and Nat Friedman AI Grant applications with physical silicon energy tables.
 
 
 
