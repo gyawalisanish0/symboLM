@@ -61,3 +61,31 @@ Claude Haiku 5.5 conducted an in-depth adversarial peer review of the SymboLM co
 - **Task 5 (Cross-Family Retest):** Run SmolLM2 adapter across full held-out benchmark split.
 - **Task 6 (Environment & Tests):** Pin dependencies and verify native unit tests pass 100%.
 - **Task 7 (Honest Public Facing):** Author `RESULTS_SUMMARY.md` and update `README.md` with an unshakeable Evidence Truth Table.
+
+---
+
+## 5. Hardware Valuation Protocol (Joules per Correct Answer)
+
+**Objective:** Measure what the register format is worth on real hardware in physical energy and latency per correct answer ($J/\text{correct}$), comparing against a router-only baseline to separate the value of routing from the value of the format.
+
+### A. Pre-Registration Mandate (`PREREG_VALUATION.md`)
+Prior to running any physical measurement, commit `PREREG_VALUATION.md` declaring:
+- **Primary Metric:** Dynamic energy per correct answer ($J/\text{correct}$).
+- **Pre-Registered Decision Rule:** Arm C (Full Registers) counts as adding value over Arm D (Router-Only) ONLY IF:
+  1. Arm C beats Arm D on $J/\text{correct}$ with a paired bootstrap 95% CI excluding zero on identical problems.
+  2. Accuracy of Arm C is $\ge$ Accuracy of Arm D minus 2.0 percentage points.
+  - *If C and D are within noise, the conclusion is strictly that the value is routing alone.*
+- Generation headroom is unbounded (4,096 tokens); truncated outputs scored strictly as FAIL.
+
+### B. The 5 Valuation Arms (SmolLM2-1.7B-Instruct, GGUF Q4_K_M)
+- **Arm A:** Ordinary CoT, greedy.
+- **Arm B:** Answer-only.
+- **Arm C:** Full Register format (Router + Plan + Deduce + Verify).
+- **Arm D (Causal Router Control):** Router-only. Shares identical router weights with Arm C. Easy queries get `<reg:bypass>`; hard queries get plain CoT with zero registers. Isolates the format value from routing.
+- **Arm E:** CoT with Python calculator. Generated code executed in a sandboxed subprocess with timeout and zero network access.
+
+### C. Hardware Targets & Sampling
+- **Kaggle T4 GPU:** Query `nvidia-smi --query-gpu=power.draw` every 100 ms during generation; subtract idle baseline to compute dynamic Joules.
+- **Local Host CPU:** Microsecond timing; report execution time and label energy as `ESTIMATE` with stated TDP.
+- **Outputs:** `results/valuation/` raw logs, `VALUATION.md` tables and Pareto frontier plots.
+
