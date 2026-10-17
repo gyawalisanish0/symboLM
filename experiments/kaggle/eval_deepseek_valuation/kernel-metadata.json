@@ -1,0 +1,15 @@
+{
+  "id": "sanishgyawali/symbolm-deepseek-1-5b-valuation-grid",
+  "title": "SymboLM DeepSeek 1.5B Valuation Grid",
+  "code_file": "symbolm_deepseek_valuation.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
