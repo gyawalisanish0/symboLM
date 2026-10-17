@@ -23,24 +23,37 @@ Does the SymboLM symbolic multi-register reasoning format (`<reg:plan>`, `<reg:d
 
 ---
 
-## 2. Pre-Registered Decision Rules
+## 2. Pre-Registered Decision Rules (Multi-Budget Pareto Frontier)
 
-1. **Format Value Criterion:**
-   Arm C (Full Registers) counts as adding empirical value over Arm D (Router-Only) **if and only if**:
-   - $\text{Mean}(J/\text{correct}_C) < \text{Mean}(J/\text{correct}_D)$.
-   - The 95% confidence interval of the paired difference $(J/\text{correct}_D - J/\text{correct}_C)$, computed via $B=10,000$ bootstrap resamples across paired problems, **strictly excludes zero**.
-   - Accuracy of Arm C is non-inferior to Arm D: $\text{Accuracy}(C) \ge \text{Accuracy}(D) - 2.0\%$.
+1. **Multi-Budget Token Grid:**
+   To evaluate the accuracy-energy frontier without confounding accuracy with premature truncation, all arms will be evaluated and reported across a 4-point token budget grid:
+   $$\text{Token Budgets: } \{256, 512, 1024, 2048\}$$
+   Truncated outputs failing to reach formal answer closure are strictly scored as **FAIL (0)**.
 
-2. **Null Interpretation:**
-   If the paired difference confidence interval includes zero, or if Arm C fails the accuracy non-inferiority bound:
+2. **Format Value Criterion Across Budgets:**
+   Arm C (Full Registers) counts as adding empirical value over Arm D (Router-Only Control) **if and only if**:
+   - At every budget where Arm D's accuracy is within 2.0 percentage points of its own peak accuracy across the grid:
+     $$\text{Mean}(J/\text{correct}_C) < \text{Mean}(J/\text{correct}_D)$$
+   - The 95% confidence interval of the paired difference $(J/\text{correct}_D - J/\text{correct}_C)$, computed via $B=10,000$ bootstrap resamples on identical problems, **strictly excludes zero**.
+   - All budgets will be published transparently in `VALUATION.md`, including any budgets where Arm C loses.
+
+3. **Null Interpretation:**
+   If the paired difference confidence interval includes zero, or if Arm C fails the accuracy non-inferiority bound at peak budgets:
    - The scientific conclusion will explicitly state: *"The empirical efficiency advantage of SymboLM originates from the modular router mechanism rather than the register token grammar itself."*
    - No post-hoc metric reweighting or selective cherry-picking is permitted.
 
 ---
 
-## 3. The Five Experimental Arms
+## 3. Base Model Hierarchy (In Order of Priority)
 
-All arms will evaluate `HuggingFaceTB/SmolLM2-1.7B-Instruct` quantized to GGUF `Q4_K_M` to ensure identical parameter count, memory footprint, and edge deployment realism.
+1. **Primary Flagship:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`. The core backbone of all headline repo results, ensuring continuity. Target: mobile/edge phone and host CPU.
+2. **Scale Point:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` (Q4_K_M on laptop CPU, plus 4-bit LoRA on Kaggle T4 if quota allows). Target: consumer laptop.
+3. **Cross-Family Reasoning Control:** `deepseek-ai/DeepSeek-R1-Distill-Llama-8B` (4-bit). Meta LLaMA architecture with identical DeepSeek-R1 reasoning training. *(SmolLM2 is excluded as a cross-family control as it is not a reasoning model).*
+*Quota rule:* If compute quota is constrained, evaluate all 5 arms on 1.5B only, and arms A and C on 7B.
+
+---
+
+## 4. The Five Experimental Arms
 
 | Arm | Name | Strategy & Prompting | Register Usage | Router Active |
 | :--- | :--- | :--- | :--- | :--- |

@@ -71,21 +71,29 @@ Claude Haiku 5.5 conducted an in-depth adversarial peer review of the SymboLM co
 ### A. Pre-Registration Mandate (`PREREG_VALUATION.md`)
 Prior to running any physical measurement, commit `PREREG_VALUATION.md` declaring:
 - **Primary Metric:** Dynamic energy per correct answer ($J/\text{correct}$).
+- **Required Token Budget Grid:** Evaluate every arm at budgets **256, 512, 1024, and 2048 tokens**. Truncated outputs without formal closures scored strictly as **FAIL (0)**.
 - **Pre-Registered Decision Rule:** Arm C (Full Registers) counts as adding value over Arm D (Router-Only) ONLY IF:
-  1. Arm C beats Arm D on $J/\text{correct}$ with a paired bootstrap 95% CI excluding zero on identical problems.
-  2. Accuracy of Arm C is $\ge$ Accuracy of Arm D minus 2.0 percentage points.
+  1. Arm C beats Arm D on $J/\text{correct}$ at every budget where D's accuracy is within 2 points of its own peak.
+  2. The paired bootstrap 95% CI on $(J/\text{correct}_D - J/\text{correct}_C)$ strictly excludes zero on identical problems.
   - *If C and D are within noise, the conclusion is strictly that the value is routing alone.*
-- Generation headroom is unbounded (4,096 tokens); truncated outputs scored strictly as FAIL.
+  - *Report all budgets transparently, including those where C loses.*
 
-### B. The 5 Valuation Arms (SmolLM2-1.7B-Instruct, GGUF Q4_K_M)
+### B. Base Model Hierarchy (In Order of Priority)
+1. **Primary Flagship:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`. Foundation of all headline results; maintains repo continuity. Target: phone and local CPU.
+2. **Scale Point:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` (Q4_K_M on laptop CPU, plus 4-bit LoRA on Kaggle T4 if quota allows). Target: laptop.
+3. **Cross-Family Reasoning Control:** `deepseek-ai/DeepSeek-R1-Distill-Llama-8B` (4-bit). Different architecture (Meta LLaMA), same reasoning training. *Do not use SmolLM2 as the control, because it is not a reasoning model.*
+- *Quota Rule:* If quota is tight, run all 5 arms on the 1.5B only, and arms A and C on the 7B.
+
+### C. The 5 Valuation Arms
 - **Arm A:** Ordinary CoT, greedy.
 - **Arm B:** Answer-only.
 - **Arm C:** Full Register format (Router + Plan + Deduce + Verify).
 - **Arm D (Causal Router Control):** Router-only. Shares identical router weights with Arm C. Easy queries get `<reg:bypass>`; hard queries get plain CoT with zero registers. Isolates the format value from routing.
 - **Arm E:** CoT with Python calculator. Generated code executed in a sandboxed subprocess with timeout and zero network access.
 
-### C. Hardware Targets & Sampling
+### D. Hardware Targets & Sampling
 - **Kaggle T4 GPU:** Query `nvidia-smi --query-gpu=power.draw` every 100 ms during generation; subtract idle baseline to compute dynamic Joules.
 - **Local Host CPU:** Microsecond timing; report execution time and label energy as `ESTIMATE` with stated TDP.
-- **Outputs:** `results/valuation/` raw logs, `VALUATION.md` tables and Pareto frontier plots.
+- **Outputs:** `results/valuation/` raw logs, `VALUATION.md` tables and Pareto frontier plots (Accuracy vs. $J/\text{correct}$ across token budgets).
+
 
