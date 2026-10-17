@@ -1,10 +1,17 @@
 """
-SymboLM 5-Arm Register-Necessity Ablation Suite
-==============================================
-Empirical ablation framework demanded by Claude Sonnet (CRIT-003) to test
-causal register leverage and separate 'format adherence' from 'reasoning utility'.
+================================================================================
+DISCLAIMER: SIMULATION ONLY — NOT EMPIRICAL EVIDENCE
+================================================================================
+This script is a synthetic prototype simulation designed to illustrate the
+theoretical 5-arm ablation framework. Accuracies and token distributions within
+this file are simulated approximations (e.g. random.randint and fixed floats)
+and DO NOT constitute measured model forward passes or empirical evidence.
+For genuine model-evaluated ablations, see eval/ablation_real.py.
+================================================================================
 
-Evaluates 5 experimental arms across stratified math problems:
+SymboLM 5-Arm Register-Necessity Ablation Suite (SIMULATED PROTOTYPE)
+=====================================================================
+Theoretical ablation framework designed to illustrate the 5-arm protocol:
   - Arm 1: Verbose-CoT SFT (conversational filler baseline)
   - Arm 2: Answer-Only SFT (zero reasoning baseline)
   - Arm 3: Terse Untyped Scratchpad (SRL brevity without XML register tags)
