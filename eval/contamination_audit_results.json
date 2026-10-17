@@ -1,0 +1,362 @@
+{
+  "metadata": {
+    "total_benchmark_questions": 1000,
+    "exact_matches_count": 47,
+    "ngram_overlaps_count": 49,
+    "strictly_clean_count": 904,
+    "exact_match_accuracy_pct": 34.04,
+    "clean_accuracy_pct": 1.77
+  },
+  "exact_matches": [
+    {
+      "id": "MY2021_161",
+      "prompt": "What is the atomic number of Carbon?"
+    },
+    {
+      "id": "MY2021_162",
+      "prompt": "What is the chemical symbol for Potassium?"
+    },
+    {
+      "id": "MY2021_163",
+      "prompt": "What is the atomic number of Gold?"
+    },
+    {
+      "id": "MY2021_165",
+      "prompt": "What is the chemical symbol for Sodium?"
+    },
+    {
+      "id": "MY2021_167",
+      "prompt": "What is the atomic number of Hydrogen?"
+    },
+    {
+      "id": "MY2021_168",
+      "prompt": "What is the chemical symbol for Silver?"
+    },
+    {
+      "id": "MY2021_170",
+      "prompt": "What is the atomic number of Oxygen?"
+    },
+    {
+      "id": "MY2021_171",
+      "prompt": "What is the chemical symbol for Lead?"
+    },
+    {
+      "id": "MY2021_172",
+      "prompt": "What is the atomic number of Nitrogen?"
+    },
+    {
+      "id": "MY2021_178",
+      "prompt": "What is the SI unit of frequency?"
+    },
+    {
+      "id": "MY2021_179",
+      "prompt": "What is the chemical symbol for Tin?"
+    },
+    {
+      "id": "MY2021_181",
+      "prompt": "What is the chemical symbol for Tungsten?"
+    },
+    {
+      "id": "MY2021_184",
+      "prompt": "What is the chemical symbol for Mercury?"
+    },
+    {
+      "id": "MY2021_186",
+      "prompt": "What is the SI unit of force?"
+    },
+    {
+      "id": "MY2021_187",
+      "prompt": "What is the SI unit of energy?"
+    },
+    {
+      "id": "MY2021_192",
+      "prompt": "What is the chemical symbol for Iron?"
+    },
+    {
+      "id": "MY2023_001",
+      "prompt": "If x + 1/x = 9, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_004",
+      "prompt": "If x + 1/x = 9, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_005",
+      "prompt": "If x + 1/x = 8, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_008",
+      "prompt": "If x + 1/x = 8, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_010",
+      "prompt": "If x + 1/x = 4, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_011",
+      "prompt": "If x + 1/x = 4, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_013",
+      "prompt": "If x + 1/x = 7, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_018",
+      "prompt": "If x + 1/x = 7, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_019",
+      "prompt": "If x + 1/x = 5, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_020",
+      "prompt": "If x + 1/x = 6, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_021",
+      "prompt": "If x + 1/x = 5, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_023",
+      "prompt": "If x + 1/x = 3, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_024",
+      "prompt": "If x + 1/x = 6, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_025",
+      "prompt": "If x + 1/x = 8, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_026",
+      "prompt": "If x + 1/x = 4, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_028",
+      "prompt": "If x + 1/x = 5, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_030",
+      "prompt": "If x + 1/x = 3, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_031",
+      "prompt": "If x + 1/x = 6, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_032",
+      "prompt": "If x + 1/x = 5, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_036",
+      "prompt": "If x + 1/x = 8, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_038",
+      "prompt": "If x + 1/x = 4, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_039",
+      "prompt": "If x + 1/x = 4, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_043",
+      "prompt": "If x + 1/x = 3, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_044",
+      "prompt": "If x + 1/x = 4, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_046",
+      "prompt": "If x + 1/x = 6, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_051",
+      "prompt": "If x + 1/x = 4, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_053",
+      "prompt": "If x + 1/x = 4, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_054",
+      "prompt": "If x + 1/x = 4, find the exact value of x^4 + 1/x^4."
+    },
+    {
+      "id": "MY2023_055",
+      "prompt": "If x + 1/x = 5, find the exact value of x^2 + 1/x^2."
+    },
+    {
+      "id": "MY2023_056",
+      "prompt": "If x + 1/x = 9, find the exact value of x^3 + 1/x^3."
+    },
+    {
+      "id": "MY2023_059",
+      "prompt": "If x + 1/x = 6, find the exact value of x^3 + 1/x^3."
+    }
+  ],
+  "ngram_overlaps": [
+    {
+      "id": "MY2021_005",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_010",
+      "shared_ngrams": [
+        "currently 5 times as old as his son",
+        "a father is currently 5 times as old",
+        "is currently 5 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_015",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_020",
+      "shared_ngrams": [
+        "father is currently 4 times as old as",
+        "a father is currently 4 times as old",
+        "is currently 4 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_025",
+      "shared_ngrams": [
+        "currently 5 times as old as his son",
+        "a father is currently 5 times as old",
+        "is currently 5 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_030",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_035",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_040",
+      "shared_ngrams": [
+        "currently 5 times as old as his son",
+        "a father is currently 5 times as old",
+        "is currently 5 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_045",
+      "shared_ngrams": [
+        "currently 5 times as old as his son",
+        "a father is currently 5 times as old",
+        "is currently 5 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_050",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_055",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_060",
+      "shared_ngrams": [
+        "currently 5 times as old as his son",
+        "a father is currently 5 times as old",
+        "is currently 5 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_065",
+      "shared_ngrams": [
+        "currently 5 times as old as his son",
+        "a father is currently 5 times as old",
+        "is currently 5 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_070",
+      "shared_ngrams": [
+        "father is currently 4 times as old as",
+        "a father is currently 4 times as old",
+        "is currently 4 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_075",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_080",
+      "shared_ngrams": [
+        "father is currently 4 times as old as",
+        "a father is currently 4 times as old",
+        "is currently 4 times as old as his"
+      ]
+    },
+    {
+      "id": "MY2021_085",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_090",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_095",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    },
+    {
+      "id": "MY2021_100",
+      "shared_ngrams": [
+        "is currently 3 times as old as his",
+        "father is currently 3 times as old as",
+        "currently 3 times as old as his son"
+      ]
+    }
+  ]
+}
