@@ -314,6 +314,17 @@ def run_ablation(
         arms = all_arms
     print(f"Active Ablation Arms: {arms}")
 
+    # Auto-discover prior session checkpoints if output_json is empty
+    if not output_json.exists():
+        for candidate in Path("/kaggle/input").glob("**/ablation_real_results*.json"):
+            try:
+                print(f"[RESUME ENGINE] Found prior session checkpoint at: {candidate}")
+                import shutil
+                shutil.copy2(candidate, output_json)
+                break
+            except Exception:
+                pass
+
     # Load existing progress if available
     receipt_data = {"problems": total_problems, "arms": {}, "itemized": []}
     if output_json.exists():
@@ -322,12 +333,17 @@ def run_ablation(
                 saved = json.load(f)
                 if isinstance(saved, dict) and "itemized" in saved:
                     receipt_data = saved
-                    print(f"Loaded existing progress: {len(receipt_data['itemized'])} items recorded.")
+                    print(f"[RESUME ENGINE] Loaded existing progress: {len(receipt_data['itemized'])} items recorded.")
         except Exception as e:
             print(f"Warning: could not parse existing results JSON: {e}")
 
     # Map existing item results
     done_map = {item["id"]: item for item in receipt_data.get("itemized", [])}
+
+    # Count how many problems are 100% complete
+    already_complete = sum(1 for it in done_map.values() if all(a in it.get("arms", {}) for a in arms))
+    if already_complete > 0:
+        print(f"[RESUME ENGINE] {already_complete}/{total_problems} problems are 100% complete across all arms. Will skip instantly.")
 
     # Evaluation Loop
     for idx, prob in enumerate(problems, 1):
@@ -345,6 +361,13 @@ def run_ablation(
             }
 
         item_entry = done_map[pid]
+
+        # Fast-skip if all active arms are already finished
+        if all(a in item_entry.get("arms", {}) for a in arms):
+            if idx <= 5 or idx % 20 == 0 or idx == total_problems:
+                print(f"[{idx}/{total_problems}] Problem {pid} ({cat}) -> ALL ARMS COMPLETE [SKIPPING]")
+            continue
+
         print(f"\n[{idx}/{total_problems}] Problem {pid} ({cat}) | GT: '{gt}'")
 
         for arm in arms:

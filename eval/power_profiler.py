@@ -488,15 +488,33 @@ def run_valuation(
     ]
 
     receipt_file = out_dir / "valuation_results.json"
+
+    # Auto-discover prior session checkpoints if receipt_file is empty
+    if not receipt_file.exists():
+        for candidate in Path("/kaggle/input").glob("**/valuation_results*.json"):
+            try:
+                print(f"[RESUME ENGINE] Found prior session valuation checkpoint at: {candidate}")
+                import shutil
+                shutil.copy2(candidate, receipt_file)
+                break
+            except Exception:
+                pass
+
     data_store = {"problems": total_problems, "idle_power_w": idle_power, "items": []}
     if receipt_file.exists():
         try:
             with open(receipt_file, "r", encoding="utf-8") as f:
                 data_store = json.load(f)
+                print(f"[RESUME ENGINE] Loaded existing progress: {len(data_store.get('items', []))} items recorded.")
         except Exception:
             pass
 
     done_map = {item["id"]: item for item in data_store.get("items", [])}
+
+    # Count how many problems are 100% complete
+    already_complete = sum(1 for it in done_map.values() if all(a in it.get("arms", {}) for a in arms))
+    if already_complete > 0:
+        print(f"[RESUME ENGINE] {already_complete}/{total_problems} valuation problems are 100% complete across all 5 arms. Skipping instantly.")
 
     for idx, prob in enumerate(problems, 1):
         pid = prob["id"]
@@ -506,6 +524,13 @@ def run_valuation(
         if pid not in done_map:
             done_map[pid] = {"id": pid, "category": cat, "ground_truth": gt, "arms": {}}
         item_entry = done_map[pid]
+
+        # Fast-skip if all 5 valuation arms are already finished
+        if all(a in item_entry.get("arms", {}) for a in arms):
+            if idx <= 5 or idx % 20 == 0 or idx == total_problems:
+                print(f"[{idx}/{total_problems}] Problem {pid} ({cat}) -> ALL 5 ARMS COMPLETE [SKIPPING]")
+            continue
+
         print(f"\n[{idx}/{total_problems}] Problem {pid} ({cat}) | GT: '{gt}'")
 
         for arm in arms:
