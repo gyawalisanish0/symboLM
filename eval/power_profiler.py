@@ -547,7 +547,7 @@ def run_valuation(
             with torch.no_grad():
                 outputs = model.generate(
                     **inputs,
-                    max_new_tokens=min(max_tokens, 1024),
+                    max_new_tokens=max_tokens,
                     do_sample=False,
                     repetition_penalty=1.1,
                     eos_token_id=tokenizer.eos_token_id,
@@ -620,17 +620,16 @@ def run_valuation(
                     }
             if inter_summary:
                 dummy_boot = {"mean_delta_joules_per_correct": "In Progress", "ci_95": "Calculating...", "excludes_zero": False, "adds_format_value": False, "scientific_conclusion": f"Intermediate update ({idx}/{total_problems} evaluated)"}
-                generate_valuation_report(inter_summary, dummy_boot, report_file, len(data_store["items"]))
+                generate_valuation_report(inter_summary, {}, dummy_boot, report_file, len(data_store["items"]))
                 if Path("/kaggle/working").exists():
                     try:
+                        out_rel = out_dir.relative_to(ROOT_DIR) if out_dir.is_relative_to(ROOT_DIR) else out_dir.name
                         os.system(
-                            "tar -czf /kaggle/working/symbolm_audit_and_valuation_receipts.tar.gz "
-                            "-C /kaggle/working/symboLM "
-                            "PREREG_VALUATION.md "
-                            "VALUATION.md "
-                            "eval/ablation_real_results.json "
-                            "eval/ABLATION_REAL_REPORT.md "
-                            "results/valuation/ 2>/dev/null"
+                            f"tar -czf /kaggle/working/symbolm_audit_and_valuation_receipts.tar.gz "
+                            f"-C /kaggle/working/symboLM "
+                            f"PREREG_VALUATION.md "
+                            f"{report_file.name} "
+                            f"{out_rel} 2>/dev/null"
                         )
                     except Exception:
                         pass
