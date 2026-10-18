@@ -86,15 +86,21 @@ github.com/gyawalisanish0/symboLM
 🧵 Deep dive into the failure of 1st-gen reasoning and our hardware receipts 👇
 ```
 
-### Tweet 2 (The 1st-Gen Reasoning Crisis: Overthinking & Drift)
+### Tweet 2 (The 1st-Gen Reasoning Crisis: Tagging Landmark Literature)
 ```text
 2/ Why are current thinking models struggling?
 
-Recent papers ("When More Thinking Hurts", "Stop Overthinking") highlight the crisis:
-1. Uniform compute: Models burn thousands of tokens overthinking simple queries.
-2. Amorphous monologue: Unconstrained natural language (<think>...) drifts into second-guessing loops.
-3. Arithmetic simulation: Wasting neural parameters trying to simulate long division in serial text.
-4. Edge failure: On phones or robotics with tight token limits, models truncate mid-thought and output nothing.
+Recent landmark papers highlight the 1st-gen crisis:
+• "When More Thinking Hurts: Overthinking in LLM Test-Time Compute" (NeurIPS/ArXiv)
+• "Stop Overthinking: A Survey on Efficient Reasoning" (ArXiv 2025)
+• "Measuring Faithfulness of Thinking Drafts in LRMs" (Xiong et al., 2025)
+• "OptimalThinkingBench" (ICLR 2025)
+
+Four critical failure modes:
+1. Uniform compute: Burning thousands of tokens overthinking atomic facts.
+2. Amorphous monologue: High-entropy text (<think>...) drifts into second-guessing loops.
+3. Arithmetic simulation: Wasting neural weights trying to simulate division in text.
+4. Edge budget-choking: Catastrophic 0% collapse under edge limits (256 tokens).
 ```
 
 ### Tweet 3 (The SymboLM Tri-Register Solution)
