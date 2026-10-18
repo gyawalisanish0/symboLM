@@ -1,0 +1,15 @@
+{
+  "id": "sanishgyawali/symbolm-robust-6arm-4budget-eval",
+  "title": "SymboLM Robust 6-Arm 4-Budget Evaluation",
+  "code_file": "symbolm_robust_eval.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
