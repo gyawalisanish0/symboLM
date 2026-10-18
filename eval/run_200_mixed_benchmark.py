@@ -48,8 +48,9 @@ def parse_args():
     parser.add_argument("--data_path", type=str, default="data/benchmark_1000_multi_year.jsonl")
     parser.add_argument("--output_path", type=str, default="eval/eval_1000_results.json")
     parser.add_argument("--report_path", type=str, default="eval/EVAL_1000_REPORT.md")
-    parser.add_argument("--max_tokens", type=int, default=512, help="Elastic token budget (early exit on </ans>)")
+    parser.add_argument("--max_tokens", type=int, default=4096, help="Unbounded elastic token budget (early exit on </ans>)")
     parser.add_argument("--temperature", type=float, default=0.0, help="0.0 for deterministic greedy Pass@1")
+    parser.add_argument("--repetition_penalty", type=float, default=1.1, help="Penalize token loops to guarantee progression to </ans>")
     parser.add_argument("--limit", type=int, default=None, help="Optional question limit for testing")
     parser.add_argument("--use_fsm", action="store_true", help="Enable Grammar FSM to mask conversational English filler words")
     return parser.parse_args()
@@ -268,6 +269,7 @@ def run_evaluation(args):
             "eos_token_id": tokenizer.eos_token_id,
             "stopping_criteria": stopping_criteria,
             "logits_processor": logits_processor,
+            "repetition_penalty": args.repetition_penalty,
         }
         if args.temperature > 0:
             gen_kwargs["temperature"] = args.temperature

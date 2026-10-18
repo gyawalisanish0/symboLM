@@ -51,6 +51,7 @@ data/symbolic_dataset/*.jsonl
 # Logs and screenshots
 *.log
 *.png
+!docs/assets/**
 scratch/
 eval_cross_domain/
 stage4_download/
@@ -73,4 +74,9 @@ experiments/**/output/
 # LLaMA Adapter Weights (host on Hub; keep json receipts in git)
 eval/cross_family_llama/*.tar.gz
 eval/cross_family_llama/symbolm_llama_1_7b_adapter/
+
+# Kaggle Valuation Receipts (Unpacked raw download)
+experiments/kaggle_valuation_receipts/
+
+
 

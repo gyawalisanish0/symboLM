@@ -520,6 +520,7 @@ def run_apples_to_apples(args):
                         max_new_tokens=args.symbolm_max_tokens,
                         temperature=0.0,
                         do_sample=False,
+                        repetition_penalty=getattr(args, "repetition_penalty", 1.1),
                         stopping_criteria=stopping,
                         logits_processor=fsm_proc,
                         pad_token_id=tokenizer.eos_token_id
@@ -778,7 +779,8 @@ def parse_args():
     parser.add_argument("--arms", type=str, default="all", choices=["all", "base_unconstrained", "base_choked", "base_both", "symbolm"])
     parser.add_argument("--base_max_tokens", type=int, default=4096)
     parser.add_argument("--choked_max_tokens", type=int, default=512)
-    parser.add_argument("--symbolm_max_tokens", type=int, default=512)
+    parser.add_argument("--symbolm_max_tokens", type=int, default=4096, help="Unbounded elastic budget for SymboLM (early exit on </ans>)")
+    parser.add_argument("--repetition_penalty", type=float, default=1.1, help="Repetition penalty to prevent degenerate token loops")
     parser.add_argument("--output_json", type=str, default="eval/apples_to_apples_results.json")
     parser.add_argument("--output_report", type=str, default="eval/MATH500_APPLES_TO_APPLES_REPORT.md")
     parser.add_argument("--no_resume", action="store_true", help="Do not resume from existing output_json; overwrite from scratch")

@@ -1,0 +1,172 @@
+{
+  "metadata": {
+    "total_tested": 100,
+    "rejections_count": 0,
+    "rejection_rate_pct": 0.0,
+    "acceptances_count": 100,
+    "indeterminate_count": 0,
+    "finding": "The verify register in the current static policy operates ceremonially (P(emit \u2717) \u2248 0.0%), confirming that active rollback requires runtime Tiny Terminal execution."
+  },
+  "sample_records": [
+    {
+      "id": "concept_geo_73",
+      "concept": "inradius_geometry",
+      "original_value": "24",
+      "corrupted_value": "31",
+      "verify_text": "verify(24>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_poly_193",
+      "concept": "polynomial_invariant",
+      "original_value": "15127",
+      "corrupted_value": "15134",
+      "verify_text": "verify(15127>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_dio_rate_156",
+      "concept": "diophantine_or_rates",
+      "original_value": "4",
+      "corrupted_value": "11",
+      "verify_text": "verify(4>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_dio_rate_223",
+      "concept": "diophantine_or_rates",
+      "original_value": "4",
+      "corrupted_value": "11",
+      "verify_text": "verify(ans>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_crt_84",
+      "concept": "chinese_remainder",
+      "original_value": "8",
+      "corrupted_value": "15",
+      "verify_text": "verify(8 mod 5=3 \u2227 8 mod 11=8)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_comb_15",
+      "concept": "combinatorics_recurrence",
+      "original_value": "171",
+      "corrupted_value": "178",
+      "verify_text": "verify(171>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_dio_rate_118",
+      "concept": "diophantine_or_rates",
+      "original_value": "2",
+      "corrupted_value": "9",
+      "verify_text": "verify(2>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_word_203",
+      "concept": "arithmetic_word_problem",
+      "original_value": "8",
+      "corrupted_value": "15",
+      "verify_text": "verify(24==3*8 \u2227 24+8==2*(8+8))\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_legendre_196",
+      "concept": "legendre_formula",
+      "original_value": "491",
+      "corrupted_value": "498",
+      "verify_text": "verify(491>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_comb_46",
+      "concept": "combinations_permutations",
+      "original_value": "24",
+      "corrupted_value": "31",
+      "verify_text": "verify(24>0 \u2227 24==P(4,3))\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_geo_273",
+      "concept": "inradius_geometry",
+      "original_value": "84",
+      "corrupted_value": "91",
+      "verify_text": "verify(84>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_legendre_199",
+      "concept": "legendre_formula",
+      "original_value": "167",
+      "corrupted_value": "174",
+      "verify_text": "verify(167>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_poly_318",
+      "concept": "polynomial_invariant",
+      "original_value": "1154",
+      "corrupted_value": "1161",
+      "verify_text": "verify(1154>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_poly_113",
+      "concept": "polynomial_invariant",
+      "original_value": "30248",
+      "corrupted_value": "30255",
+      "verify_text": "verify(30248>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_geo_107",
+      "concept": "inradius_geometry",
+      "original_value": "150",
+      "corrupted_value": "157",
+      "verify_text": "verify(150>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_dio_rate_107",
+      "concept": "diophantine_or_rates",
+      "original_value": "5.2",
+      "corrupted_value": "12.20",
+      "verify_text": "verify(ans>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_totient_201",
+      "concept": "modular_totient",
+      "original_value": "1",
+      "corrupted_value": "8",
+      "verify_text": "verify(1<13 \u2227 1\u22650)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_legendre_65",
+      "concept": "legendre_formula",
+      "original_value": "1732",
+      "corrupted_value": "1739",
+      "verify_text": "verify(1732>0)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_crt_146",
+      "concept": "chinese_remainder",
+      "original_value": "14",
+      "corrupted_value": "21",
+      "verify_text": "verify(14 mod 9=5 \u2227 14 mod 11=3)\u2713",
+      "signal": "accepted"
+    },
+    {
+      "id": "concept_phys_271",
+      "concept": "physics_kinematics",
+      "original_value": "16",
+      "corrupted_value": "23",
+      "verify_text": "verify(16^2==0^2+2*4*32)\u2713",
+      "signal": "accepted"
+    }
+  ]
+}

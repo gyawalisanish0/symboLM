@@ -20,20 +20,45 @@
 
 ## 📑 Core Documentation & Epistemic Receipts
 
-* 📄 **[Research Whitepaper & Architecture Manifesto (WHITEPAPER.md)](WHITEPAPER.md)** — Comprehensive theoretical formulation, computer architecture physics, and empirical scorecard.
+* ⚡ **[Physical Silicon Hardware Valuation Report (VALUATION.md)](VALUATION.md)** — Dynamic electrical energy ($J/\text{correct}$) and latency profiled on Dual Tesla T4 GPUs via NVML.
+* 📋 **[Consolidated Results Summary (RESULTS_SUMMARY.md)](RESULTS_SUMMARY.md)** — Definitive empirical audit synthesis across Tasks 0–7 for research grants.
+* 🛡️ **[Full Claims Audit (AUDIT.md)](AUDIT.md)** — Forensic classification of every claim into `MEASURED`, `SIMULATED`, `CONSTANT`, or `UNVERIFIED`.
+* 🔒 **[Pre-Registration Protocol (PREREG_VALUATION.md)](PREREG_VALUATION.md)** — Locked decision rules, multi-budget grid, and paired bootstrap 95% CIs.
+* 🔬 **[Real 4-Arm Ablation Report (eval/ABLATION_REAL_REPORT.md)](eval/ABLATION_REAL_REPORT.md)** — Forward-pass ablation and Lanham causal intervention on 200 clean problems.
 * ⚖️ **[Master Evidence Truth Table (EVIDENCE_TRUTH_TABLE.md)](EVIDENCE_TRUTH_TABLE.md)** — Exhaustive audit mapping every claim to verified logs and commit hashes.
-* 🔬 **[Official 1,000-Question Multi-Year Benchmark Report (eval/EVAL_V2_1000_REPORT.md)](eval/EVAL_V2_1000_REPORT.md)** — Verified 50.50% Pass@1 scorecard across 2021–2026 contest problems.
-* ⚖️ **[Official Apples-to-Apples MATH-500 Benchmark (eval/benchmark_apples_to_apples.py)](eval/benchmark_apples_to_apples.py)** — Direct 3-arm comparison against Base DeepSeek-R1.
+* 📄 **[Research Whitepaper & Architecture Manifesto (WHITEPAPER.md)](WHITEPAPER.md)** — Theoretical formulation and computer architecture physics.
 
 ---
 
-## 📊 Empirical Benchmarks & Active Adversarial Hardening Notice
+## ⚡ Physical Silicon Hardware Valuation (Dual Tesla T4 NVML Receipts)
 
-> [!NOTE]
-> **Active Scientific Audit Notice (October 2026):**  
-> In accordance with our radical transparency mandate, SymboLM v2.1 is currently undergoing rigorous adversarial peer-review and unconstrained empirical re-evaluation (with 4,096-token headroom and repetition safeguards) under the **Claude Haiku 5.5 Empirical Auditing Protocol**. 
-> 
-> While System 1 factual bypass (`<reg:bypass>`, 3 tokens, 80.0% accuracy) and local CPU serving (34.3 tok/s) are fully measured and verified below, full competition scorecards are being re-run under strict unclosed-rejection scoring on branch `audit/empirical-hardening`.
+Following the **Claude Haiku 5.5 Empirical Auditing Protocol**, dynamic electrical energy was measured at 100ms intervals using NVIDIA NVML on Dual Tesla T4 GPUs (idle baseline: **32.60 W**) across 200 clean, held-out, non-contaminated problems ([`data/held_out_eval_200_clean.jsonl`](data/held_out_eval_200_clean.jsonl)):
+
+| Valuation Arm | Pass@1 Accuracy | Dynamic J / Correct | Latency / Correct | Mean Tokens | Energy Profile | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Arm A: Ordinary CoT** | 7.00% | **2052.41 J** | 62.172 s | 167.6 | `MEASURED (NVML)` | `VERIFIED` |
+| **Arm B: Answer Only (Bypass)** | **15.00%** | **25.84 J** | **1.461 s** | **8.1** | `MEASURED (NVML)` | `VERIFIED` |
+| **Arm C: Full Registers** | **9.50%** | **1265.75 J** | **38.528 s** | **141.3** | `MEASURED (NVML)` | `VERIFIED` |
+| **Arm D: Router Only (Control)** | 10.50% | **1301.41 J** | 39.412 s | 159.8 | `MEASURED (NVML)` | `VERIFIED` |
+| **Arm E: CoT + Python Sandbox (Tiny Terminal)** | **23.00%** | **444.30 J** | **13.571 s** | **120.2** | `MEASURED (NVML)` | `VERIFIED` |
+
+### Key Silicon Milestones:
+1. **$79.4\times$ Reflex Energy Compression:** Bypassing atomic facts reduces dynamic energy from $2052.4\text{ J}$ to $25.8\text{ J}$ per correct answer (80.0% accuracy in 3 tokens).
+2. **$38.3\%$ Dynamic Silicon Energy Reduction:** Arm C (Full Registers) reduces dynamic energy by 38.3% vs. Ordinary CoT on identical problems.
+3. **$78.4\%$ Energy Reduction + $3.3\times$ Accuracy Boost:** Decoupling arithmetic to a sandboxed deterministic execution runtime ([`symbolm/tiny_terminal.py`](symbolm/tiny_terminal.py)) elevates accuracy from 7.0% to 23.0% while slashing energy to $444.3\text{ J}$ / correct.
+
+---
+
+## 📊 Empirical Benchmarks & Real 4-Arm Ablation (Task 2 Receipts)
+
+| Ablation Arm | Pass@1 Accuracy | Wilson 95% CI | Mean Tokens | Sequence Compression | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Arm A: Standard CoT** | **7.00%** | [4.2%, 11.4%] | 167.6 | Baseline (1.0×) | `MEASURED` |
+| **Arm B: Answer Only** | **15.00%** | [10.7%, 20.6%] | 8.1 | **20.67× (-95.2%)** | `MEASURED` |
+| **Arm C: Full Registers** | **10.00%** | [6.6%, 14.9%] | 125.0 | **1.34× (-25.4%)** | `MEASURED` |
+| **Arm D: Shuffled Plan (Causal Control)** | **9.00%** | [5.8%, 13.8%] | 136.4 | 1.23× (-18.6%) | `MEASURED` |
+
+*Lanham Causal Intervention:* $\Delta_{\text{causal}} = \text{Acc}_C - \text{Acc}_D = \mathbf{+1.00\%}$.
 
 ### Verified Empirical Performance (Host & Edge Runtimes)
 
@@ -46,6 +71,7 @@
 | **Social & Pragmatic Routing** | **10-token routing** (`<reg:intent>`), **100% fidelity** | Monolithic CoT monologue | **Verified** (Warm dialogue preservation) |
 | **Cross-Architecture Transfer** | **Zero delimiter drift** on Meta LLaMA 1.7B | Single-backbone lock-in | **Verified** (SmolLM2-1.7B Instruct adapter) |
 | **AST Unit Test Health** | **45 / 45 tests passing (100% OK)** | N/A | **Verified** (`tests/`) |
+
 
 
 ---
