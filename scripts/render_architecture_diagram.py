@@ -27,20 +27,20 @@ def render_diagram(output_path):
     highlight_red = '#f85149'
 
     # 1. HEADER
-    ax.text(0.8, 8.4, "SymboLM: Nature-Inspired Cognitive Architecture for Edge LLMs", 
+    ax.text(0.8, 8.4, "SymboLM: 2nd-Gen Test-Time Compute Architecture for Edge LLMs", 
             fontsize=20, weight='bold', color=text_white, fontfamily='sans-serif')
-    ax.text(0.8, 8.05, "Replacing Brute-Force Token Monologue with Biological Cognitive Modularity & Hardware-Measured Efficiency", 
+    ax.text(0.8, 8.05, "Fixing 1st-Gen Reasoning Bottlenecks: Overthinking, Unstructured Monologue & Edge Budget-Choking", 
             fontsize=11, color=cyan, fontfamily='sans-serif')
     ax.text(0.8, 7.75, "Architect: Sanish Gyawali (Rupandehi, Nepal)  |  Base: DeepSeek-R1-Distill-1.5B  |  Open Weights (Apache 2.0)", 
             fontsize=9.5, color=text_muted, fontfamily='monospace')
 
     # Status Pill (Top Right)
-    pill = patches.FancyBboxPatch((12.2, 7.8), 3.0, 0.7, boxstyle="round,pad=0.1,rounding_size=0.15",
+    pill = patches.FancyBboxPatch((12.0, 7.8), 3.2, 0.7, boxstyle="round,pad=0.1,rounding_size=0.15",
                                  facecolor='#1f2430', edgecolor='#388bfd', linewidth=1.2)
     ax.add_patch(pill)
-    ax.text(13.7, 8.2, "PHYSICAL SILICON AUDIT", fontsize=8, weight='bold', color=cyan, 
+    ax.text(13.6, 8.2, "TEST-TIME COMPUTE AUDIT", fontsize=8, weight='bold', color=cyan, 
             ha='center', va='center', fontfamily='monospace')
-    ax.text(13.7, 7.95, "NVIDIA Tesla T4 (NVML 100ms Polled)", fontsize=7.5, color=text_white, 
+    ax.text(13.6, 7.95, "NVIDIA Tesla T4 (NVML 100ms Polled)", fontsize=7.5, color=text_white, 
             ha='center', va='center', fontfamily='sans-serif')
 
     # 2. THREE ARCHITECTURAL MODULES (Columns)
@@ -55,17 +55,18 @@ def render_diagram(output_path):
     ax.add_patch(p1)
     
     # Header 1
-    ax.text(c1_x + 0.3, col_y + col_h - 0.4, "SYSTEM 1: THE REFLEX", fontsize=12, weight='bold', color=emerald, fontfamily='sans-serif')
-    ax.text(c1_x + 0.3, col_y + col_h - 0.7, "Subcortical Automaticity (<reg:bypass>)", fontsize=9, color=text_muted, fontfamily='monospace')
+    ax.text(c1_x + 0.3, col_y + col_h - 0.4, "1. ADAPTIVE TEST-TIME COMPUTE", fontsize=11, weight='bold', color=emerald, fontfamily='sans-serif')
+    ax.text(c1_x + 0.3, col_y + col_h - 0.7, "Subcortical Reflex (<reg:bypass>)", fontsize=8.5, color=text_muted, fontfamily='monospace')
     
     # Concept box
     desc1 = (
-        "• Human Analogy: Direct retrieval without inner voice.\n"
-        "  Recalling \"Carbon = 6\" doesn't need 200 tokens.\n\n"
-        "• Execution: Gated Router bypasses reasoning\n"
-        "  chains directly for atomic scientific facts.\n\n"
-        "• Trace:\n"
-        "  Q: Atomic number of Carbon?\n"
+        "• Problem: Uniform compute allocation. 1st-gen\n"
+        "  reasoning models (o1, R1) spend thousands of\n"
+        "  thinking tokens on trivial/atomic queries.\n\n"
+        "• Solution: Token-level dynamic difficulty gating.\n"
+        "  Bypasses test-time compute loops completely\n"
+        "  for atomic factual retrieval.\n\n"
+        "• Trace: Q: Atomic number of Carbon?\n"
         "  <reg:bypass> 6 </reg:bypass>"
     )
     ax.text(c1_x + 0.3, col_y + col_h - 1.0, desc1, fontsize=8.5, color=text_white, va='top', fontfamily='sans-serif', linespacing=1.2)
@@ -76,7 +77,7 @@ def render_diagram(output_path):
     ax.add_patch(m1)
     ax.text(c1_x + 0.4, col_y + 0.9, "80× Dynamic Energy Reduction", fontsize=9.5, weight='bold', color=emerald)
     ax.text(c1_x + 0.4, col_y + 0.65, "3 tokens  |  25.8 Joules / solve", fontsize=9, color=text_white, fontfamily='monospace')
-    ax.text(c1_x + 0.4, col_y + 0.42, "vs. Vanilla CoT: 167 tokens | 2,052 Joules", fontsize=7.5, color=text_muted)
+    ax.text(c1_x + 0.4, col_y + 0.42, "vs. 1st-Gen Monologue: 167 tok | 2,052 Joules", fontsize=7.5, color=text_muted)
 
     # --- COLUMN 2: SYSTEM 2 WORKING MEMORY ---
     c2_x = 5.8
@@ -85,16 +86,17 @@ def render_diagram(output_path):
     ax.add_patch(p2)
     
     # Header 2
-    ax.text(c2_x + 0.3, col_y + col_h - 0.4, "SYSTEM 2: MENTAL SCRATCHPAD", fontsize=12, weight='bold', color=purple, fontfamily='sans-serif')
-    ax.text(c2_x + 0.3, col_y + col_h - 0.7, "Prefrontal Working Memory (<reg:plan>, <reg:deduce>)", fontsize=8.5, color=text_muted, fontfamily='monospace')
+    ax.text(c2_x + 0.3, col_y + col_h - 0.4, "2. STRUCTURED STATE MACHINE", fontsize=11, weight='bold', color=purple, fontfamily='sans-serif')
+    ax.text(c2_x + 0.3, col_y + col_h - 0.7, "Cognitive Registers (<reg:plan>, <reg:deduce>)", fontsize=8.5, color=text_muted, fontfamily='monospace')
 
     desc2 = (
-        "• Human Analogy: Controlled multi-step derivation.\n"
-        "  Enforces bounded mental scratchpad discipline.\n\n"
-        "• Execution: Formal registers structure reasoning;\n"
-        "  Counterfactual branches with explicit verification:\n"
+        "• Problem: The \"Overthinking Trap\" (ArXiv 2024-25).\n"
+        "  Unstructured natural language monologue drifts\n"
+        "  into second-guessing loops and token bloat.\n\n"
+        "• Solution: Bounded working memory registers\n"
+        "  with counterfactual branching and pruning:\n"
         "  hyp [...] -> verify(...) -> [ ✗ | ✓ ].\n\n"
-        "• Eliminates runaway token loops & hallucination."
+        "• Enforces strict formal state invariants."
     )
     ax.text(c2_x + 0.3, col_y + col_h - 1.0, desc2, fontsize=8.5, color=text_white, va='top', fontfamily='sans-serif', linespacing=1.2)
 
@@ -102,9 +104,9 @@ def render_diagram(output_path):
     m2 = patches.FancyBboxPatch((c2_x + 0.25, col_y + 0.25), col_w - 0.5, 0.95, boxstyle="round,pad=0.08,rounding_size=0.1",
                                facecolor='#1e1533', edgecolor=purple, linewidth=1)
     ax.add_patch(m2)
-    ax.text(c2_x + 0.4, col_y + 0.9, "38.3% Lower Energy vs CoT", fontsize=9.5, weight='bold', color=purple)
+    ax.text(c2_x + 0.4, col_y + 0.9, "38.3% Lower Energy vs Monologue", fontsize=9.5, weight='bold', color=purple)
     ax.text(c2_x + 0.4, col_y + 0.65, "125.0 tokens  |  1,265.7 Joules / solve", fontsize=9, color=text_white, fontfamily='monospace')
-    ax.text(c2_x + 0.4, col_y + 0.42, "Structured counterfactual derivation", fontsize=7.5, color=text_muted)
+    ax.text(c2_x + 0.4, col_y + 0.42, "Prunes wandering counterfactual paths", fontsize=7.5, color=text_muted)
 
     # --- COLUMN 3: TINY TERMINAL ---
     c3_x = 10.8
@@ -113,16 +115,17 @@ def render_diagram(output_path):
     ax.add_patch(p3)
 
     # Header 3
-    ax.text(c3_x + 0.3, col_y + col_h - 0.4, "EXTENDED MIND: TINY TERMINAL", fontsize=12, weight='bold', color=cyan, fontfamily='sans-serif')
-    ax.text(c3_x + 0.3, col_y + col_h - 0.7, "Offloaded Symbolic Computation (<reg:term>)", fontsize=8.5, color=text_muted, fontfamily='monospace')
+    ax.text(c3_x + 0.3, col_y + col_h - 0.4, "3. DETERMINISTIC REPL OFFLOAD", fontsize=11, weight='bold', color=cyan, fontfamily='sans-serif')
+    ax.text(c3_x + 0.3, col_y + col_h - 0.7, "Neural-Symbolic Sandbox (<reg:term>)", fontsize=8.5, color=text_muted, fontfamily='monospace')
 
     desc3 = (
-        "• Human Analogy: Pencil & paper / calculator.\n"
-        "  Humans don't calculate 384 * 17 purely in head;\n"
-        "  we write it down or punch into a tool.\n\n"
-        "• Execution: Deterministic math expressions offloaded\n"
-        "  to sandboxed Python/SymPy runtime (<5ms).\n\n"
-        "• Weights guide strategy; silicon handles exact math."
+        "• Problem: Arithmetic Hallucination Delusion.\n"
+        "  Transformer weights make terrible ALUs;\n"
+        "  simulating division in text compounds errors.\n\n"
+        "• Solution: Isolated, sandboxed SymPy/Python\n"
+        "  execution (<5ms). Weights guide high-level\n"
+        "  intent; silicon handles exact arithmetic.\n\n"
+        "• Eliminates token-wasting arithmetic monologue."
     )
     ax.text(c3_x + 0.3, col_y + col_h - 1.0, desc3, fontsize=8.5, color=text_white, va='top', fontfamily='sans-serif', linespacing=1.2)
 
@@ -132,7 +135,7 @@ def render_diagram(output_path):
     ax.add_patch(m3)
     ax.text(c3_x + 0.4, col_y + 0.9, "3.3× Accuracy Boost | 78.4% Energy Cut", fontsize=9.5, weight='bold', color=cyan)
     ax.text(c3_x + 0.4, col_y + 0.65, "23.0% Pass@1  |  444.3 Joules / solve", fontsize=9, color=text_white, fontfamily='monospace')
-    ax.text(c3_x + 0.4, col_y + 0.42, "vs. Vanilla CoT: 7.0% Pass@1 | 2,052 Joules", fontsize=7.5, color=text_muted)
+    ax.text(c3_x + 0.4, col_y + 0.42, "vs. 1st-Gen Monologue: 7.0% Pass@1 | 2,052 J", fontsize=7.5, color=text_muted)
 
     # 3. BOTTOM PANEL: REAL SILICON PARETO FRONTIER & COMPARISON
     bot_y = 0.5
