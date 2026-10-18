@@ -56,3 +56,13 @@ def test_overthinking_penalty_on_verbose_model():
     assert res_reflex["accuracy"] == 1.0
     assert res_reflex["overthinking_score"] > res_verbose["overthinking_score"]
     assert res_reflex["auc_oaa"] > res_verbose["auc_oaa"]
+
+def test_budget_choke_factor():
+    from eval.robust_eval import compute_budget_choke_factor
+    # Complete choke: acc drops from 30% at 2048 to 0% at 256
+    assert compute_budget_choke_factor(0.0, 0.30) == 1.0
+    # No degradation: acc is 25% at 2048 and 25% at 256
+    assert compute_budget_choke_factor(0.25, 0.25) == 0.0
+    # Inverted choke (model does BETTER with shorter budget, e.g. doesn't overthink)
+    assert compute_budget_choke_factor(0.33, 0.23) < 0.0
+

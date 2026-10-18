@@ -512,18 +512,30 @@ def paired_bootstrap_95ci(
 # 2025/2026 TEST-TIME COMPUTE & OVERTHINKING METRICS (OptimalThinkingBench & LLMTHINKBENCH)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# 2025/2026 TEST-TIME COMPUTE & OVERTHINKING METRICS (Meta FAIR / CMU arXiv:2508.13141)
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def compute_overthinking_metrics(
     records: List[Dict],
     arm: str,
     budget: int,
-    thresholds: List[int] = [64, 128, 256, 512, 1024],
+    thresholds: List[int] = [32, 64, 128, 256, 512, 1024, 2048],
     target_budget: float = 256.0,
 ) -> Dict[str, Any]:
     """
-    Computes SOTA test-time compute scaling and overthinking metrics:
-    1. Overthinking-Adjusted Accuracy (OAA_t): fraction of problems solved within t tokens.
-    2. AUC_OAA: Normalized Area under the OAA curve from t=0 to max(thresholds).
-    3. Harmonic Overthinking Score (O): 2 * (Acc * TokenEff) / (Acc + TokenEff).
+    Computes exact mathematical metrics from published reasoning literature:
+    
+    1. Overthinking-Adjusted Accuracy (OAA_t) [Aggarwal et al., Meta FAIR, arXiv:2508.13141, Eq. 1]:
+       OAA_t = (1/N) * sum_{i=1}^N ( Correctness_i * I(Tokens_i <= t) )
+       
+    2. Area Under the Overthinking-Adjusted Curve (AUC_OAA) [arXiv:2508.13141, Eq. 2]:
+       AUC_OAA = (1 / t_max) * int_0^{t_max} OAA_t dt
+       Computed via trapezoidal integration over [0, t_1, t_2, ..., t_K] with OAA_0 = 0.0.
+       
+    3. Harmonic Overthinking Score (O) [LLMTHINKBENCH, ACL 2025]:
+       O = 2 * (Acc * TokenEff) / (Acc + TokenEff)
+       where TokenEff = min(1.0, target_budget / max(mean_tokens, 1.0)).
     """
     recs = [r for r in records if r["arm"] == arm and r["budget"] == budget]
     n = len(recs)
@@ -535,13 +547,14 @@ def compute_overthinking_metrics(
     mean_tokens = sum(r["tokens_emitted"] for r in recs) / n
 
     # OAA at each threshold
-    oaa_by_t = {}
+    oaa_by_t = {0: 0.0}
     for t in thresholds:
         count = sum(1 for r in correct_recs if r["tokens_emitted"] <= t)
         oaa_by_t[t] = count / n
 
-    # Trapezoidal AUC_OAA
-    t_sorted = sorted(thresholds)
+    # Trapezoidal integration from t=0 to t_max:
+    # int_0^{t_max} OAA_t dt = sum_{k=1}^K 0.5 * (OAA_{t_{k-1}} + OAA_{t_k}) * (t_k - t_{k-1})
+    t_sorted = sorted(oaa_by_t.keys())  # starts with 0
     auc_sum = 0.0
     for i in range(len(t_sorted) - 1):
         t1, t2 = t_sorted[i], t_sorted[i+1]
@@ -549,22 +562,37 @@ def compute_overthinking_metrics(
     max_t = t_sorted[-1]
     norm_auc = auc_sum / max_t if max_t > 0 else 0.0
 
-    # Token Efficiency & Harmonic Overthinking Score (LLMTHINKBENCH standard)
+    # Token Efficiency & Harmonic Overthinking Score (ACL 2025)
     tok_eff = min(1.0, target_budget / max(mean_tokens, 1.0))
     if (acc + tok_eff) > 0:
         overthinking_score = 2 * (acc * tok_eff) / (acc + tok_eff)
     else:
         overthinking_score = 0.0
 
+    # Filter out 0 from output dictionary for clean display
+    display_oaa = {f"OAA_{t}": round(oaa_by_t[t], 4) for t in thresholds}
+
     return {
         "n": n,
         "accuracy": round(acc, 4),
         "mean_tokens": round(mean_tokens, 1),
-        "oaa_by_threshold": {f"OAA_{t}": round(v, 4) for t, v in oaa_by_t.items()},
+        "oaa_by_threshold": display_oaa,
         "auc_oaa": round(norm_auc, 4),
         "token_efficiency": round(tok_eff, 4),
         "overthinking_score": round(overthinking_score, 4),
     }
+
+
+def compute_budget_choke_factor(acc_256: float, acc_2048: float) -> float:
+    """
+    Computes the Budget-Choking Cliff Factor (BCF):
+    BCF = (Acc_2048 - Acc_256) / max(Acc_2048, 1e-6)
+    BCF = 1.0 indicates complete catastrophic truncation collapse at 256 tokens.
+    BCF <= 0.0 indicates edge-budget resilience (no degradation on tight budgets).
+    """
+    if acc_2048 <= 1e-6:
+        return 0.0 if acc_256 <= 1e-6 else -1.0
+    return round((acc_2048 - acc_256) / acc_2048, 4)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
