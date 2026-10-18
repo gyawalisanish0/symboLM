@@ -51,6 +51,7 @@ data/symbolic_dataset/*.jsonl
 # Logs and screenshots
 *.log
 *.png
+!docs/assets/**
 scratch/
 eval_cross_domain/
 stage4_download/
