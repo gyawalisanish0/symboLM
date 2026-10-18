@@ -105,12 +105,12 @@ To verify 100% routing fidelity to `<reg:bypass>` and `<reg:intent>` across 8 do
 python eval/run_cross_domain_200.py
 ```
 
-### Compiler AST Parser & Parsimony Reward Tests
-To verify Register v2.0 AST compilation and mathematical parsimony behavior:
+### Compiler AST Parser, FSM, and Tiny Terminal Test Suite
+To verify Register v2.1 AST compilation, Tiny Terminal mathematical assertions, and parsimony reward behavior:
 ```bash
-python -m unittest discover tests
+uv run --with pytest pytest tests/
 ```
-*Expected Result:* **Ran 6 tests in 0.002s, OK (100% passing)**.
+*Expected Result:* **56 passed (100% passing)**.
 
 ---
 

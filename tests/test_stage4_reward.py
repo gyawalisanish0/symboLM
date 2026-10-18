@@ -10,6 +10,7 @@ from training.reward import (
     detect_ngram_repetition,
     detect_web_debris,
     hard_eos_and_economy_reward_func,
+    detect_self_correction,
 )
 
 
@@ -64,6 +65,30 @@ class TestStage4Reward(unittest.TestCase):
         )
         self.assertLess(rewards_debris[0], -0.5)
         print(f"[OK] Debris Penalty: {rewards_debris[0]:.2f}")
+
+    def test_detect_self_correction_penalizes_false_checkmark(self):
+        # False assertion 15*24=350 claimed with ✓ must be penalized with -0.40
+        false_rollout = "<reg:deduce>verify(15 * 24 == 350)✓ ∴ ans=350</reg:deduce><ans>350</ans>"
+        score = detect_self_correction(false_rollout, is_correct=False)
+        self.assertEqual(score, -0.40)
+
+    def test_detect_self_correction_rewards_valid_verification(self):
+        # Valid assertion 15*24=360 with ✓ and correct answer gets +0.40
+        valid_rollout = "<reg:deduce>verify(15 * 24 == 360)✓ ∴ ans=360</reg:deduce><ans>360</ans>"
+        score = detect_self_correction(valid_rollout, is_correct=True)
+        self.assertEqual(score, 0.40)
+
+    def test_detect_self_correction_ignores_vacuous_tautology(self):
+        # Vacuous tautology like 66 > 0 without genuine invariant does not get verification bonus
+        tautology_rollout = "<reg:deduce>verify(66 > 0)✓</reg:deduce>"
+        score = detect_self_correction(tautology_rollout, is_correct=True)
+        self.assertEqual(score, 0.0)
+
+    def test_detect_self_correction_rewards_backtrack_recovery(self):
+        # Backtrack recovery with ✗ and correction gets +0.40
+        recovery_rollout = "<reg:deduce>hyp [x=5]✗ backtrack replan let(x=7) ∴ ans=7</reg:deduce><ans>7</ans>"
+        score = detect_self_correction(recovery_rollout, is_correct=True)
+        self.assertEqual(score, 0.40)
 
 
 if __name__ == "__main__":

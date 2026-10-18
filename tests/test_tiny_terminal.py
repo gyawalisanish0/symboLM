@@ -54,6 +54,37 @@ class TestTinyTerminal(unittest.TestCase):
         self.assertIn("[TINY_TERMINAL_ERR]", audit.compact_error_context)
         self.assertIn("Contradiction", audit.compact_error_context)
 
+    def test_security_ast_whitelisting_blocks_code_execution(self):
+        # 1. Reject import attempts
+        ok, val, err = self.terminal.evaluate_expression("__import__('os').system('dir')")
+        self.assertFalse(ok)
+        self.assertIn("Security/AST validation error", err)
+
+        # 2. Reject file open calls
+        ok, val, err = self.terminal.evaluate_expression("open('secret.txt')")
+        self.assertFalse(ok)
+        self.assertIn("Security/AST validation error", err)
+
+        # 3. Reject lambdas and list comprehensions
+        ok, val, err = self.terminal.evaluate_expression("[x for x in range(10)]")
+        self.assertFalse(ok)
+        self.assertIn("Security/AST validation error", err)
+
+        # 4. Reject dunder attribute access
+        ok, val, err = self.terminal.evaluate_expression("(1).__class__")
+        self.assertFalse(ok)
+        self.assertIn("Security/AST validation error", err)
+
+    def test_security_ast_whitelisting_allows_safe_math(self):
+        # Whitelisted functions like abs, sqrt, gcd should evaluate smoothly
+        ok, val, err = self.terminal.evaluate_expression("abs(-42)")
+        self.assertTrue(ok)
+        self.assertEqual(val, 42)
+
+        ok, val, err = self.terminal.evaluate_expression("2**10 + 5")
+        self.assertTrue(ok)
+        self.assertEqual(val, 1029)
+
 
 if __name__ == "__main__":
     unittest.main()

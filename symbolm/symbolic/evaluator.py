@@ -124,7 +124,9 @@ def verify_grounded_constraint(constraint_str: str, env: Dict[str, Any]) -> Tupl
     Non-ceremonial constraint verification.
     Substitutes proposed solution into the original problem invariants.
     Rejects trivial tautologies like '66 > 0' if no real invariant is checked.
+    Enforces strict AST whitelisting to eliminate code injection.
     """
+    from symbolm.tiny_terminal import validate_safe_arithmetic_ast
     constraint_str = constraint_str.strip()
 
     # Reject trivial tautologies
@@ -133,6 +135,8 @@ def verify_grounded_constraint(constraint_str: str, env: Dict[str, Any]) -> Tupl
 
     try:
         clean_c = constraint_str.replace("mod", "%").replace("^", "**")
+        # Strict AST security check
+        validate_safe_arithmetic_ast(clean_c)
         res = eval(clean_c, {"__builtins__": {}}, env)
         if bool(res) is True:
             return True, "verified"

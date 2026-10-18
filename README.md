@@ -70,7 +70,7 @@ Following the **Claude Haiku 5.5 Empirical Auditing Protocol**, dynamic electric
 | **RAM / Memory Footprint** | **999.7 MB RAM** (4-Bit Q4_0 GGUF) | 3.5+ GB FP16 | **Verified** (Runs on Raspberry Pi 5 & laptops) |
 | **Social & Pragmatic Routing** | **10-token routing** (`<reg:intent>`), **100% fidelity** | Monolithic CoT monologue | **Verified** (Warm dialogue preservation) |
 | **Cross-Architecture Transfer** | **Zero delimiter drift** on Meta LLaMA 1.7B | Single-backbone lock-in | **Verified** (SmolLM2-1.7B Instruct adapter) |
-| **AST Unit Test Health** | **45 / 45 tests passing (100% OK)** | N/A | **Verified** (`tests/`) |
+| **AST Unit Test Health** | **56 / 56 tests passing (100% OK)** | N/A | **Verified** (`tests/`) |
 
 
 
@@ -148,7 +148,7 @@ symboLM/
 │   ├── stage2_grpo.yaml                  # Stage 2 GRPO RL config (16,000 candidate rollouts)
 │   ├── stage3_concept_grpo.yaml          # Stage 3 Concept Math alignment config (7 invariant families)
 │   ├── stage4_efficiency_grpo.yaml       # Stage 4 SE-HEA efficiency GRPO config
-│   └── stage5_parsimony_grpo.yaml        # Stage 5 Parsimony GRPO config (hyperbolic decay K=40, γ_floor=0.20)
+│   └── stage5_parsimony_grpo.yaml        # Stage 5 Parsimony GRPO config (hyperbolic decay K=40; γ_floor=0.20 in initial GRPO, calibrated to 0.40 in v2.1)
 │
 ├── data/                                 # [Stratified Curricula & Checksums]
 │   ├── CHECKSUMS.sha256                  # Cryptographic SHA-256 hashes of all datasets
@@ -179,7 +179,7 @@ symboLM/
 ├── REPRODUCIBILITY.md                    # Step-by-Step Reproduction Guide & Dataset Hashes
 ├── pyproject.toml                        # Standard PEP 517/621 package specification
 ├── requirements.txt                      # Pinned minimal requirements
-└── tests/                                # 100% Passing Unit Test Suite (26/26 tests passing)
+└── tests/                                # 100% Passing Unit Test Suite (56/56 tests passing)
 ```
 
 ---
@@ -192,8 +192,8 @@ To verify the entire repository in 30 seconds:
 # 1. Verify dataset integrity via SHA-256 hashes
 sha256sum -c data/CHECKSUMS.sha256
 
-# 2. Run AST Compiler, FSM, and Tiny Terminal unit tests (26/26 passing)
-python -m unittest discover tests
+# 2. Run AST Compiler, FSM, and Tiny Terminal unit tests (56/56 passing)
+uv run --with pytest pytest tests/
 
 # 3. Audit verified 1,000-question multi-year benchmark receipts
 python -c "import json; data=json.load(open('eval/eval_v2_1000_results.json')); print('Total:', len(data), 'Pass@1:', sum(1 for d in data if d.get('is_correct'))/len(data)*100)"

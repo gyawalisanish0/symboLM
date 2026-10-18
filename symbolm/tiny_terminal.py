@@ -18,7 +18,81 @@ from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field
 import re
 import math
+import ast
 import sympy as sp
+
+
+SAFE_NODES = (
+    ast.Expression,
+    ast.Constant,
+    ast.Name,
+    ast.Load,
+    ast.UnaryOp,
+    ast.UAdd,
+    ast.USub,
+    ast.Not,
+    ast.BinOp,
+    ast.Add,
+    ast.Sub,
+    ast.Mult,
+    ast.Div,
+    ast.FloorDiv,
+    ast.Mod,
+    ast.Pow,
+    ast.Call,
+    ast.Compare,
+    ast.Eq,
+    ast.NotEq,
+    ast.Lt,
+    ast.LtE,
+    ast.Gt,
+    ast.GtE,
+    ast.BoolOp,
+    ast.And,
+    ast.Or,
+)
+
+SAFE_CALLS = {
+    "abs", "round", "min", "max", "sqrt", "gcd", "pow", "floor", "ceil", "inv_mod", "factorial"
+}
+
+
+class SafeArithmeticVisitor(ast.NodeVisitor):
+    """
+    Strict AST visitor ensuring an expression contains only safe arithmetic nodes,
+    whitelisted math functions, numeric constants, and non-dunder variables.
+    Prevents arbitrary code execution and sandbox escapes.
+    """
+    def generic_visit(self, node):
+        if not isinstance(node, SAFE_NODES):
+            raise ValueError(f"Disallowed AST syntax: {type(node).__name__}")
+        super().generic_visit(node)
+
+    def visit_Constant(self, node):
+        if not isinstance(node.value, (int, float, complex, bool)):
+            raise ValueError(f"Disallowed constant type: {type(node.value).__name__}")
+
+    def visit_Name(self, node):
+        if node.id.startswith("__"):
+            raise ValueError(f"Disallowed variable name: {node.id}")
+
+    def visit_Call(self, node):
+        if not isinstance(node.func, ast.Name) or node.func.id not in SAFE_CALLS:
+            func_name = getattr(node.func, "id", None) or getattr(node.func, "attr", str(type(node.func).__name__))
+            raise ValueError(f"Disallowed function call: {func_name}")
+        for arg in node.args:
+            self.visit(arg)
+        for kw in node.keywords:
+            self.visit(kw.value)
+
+    def visit_Attribute(self, node):
+        raise ValueError(f"Disallowed attribute access: {node.attr}")
+
+
+def validate_safe_arithmetic_ast(expr_str: str) -> None:
+    """Validate that an expression is safe arithmetic with zero code execution risk."""
+    tree = ast.parse(expr_str, mode="eval")
+    SafeArithmeticVisitor().visit(tree)
 
 
 @dataclass
@@ -63,7 +137,7 @@ class TinyTerminal:
 
     def evaluate_expression(self, expr_str: str) -> Tuple[bool, Any, Optional[str]]:
         """
-        Safely evaluates an algebraic or arithmetic expression using SymPy.
+        Safely evaluates an algebraic or arithmetic expression using SymPy after strict AST validation.
         Returns (success, result, error_message).
         """
         clean_expr = expr_str.strip()
@@ -73,6 +147,12 @@ class TinyTerminal:
         # Check modular arithmetic notation: e.g. "5 mod 3" -> "5 % 3"
         clean_expr = re.sub(r"\bmod\b", "%", clean_expr, flags=re.IGNORECASE)
         
+        # 1. Strict AST security validation to prevent arbitrary code execution
+        try:
+            validate_safe_arithmetic_ast(clean_expr)
+        except Exception as e:
+            return False, None, f"Security/AST validation error: {e}"
+
         try:
             # Substitute known variables
             sym_expr = sp.sympify(clean_expr, locals=self.variables)

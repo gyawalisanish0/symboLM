@@ -398,12 +398,33 @@ def extract_answer(text: str) -> str | None:
     return None
 
 
-def _estimate_tokens(text: str) -> int:
+_GLOBAL_TOKENIZER = None
+
+
+def set_global_tokenizer(tokenizer: Any) -> None:
+    """Set global tokenizer for exact BPE token counting across rewards and metrics."""
+    global _GLOBAL_TOKENIZER
+    _GLOBAL_TOKENIZER = tokenizer
+
+
+def get_global_tokenizer() -> Optional[Any]:
+    """Get currently registered global tokenizer."""
+    return _GLOBAL_TOKENIZER
+
+
+def _estimate_tokens(text: str, tokenizer: Optional[Any] = None) -> int:
     """
-    Rough token count estimate.
-    Splits on whitespace and counts individual unicode symbol chars separately.
-    Not exact — real count depends on the tokenizer vocabulary.
+    Token count calculator.
+    Uses exact BPE tokenizer if provided or set globally via set_global_tokenizer().
+    Falls back to whitespace + symbol heuristic when tokenizer is not loaded.
     """
+    tok = tokenizer or _GLOBAL_TOKENIZER
+    if tok is not None:
+        try:
+            return len(tok.encode(text, add_special_tokens=False))
+        except Exception:
+            pass
+
     count = 0
     for word in text.split():
         # Each unicode operator likely maps to 1 token after tokenizer extension

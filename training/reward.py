@@ -25,6 +25,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import Callable
+import sympy as sp
 
 from symbolic.grammar import validate_trace, extract_answer, _estimate_tokens
 from symbolic.parser import SRLParser, evaluate_invariants
@@ -142,13 +143,65 @@ def detect_trailing_noise(text: str) -> float:
 
 
 def detect_self_correction(text: str, is_correct: bool) -> float:
-    """Award bonus if model used compact verification or backtrack to arrive at truth."""
-    if not is_correct:
-        return 0.0
+    """
+    Award bonus if model used compact verification or backtrack to arrive at truth.
+    Penalizes false verifications (e.g. claiming verify(...)✓ on false arithmetic).
+    Rejects ceremonial tautologies (e.g. '66 > 0', '0 == 0', 'ans == ans').
+    """
+    from symbolm.tiny_terminal import TinyTerminal
+
     has_backtrack = ("✗" in text) or bool(re.search(r"\bbacktrack\b", text)) or bool(re.search(r"\btry\(", text))
     has_verify = bool(re.search(r"verify\(", text)) or ("✓" in text)
-    if (has_backtrack or has_verify) and ("∴" in text or "<ans>" in text):
-        return 0.4
+
+    # 1. Inspect explicit verify(...) blocks
+    verify_matches = re.findall(r"verify\((.*?)\)\s*([✓✗])?", text)
+    if verify_matches:
+        terminal = TinyTerminal()
+        for cond, marker in verify_matches:
+            cond = cond.strip()
+            # Check for ceremonial tautologies
+            if cond in ["66 > 0", "66>0", "True", "1 > 0", "1>0", "x > 0", "ans > 0", "0 == 0", "ans == ans"]:
+                continue
+
+            # Evaluate equality / relation
+            is_valid_math = False
+            if "==" in cond:
+                parts = [p.strip() for p in cond.split("==", 1)]
+                if len(parts) == 2:
+                    res = terminal.verify_equality(parts[0], parts[1])
+                    is_valid_math = res.valid
+            elif "=" in cond and not any(op in cond for op in ["<=", ">=", "!="]):
+                parts = [p.strip() for p in cond.split("=", 1)]
+                if len(parts) == 2:
+                    res = terminal.verify_equality(parts[0], parts[1])
+                    is_valid_math = res.valid
+            else:
+                ok, val, _ = terminal.evaluate_expression(cond)
+                if ok:
+                    if val is True or val == sp.true:
+                        is_valid_math = True
+                    elif isinstance(val, bool):
+                        is_valid_math = val
+                    elif isinstance(val, (int, float)):
+                        is_valid_math = bool(val != 0)
+
+            claimed_check = (marker == "✓") or ("✓" in text)
+            # If condition evaluated to False, but rollout claimed ✓: penalize false verification!
+            if not is_valid_math and claimed_check:
+                return -0.40
+
+            # If mathematically verified and problem is correct: award bonus!
+            if is_valid_math and claimed_check and is_correct:
+                return 0.40
+
+    # 2. If valid backtrack/recovery occurred and final answer is correct
+    if has_backtrack and is_correct and ("∴" in text or "<ans>" in text):
+        return 0.40
+
+    # 3. Fallback for generic correct verification mark with closure
+    if is_correct and has_verify and ("∴" in text or "<ans>" in text) and not verify_matches:
+        return 0.40
+
     return 0.0
 
 
