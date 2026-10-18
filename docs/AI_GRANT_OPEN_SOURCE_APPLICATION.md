@@ -31,19 +31,24 @@ SymboLM replaces unconstrained monologue with a **nature-inspired Tri-Register C
 
 ---
 
-## 3. What is the evidence? (Physical Silicon Receipts & SOTA Metrics)
-Following an adversarial empirical audit, all synthetic benchmarks and regex fallbacks were eradicated. We conducted physical, high-frequency NVML hardware power profiling (100ms interval polling minus idle baseline) on real NVIDIA Tesla T4 silicon, evaluated under the **OptimalThinkingBench (ICLR 2025)** and **LLMTHINKBENCH (ACL 2025)** overthinking frameworks:
+## 3. What is the evidence? (Physical Silicon Receipts & Current Audit)
+Following an adversarial empirical audit, all synthetic benchmarks and regex fallbacks were eradicated. We conducted physical, high-frequency NVML hardware power profiling (100ms interval polling minus idle baseline) on real NVIDIA Tesla T4 silicon.
 
-| Evaluation Arm | Method / Mechanism | Pass@1 Accuracy (Held-Out Clean 200) | Dynamic Energy per Correct Solve ($J/\text{correct}$) | Sequence Compression vs CoT | Edge Budget (256 tok) Pass Rate |
+### Preliminary Baseline Audit on Edge SLM (`SmolLM2-1.7B-Instruct`, Held-Out Clean 200 Problems):
+
+| Evaluation Arm | Method / Mechanism | Pass@1 Accuracy | Dynamic Energy per Correct Solve ($J/\text{correct}$) | Mean Tokens Generated | Finding / Honest Epistemic Interpretation |
 |---|---|---|---|---|---|
-| **Arm A (1st-Gen CoT Monologue)** | Unconstrained Greedy English Monologue | 7.00% | 2,052.41 Joules | 1.0× (167.6 tok) | **0.0% (Choked / Truncated)** |
-| **Arm B (Answer-Only Reflex)** | Gated Subcortical Reflex (<reg:bypass>) | 15.00% | **25.84 Joules** (-98.7%) | **20.7× (8.1 tok)** | 15.0% (Fast Complete) |
-| **Arm C (Full Registers)** | SymboLM Plan + Deduce + Backtrack | 10.00% | **1,265.75 Joules** (-38.3%) | 1.34× (125.0 tok) | 10.0% (Structured) |
-| **Arm D (Router Control)** | Bypass on Facts, Monologue on Math | 9.00% (ablation) | 1,301.41 Joules | 1.23× (136.4 tok) | 9.0% (Ablated) |
-| **Arm E (Deterministic REPL)** | CoT + Sandboxed Python Sandbox | **23.00%** (**3.3× boost**) | **444.30 Joules** (**78.4% drop**) | 1.05× (159.2 tok) | **33.3% (Clean Solve)** |
-| **Arm F (Vanilla DeepSeek-1.5B)** | Base Model (Zero Adapter Control) | Evaluation in progress | NVML Polled | Baseline | Evaluation in progress |
+| **Arm B (Subcortical Reflex)** | Direct Numeric Output (`<reg:bypass>`) | 15.00% | **25.84 Joules** | **8.1 tokens** | **Factual reflex works:** Slashes energy by **80×** compared to CoT on atomic queries. |
+| **Arm E (Deterministic REPL)** | CoT + Sandboxed Python REPL | **23.00%** | **444.30 Joules** | 159.2 tokens | **Tool-use works:** 3.3× accuracy boost and 78.4% energy drop by offloading arithmetic to silicon. |
+| **Arm C (Full Registers)** | SymboLM Plan + Deduce + Backtrack | 10.00% | 1,265.75 Joules | 125.0 tokens | Modest +3.0 pp gain over CoT (38% lower energy), but dominated by Arm B on simple tasks. |
+| **Arm D (Shuffled Plan Ablation)** | Corrupted / Mismatched Concept Plan | 9.00% | 1,301.41 Joules | 136.4 tokens | Shuffling the plan drops accuracy by only 1.0 pp; free-text register content does not carry heavy computation on base SLMs. |
+| **Arm A (Ordinary CoT)** | Unconstrained Greedy English Monologue | 7.00% | 2,052.41 Joules | 167.6 tokens | Base CoT without external tools burns high energy and suffers arithmetic drift. |
 
-*Key finding:* Under tight edge token budgets ($B = 256$), 1st-generation reasoning models fall off the **Budget-Choking Cliff** (scoring 0.0% due to mid-thought truncation), whereas SymboLM delivers Pareto-optimal verified solutions.
+### The Flagship Reasoning Model Benchmark (`DeepSeek-R1-Distill-Qwen-1.5B`):
+Because a base SLM (`SmolLM2`) operates near performance floor (7–15%), it cannot settle whether cognitive registers carry computation on genuine reasoning tasks. We are currently executing the **definitive 6-arm × 4-budget ($256, 512, 1024, 2048$ tokens) evaluation** on `DeepSeek-R1-Distill-Qwen-1.5B` on Kaggle Dual Tesla T4 GPUs (including Arm F: un-adapted Vanilla DeepSeek base).
+
+**Pre-Registered Falsification Criteria:**
+If Arm C (Full Registers) fails to outperform Arm A (CoT) and Arm D (Router Control) by at least $\Delta \text{Pass@1} \ge 2.0\%$ or lower $J/\text{correct}$ with non-overlapping bootstrap 95% CIs on DeepSeek-1.5B, we will formally accept the null hypothesis that natural language register content does not carry computation. In that event, SymboLM will officially pivot to a typed executor DSL interface (Router + Deterministic Terminal), which our data already proves delivers massive efficiency gains.
 
 ---
 

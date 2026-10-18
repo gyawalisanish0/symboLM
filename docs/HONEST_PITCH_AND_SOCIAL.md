@@ -32,10 +32,11 @@ SymboLM is an open-source, biologically-inspired Tri-Register architecture engin
 • Structured Cognitive State Machine (System 2: <reg:plan>, <reg:deduce>): Replaces rambling monologue with bounded working memory registers and explicit counterfactual branching (hyp [...] -> verify(...) -> [✗|✓]) that backtracks and prunes wandering thoughts before token emission.
 • Deterministic REPL Sandbox (<reg:term>): Humans don't multiply 6-digit numbers purely in their head; we use pen and paper. SymboLM offloads exact arithmetic to an isolated SymPy terminal (<5ms). Weights guide strategy; silicon handles exact arithmetic.
 
-Physical Silicon Receipts (Audited on NVIDIA Tesla T4, NVML 100ms Polled):
-- Baseline 1st-Gen Monologue (DeepSeek-R1-1.5B): 7.0% Pass@1 | 2,052 Joules/solve | 0.0% at 256-tok budget (truncated).
-- SymboLM Deterministic REPL (Arm E): 23.0% Pass@1 (3.3× accuracy boost) | 444 Joules/solve (78.4% energy drop) | 33.3% at 256-tok budget.
-- SymboLM Subcortical Reflex (Arm B): 15.0% Pass@1 | 25.8 Joules/solve (80× dynamic energy reduction).
+Physical Silicon Receipts (Audited on NVIDIA Tesla T4, NVML 100ms Polled across 200 Clean Problems):
+- Base SLM CoT (SmolLM2-1.7B): 7.0% Pass@1 | 2,052 Joules/correct | burns massive compute simulating arithmetic.
+- SymboLM Deterministic REPL (Arm E): 23.0% Pass@1 (3.3× accuracy surge) | 444 Joules/correct (78.4% energy drop) by offloading exact math.
+- SymboLM Subcortical Reflex (Arm B): 15.0% Pass@1 | 25.8 Joules/correct (80× dynamic energy cut) on atomic factual queries.
+- Flagship 6-Arm × 4-Budget Evaluation on DeepSeek-R1-Distill-1.5B: Currently running on Kaggle Dual Tesla T4 GPUs to definitively test register computation on reasoning models.
 
 Everything is open source under Apache 2.0:
 - Code & Multi-Threaded Evaluation Harness: https://github.com/gyawalisanish0/symboLM
@@ -121,11 +122,12 @@ Humans don't multiply 6 digits in their head while walking; we use a calculator.
 ```text
 4/ Physical Silicon Audit (Held-Out 200 GSM8K/Math on NVIDIA Tesla T4, 100ms NVML polled):
 
-• 1st-Gen Monologue (DeepSeek-1.5B): 7.0% Pass@1 | 2,052 J/solve | 0.0% at 256 tokens (truncated mid-thought)
-• SymboLM Deterministic REPL: 23.0% Pass@1 | 444.3 J/solve (-78.4%) | 33.3% at 256 tokens
+• Base SLM CoT (SmolLM2-1.7B): 7.0% Pass@1 | 2,052 J/solve (arithmetic hallucination)
+• SymboLM Deterministic REPL: 23.0% Pass@1 | 444.3 J/solve (-78.4% energy)
 • SymboLM Subcortical Reflex: 15.0% Pass@1 | 25.8 J/solve (-98.7% energy)
+• Flagship DeepSeek-R1-1.5B Evaluation: Currently live across 6 arms & 4 budgets on Dual T4 GPUs.
 
-By replacing loose monologue with structured registers, SymboLM hits the low-energy Pareto frontier on real hardware.
+Routing + sandboxed execution prove real hardware energy wins. Receipts below 👇
 ```
 
 ### Tweet 5 (Context & Radical Transparency)

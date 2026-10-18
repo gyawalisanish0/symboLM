@@ -1,10 +1,15 @@
-# SymboLM vs. DeepSeek-R1 Base: Official Apples-to-Apples Benchmark Report
+# [DEPRECATED / SIMULATION SPEC] SymboLM vs. DeepSeek-R1: MATH500 Dry-Run Harness
 
-**Benchmark Dataset:** `MATH500` (5 Gold-Standard Problems)  
+> [!WARNING]
+> **SIMULATION ARTIFACT NOTICE (Per Claude Sonnet 5.5 Audit):**
+> This file was generated using the `--dry_run` flag in `eval/benchmark_apples_to_apples.py` (which hard-codes 1,850 tokens and simulated text for testing pipeline flow). **It does NOT represent physical silicon measurements.**
+> 
+> Real, verified empirical receipts on physical silicon are conducted in `eval/robust_eval.py` across 6 arms and 4 budgets on NVIDIA Tesla T4 GPUs with high-frequency NVML polling. Do not cite this file as official empirical evidence.
+
+**Benchmark Dataset:** `MATH500` (5 Gold-Standard Problems — Dry-Run Mock)  
 **Author & Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
-**Base Backbone:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`  
-**Evaluated At:** 2026-10-14T16:42:11Z  
+**Status:** Deprecated / Retained strictly for pipeline testing reference.
 
 ---
 
