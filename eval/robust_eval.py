@@ -508,6 +508,64 @@ def paired_bootstrap_95ci(
         "excludes_zero": excludes_zero,
     }
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# 2025/2026 TEST-TIME COMPUTE & OVERTHINKING METRICS (OptimalThinkingBench & LLMTHINKBENCH)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def compute_overthinking_metrics(
+    records: List[Dict],
+    arm: str,
+    budget: int,
+    thresholds: List[int] = [64, 128, 256, 512, 1024],
+    target_budget: float = 256.0,
+) -> Dict[str, Any]:
+    """
+    Computes SOTA test-time compute scaling and overthinking metrics:
+    1. Overthinking-Adjusted Accuracy (OAA_t): fraction of problems solved within t tokens.
+    2. AUC_OAA: Normalized Area under the OAA curve from t=0 to max(thresholds).
+    3. Harmonic Overthinking Score (O): 2 * (Acc * TokenEff) / (Acc + TokenEff).
+    """
+    recs = [r for r in records if r["arm"] == arm and r["budget"] == budget]
+    n = len(recs)
+    if n == 0:
+        return {"n": 0, "accuracy": 0.0, "auc_oaa": 0.0, "overthinking_score": 0.0, "mean_tokens": 0.0}
+
+    correct_recs = [r for r in recs if r["is_correct"]]
+    acc = len(correct_recs) / n
+    mean_tokens = sum(r["tokens_emitted"] for r in recs) / n
+
+    # OAA at each threshold
+    oaa_by_t = {}
+    for t in thresholds:
+        count = sum(1 for r in correct_recs if r["tokens_emitted"] <= t)
+        oaa_by_t[t] = count / n
+
+    # Trapezoidal AUC_OAA
+    t_sorted = sorted(thresholds)
+    auc_sum = 0.0
+    for i in range(len(t_sorted) - 1):
+        t1, t2 = t_sorted[i], t_sorted[i+1]
+        auc_sum += 0.5 * (oaa_by_t[t1] + oaa_by_t[t2]) * (t2 - t1)
+    max_t = t_sorted[-1]
+    norm_auc = auc_sum / max_t if max_t > 0 else 0.0
+
+    # Token Efficiency & Harmonic Overthinking Score (LLMTHINKBENCH standard)
+    tok_eff = min(1.0, target_budget / max(mean_tokens, 1.0))
+    if (acc + tok_eff) > 0:
+        overthinking_score = 2 * (acc * tok_eff) / (acc + tok_eff)
+    else:
+        overthinking_score = 0.0
+
+    return {
+        "n": n,
+        "accuracy": round(acc, 4),
+        "mean_tokens": round(mean_tokens, 1),
+        "oaa_by_threshold": {f"OAA_{t}": round(v, 4) for t, v in oaa_by_t.items()},
+        "auc_oaa": round(norm_auc, 4),
+        "token_efficiency": round(tok_eff, 4),
+        "overthinking_score": round(overthinking_score, 4),
+    }
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ENVIRONMENT & MANIFEST
@@ -1105,6 +1163,28 @@ def generate_report(
                     f" \\| {s['truncated']}trunc |"
                 )
         lines.append(row)
+    lines.append("")
+
+    # ── 2025/2026 Test-Time Compute & Overthinking Metrics ───────────────────
+    lines.append("### 1.1 SOTA Test-Time Compute & Overthinking Metrics (OptimalThinkingBench & LLMTHINKBENCH)\n")
+    lines.append(
+        "Overthinking-Adjusted Accuracy (OAA), Area Under Curve (AUC_OAA), and Harmonic Overthinking Score (O).\n"
+        "Formulation: O = 2 * (Acc * TokenEff) / (Acc + TokenEff). Penalizes runaway token bloat and rewards edge efficiency.\n"
+    )
+    lines.append("| Arm | Budget | Pass@1 | Mean Tok | OAA@256 | AUC_OAA | TokenEff | Overthinking Score (O) |")
+    lines.append("|-----|--------|--------|----------|---------|---------|----------|------------------------|")
+    for a in arms:
+        for b in budgets:
+            ot = compute_overthinking_metrics(all_results, arm=a, budget=b)
+            if ot["n"] == 0:
+                continue
+            oaa_256 = ot["oaa_by_threshold"].get("OAA_256", 0.0)
+            lines.append(
+                f"| {ARM_LABELS[a]} | {b} | {ot['accuracy']*100:.1f}% "
+                f"| {ot['mean_tokens']:.1f}tok | {oaa_256*100:.1f}% "
+                f"| {ot['auc_oaa']:.3f} | {ot['token_efficiency']:.2f} "
+                f"| **{ot['overthinking_score']:.3f}** |"
+            )
     lines.append("")
 
     # ── SymPy bonus row ───────────────────────────────────────────────────────
