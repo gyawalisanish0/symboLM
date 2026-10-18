@@ -469,16 +469,17 @@
       - **Stratified Category CIs:** Computes Wilson 95% score intervals per math category with explicit low-$N$ warnings.
       - **Cryptographic Manifest:** Emits `EVAL_RUN_MANIFEST.json` locking dataset SHA-256 (`8369BD8CAF91...`), git commit SHA, seeds, and hardware specs.
     - Packaged Kaggle GPU runner in [`experiments/kaggle/eval_robust/`](experiments/kaggle/eval_robust/) (`symbolm_robust_eval.ipynb`, `kernel-metadata.json`).
-    - Verified locally on CPU (100% test pass) and pushed to GitHub (`audit/empirical-hardening` commit `ea3ade2`).
-    - Colab interactive pilot notebook connected via `colab-mcp`.
+    - Verified on Google Colab Tesla T4 GPU with 18/18 live passes successful.
+    - Integrated multi-threaded `AsyncPersistenceManager`: non-blocking background worker with physical `os.fsync` flushes and periodic background `.tar.gz` and report sync.
+    - **Active Execution on Kaggle:** Launched [`sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation`](https://www.kaggle.com/code/sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation) (STATUS: **`RUNNING`**).
 
 ---
 
 ## 📌 Immediate Next Steps:
-1. **Colab TPU Pilot Execution:** Run small pilot proof of `eval/robust_eval.py` on Colab TPU/GPU runtime.
-2. **Monitor DeepSeek Kaggle Kernel:** Track execution of `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU.
-3. **Ingest DeepSeek Grid Receipts:** Download `/kaggle/working/symbolm_deepseek_valuation_receipts.tar.gz` and commit raw receipts into `results/valuation_deepseek/`.
-4. **Compile Master Pareto Report:** Synthesize multi-budget Pareto frontier across $\{256, 512, 1024, 2048\}$ tokens and paired bootstrap 95% CIs.
+1. **Monitor Robust Eval Kernel:** Track execution of `sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation` on Kaggle Dual Tesla T4 GPU.
+2. **Monitor DeepSeek Grid Kernel:** Track execution of `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU.
+3. **Ingest Grid Receipts:** Download `/kaggle/working/symbolm_robust_eval_receipts.tar.gz` and commit raw receipts.
+4. **Compile Master Pareto Report:** Synthesize multi-budget Pareto frontier across $\{256, 512, 1024, 2048\}$ tokens, SymPy verification bonuses, Cohen's $d$, and paired bootstrap 95% CIs.
 5. **Grant Packets:** Update Emergent Ventures, 1517 Fund, and Nat Friedman AI Grant applications with physical silicon energy tables.
 
 
