@@ -34,6 +34,7 @@ import json
 import math
 import os
 import platform
+import queue
 import random
 import re
 import shutil
@@ -627,51 +628,128 @@ def load_contamination_index(eval_dir: Path) -> Set[str]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CHECKPOINT / RESUME HELPERS
+# MULTI-THREADED ASYNC PERSISTENCE & CHECKPOINT RESUME
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _result_key(problem_id: str, arm: str, budget: int) -> str:
     return f"{problem_id}|{arm}|{budget}"
 
 
-def load_existing_results(out_dir: Path) -> Tuple[List[Dict], Set[str]]:
-    """Load all per-problem results already flushed; return list + done-key set."""
-    results_file = out_dir / "robust_eval_results.jsonl"
-    results, done = [], set()
-    if not results_file.exists():
-        return results, done
-    with open(results_file, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                rec = json.loads(line)
-                results.append(rec)
-                done.add(_result_key(rec["problem_id"], rec["arm"], rec["budget"]))
-            except json.JSONDecodeError:
-                continue
-    return results, done
-
-
-def flush_result(rec: Dict, out_dir: Path):
-    """Atomically append a single result record to the JSONL file."""
-    results_file = out_dir / "robust_eval_results.jsonl"
-    tmp = results_file.with_suffix(".jsonl.tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    with open(results_file, "a", encoding="utf-8") as f:
-        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    tmp.unlink(missing_ok=True)
-
-
 def backup_tarball(out_dir: Path, tarball_path: Path):
     """Create a gzipped tarball of out_dir for Kaggle output capture."""
     try:
-        with tarfile.open(tarball_path, "w:gz") as tar:
+        tmp_tar = tarball_path.with_suffix(".tar.gz.tmp")
+        with tarfile.open(tmp_tar, "w:gz") as tar:
             tar.add(out_dir, arcname=out_dir.name)
+        if tmp_tar.exists():
+            shutil.move(str(tmp_tar), str(tarball_path))
     except Exception as e:
         print(f"[WARN] Tarball backup failed: {e}", flush=True)
+
+
+class AsyncPersistenceManager:
+    """
+    Dedicated background worker thread for non-blocking, multi-threaded persistence.
+    1. Instantly receives result records in memory queue.
+    2. Atomically appends each record to robust_eval_results.jsonl with os.fsync.
+    3. Periodically updates report and background tarball archive in a separate thread,
+       ensuring GPU forward passes NEVER wait on disk I/O.
+    """
+    def __init__(
+        self,
+        out_dir: Path,
+        tarball_path: Path,
+        manifest: Dict[str, Any],
+        report_path: Path,
+        contaminated_ids: Set[str],
+        sync_every: int = 5,
+    ):
+        self.out_dir = out_dir
+        self.tarball_path = tarball_path
+        self.manifest = manifest
+        self.report_path = report_path
+        self.contaminated_ids = contaminated_ids
+        self.sync_every = sync_every
+
+        self.queue: queue.Queue = queue.Queue()
+        self.running = True
+        self.all_results: List[Dict[str, Any]] = []
+        self.done_keys: Set[str] = set()
+        self.lock = threading.Lock()
+        self.write_count = 0
+
+        self._load_existing()
+        self.worker = threading.Thread(
+            target=self._worker_loop, daemon=True, name="AsyncPersistenceWorker"
+        )
+        self.worker.start()
+
+    def _load_existing(self):
+        results_file = self.out_dir / "robust_eval_results.jsonl"
+        if not results_file.exists():
+            return
+        with open(results_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                    self.all_results.append(rec)
+                    self.done_keys.add(_result_key(rec["problem_id"], rec["arm"], rec["budget"]))
+                except json.JSONDecodeError:
+                    continue
+        print(f"[PERSISTENCE] Restored {len(self.done_keys)} completed cells from disk cache.", flush=True)
+
+    def is_done(self, problem_id: str, arm: str, budget: int) -> bool:
+        with self.lock:
+            return _result_key(problem_id, arm, budget) in self.done_keys
+
+    def enqueue(self, rec: Dict[str, Any]):
+        with self.lock:
+            self.done_keys.add(_result_key(rec["problem_id"], rec["arm"], rec["budget"]))
+            self.all_results.append(rec)
+        self.queue.put(rec)
+
+    def _worker_loop(self):
+        results_file = self.out_dir / "robust_eval_results.jsonl"
+        while self.running or not self.queue.empty():
+            try:
+                rec = self.queue.get(timeout=0.5)
+            except queue.Empty:
+                continue
+
+            try:
+                with open(results_file, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    f.flush()
+                    os.fsync(f.fileno())
+                self.write_count += 1
+            except Exception as e:
+                print(f"[PERSISTENCE ERROR] File append failed: {e}", flush=True)
+            finally:
+                self.queue.task_done()
+
+            # Periodic background sync of report & tarball
+            if self.write_count % self.sync_every == 0:
+                self._sync_artifacts()
+
+    def _sync_artifacts(self):
+        try:
+            with self.lock:
+                recs_copy = list(self.all_results)
+            generate_report(recs_copy, self.contaminated_ids, self.manifest, self.report_path)
+            backup_tarball(self.out_dir, self.tarball_path)
+        except Exception as e:
+            print(f"[PERSISTENCE WARN] Background artifact sync failed: {e}", flush=True)
+
+    def close(self):
+        self.running = False
+        self.queue.join()
+        if self.worker.is_alive():
+            self.worker.join(timeout=5)
+        self._sync_artifacts()
+        print(f"[PERSISTENCE] All records saved & synced. Total records: {len(self.all_results)}", flush=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -789,10 +867,16 @@ def run_robust_eval(
     print(f"[INFO] Manifest written → {manifest_path}", flush=True)
     if not manifest["dataset_sha256_match"]:
         print(f"[WARN] Dataset SHA-256 MISMATCH — expected {DATASET_SHA256}", flush=True)
-
-    # ── Resume ────────────────────────────────────────────────────────────────
-    all_results, done_keys = load_existing_results(out_dir)
-    print(f"[INFO] Resuming: {len(done_keys)} (problem, arm, budget) triples already done", flush=True)
+    # ── Multi-Threaded Persistence Manager ────────────────────────────────────
+    persistence = AsyncPersistenceManager(
+        out_dir=out_dir,
+        tarball_path=tarball,
+        manifest=manifest,
+        report_path=report_md,
+        contaminated_ids=contaminated_ids,
+        sync_every=backup_every,
+    )
+    done_keys = persistence.done_keys
 
     # ── Power sampler ─────────────────────────────────────────────────────────
     sampler = PowerSampler()
@@ -923,9 +1007,7 @@ def run_robust_eval(
                     "sandbox_outputs":  sandbox_outputs,
                     "generated_text":   generated[:800],  # truncate for storage
                 }
-                flush_result(rec, out_dir)
-                all_results.append(rec)
-                done_keys.add(key)
+                persistence.enqueue(rec)
                 completed += 1
 
                 status = "✓" if is_correct else "✗"
@@ -935,17 +1017,9 @@ def run_robust_eval(
                     flush=True,
                 )
 
-        # Periodic tarball backup
-        if problem_counter % backup_every == 0:
-            backup_tarball(out_dir, tarball)
-            print(f"[BACKUP] Tarball updated at problem {problem_counter}", flush=True)
-
-    # Final backup
-    backup_tarball(out_dir, tarball)
-    print(f"[INFO] Evaluation complete. Results: {out_dir / 'robust_eval_results.jsonl'}", flush=True)
-
-    # Generate report
-    generate_report(all_results, contaminated_ids, manifest, report_md)
+    # ── Final Persistence Flush & Report Generation ───────────────────────────
+    persistence.close()
+    print(f"[INFO] Robust evaluation complete. Results: {out_dir / 'robust_eval_results.jsonl'}", flush=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

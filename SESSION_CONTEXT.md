@@ -460,14 +460,27 @@
     - Arm D (Causal/Router Control): 9.00% Pass@1 (ablation), 1,301.41 J/correct (valuation).
     - Arm E (Tiny Terminal Emulation): 23.00% Pass@1, 444.30 J/correct (78.4% energy drop, 3.3× accuracy boost).
 11. **Active Flagship Reasoning Execution:** Deployed `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU evaluating `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` across the $\{256, 512, 1024, 2048\}$ multi-budget grid.
+12. **Hard-Critique-Resistant Robust Evaluation Mechanism (Oct 18, 2026):**
+    - Built and verified [`eval/robust_eval.py`](eval/robust_eval.py): 6-arm evaluation harness closing every methodological vulnerability identified by Claude Haiku 5.5:
+      - **Arm F (Vanilla Base Control):** Evaluates unadapted `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` directly as an uncompromised external control.
+      - **Truly Independent Multi-Budget Passes:** Executes independent passes per arm at $\{256, 512, 1024, 2048\}$ token budgets (truncation = FAIL).
+      - **Dual-Layer Answer Verification:** Tier 1 string/fraction/float comparison + Tier 2 SymPy algebraic equivalence checking (`sympy.simplify(diff) == 0`).
+      - **Statistical Effect Sizes:** Measures Cohen's $d$ and CLES (Common Language Effect Size) alongside 10,000-resample paired bootstrap 95% CIs.
+      - **Stratified Category CIs:** Computes Wilson 95% score intervals per math category with explicit low-$N$ warnings.
+      - **Cryptographic Manifest:** Emits `EVAL_RUN_MANIFEST.json` locking dataset SHA-256 (`8369BD8CAF91...`), git commit SHA, seeds, and hardware specs.
+    - Packaged Kaggle GPU runner in [`experiments/kaggle/eval_robust/`](experiments/kaggle/eval_robust/) (`symbolm_robust_eval.ipynb`, `kernel-metadata.json`).
+    - Verified locally on CPU (100% test pass) and pushed to GitHub (`audit/empirical-hardening` commit `ea3ade2`).
+    - Colab interactive pilot notebook connected via `colab-mcp`.
 
 ---
 
 ## 📌 Immediate Next Steps:
-1. **Monitor DeepSeek Kernel:** Track execution of `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU.
-2. **Ingest DeepSeek Grid Receipts:** Download `/kaggle/working/symbolm_deepseek_valuation_receipts.tar.gz` and commit raw receipts into `results/valuation_deepseek/`.
-3. **Compile Master Pareto Report:** Synthesize multi-budget Pareto frontier across $\{256, 512, 1024, 2048\}$ tokens and paired bootstrap 95% CIs.
-4. **Grant Packets:** Update Emergent Ventures, 1517 Fund, and Nat Friedman AI Grant applications with physical silicon energy tables.
+1. **Colab TPU Pilot Execution:** Run small pilot proof of `eval/robust_eval.py` on Colab TPU/GPU runtime.
+2. **Monitor DeepSeek Kaggle Kernel:** Track execution of `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU.
+3. **Ingest DeepSeek Grid Receipts:** Download `/kaggle/working/symbolm_deepseek_valuation_receipts.tar.gz` and commit raw receipts into `results/valuation_deepseek/`.
+4. **Compile Master Pareto Report:** Synthesize multi-budget Pareto frontier across $\{256, 512, 1024, 2048\}$ tokens and paired bootstrap 95% CIs.
+5. **Grant Packets:** Update Emergent Ventures, 1517 Fund, and Nat Friedman AI Grant applications with physical silicon energy tables.
+
 
 
 
