@@ -1,0 +1,41 @@
+{
+  "run_id": "robust_eval_20261018T050124Z",
+  "timestamp_utc": "2026-10-18T05:01:24.078983+00:00",
+  "commit_hash": "38132aba57b07ad14bd0feff84f04954d790b02b",
+  "dataset": "data/held_out_eval_200_clean.jsonl",
+  "dataset_sha256": "575B247066B65E5B8514990280C534BAA9448014E100ADCFE67D385E43B9AA8E",
+  "dataset_sha256_match": false,
+  "dataset_sha256_expected": "8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B",
+  "adapter": "/kaggle/working/symbolm_deepseek_fused",
+  "base_model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+  "arms": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+  ],
+  "budgets": [
+    256,
+    512,
+    1024,
+    2048
+  ],
+  "random_seed": 42,
+  "hardware": {
+    "gpu_name": "Tesla T4",
+    "driver": "580.178.04",
+    "vram_mb": "15360 MiB",
+    "compute_cap": "7.5\nTesla T4",
+    "python": "3.13.15",
+    "os": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "cpu": "x86_64"
+  },
+  "library_versions": {
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "peft": "0.20.0",
+    "sympy": "1.14.0"
+  }
+}
