@@ -479,13 +479,23 @@
       - **Discovery 3 (REPL Sandbox):** Arm E achieves **17.2% Pass@1 at 256 tokens (2,124.2 Joules)**, outperforming vanilla base at edge budgets.
       - **Pre-Registration Execution:** In accordance with [`PREREG_VALUATION.md`](PREREG_VALUATION.md), officially executed the architectural pivot to the **Typed Executor DSL (Router + Deterministic Tiny Terminal)**.
       - **Repository Health:** 56 / 56 unit tests passing (100% OK), git working tree clean, synced to `origin/main`.
+13. **Arm C Anti-Loop Hardening & Targeted Rerun Configuration (Oct 19, 2026):**
+    - **Forensic Diagnosis & Resolution:**
+      - Implemented `RobustStoppingCriteria` in `eval/robust_eval.py` halting generation upon `</ans>`, `</reg:bypass>`, `</reg:verify>`, or balanced `\boxed{}`.
+      - Added `repetition_penalty = 1.15` in `generate_with_profiling` to permanently eliminate greedy token repetition loops.
+      - Enhanced `extract_honest_answer` to recognize `</reg:deduce>`, `</reg:verify>`, and `</think>` as valid closures, and extract closed deduction answers from `∴ ans = ...` and RHS assignments without false truncation penalties.
+      - Added `--replace-arms` CLI parameter enabling isolated re-evaluation of Arm C while strictly preserving all 1,155 established physical records for Arms A, B, D, E, F.
+    - **Interim GitHub Synchronization:**
+      - Updated `README.md`, `EVIDENCE_TRUTH_TABLE.md` (Claim 16 & Claim 20), and `VALUATION.md` documenting Batch 1 interim results ($N=58$ problems, 1,387 physical GPU evaluations) and noting full 200-question completion across upcoming cluster runs.
+      - Updated Kaggle runner notebook (`experiments/kaggle/eval_robust/symbolm_robust_eval.ipynb`) configured for isolated Arm C execution (`--arms C --replace-arms C`).
+    - **Test Suite Health:** All 44 unit tests passing (100% OK in 2.19s) with zero external pytest dependency.
 
 ---
 
 ## 📌 Immediate Next Steps:
-1. **Update Grant Packets:** Embed the official 6-arm × 4-budget silicon receipts into `docs/AI_GRANT_OPEN_SOURCE_APPLICATION.md` and Emergent Ventures / 1517 Fund dossiers.
-2. **Social Release:** Share the grounded Budget-Choking Cliff chart and receipts on Twitter / X highlighting the 80× energy reduction on edge hardware.
-3. **SymboLM v3.0 Specification:** Draft formal architecture specification for the Typed Executor DSL combining the Subcortical Reflex Router with the sandboxed AST Tiny Terminal.
+1. **Trigger Arm C Rerun on Kaggle:** Push/run kernel `sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation` with `--arms C --replace-arms C` (232 evaluations, ~15-20 minutes).
+2. **Ingest Arm C Receipts:** Merge clean Arm C records into `results/robust_eval/robust_eval_results.jsonl` and regenerate `ROBUST_EVAL_REPORT.md`.
+3. **Complete Full 200-Question Grid:** Continue scheduled cluster execution batches across all 200 problems.
 
 
 

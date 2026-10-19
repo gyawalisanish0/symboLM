@@ -7,6 +7,9 @@
 **Pre-Registration File:** [`PREREG_VALUATION.md`](PREREG_VALUATION.md) (Locked prior to measurement)  
 **Dataset Evaluated:** 200 clean held-out problems (`data/held_out_eval_200_clean.jsonl`)  
 
+> [!NOTE]
+> **Multi-Budget Grid Valuation:** For the comprehensive 6-arm × 4-budget physical GPU evaluation ($N=58$ clean problems, 1,387 independent forward passes on Dual Tesla T4 across $\{256, 512, 1024, 2048\}$ token budgets), see **[`results/robust_eval/ROBUST_EVAL_REPORT.md`](results/robust_eval/ROBUST_EVAL_REPORT.md)**.
+
 ---
 
 ## 1. Hardware Energy & Latency Valuation Scorecard

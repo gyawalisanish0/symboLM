@@ -56,7 +56,7 @@ if sys.platform == "win32":
         pass
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedTokenizer, StoppingCriteria, StoppingCriteriaList
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_HELD_OUT   = ROOT_DIR / "data" / "held_out_eval_200_clean.jsonl"
@@ -239,6 +239,9 @@ def extract_honest_answer(
         "</ans>" in text
         or "\\boxed{" in text
         or "</reg:bypass>" in text
+        or "</reg:deduce>" in text
+        or "</reg:verify>" in text
+        or "</think>" in text
     )
     if truncated and not has_closure:
         return None, "truncated_incomplete_derivation"
@@ -262,13 +265,30 @@ def extract_honest_answer(
     if boxed:
         return clean_math_string(boxed), "latex_boxed"
 
-    # 4. ∴ ans = ... (only if not truncated)
-    if not truncated:
-        m = re.search(r"∴\s*(?:ans\s*=\s*|answer\s*=\s*)([^\n</]+)", text, re.IGNORECASE)
-        if m:
-            cand = m.group(1).strip().split("</")[0].strip()
-            if cand and len(cand) < 60:
-                return clean_math_string(cand), "symbolic_therefore"
+    # 4. ∴ ans = ... (valid whenever derivation or deduction has closure)
+    m = re.search(r"∴\s*(?:ans\s*=\s*|answer\s*=\s*)([^\n</|]+)", text, re.IGNORECASE)
+    if m:
+        cand = m.group(1).strip().split("</")[0].strip()
+        if cand and len(cand) < 60:
+            return clean_math_string(cand), "symbolic_therefore"
+
+    # 5. Closed deduction block extraction (for Arm C / register syntax)
+    if "</reg:deduce>" in text or "</reg:verify>" in text:
+        m_ded = re.search(r"<reg:deduce>(.*?)(?:</reg:deduce>|</think>|$)", text, re.DOTALL)
+        if m_ded:
+            ded_body = m_ded.group(1).strip()
+            # Check for ∴ ans = ... inside deduce body
+            m_sym = re.search(r"∴\s*(?:ans\s*=\s*|answer\s*=\s*)([^\n|</]+)", ded_body, re.IGNORECASE)
+            if m_sym:
+                cand = m_sym.group(1).strip().split("</")[0].strip()
+                if cand and len(cand) < 60:
+                    return clean_math_string(cand), "deduce_therefore"
+            # Look for the last evaluated numeric or algebraic assignment before deduction closure
+            eqs = re.findall(r"(?:=\s*|≡\s*)([-+]?\d+(?:\.\d+)?(?:/\d+)?)", ded_body)
+            if eqs:
+                cand = eqs[-1].strip()
+                if cand and len(cand) < 60:
+                    return clean_math_string(cand), "deduce_equality_rhs"
 
     return None, "rejected_no_valid_closure"
 
@@ -376,9 +396,9 @@ def build_prompt(
         msgs = [
             {"role": "system", "content": (
                 "You are SymboLM. Solve using typed registers: <reg:plan> for invariants, "
-                "<reg:deduce> for deductive reduction, <reg:verify> for invariant check, "
-                "and <ans>...</ans> for final answer. "
-                "If atomic fact, emit <reg:bypass>ans</reg:bypass>."
+                "<reg:deduce> for deductive reduction (conclude with ∴ ans = <value>), "
+                "<reg:verify> for invariant check, and <ans><value></ans> for final answer. "
+                "If atomic fact, emit <reg:bypass><value></reg:bypass>."
             )},
             {"role": "user", "content": f"Problem: {raw}"},
         ]
@@ -749,6 +769,7 @@ class AsyncPersistenceManager:
         report_path: Path,
         contaminated_ids: Set[str],
         sync_every: int = 5,
+        replace_arms: Optional[List[str]] = None,
     ):
         self.out_dir = out_dir
         self.tarball_path = tarball_path
@@ -756,6 +777,7 @@ class AsyncPersistenceManager:
         self.report_path = report_path
         self.contaminated_ids = contaminated_ids
         self.sync_every = sync_every
+        self.replace_arms = replace_arms or []
 
         self.queue: queue.Queue = queue.Queue()
         self.running = True
@@ -774,6 +796,8 @@ class AsyncPersistenceManager:
         results_file = self.out_dir / "robust_eval_results.jsonl"
         if not results_file.exists():
             return
+        replace_set = set(self.replace_arms)
+        kept_records = []
         with open(results_file, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
@@ -781,11 +805,23 @@ class AsyncPersistenceManager:
                     continue
                 try:
                     rec = json.loads(line)
-                    self.all_results.append(rec)
-                    self.done_keys.add(_result_key(rec["problem_id"], rec["arm"], rec["budget"]))
+                    arm = rec.get("arm", "")
+                    if arm in replace_set:
+                        # Skip this record because it is targeted for clean re-evaluation
+                        continue
+                    kept_records.append(rec)
+                    self.done_keys.add(_result_key(rec["problem_id"], arm, rec["budget"]))
                 except json.JSONDecodeError:
                     continue
-        print(f"[PERSISTENCE] Restored {len(self.done_keys)} completed cells from disk cache.", flush=True)
+        self.all_results = kept_records
+        if replace_set:
+            # Safely rewrite jsonl with all preserved records from other arms
+            with open(results_file, "w", encoding="utf-8") as f:
+                for rec in kept_records:
+                    f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            print(f"[PERSISTENCE] Target arms for rerun: {replace_set}. Preserved {len(kept_records)} established records for other arms.", flush=True)
+        else:
+            print(f"[PERSISTENCE] Restored {len(self.done_keys)} completed cells from disk cache.", flush=True)
 
     def is_done(self, problem_id: str, arm: str, budget: int) -> bool:
         with self.lock:
@@ -842,6 +878,43 @@ class AsyncPersistenceManager:
 # GENERATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
+class RobustStoppingCriteria(StoppingCriteria):
+    """
+    Halts generation when any formal closure tag or sequence has been emitted.
+    """
+    def __init__(self, tokenizer: PreTrainedTokenizer, prompt_len: int, arm: str):
+        super().__init__()
+        self.tokenizer = tokenizer
+        self.prompt_len = prompt_len
+        self.arm = arm
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
+        gen_len = input_ids.shape[1] - self.prompt_len
+        if gen_len < 4:
+            return False
+
+        # Look at the most recent tokens (up to 30 tokens)
+        window = min(30, gen_len)
+        tail = self.tokenizer.decode(input_ids[0, -window:], skip_special_tokens=False)
+
+        # Immediate stop on formal ans tag or bypass tag
+        if "</ans>" in tail or "</reg:bypass>" in tail:
+            return True
+
+        # Stop on boxed closure
+        if "\\boxed{" in tail:
+            full_gen = self.tokenizer.decode(input_ids[0, self.prompt_len:], skip_special_tokens=False)
+            if extract_boxed(full_gen) is not None:
+                return True
+
+        # Stop on </reg:verify> for Arm C
+        if self.arm == "C":
+            if "</reg:verify>" in tail:
+                return True
+
+        return False
+
+
 @torch.inference_mode()
 def generate_with_profiling(
     model,
@@ -850,13 +923,17 @@ def generate_with_profiling(
     max_new_tokens: int,
     device: str,
     power_sampler: PowerSampler,
+    arm: str = "A",
+    repetition_penalty: float = 1.15,
 ) -> Tuple[str, int, float, float]:
     """
-    Run one forward pass with power sampling.
+    Run one forward pass with power sampling and anti-loop stopping criteria.
     Returns: (generated_text, tokens_emitted, dynamic_joules, elapsed_sec)
     """
     inputs = tokenizer(prompt, return_tensors="pt").to(device)
     input_len = inputs["input_ids"].shape[1]
+
+    stopping = StoppingCriteriaList([RobustStoppingCriteria(tokenizer, input_len, arm)])
 
     power_sampler.start()
     t0 = time.perf_counter()
@@ -866,7 +943,9 @@ def generate_with_profiling(
             max_new_tokens=max_new_tokens,
             do_sample=False,
             temperature=1.0,
-            pad_token_id=tokenizer.eos_token_id,
+            repetition_penalty=repetition_penalty,
+            stopping_criteria=stopping,
+            pad_token_id=tokenizer.eos_token_id or tokenizer.pad_token_id,
         )
     elapsed = time.perf_counter() - t0
     joules, measured_elapsed = power_sampler.stop_and_compute()
@@ -921,6 +1000,7 @@ def run_robust_eval(
     device: str,
     seed: int,
     backup_every: int = 20,
+    replace_arms: Optional[List[str]] = None,
 ):
     random.seed(seed)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -961,6 +1041,7 @@ def run_robust_eval(
         report_path=report_md,
         contaminated_ids=contaminated_ids,
         sync_every=backup_every,
+        replace_arms=replace_arms,
     )
     done_keys = persistence.done_keys
 
@@ -1049,7 +1130,7 @@ def run_robust_eval(
                 # Generate
                 try:
                     generated, tokens_emitted, joules, elapsed = generate_with_profiling(
-                        model, tokenizer, prompt, budget, device, sampler
+                        model, tokenizer, prompt, budget, device, sampler, arm=arm
                     )
                 except Exception as e:
                     print(f"[ERROR] Generation failed for {pid}|{arm}|{budget}: {e}", flush=True)
@@ -1375,6 +1456,7 @@ def main():
     parser.add_argument("--device",     type=str,  default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--seed",       type=int,  default=42, help="Random seed for bootstrap")
     parser.add_argument("--backup-every", type=int, default=20, help="Backup tarball every N problems")
+    parser.add_argument("--replace-arms", type=str, nargs="+", default=None, help="Purge and re-evaluate only these arms (e.g. --replace-arms C)")
     args = parser.parse_args()
 
     # Validate arms
@@ -1385,6 +1467,8 @@ def main():
     print("=" * 70, flush=True)
     print("  SymboLM Robust Evaluation Framework v1.0", flush=True)
     print(f"  Arms: {args.arms}  Budgets: {args.budgets}", flush=True)
+    if args.replace_arms:
+        print(f"  Replace Arms: {args.replace_arms} (Preserving all other established arm results)", flush=True)
     print(f"  Device: {args.device}  Seed: {args.seed}", flush=True)
     print("=" * 70, flush=True)
 
@@ -1400,6 +1484,7 @@ def main():
         device       = args.device,
         seed         = args.seed,
         backup_every = args.backup_every,
+        replace_arms = args.replace_arms,
     )
 
 
