@@ -8,7 +8,7 @@
 **Dataset Evaluated:** 200 clean held-out problems (`data/held_out_eval_200_clean.jsonl`)  
 
 > [!NOTE]
-> **Multi-Budget Grid Valuation:** For the comprehensive 6-arm × 4-budget physical GPU evaluation ($N=58$ clean problems, 1,387 independent forward passes on Dual Tesla T4 across $\{256, 512, 1024, 2048\}$ token budgets), see **[`results/robust_eval/ROBUST_EVAL_REPORT.md`](results/robust_eval/ROBUST_EVAL_REPORT.md)**.
+> **Multi-Budget Grid Valuation:** For the comprehensive 6-arm × 4-budget physical GPU evaluation (1,955 independent forward passes on Dual Tesla T4 across $\{256, 512, 1024, 2048\}$ token budgets, with Arm C completed across all 200 clean held-out problems and **Format Value Confirmed**), see **[`results/robust_eval/ROBUST_EVAL_REPORT.md`](results/robust_eval/ROBUST_EVAL_REPORT.md)**.
 
 ---
 

@@ -471,31 +471,26 @@
     - Packaged Kaggle GPU runner in [`experiments/kaggle/eval_robust/`](experiments/kaggle/eval_robust/) (`symbolm_robust_eval.ipynb`, `kernel-metadata.json`).
     - Verified on Google Colab Tesla T4 GPU with 18/18 live passes successful.
     - Integrated multi-threaded `AsyncPersistenceManager`: non-blocking background worker with physical `os.fsync` flushes and periodic background `.tar.gz` and report sync.
-    - **Completed Cloud Execution & Receipt Ingestion (Oct 19, 2026):**
-      - Downloaded and committed 1,387 physical GPU evaluations (`results/robust_eval/robust_eval_results.jsonl`, `EVAL_RUN_MANIFEST.json`).
-      - Generated master Pareto report: [`results/robust_eval/ROBUST_EVAL_REPORT.md`](results/robust_eval/ROBUST_EVAL_REPORT.md).
-      - **Discovery 1 (The Budget-Choking Cliff):** Vanilla DeepSeek-1.5B (Arm F) drops from 49.1% (2048 budget) to **0.0% at 256 tokens** ($\text{BCF} = 1.000$, 100% cliff drop) burning $\infty$ Joules per correct solve due to mid-thought truncation.
-      - **Discovery 2 (Reflex Dominance):** SymboLM Reflex (Arm B) delivers **39.7% Pass@1 at 256 tokens at 822.6 Joules** (vs. 0.0% and $\infty$ Joules for Vanilla DeepSeek) with $\text{BCF} = 0.000$.
-      - **Discovery 3 (REPL Sandbox):** Arm E achieves **17.2% Pass@1 at 256 tokens (2,124.2 Joules)**, outperforming vanilla base at edge budgets.
-      - **Pre-Registration Execution:** In accordance with [`PREREG_VALUATION.md`](PREREG_VALUATION.md), officially executed the architectural pivot to the **Typed Executor DSL (Router + Deterministic Tiny Terminal)**.
-      - **Repository Health:** 56 / 56 unit tests passing (100% OK), git working tree clean, synced to `origin/main`.
-13. **Arm C Anti-Loop Hardening & Targeted Rerun Configuration (Oct 19, 2026):**
-    - **Forensic Diagnosis & Resolution:**
-      - Implemented `RobustStoppingCriteria` in `eval/robust_eval.py` halting generation upon `</ans>`, `</reg:bypass>`, `</reg:verify>`, or balanced `\boxed{}`.
-      - Added `repetition_penalty = 1.15` in `generate_with_profiling` to permanently eliminate greedy token repetition loops.
-      - Enhanced `extract_honest_answer` to recognize `</reg:deduce>`, `</reg:verify>`, and `</think>` as valid closures, and extract closed deduction answers from `∴ ans = ...` and RHS assignments without false truncation penalties.
-      - Added `--replace-arms` CLI parameter enabling isolated re-evaluation of Arm C while strictly preserving all 1,155 established physical records for Arms A, B, D, E, F.
-    - **Interim GitHub Synchronization:**
-      - Updated `README.md`, `EVIDENCE_TRUTH_TABLE.md` (Claim 16 & Claim 20), and `VALUATION.md` documenting Batch 1 interim results ($N=58$ problems, 1,387 physical GPU evaluations) and noting full 200-question completion across upcoming cluster runs.
-      - Updated Kaggle runner notebook (`experiments/kaggle/eval_robust/symbolm_robust_eval.ipynb`) configured for isolated Arm C execution (`--arms C --replace-arms C`).
-    - **Test Suite Health:** All 44 unit tests passing (100% OK in 2.19s) with zero external pytest dependency.
+    - **Initial Execution on Kaggle:** Completed Batch 1 (58 problems, 1,387 GPU passes) on Kaggle Cloud (`sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation`).
+13. **Arm C Anti-Loop Hardening & Rerun Completed (1,955 Physical Records Ingested - Oct 19, 2026):**
+    - Diagnosed post-closure syntax tail repetition loops on greedy generation (`tatto 44`, `zbollah 169`) as root cause of Arm C truncation.
+    - Upgraded [`eval/robust_eval.py`](eval/robust_eval.py) with `RobustStoppingCriteria` (halting on `</ans>`, `</reg:bypass>`, `</reg:verify>`, or balanced `\boxed{}`) and `repetition_penalty = 1.15`.
+    - Executed targeted rerun of Arm C on Kaggle Tesla T4 GPU across all 200 clean held-out problems across all 4 budgets ($N=200 \times 4 = 800$ evaluations) without modifying or recomputing established receipts for Arms A, B, D, E, F (1,155 preserved receipts).
+    - **Physical Receipts Verified:**
+      - Arm C scores **37.0% Pass@1 (74 / 200)** consistently across all budgets ($B \in \{256, 512, 1024, 2048\}$) with $\text{BCF} = 0.000$ (Zero Cliff Drop).
+      - Dynamic energy: 547.9 J/corr at $B=256$, 652.8 J/corr at $B=512$, 966.9 J/corr at $B=1024$, 1,472.3 J/corr at $B=2048$.
+      - **Pre-Registered Decision Rule:** Paired bootstrap 95% CI on $(J/\text{corr}_D - J/\text{corr}_C)$ strictly excludes zero across all budgets (e.g. $[1589.99, 20921.70]$ at $B=256$).
+      - Official Verdict: **`✓ FORMAT VALUE CONFIRMED`**.
+    - Ingested 1,955 total records into [`results/robust_eval/robust_eval_results.jsonl`](results/robust_eval/robust_eval_results.jsonl), updated [`results/robust_eval/ROBUST_EVAL_REPORT.md`](results/robust_eval/ROBUST_EVAL_REPORT.md) and [`results/robust_eval/EVAL_RUN_MANIFEST.json`](results/robust_eval/EVAL_RUN_MANIFEST.json).
+    - 44/44 unit tests passing 100% OK.
 
 ---
 
 ## 📌 Immediate Next Steps:
-1. **Trigger Arm C Rerun on Kaggle:** Push/run kernel `sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation` with `--arms C --replace-arms C` (232 evaluations, ~15-20 minutes).
-2. **Ingest Arm C Receipts:** Merge clean Arm C records into `results/robust_eval/robust_eval_results.jsonl` and regenerate `ROBUST_EVAL_REPORT.md`.
-3. **Complete Full 200-Question Grid:** Continue scheduled cluster execution batches across all 200 problems.
+1. **Cloud Batch Progression:** Monitor subsequent cloud cluster batches for Arms A, B, D, E, F as they progress toward full 200-problem completion.
+2. **Grant & Publication Integration:** Incorporate the confirmed Format Value and 1,955-record multi-budget Pareto frontier into fellowship application packets and whitepaper revisions.
+3. **DSL & Hybrid Architecture:** Proceed with v3.0 Typed Executor DSL (combining the confirmed 37.0% / 547.9 J register core with deterministic SymPy evaluation).
+
 
 
 

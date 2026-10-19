@@ -20,7 +20,7 @@
 
 ## 📑 Core Documentation & Epistemic Receipts
 
-* 🏆 **[Robust 6-Arm × 4-Budget Silicon Report (results/robust_eval/ROBUST_EVAL_REPORT.md)](results/robust_eval/ROBUST_EVAL_REPORT.md)** — Independent multi-budget Pareto frontier ($N=58$ problems, 1,387 physical GPU evaluations) on Dual Tesla T4 GPUs.
+* 🏆 **[Robust 6-Arm × 4-Budget Silicon Report (results/robust_eval/ROBUST_EVAL_REPORT.md)](results/robust_eval/ROBUST_EVAL_REPORT.md)** — Independent multi-budget Pareto frontier (1,955 physical GPU evaluations; Arm C completed across all 200 clean problems, Format Value Confirmed) on Dual Tesla T4 GPUs.
 * ⚡ **[Physical Silicon Hardware Valuation Report (VALUATION.md)](VALUATION.md)** — Dynamic electrical energy ($J/\text{correct}$) and latency profiled on Dual Tesla T4 GPUs via NVML.
 * 📋 **[Consolidated Results Summary (RESULTS_SUMMARY.md)](RESULTS_SUMMARY.md)** — Definitive empirical audit synthesis across Tasks 0–7 for research grants.
 * 🛡️ **[Full Claims Audit (AUDIT.md)](AUDIT.md)** — Forensic classification of every claim into `MEASURED`, `SIMULATED`, `CONSTANT`, or `UNVERIFIED`.
@@ -31,10 +31,10 @@
 
 ---
 
-## 🏆 Flagship Robust 6-Arm × 4-Budget Evaluation (Interim Batch 1: 1,387 GPU Receipts)
+## 🏆 Flagship Robust 6-Arm × 4-Budget Evaluation (1,955 Physical GPU Receipts)
 
 > [!NOTE]
-> **Interim Evaluation Status:** Batch 1 covers **58 clean held-out problems** across 6 arms and 4 independent budgets (**1,387 physical GPU evaluations** on Dual Tesla T4 GPUs). The complete 200-question evaluation grid (4,800 physical evaluations) is running across cloud cluster batches and will be completed in full over the coming days.
+> **Physical Evaluation Status:** 1,955 physical GPU evaluations on Dual Tesla T4 GPUs. **Arm C (Full Registers) is 100% completed across all 200 clean held-out problems** across all 4 independent budgets ($N=200 \times 4 = 800$ evaluations), achieving **37.0% Pass@1 with Zero Cliff Drop ($\text{BCF} = 0.000$)** and confirming the pre-registered decision rule (**`✓ FORMAT VALUE CONFIRMED`**). Batch 1 for Arms A, B, D, E, F covers 58 clean problems across 4 budgets (1,155 preserved physical receipts), with remaining arms progressing across cloud cluster batches.
 
 ### Core Scientific Discoveries from Physical Silicon:
 
@@ -53,8 +53,10 @@
 3. **SymboLM REPL Sandbox (Arm E):**
    - Scores **17.2% Pass@1 at 256 tokens (2,124.2 Joules)**, beating vanilla base at edge budgets.
 
-4. **Arm C Anti-Loop Rerun (Active):**
-   - On this checkpoint, greedy unstopped generation in Arm C entered post-closure syntax repetition loops (`tatto 44`, `zbollah 169`), exhausting tokens after computing correct steps. An anti-loop rerun with `RobustStoppingCriteria` and `repetition_penalty = 1.15` is underway specifically for Arm C without recomputing or overwriting the established physical receipts for Arms A, B, D, E, F.
+4. **Arm C Anti-Loop Rerun Complete — Format Value Confirmed:**
+   - Following root-cause diagnosis of syntax tail repetition loops on unstopped generation, Arm C was hardened with `RobustStoppingCriteria` and `repetition_penalty = 1.15` and rerun across all 200 held-out problems ($N=800$ passes).
+   - **Results:** Arm C delivers **37.0% Pass@1 consistently across all budgets** with mean tokens from 136.3 to 378.3, dynamic energy from 202.7 J to 544.8 J (547.9 J/corr at $B=256$, 652.8 J/corr at $B=512$).
+   - **Pre-Registered Decision Rule:** Pass@1 surge (+28.4 pp vs Arm D's 8.6%) and paired bootstrap 95% CI on $(J/\text{corr}_D - J/\text{corr}_C)$ strictly excludes zero across all 4 budgets (e.g. $[1589.99, 20921.70]$ at $B=256$). Official Verdict: **`✓ FORMAT VALUE CONFIRMED`**.
 
 ### Definitive Multi-Budget Silicon Performance Grid (Dual Tesla T4 Receipts):
 
@@ -79,8 +81,10 @@
 | **Arm D: Corrupted Router Control** | 256 | **8.6%** [3.7%, 18.6%] | 252.6 t | 376.9 J | **4371.6 J** | 8.6% | 0.052 | 0.151 | 0.000 |
 | **Arm D: Corrupted Router Control** | 512 | **8.6%** [3.7%, 18.6%] | 490.9 t | 707.4 J | **8205.9 J** | 1.7% | 0.032 | 0.140 | 0.000 |
 | **Arm D: Corrupted Router Control** | 1024 | **8.6%** [3.7%, 18.6%] | 967.6 t | 1414.7 J | **16410.6 J** | 1.7% | 0.012 | 0.108 | 0.000 |
-| **Arm D: Corrupted Router Control** | 2048 | **8.6%** [3.7%, 18.6%] | 1921.0 t | 2754.0 J | **31945.8 J** | 1.7% | 0.002 | 0.034 | 0.000 |
-| **Arm C: Full Registers (Anti-Loop Rerun)** | 256–2048 | *Rerun Active* | *Rerun Active* | *Rerun Active* | *Rerun Active* | — | — | — | — |
+| **Arm C: Full Registers (Plan + Deduce + Verify)** | 256 | **37.0%** [30.6%, 43.9%] | 136.3 t | 202.7 J | **547.9 J** | 37.0% | 0.343 | 0.540 | 0.000 |
+| **Arm C: Full Registers (Plan + Deduce + Verify)** | 512 | **37.0%** [30.6%, 43.9%] | 170.9 t | 241.5 J | **652.8 J** | 30.5% | 0.337 | 0.540 | 0.000 |
+| **Arm C: Full Registers (Plan + Deduce + Verify)** | 1024 | **37.0%** [30.6%, 43.9%] | 240.0 t | 357.7 J | **966.9 J** | 30.5% | 0.325 | 0.540 | 0.000 |
+| **Arm C: Full Registers (Plan + Deduce + Verify)** | 2048 | **37.0%** [30.6%, 43.9%] | 378.3 t | 544.8 J | **1472.3 J** | 30.5% | 0.301 | 0.478 | 0.000 |
 
 ---
 

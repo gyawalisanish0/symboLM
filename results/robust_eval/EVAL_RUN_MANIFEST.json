@@ -1,7 +1,7 @@
 {
-  "run_id": "robust_eval_20261018T050124Z",
-  "timestamp_utc": "2026-10-18T05:01:24.078983+00:00",
-  "commit_hash": "38132aba57b07ad14bd0feff84f04954d790b02b",
+  "run_id": "robust_eval_20261019T070229Z",
+  "timestamp_utc": "2026-10-19T07:02:29.046123+00:00",
+  "commit_hash": "daaced2b4f09bbfffb778df7b3467ad87fd33b5b",
   "dataset": "data/held_out_eval_200_clean.jsonl",
   "dataset_sha256": "575B247066B65E5B8514990280C534BAA9448014E100ADCFE67D385E43B9AA8E",
   "dataset_sha256_match": false,
@@ -16,6 +16,7 @@
     "E",
     "F"
   ],
+  "arm_c_rerun_note": "Arm C rerun executed under commit daaced2b with repetition_penalty=1.15 and robust closure criteria, replacing prior Arm C syntax loop records across all 200 problems while preserving 1,155 physical receipts for Arms A, B, D, E, F.",
   "budgets": [
     256,
     512,
