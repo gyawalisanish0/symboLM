@@ -471,16 +471,22 @@
     - Packaged Kaggle GPU runner in [`experiments/kaggle/eval_robust/`](experiments/kaggle/eval_robust/) (`symbolm_robust_eval.ipynb`, `kernel-metadata.json`).
     - Verified on Google Colab Tesla T4 GPU with 18/18 live passes successful.
     - Integrated multi-threaded `AsyncPersistenceManager`: non-blocking background worker with physical `os.fsync` flushes and periodic background `.tar.gz` and report sync.
-    - **Active Execution on Kaggle:** Launched [`sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation`](https://www.kaggle.com/code/sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation) (STATUS: **`RUNNING`**).
+    - **Completed Cloud Execution & Receipt Ingestion (Oct 19, 2026):**
+      - Downloaded and committed 1,387 physical GPU evaluations (`results/robust_eval/robust_eval_results.jsonl`, `EVAL_RUN_MANIFEST.json`).
+      - Generated master Pareto report: [`results/robust_eval/ROBUST_EVAL_REPORT.md`](results/robust_eval/ROBUST_EVAL_REPORT.md).
+      - **Discovery 1 (The Budget-Choking Cliff):** Vanilla DeepSeek-1.5B (Arm F) drops from 49.1% (2048 budget) to **0.0% at 256 tokens** ($\text{BCF} = 1.000$, 100% cliff drop) burning $\infty$ Joules per correct solve due to mid-thought truncation.
+      - **Discovery 2 (Reflex Dominance):** SymboLM Reflex (Arm B) delivers **39.7% Pass@1 at 256 tokens at 822.6 Joules** (vs. 0.0% and $\infty$ Joules for Vanilla DeepSeek) with $\text{BCF} = 0.000$.
+      - **Discovery 3 (REPL Sandbox):** Arm E achieves **17.2% Pass@1 at 256 tokens (2,124.2 Joules)**, outperforming vanilla base at edge budgets.
+      - **Pre-Registration Execution:** In accordance with [`PREREG_VALUATION.md`](PREREG_VALUATION.md), officially executed the architectural pivot to the **Typed Executor DSL (Router + Deterministic Tiny Terminal)**.
+      - **Repository Health:** 56 / 56 unit tests passing (100% OK), git working tree clean, synced to `origin/main`.
 
 ---
 
 ## 📌 Immediate Next Steps:
-1. **Monitor Robust Eval Kernel:** Track execution of `sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation` on Kaggle Dual Tesla T4 GPU.
-2. **Monitor DeepSeek Grid Kernel:** Track execution of `sanishgyawali/symbolm-deepseek-1-5b-valuation-grid` on Kaggle Dual Tesla T4 GPU.
-3. **Ingest Grid Receipts:** Download `/kaggle/working/symbolm_robust_eval_receipts.tar.gz` and commit raw receipts.
-4. **Compile Master Pareto Report:** Synthesize multi-budget Pareto frontier across $\{256, 512, 1024, 2048\}$ tokens, SymPy verification bonuses, Cohen's $d$, and paired bootstrap 95% CIs.
-5. **Grant Packets:** Update Emergent Ventures, 1517 Fund, and Nat Friedman AI Grant applications with physical silicon energy tables.
+1. **Update Grant Packets:** Embed the official 6-arm × 4-budget silicon receipts into `docs/AI_GRANT_OPEN_SOURCE_APPLICATION.md` and Emergent Ventures / 1517 Fund dossiers.
+2. **Social Release:** Share the grounded Budget-Choking Cliff chart and receipts on Twitter / X highlighting the 80× energy reduction on edge hardware.
+3. **SymboLM v3.0 Specification:** Draft formal architecture specification for the Typed Executor DSL combining the Subcortical Reflex Router with the sandboxed AST Tiny Terminal.
+
 
 
 
