@@ -657,6 +657,13 @@ def _gpu_info() -> Dict[str, str]:
             }
     except Exception:
         pass
+    if "TPU_NAME" in os.environ or "XRT_TPU_CONFIG" in os.environ or os.path.exists("/dev/accel0"):
+        return {
+            "gpu_name": "Google Cloud TPU v3-8",
+            "driver": "libtpu / TPU VM",
+            "vram_mb": "128 GB HBM",
+            "compute_cap": "TPU v3",
+        }
     return {"gpu_name": "CPU-only", "driver": "N/A", "vram_mb": "N/A", "compute_cap": "N/A"}
 
 
@@ -1060,6 +1067,16 @@ def run_robust_eval(
     vanilla_model    = None
     vanilla_tokenizer = None
 
+    # ── Device and Precision Configuration ─────────────────────────────────────
+    if device == "cpu":
+        threads = min(os.cpu_count() or 4, 32)
+        torch.set_num_threads(threads)
+        print(f"[INFO] Configured PyTorch for CPU inference with {threads} threads", flush=True)
+
+    use_direct_to = device in ("cpu", "xla")
+    model_device_map = None if use_direct_to else device
+    model_dtype = torch.float16 if device == "cuda" else (torch.bfloat16 if device == "xla" else torch.float32)
+
     if needs_adapter:
         print(f"[INFO] Loading SymboLM adapter from: {adapter_path}", flush=True)
         adapter_tokenizer = AutoTokenizer.from_pretrained(str(adapter_path), trust_remote_code=True)
@@ -1068,20 +1085,26 @@ def run_robust_eval(
             from peft import PeftModel
             base = AutoModelForCausalLM.from_pretrained(
                 base_model_id,
-                torch_dtype=torch.float16 if device != "cpu" else torch.float32,
-                device_map=device,
+                torch_dtype=model_dtype,
+                device_map=model_device_map,
                 trust_remote_code=True,
             )
+            if use_direct_to:
+                base = base.to(device)
             base.resize_token_embeddings(len(adapter_tokenizer))
             adapter_model = PeftModel.from_pretrained(base, str(adapter_path))
+            if use_direct_to:
+                adapter_model = adapter_model.to(device)
         else:
             # Pre-merged checkpoint
             adapter_model = AutoModelForCausalLM.from_pretrained(
                 str(adapter_path),
-                torch_dtype=torch.float16 if device != "cpu" else torch.float32,
-                device_map=device,
+                torch_dtype=model_dtype,
+                device_map=model_device_map,
                 trust_remote_code=True,
             )
+            if use_direct_to:
+                adapter_model = adapter_model.to(device)
         adapter_model.eval()
         print(f"[INFO] SymboLM adapter loaded (vocab={len(adapter_tokenizer)})", flush=True)
 
@@ -1090,10 +1113,12 @@ def run_robust_eval(
         vanilla_tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=True)
         vanilla_model = AutoModelForCausalLM.from_pretrained(
             base_model_id,
-            torch_dtype=torch.float16 if device != "cpu" else torch.float32,
-            device_map=device,
+            torch_dtype=model_dtype,
+            device_map=model_device_map,
             trust_remote_code=True,
         )
+        if use_direct_to:
+            vanilla_model = vanilla_model.to(device)
         vanilla_model.eval()
         print(f"[INFO] Vanilla base loaded (vocab={len(vanilla_tokenizer)})", flush=True)
 
