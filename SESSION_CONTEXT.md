@@ -484,12 +484,18 @@
     - Ingested 1,955 total records into [`results/robust_eval/robust_eval_results.jsonl`](results/robust_eval/robust_eval_results.jsonl), updated [`results/robust_eval/ROBUST_EVAL_REPORT.md`](results/robust_eval/ROBUST_EVAL_REPORT.md) and [`results/robust_eval/EVAL_RUN_MANIFEST.json`](results/robust_eval/EVAL_RUN_MANIFEST.json).
     - 44/44 unit tests passing 100% OK.
 
+14. **Kaggle TPU v3-8 Robust 6-Arm Evaluation Launched (Oct 21, 2026):**
+    - Configured kernel `sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation` for Google Cloud TPU v3-8 VM execution (`enable_tpu: true`, `enable_gpu: false`), conserving the remaining 2.46 hours of GPU quota while utilizing the 20.0 hours of untouched TPU quota.
+    - Updated [`eval/robust_eval.py`](eval/robust_eval.py) and [`experiments/kaggle/eval_robust/symbolm_robust_eval.ipynb`](experiments/kaggle/eval_robust/symbolm_robust_eval.ipynb) with universal device placement, CPU/TPU multi-threading, and hardware manifest detection.
+    - Configured evaluation for all 6 original arms (`A B C D E F`) across all 4 budgets (`256 512 1024 2048`), automatically resuming from the 1,955 physical records on disk and evaluating the remaining cells.
+    - Pushed commit `be87e7d` to `main` and launched kernel on Kaggle. Status: **`RUNNING`**.
+
 ---
 
 ## 📌 Immediate Next Steps:
-1. **Cloud Batch Progression:** Monitor subsequent cloud cluster batches for Arms A, B, D, E, F as they progress toward full 200-problem completion.
-2. **Grant & Publication Integration:** Incorporate the confirmed Format Value and 1,955-record multi-budget Pareto frontier into fellowship application packets and whitepaper revisions.
-3. **DSL & Hybrid Architecture:** Proceed with v3.0 Typed Executor DSL (combining the confirmed 37.0% / 547.9 J register core with deterministic SymPy evaluation).
+1. **Monitor TPU Execution:** Track progress of `sanishgyawali/symbolm-robust-6-arm-4-budget-evaluation` on Kaggle TPU v3-8 VM.
+2. **Ingest Completed 4,800 Receipts:** Once execution finishes, download `symbolm_robust_eval_receipts.tar.gz` and commit full 200-problem multi-budget receipts for all 6 arms.
+3. **Grant & Publication Integration:** Incorporate the completed 6-arm Pareto frontier into fellowship application packets and whitepaper revisions.
 
 
 
