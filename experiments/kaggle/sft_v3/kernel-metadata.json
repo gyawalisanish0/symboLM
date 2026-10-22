@@ -1,0 +1,15 @@
+{
+  "id": "sanishgyawali/symbolm-v3-sft-rescue",
+  "title": "SymboLM v3 SFT Rescue",
+  "code_file": "symbolm_v3_sft.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

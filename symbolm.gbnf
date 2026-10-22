@@ -1,21 +1,23 @@
-# SymboLM v2.1 Grammar Specification (GBNF)
+# SymboLM v3 Grammar Specification (GBNF)
+# Canonical continuation after the prompt's <think> newline.
+# Reasoning: plan -> deduce -> optional verify -> </think> -> <ans>.
+# Atomic:    <reg:bypass>...</reg:bypass> and stop.
 # Author: Sanish Gyawali (Rupandehi, Nepal)
-# Enforces Tri-Register execution and completely eliminates English CoT drift.
 
-root ::= think answer
+root ::= think_open? body
 
-think ::= "<think>\n" register_sequence "\n</think>"
+body ::= reasoning | bypass
 
-register_sequence ::= bypass_branch | reasoning_branch
+reasoning ::= plan "\n" deduce ("\n" verify)? "\n</think>\n" answer
 
-bypass_branch ::= "<reg:bypass>" [^<]+ "</reg:bypass>"
+bypass ::= "<reg:bypass>" [^<]+ "</reg:bypass>"
 
-reasoning_branch ::= plan_block "\n" deduce_block ( "\n" verify_block )?
+plan ::= "<reg:plan>" [^<]+ "</reg:plan>"
 
-plan_block ::= "<reg:plan>" [^<]+ "</reg:plan>"
+deduce ::= "<reg:deduce>" [^<]+ "</reg:deduce>"
 
-deduce_block ::= "<reg:deduce>" [^<]+ "</reg:deduce>"
+verify ::= "<reg:verify>" [^<]+ "</reg:verify>"
 
-verify_block ::= "<reg:verify>" [^<]+ "</reg:verify>"
+answer ::= "<ans>" [^<]+ "</ans>"
 
-answer ::= "\n<ans>" [^<]+ "</ans>"
+think_open ::= "<think>\n"

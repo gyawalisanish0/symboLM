@@ -1,5 +1,8 @@
 # Scientific Pre-Registration: Hardware Valuation Protocol
 
+> [!WARNING]
+> **Historical and superseded for execution by [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md).** This file is preserved because it was locked before the old run, but the completed execution did not satisfy it: the old Kaggle manifest used a different held-out hash (`575B…`) than the hash below (`8369…`), the six-arm run stopped at 2,119/4,800 cells, and the old extractor allowed answers without `<ans>`. The old 37.0% / “Format Value Confirmed” result is retracted. Do not edit the rules below; use V2 for the new run.
+
 **Study Title:** Physical Energy and Latency Valuation of SymboLM Multi-Register Reasoning vs. Router-Only and Standard CoT Baselines  
 **Principal Systems Architect & Research Director:** Sanish Gyawali (Rupandehi, Nepal)  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  

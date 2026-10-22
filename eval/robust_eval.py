@@ -59,14 +59,36 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedTokenizer, StoppingCriteria, StoppingCriteriaList
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_HELD_OUT   = ROOT_DIR / "data" / "held_out_eval_200_clean.jsonl"
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from eval.strict_scorer import (  # noqa: E402
+    apply_ground_truth_override,
+    extract_declared_answer,
+    load_ground_truth_overrides,
+    score_declared_answer,
+    validate_register_trace,
+)
+from symbolic.prompts import (  # noqa: E402
+    ANSWER_ONLY_SYSTEM_PROMPT,
+    BYPASS_SYSTEM_PROMPT,
+    COT_SYSTEM_PROMPT,
+    REGISTER_SYSTEM_PROMPT,
+    SANDBOX_SYSTEM_PROMPT,
+    build_chat_prompt,
+)
+
+DEFAULT_HELD_OUT   = ROOT_DIR / "data" / "held_out_eval_200_v2.jsonl"
 DEFAULT_ADAPTER    = ROOT_DIR / "checkpoints" / "SymboLM-2.1-DeepSeek-1.5B-Merged"
 DEFAULT_BASE_MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 DEFAULT_OUT_DIR    = ROOT_DIR / "results" / "robust_eval"
 DEFAULT_REPORT_MD  = ROOT_DIR / "ROBUST_EVAL_REPORT.md"
 DEFAULT_BUDGETS    = [256, 512, 1024, 2048]
 DEFAULT_ARMS       = ["A", "B", "C", "D", "E", "F"]
-DATASET_SHA256     = "8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B"
+# Held-out v2: one documented ground-truth correction + duplicate-prompt flags.
+DATASET_SHA256     = "95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED"
+LEGACY_DATASET_SHA256 = "8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B"
+DEFAULT_GT_OVERRIDES = ROOT_DIR / "data" / "ground_truth_overrides.json"
 
 ARM_LABELS = {
     "A": "Arm A: Ordinary CoT",
@@ -225,15 +247,31 @@ def extract_honest_answer(
     arm: str,
     tokens_emitted: int,
     max_tokens: int,
+    strict: bool = True,
+    eos_emitted: Optional[bool] = None,
 ) -> Tuple[Optional[str], str]:
     """
-    Strict honest extraction — zero regex-tail fallbacks.
-    Truncated outputs without formal closure are FAIL.
+    Declared-answer extraction.
+
+    By default this delegates to ``eval.strict_scorer``: only ``<ans>``,
+    ``<reg:bypass>``, or (for baseline arms) a closed ``\\boxed{}`` count.  The
+    old regex-tail / ``deduce_equality_rhs`` behavior is available only with
+    ``strict=False`` for historical rescoring.
     """
     if not text:
         return None, "empty_text"
 
-    # Strict truncation gate
+    if strict:
+        answer, method, _ = extract_declared_answer(
+            text,
+            arm=arm,
+            tokens_emitted=tokens_emitted,
+            budget=max_tokens,
+            eos_emitted=eos_emitted,
+        )
+        return answer, method
+
+    # Legacy path (explicitly requested only).
     truncated = tokens_emitted >= max_tokens
     has_closure = (
         "</ans>" in text
@@ -378,64 +416,30 @@ def build_prompt(
     is_atomic = (cat == "atomic_scientific_fact")
     tok = vanilla_tokenizer if (arm == "F" and vanilla_tokenizer is not None) else tokenizer
 
+    # The user content must be identical to the SFT user content.  The old
+    # harness prefixed every prompt with "Problem: ", which training never saw.
+    def chat(system_prompt: str) -> str:
+        msgs = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": raw},
+        ]
+        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+
     if arm == "A":
-        msgs = [
-            {"role": "system", "content": "You are a mathematical assistant. Solve the problem step-by-step using clear English reasoning. Put your final answer inside \\boxed{}."},
-            {"role": "user",   "content": f"Problem: {raw}"},
-        ]
-        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True), False
-
-    elif arm == "B":
-        msgs = [
-            {"role": "system", "content": "You are a mathematical assistant. Provide ONLY the final numeric or algebraic answer with no explanation. Put your final answer inside \\boxed{}."},
-            {"role": "user",   "content": f"Problem: {raw}"},
-        ]
-        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True), False
-
-    elif arm == "C":
-        msgs = [
-            {"role": "system", "content": (
-                "You are SymboLM. Solve using typed registers: <reg:plan> for invariants, "
-                "<reg:deduce> for deductive reduction (conclude with ∴ ans = <value>), "
-                "<reg:verify> for invariant check, and <ans><value></ans> for final answer. "
-                "If atomic fact, emit <reg:bypass><value></reg:bypass>."
-            )},
-            {"role": "user", "content": f"Problem: {raw}"},
-        ]
-        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True), is_atomic
-
-    elif arm == "D":
-        # Router-only: atomic → bypass prompt; hard → plain CoT (no registers)
-        if is_atomic:
-            msgs = [
-                {"role": "system", "content": "You are SymboLM. Emit <reg:bypass>ans</reg:bypass> for atomic facts."},
-                {"role": "user",   "content": f"Problem: {raw}"},
-            ]
-        else:
-            msgs = [
-                {"role": "system", "content": "You are a mathematical assistant. Solve the problem step-by-step using clear English reasoning. Put your final answer inside \\boxed{}."},
-                {"role": "user",   "content": f"Problem: {raw}"},
-            ]
-        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True), is_atomic
-
-    elif arm == "E":
-        msgs = [
-            {"role": "system", "content": (
-                "You are a mathematical assistant. Solve step-by-step. "
-                "You may write small Python expressions in ```python ... ``` blocks to calculate arithmetic. "
-                "Put your final answer inside \\boxed{}."
-            )},
-            {"role": "user", "content": f"Problem: {raw}"},
-        ]
-        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True), False
-
-    elif arm == "F":
-        # Vanilla base: same CoT prompt as Arm A — no SymboLM instructions
-        msgs = [
-            {"role": "system", "content": "You are a mathematical assistant. Solve the problem step-by-step using clear English reasoning. Put your final answer inside \\boxed{}."},
-            {"role": "user",   "content": f"Problem: {raw}"},
-        ]
-        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True), False
+        return chat(COT_SYSTEM_PROMPT), False
+    if arm == "B":
+        return chat(ANSWER_ONLY_SYSTEM_PROMPT), False
+    if arm == "C":
+        # Manual construction: the Qwen chat template would strip the target
+        # body if it contained </think>, and it does not exactly match the
+        # manual SFT prompt.  Use the same builder as training.
+        return build_chat_prompt(tok, REGISTER_SYSTEM_PROMPT, raw, open_think=True), is_atomic
+    if arm == "D":
+        return chat(BYPASS_SYSTEM_PROMPT if is_atomic else COT_SYSTEM_PROMPT), is_atomic
+    if arm == "E":
+        return chat(SANDBOX_SYSTEM_PROMPT), False
+    if arm == "F":
+        return chat(COT_SYSTEM_PROMPT), False
 
     raise ValueError(f"Unknown arm: {arm}")
 
@@ -683,9 +687,12 @@ def build_manifest(
     budgets: List[int],
     seed: int,
     run_id: str,
+    expected_sha256: str = DATASET_SHA256,
+    strict_scoring: bool = True,
+    gt_overrides_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
     dataset_sha = _sha256_file(input_file)
-    sha_match   = dataset_sha.upper() == DATASET_SHA256.upper()
+    sha_match   = dataset_sha.upper() == expected_sha256.upper()
     gpu         = _gpu_info()
     return {
         "run_id": run_id,
@@ -694,7 +701,10 @@ def build_manifest(
         "dataset": str(input_file),
         "dataset_sha256": dataset_sha,
         "dataset_sha256_match": sha_match,
-        "dataset_sha256_expected": DATASET_SHA256,
+        "dataset_sha256_expected": expected_sha256,
+        "strict_scoring": strict_scoring,
+        "truncation_rule": "hit_budget_without_eos_is_fail",
+        "ground_truth_overrides": str(gt_overrides_path) if gt_overrides_path else None,
         "adapter": str(adapter_path),
         "base_model": base_model,
         "arms": arms,
@@ -887,13 +897,24 @@ class AsyncPersistenceManager:
 
 class RobustStoppingCriteria(StoppingCriteria):
     """
-    Halts generation when any formal closure tag or sequence has been emitted.
+    Halts generation on a *declared* terminal answer.
+
+    In strict mode, Arm C must reach ``</ans>``; stopping on
+    ``</reg:verify>`` is disabled because that is exactly the bug that made
+    the old Arm C outputs look closed while never declaring an answer.
     """
-    def __init__(self, tokenizer: PreTrainedTokenizer, prompt_len: int, arm: str):
+    def __init__(
+        self,
+        tokenizer: PreTrainedTokenizer,
+        prompt_len: int,
+        arm: str,
+        legacy_stop_on_verify: bool = False,
+    ):
         super().__init__()
         self.tokenizer = tokenizer
         self.prompt_len = prompt_len
         self.arm = arm
+        self.legacy_stop_on_verify = legacy_stop_on_verify
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
         gen_len = input_ids.shape[1] - self.prompt_len
@@ -904,18 +925,20 @@ class RobustStoppingCriteria(StoppingCriteria):
         window = min(30, gen_len)
         tail = self.tokenizer.decode(input_ids[0, -window:], skip_special_tokens=False)
 
-        # Immediate stop on formal ans tag or bypass tag
+        # A declared terminal answer is the only strict stop condition.
         if "</ans>" in tail or "</reg:bypass>" in tail:
             return True
 
-        # Stop on boxed closure
-        if "\\boxed{" in tail:
+        # Boxed closure is a terminal answer only for the baseline arms whose
+        # prompt explicitly requests \boxed{}.  Arm C must use <ans>.
+        if self.arm != "C" and "\\boxed{" in tail:
             full_gen = self.tokenizer.decode(input_ids[0, self.prompt_len:], skip_special_tokens=False)
             if extract_boxed(full_gen) is not None:
                 return True
 
-        # Stop on </reg:verify> for Arm C
-        if self.arm == "C":
+        # Legacy escape hatch for rescoring old checkpoints.  Never enabled by
+        # default in the rescue experiment.
+        if self.legacy_stop_on_verify and self.arm == "C":
             if "</reg:verify>" in tail:
                 return True
 
@@ -932,15 +955,20 @@ def generate_with_profiling(
     power_sampler: PowerSampler,
     arm: str = "A",
     repetition_penalty: float = 1.15,
+    legacy_stop_on_verify: bool = False,
 ) -> Tuple[str, int, float, float]:
     """
     Run one forward pass with power sampling and anti-loop stopping criteria.
     Returns: (generated_text, tokens_emitted, dynamic_joules, elapsed_sec)
     """
-    inputs = tokenizer(prompt, return_tensors="pt").to(device)
+    inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False).to(device)
     input_len = inputs["input_ids"].shape[1]
 
-    stopping = StoppingCriteriaList([RobustStoppingCriteria(tokenizer, input_len, arm)])
+    stopping = StoppingCriteriaList([
+        RobustStoppingCriteria(
+            tokenizer, input_len, arm, legacy_stop_on_verify=legacy_stop_on_verify
+        )
+    ])
 
     power_sampler.start()
     t0 = time.perf_counter()
@@ -952,7 +980,8 @@ def generate_with_profiling(
             temperature=1.0,
             repetition_penalty=repetition_penalty,
             stopping_criteria=stopping,
-            pad_token_id=tokenizer.eos_token_id or tokenizer.pad_token_id,
+            eos_token_id=tokenizer.eos_token_id,
+            pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
         )
     elapsed = time.perf_counter() - t0
     joules, measured_elapsed = power_sampler.stop_and_compute()
@@ -1008,6 +1037,10 @@ def run_robust_eval(
     seed: int,
     backup_every: int = 20,
     replace_arms: Optional[List[str]] = None,
+    expected_sha256: str = DATASET_SHA256,
+    allow_dataset_mismatch: bool = False,
+    legacy_stop_on_verify: bool = False,
+    gt_overrides_path: Optional[Path] = DEFAULT_GT_OVERRIDES,
 ):
     random.seed(seed)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1022,6 +1055,9 @@ def run_robust_eval(
             line = line.strip()
             if line:
                 problems.append(json.loads(line))
+    if gt_overrides_path is not None:
+        overrides = load_ground_truth_overrides(gt_overrides_path)
+        problems = [apply_ground_truth_override(p, overrides) for p in problems]
     if limit and limit < len(problems):
         problems = problems[:limit]
     print(f"[INFO] Loaded {len(problems)} problems from {input_file.name}", flush=True)
@@ -1032,14 +1068,32 @@ def run_robust_eval(
 
     # ── Manifest ──────────────────────────────────────────────────────────────
     manifest = build_manifest(
-        input_file, adapter_path, base_model_id, arms, budgets, seed, run_id,
+        input_file,
+        adapter_path,
+        base_model_id,
+        arms,
+        budgets,
+        seed,
+        run_id,
+        expected_sha256=expected_sha256,
+        strict_scoring=True,
+        gt_overrides_path=gt_overrides_path,
     )
     manifest_path = out_dir / "EVAL_RUN_MANIFEST.json"
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
     print(f"[INFO] Manifest written → {manifest_path}", flush=True)
     if not manifest["dataset_sha256_match"]:
-        print(f"[WARN] Dataset SHA-256 MISMATCH — expected {DATASET_SHA256}", flush=True)
+        message = (
+            f"Dataset SHA-256 MISMATCH: got {manifest['dataset_sha256']}, "
+            f"expected {manifest['dataset_sha256_expected']}. "
+            "The previous Kaggle run used a different held-out file; that is not "
+            "a re-run of this preregistration."
+        )
+        if allow_dataset_mismatch:
+            print(f"[WARN] {message}", flush=True)
+        else:
+            raise SystemExit(message)
     # ── Multi-Threaded Persistence Manager ────────────────────────────────────
     persistence = AsyncPersistenceManager(
         out_dir=out_dir,
@@ -1155,7 +1209,14 @@ def run_robust_eval(
                 # Generate
                 try:
                     generated, tokens_emitted, joules, elapsed = generate_with_profiling(
-                        model, tokenizer, prompt, budget, device, sampler, arm=arm
+                        model,
+                        tokenizer,
+                        prompt,
+                        budget,
+                        device,
+                        sampler,
+                        arm=arm,
+                        legacy_stop_on_verify=legacy_stop_on_verify,
                     )
                 except Exception as e:
                     print(f"[ERROR] Generation failed for {pid}|{arm}|{budget}: {e}", flush=True)
@@ -1169,15 +1230,31 @@ def run_robust_eval(
                         out_str = execute_python_sandbox(code.strip())
                         sandbox_outputs.append(out_str)
 
-                # Extract answer
-                extracted, extract_method = extract_honest_answer(
-                    generated, arm, tokens_emitted, budget
+                # Strict declared-answer scoring.  The old harness harvested
+                # the last equality inside </reg:deduce>, which is why 296
+                # "correct" Arm C rows had zero <ans> declarations.
+                gt = problem.get("ground_truth", "")
+                eos_token = tokenizer.eos_token or ""
+                eos_emitted = bool(eos_token and eos_token in generated)
+                strict = score_declared_answer(
+                    generated,
+                    arm=arm,
+                    ground_truth=gt,
+                    tokens_emitted=tokens_emitted,
+                    budget=budget,
+                    eos_emitted=eos_emitted,
                 )
 
-                # Dual-layer verification
-                gt = problem.get("ground_truth", "")
-                is_correct, verify_method = verify_answer_dual(extracted, gt)
+                # Keep the legacy lenient result for transparency, but never use
+                # it as the primary correctness field.
+                lenient_extracted, lenient_method = extract_honest_answer(
+                    generated, arm, tokens_emitted, budget, strict=False
+                )
+                lenient_correct, lenient_verify = verify_answer_dual(
+                    lenient_extracted, gt
+                )
 
+                hit_budget = tokens_emitted >= budget
                 rec = {
                     "problem_id":       pid,
                     "arm":              arm,
@@ -1188,24 +1265,41 @@ def run_robust_eval(
                     "year":             problem.get("year", ""),
                     "is_contaminated":  pid in contaminated_ids,
                     "tokens_emitted":   tokens_emitted,
-                    "truncated":        tokens_emitted >= budget,
+                    "hit_budget":       hit_budget,
+                    "eos_emitted":      eos_emitted,
+                    "truncated":        strict["truncated"],
                     "dynamic_joules":   joules,
                     "elapsed_sec":      elapsed,
-                    "is_correct":       is_correct,
-                    "verification_method": verify_method,
-                    "extracted_answer": extracted,
+                    "is_correct":       strict["is_correct"],
+                    "strict_correct":   strict["is_correct"],
+                    "lenient_correct":  lenient_correct,
+                    "verification_method": strict["verification_method"],
+                    "lenient_verification_method": lenient_verify,
+                    "extracted_answer": strict["answer"],
+                    "lenient_extracted_answer": lenient_extracted,
                     "ground_truth":     gt,
-                    "extraction_method": extract_method,
-                    "sandbox_outputs":  sandbox_outputs,
-                    "generated_text":   generated[:800],  # truncate for storage
+                    "ground_truth_source": problem.get("ground_truth_source", "benchmark"),
+                    "extraction_method": strict["extraction_method"],
+                    "lenient_extraction_method": lenient_method,
+                    "answer_declared":   strict["answer_declared"],
+                    "closure":           strict["closure"],
+                    "format_valid":      strict["format_valid"],
+                    "format_reason":     strict["format_reason"],
+                    "duplicate_prompt":  problem.get("duplicate_prompt", False),
+                    "duplicate_group_size": problem.get("duplicate_group_size", 1),
+                    "sandbox_outputs":   sandbox_outputs,
+                    "generated_text":    generated[:12000],
+                    "generated_text_was_cut_for_storage": len(generated) > 12000,
                 }
                 persistence.enqueue(rec)
                 completed += 1
 
-                status = "✓" if is_correct else "✗"
+                status = "✓" if strict["is_correct"] else "✗"
                 print(
                     f"[{completed}/{total_cells}] {pid} | {arm} | B{budget} "
-                    f"→ {status} ({verify_method}) | {tokens_emitted}tok | {joules:.1f}J",
+                    f"→ {status} strict ({strict['extraction_method']}) "
+                    f"fmt={strict['format_valid']} eos={eos_emitted} "
+                    f"| {tokens_emitted}tok | {joules:.1f}J",
                     flush=True,
                 )
 
@@ -1237,17 +1331,38 @@ def _summarise(
 
     n       = len(recs)
     correct = sum(1 for r in recs if r["is_correct"])
-    trunc   = sum(1 for r in recs if r["truncated"])
+    lenient_correct = sum(1 for r in recs if r.get("lenient_correct", r["is_correct"]))
+    trunc   = sum(1 for r in recs if r.get("truncated", False))
+    hit_budget = sum(1 for r in recs if r.get("hit_budget", False))
+    eos_known = [r for r in recs if "eos_emitted" in r]
+    eos_count = sum(1 for r in eos_known if r.get("eos_emitted"))
+    fmt_known = [r for r in recs if "format_valid" in r]
+    fmt_count = sum(1 for r in fmt_known if r.get("format_valid"))
+    declared_count = sum(1 for r in recs if r.get("answer_declared", bool(r.get("extracted_answer"))))
+    duplicate_count = sum(1 for r in recs if r.get("duplicate_prompt", False))
     acc     = correct / n
+    lenient_acc = lenient_correct / n
     ci_lo, ci_hi = wilson_ci_95(correct, n)
-    total_j = sum(r["dynamic_joules"] for r in recs)
+    total_j = sum(r.get("dynamic_joules", 0.0) for r in recs)
     j_per_correct = total_j / correct if correct > 0 else float("inf")
-    mean_tok = sum(r["tokens_emitted"] for r in recs) / n
-    sympy_wins = sum(1 for r in recs if r["verification_method"] == "sympy_symbolic")
+    mean_tok = sum(r.get("tokens_emitted", 0) for r in recs) / n
+    sympy_wins = sum(1 for r in recs if r.get("verification_method") == "sympy_symbolic")
     return {
         "n": n, "correct": correct, "accuracy": round(acc, 4),
+        "lenient_correct": lenient_correct,
+        "lenient_accuracy": round(lenient_acc, 4),
         "ci_lo": ci_lo, "ci_hi": ci_hi,
         "truncated": trunc,
+        "hit_budget": hit_budget,
+        "eos_known": len(eos_known),
+        "eos_count": eos_count,
+        "eos_rate": round(eos_count / len(eos_known), 4) if eos_known else None,
+        "format_known": len(fmt_known),
+        "format_valid_count": fmt_count,
+        "format_valid_rate": round(fmt_count / len(fmt_known), 4) if fmt_known else None,
+        "declared_count": declared_count,
+        "declared_rate": round(declared_count / n, 4),
+        "duplicate_prompt_rows": duplicate_count,
         "total_joules": round(total_j, 2),
         "j_per_correct": round(j_per_correct, 2),
         "mean_tokens": round(mean_tok, 1),
@@ -1261,6 +1376,17 @@ def generate_report(
     manifest: Dict,
     report_path: Path,
 ):
+    # Normalize old and new receipts onto the strict field.  Old rows had no
+    # strict_correct field; they retain their original is_correct as a
+    # diagnostic, never as the primary result.
+    normalized: List[Dict] = []
+    for row in all_results:
+        item = dict(row)
+        item["lenient_correct"] = item.get("lenient_correct", item.get("is_correct", False))
+        item["is_correct"] = item.get("strict_correct", item.get("is_correct", False))
+        normalized.append(item)
+    all_results = normalized
+
     arms    = sorted(set(r["arm"]    for r in all_results))
     budgets = sorted(set(r["budget"] for r in all_results))
     cats    = sorted(set(r["category"] for r in all_results))
@@ -1270,6 +1396,14 @@ def generate_report(
     lines.append(f"\n**Run ID:** `{manifest['run_id']}`  ")
     lines.append(f"**Commit:** `{manifest['commit_hash']}`  ")
     lines.append(f"**Dataset SHA-256 verified:** `{manifest['dataset_sha256_match']}`  ")
+    lines.append(f"**Dataset SHA-256:** `{manifest.get('dataset_sha256', 'unknown')}`  ")
+    lines.append("**Scoring:** strict declared answer (`<ans>` / `<reg:bypass>`; "
+                 "truncation without EOS = fail; no deduce-equality fallback)  ")
+    if manifest.get("ground_truth_overrides"):
+        lines.append(f"**Ground-truth overrides:** `{manifest['ground_truth_overrides']}`  ")
+    if all_results:
+        dup = sum(1 for r in all_results if r.get("duplicate_prompt", False))
+        lines.append(f"**Duplicate-prompt rows:** {dup}/{len(all_results)}  ")
     lines.append(f"**Timestamp (UTC):** {manifest['timestamp_utc']}  ")
     lines.append(f"**GPU:** {manifest['hardware'].get('gpu_name', 'CPU')}  ")
     lines.append(f"**Arms evaluated:** {', '.join(arms)}  ")
@@ -1297,6 +1431,28 @@ def generate_report(
                     f" \\| {s['truncated']}trunc |"
                 )
         lines.append(row)
+    lines.append("")
+
+    # ── Strict score diagnostics ──────────────────────────────────────────────
+    lines.append("### 1.0 Strict Score Diagnostics\n")
+    lines.append(
+        "Strict accuracy is the primary metric. Lenient accuracy is the old "
+        "fallback-based number and is shown only to expose the gap. EOS and "
+        "format rates are computed only where the run recorded them.\n"
+    )
+    lines.append("| Budget | Arm | Strict Acc | Lenient Acc | EOS rate | Valid format | Declared answer | Truncated |")
+    lines.append("|--------|-----|-----------|-------------|----------|--------------|-----------------|-----------|")
+    for b in budgets:
+        for a in arms:
+            s = _summarise(all_results, arm_filter=a, budget_filter=b)
+            if s["n"] == 0:
+                continue
+            eos = f"{s['eos_rate']*100:.1f}%" if s.get("eos_rate") is not None else "n/a"
+            fmt = f"{s['format_valid_rate']*100:.1f}%" if s.get("format_valid_rate") is not None else "n/a"
+            lines.append(
+                f"| {b} | {a} | {s['accuracy']*100:.1f}% | {s['lenient_accuracy']*100:.1f}% "
+                f"| {eos} | {fmt} | {s['declared_rate']*100:.1f}% | {s['truncated']} |"
+            )
     lines.append("")
 
     # ── 2025/2026 Test-Time Compute & Overthinking Metrics ───────────────────
@@ -1416,9 +1572,10 @@ def generate_report(
     # ── Pre-registered decision rules ─────────────────────────────────────────
     lines.append("## 5. Pre-Registered Decision Rules\n")
     lines.append(
-        "**Rule (from PREREG_VALUATION.md):** Arm C adds format value over Arm D ONLY IF the "
+        "**Rule (from PREREG_VALUATION_V2.md):** Arm C adds format value over Arm D ONLY IF the "
         "paired bootstrap 95% CI on (J/correct_D − J/correct_C) strictly excludes zero "
-        "*and* Acc(C) ≥ Acc(D) − 2.0 pp.\n"
+        "*and* strict Acc(C) ≥ strict Acc(D) − 2.0 pp.  Both accuracies use declared answers; "
+        "lenient extraction is not allowed in this decision.\n"
     )
     lines.append("| Budget | Acc_C | Acc_D | Acc_F | CI excludes zero (C vs D) | Acc condition | Verdict |")
     lines.append("|--------|-------|-------|-------|--------------------------|---------------|---------|")
@@ -1440,7 +1597,11 @@ def generate_report(
         boot = paired_bootstrap_95ci([c_d[p] for p in shared], [d_d[p] for p in shared]) if shared else {}
         ex_zero = boot.get("excludes_zero", False)
         acc_ok  = acc_c >= acc_d - 0.02
-        verdict = "✓ FORMAT VALUE CONFIRMED" if (ex_zero and acc_ok) else "✗ ROUTING-ONLY NULL RETAINED"
+        verdict = (
+            "✓ FORMAT VALUE SUPPORTED (strict)"
+            if (ex_zero and acc_ok)
+            else "✗ NO FORMAT VALUE (strict)"
+        )
         lines.append(
             f"| {b} | {acc_c*100:.1f}% | {acc_d*100:.1f}% | {acc_f_str} "
             f"| {'✓' if ex_zero else '✗'} | {'✓' if acc_ok else '✗'} | {verdict} |"
@@ -1482,6 +1643,28 @@ def main():
     parser.add_argument("--seed",       type=int,  default=42, help="Random seed for bootstrap")
     parser.add_argument("--backup-every", type=int, default=20, help="Backup tarball every N problems")
     parser.add_argument("--replace-arms", type=str, nargs="+", default=None, help="Purge and re-evaluate only these arms (e.g. --replace-arms C)")
+    parser.add_argument(
+        "--expected-sha256",
+        type=str,
+        default=DATASET_SHA256,
+        help="Required SHA-256 of the held-out JSONL. Use the legacy hash for old receipts.",
+    )
+    parser.add_argument(
+        "--allow-dataset-mismatch",
+        action="store_true",
+        help="Downgrade a dataset hash mismatch to a warning (for historical rescoring only).",
+    )
+    parser.add_argument(
+        "--legacy-stop-on-verify",
+        action="store_true",
+        help="Let Arm C stop at </reg:verify> (old checkpoint comparison only; never for the rescue run).",
+    )
+    parser.add_argument(
+        "--gt-overrides",
+        type=Path,
+        default=DEFAULT_GT_OVERRIDES,
+        help="JSON ground-truth overrides applied before evaluation.",
+    )
     args = parser.parse_args()
 
     # Validate arms
@@ -1490,7 +1673,9 @@ def main():
             parser.error(f"Unknown arm '{a}'. Valid arms: {list(ARM_LABELS.keys())}")
 
     print("=" * 70, flush=True)
-    print("  SymboLM Robust Evaluation Framework v1.0", flush=True)
+    print("  SymboLM Robust Evaluation Framework v3 — strict declared-answer scoring", flush=True)
+    print(f"  Input: {args.input}", flush=True)
+    print(f"  Expected SHA-256: {args.expected_sha256}", flush=True)
     print(f"  Arms: {args.arms}  Budgets: {args.budgets}", flush=True)
     if args.replace_arms:
         print(f"  Replace Arms: {args.replace_arms} (Preserving all other established arm results)", flush=True)
@@ -1510,6 +1695,10 @@ def main():
         seed         = args.seed,
         backup_every = args.backup_every,
         replace_arms = args.replace_arms,
+        expected_sha256 = args.expected_sha256,
+        allow_dataset_mismatch = args.allow_dataset_mismatch,
+        legacy_stop_on_verify = args.legacy_stop_on_verify,
+        gt_overrides_path = args.gt_overrides,
     )
 
 

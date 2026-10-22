@@ -1,0 +1,24 @@
+{
+  "created_utc": "2026-10-22T07:53:53.749862+00:00",
+  "git_head": "375519a4c61fa06742d510473fd33ea217fa7c9b",
+  "source": "C:\\Users\\user\\Dev\\symboLM\\data\\concept_math_contrastive_v2_1.jsonl",
+  "source_sha256": "3F7DC86D5C6A0BF47F1C5E4E90F8F317727319BBE58C7F54C5C416D39EC7BD69",
+  "train": 4140,
+  "train_sha256": "5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E",
+  "val": 460,
+  "val_sha256": "EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3",
+  "system_prompt": "You are SymboLM. Solve using typed registers: <reg:plan> for invariants, <reg:deduce> for deductive reduction (conclude with ∴ ans = <value>), <reg:verify> for invariant check, then close with </think> and emit <ans><value></ans> for the final answer. If the problem is an atomic fact, emit <reg:bypass><value></reg:bypass> and stop.",
+  "source_records": 5000,
+  "kept": 4600,
+  "target_kinds": {
+    "reasoning": 4200,
+    "bypass": 400
+  },
+  "filtered": {
+    "dialogue": 400
+  },
+  "renamed_duplicate_ids": 350,
+  "canonicalize_contrastive": true,
+  "seed": 42,
+  "val_fraction": 0.1
+}

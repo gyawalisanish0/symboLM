@@ -1,0 +1,43 @@
+{
+  "created_utc": "2026-10-22T07:55:34.354093+00:00",
+  "input": "C:\\Users\\user\\Dev\\symboLM\\data\\held_out_eval_200_clean.jsonl",
+  "input_sha256": "8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B",
+  "output": "C:\\Users\\user\\Dev\\symboLM\\data\\held_out_eval_200_v2.jsonl",
+  "n_rows": 200,
+  "n_unique_prompts": 173,
+  "n_duplicate_groups": 20,
+  "n_duplicate_extra_rows": 27,
+  "n_overrides": 1,
+  "override_ids": [
+    "MY2021_001"
+  ],
+  "categories": {
+    "arithmetic_word_problem": 11,
+    "atomic_scientific_fact": 11,
+    "chinese_remainder_theorem": 11,
+    "combinatorics_combinations": 11,
+    "combinatorics_derangements": 11,
+    "diophantine_factorization": 11,
+    "discrete_recurrences": 11,
+    "elementary_algebra": 11,
+    "euler_totient": 11,
+    "fermat_modular_orders": 11,
+    "geometric_inradius": 10,
+    "harmonic_work_rates": 10,
+    "legendre_prime_valuation": 10,
+    "modular_arithmetic": 10,
+    "physics_kinematics": 10,
+    "polynomial_invariants": 10,
+    "quadratic_algebra": 10,
+    "sequences_progressions": 10,
+    "triangle_geometry": 10
+  },
+  "years": {
+    "2021": 33,
+    "2026": 42,
+    "2023": 43,
+    "2024": 42,
+    "2022": 40
+  },
+  "output_sha256": "95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED"
+}

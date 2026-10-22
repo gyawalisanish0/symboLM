@@ -1,11 +1,14 @@
 # SymboLM: Biomimetic High-Density Symbolic Reasoning & Multi-Register Cognitive Architecture
 
-**Version 2.1 Architecture Whitepaper & Empirical Scorecard**  
+> [!WARNING]
+> **HISTORICAL v2.1 WHITEPAPER — DO NOT CITE AS A CURRENT RESULT (2026-10-22).** The 50.50% / 100% / “Format Value Confirmed” headline numbers in this document are retracted. The six-arm run stopped at 2,119/4,800 cells, the old scorer allowed answers without `<ans>`, and the old Kaggle manifest used a different dataset hash. The Hugging Face checkpoint repositories have been made private. Current evidence: [`docs/EVIDENCE_STATUS.md`](docs/EVIDENCE_STATUS.md). Current protocol: [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md). The original text is preserved below for audit; it is not a description of the v3 system.
+
+**Version 2.1 Architecture Whitepaper & Empirical Scorecard (historical)**  
 **Author & Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **AI Systems Collaborator / Exoskeleton:** Antigravity (Google DeepMind)  
 **Target Backbones:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` (Primary) & `HuggingFaceTB/SmolLM2-1.7B-Instruct` (Cross-Family LLaMA)  
 **Public Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)  
-**Checkpoint Release:** [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints)  
+**Checkpoint Release:** [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints) *(now private; public access returns 401)*  
 
 ---
 

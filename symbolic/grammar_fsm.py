@@ -1,61 +1,80 @@
 """
-SymboLM Grammar-Constrained Decoding & Finite-State Machine (FSM)
-==================================================================
-Guarantees that autoregressive generation cannot revert to conversational
-English Chain-of-Thought (CoT). Restricts token emission strictly to the
-formal SymboLM Tri-Register grammar (<reg:plan>, <reg:deduce>, <reg:verify>,
-<reg:bypass>, <reg:intent>, <ans>).
+SymboLM grammar helpers and opening-token bias.
+================================================
 
-Author & Principal Systems Architect: Sanish Gyawali (Rupandehi, Nepal)
-AI Systems Collaborator: Antigravity (Google DeepMind)
+Two different mechanisms are often confused in this repository:
+
+1. ``SymboLogitsProcessor`` is an *opening-token bias*.  It suppresses common
+   conversational openers for the first few generated tokens.  It is **not** a
+   complete grammar-constrained decoder.
+2. ``symbolm.gbnf`` is the real llama.cpp/Ollama grammar.  It is what should be
+   used for deployment when hard structural enforcement is required.
+
+The rescue experiment measures format validity with ``validate_register_trace``
+rather than pretending the HF logits processor enforces the whole grammar.
+
+Canonical generated continuation (the prompt already ends with ``<think>\\n``)::
+
+    <reg:plan>...</reg:plan>
+    <reg:deduce>...</reg:deduce>
+    <reg:verify>...</reg:verify>          # optional
+    </think>
+    <ans>...</ans>
+
+or, for atomic facts::
+
+    <reg:bypass>...</reg:bypass>
 """
 
-from typing import List, Set, Optional, Dict, Any
+from typing import List, Set, Optional, Dict, Any, Tuple
 import re
 import torch
 from transformers import LogitsProcessor, PreTrainedTokenizerBase
 
 
-# Common conversational English filler words to ban inside <think>
+# Common conversational English filler words to ban at the start of generation.
 ENGLISH_PROSE_FILLERS = [
     "Alright", "alright", "So", "so", "Let", "let", "First", "first",
     "To", "to", "We", "we", "In", "in", "The", "the", "Since", "since",
     "Notice", "notice", "Recall", "recall", "Okay", "okay", "Hmm", "hmm",
-    "I", "i", "Here", "here", "Now", "now", "Well", "well"
+    "I", "i", "Here", "here", "Now", "now", "Well", "well",
 ]
 
 
 class SymboLogitsProcessor(LogitsProcessor):
     """
-    LogitsProcessor that enforces Register syntax and masks conversational English words.
-    
-    1. At the opening of <think>, forces the model to emit one of:
-       <reg:plan>, <reg:bypass>, or <reg:intent>.
-    2. Completely suppresses English conversational opener tokens immediately after <think>.
-    3. Closes registers cleanly and guides the transition to <ans>.
+    Bias the first few generated tokens away from conversational English.
+
+    This is deliberately *not* called a grammar enforcer.  It:
+      1. suppresses common English opener tokens immediately after ``<think>``;
+      2. boosts the three legal register openers;
+      3. continues suppressing openers for the first four generated tokens.
+
+    Use ``symbolm.gbnf`` in llama.cpp/Ollama or ``validate_register_trace`` in
+    evaluation when you need actual structural enforcement.
     """
+
     def __init__(
         self,
         tokenizer: PreTrainedTokenizerBase,
         prompt_len: int,
         allow_dialogue: bool = False,
+        early_token_limit: int = 4,
     ):
         super().__init__()
         self.tokenizer = tokenizer
         self.prompt_len = prompt_len
         self.allow_dialogue = allow_dialogue
-        
-        # Build token sets
+        self.early_token_limit = max(1, int(early_token_limit))
+
         self.register_openers: Set[int] = set()
         for tok_str in ["<reg:plan>", "<reg:bypass>", "<reg:intent>"]:
             tok_ids = tokenizer.encode(tok_str, add_special_tokens=False)
             if tok_ids:
                 self.register_openers.add(tok_ids[0])
-                
-        # Identify conversational filler token IDs to ban at start of think
+
         self.filler_token_ids: Set[int] = set()
         for word in ENGLISH_PROSE_FILLERS:
-            # Check with and without leading space
             for variant in [word, f" {word}"]:
                 ids = tokenizer.encode(variant, add_special_tokens=False)
                 if ids:
@@ -64,57 +83,65 @@ class SymboLogitsProcessor(LogitsProcessor):
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
         batch_size = input_ids.shape[0]
         cur_len = input_ids.shape[1]
-        
-        # If we are at the very beginning of the generation (right after prompt)
         tokens_generated = cur_len - self.prompt_len
-        
+
         for b in range(batch_size):
-            if tokens_generated == 0:
-                # FIRST TOKEN: Heavily penalize conversational English fillers
+            if 0 <= tokens_generated < self.early_token_limit:
                 for filler_id in self.filler_token_ids:
                     if filler_id < scores.shape[1]:
                         scores[b, filler_id] = -float("inf")
-                        
-                # If register openers exist in tokenizer, boost them
+
+            if tokens_generated == 0:
                 for op_id in self.register_openers:
                     if op_id < scores.shape[1]:
                         scores[b, op_id] += 5.0
-            
-            elif tokens_generated < 4:
-                # Early generation: continue penalizing English prose starters
-                for filler_id in self.filler_token_ids:
-                    if filler_id < scores.shape[1]:
-                        scores[b, filler_id] = -float("inf")
 
         return scores
 
 
+def validate_register_trace(text: str, arm: str = "C") -> Tuple[bool, str]:
+    """
+    Validate a generated trace against the canonical register contract.
+
+    This delegates to the strict scorer so there is exactly one definition of
+    "valid format" in the repository.
+    """
+    from eval.strict_scorer import validate_register_trace as _validate
+
+    return _validate(text, arm=arm)
+
+
 def export_gbnf_grammar(filepath: str = "symbolm.gbnf") -> str:
     """
-    Generates a standard GBNF (GGML BNF) grammar specification for llama.cpp / Ollama.
-    This guarantees 100% C++ level grammar constraint across all hardware backbones.
+    Write the real GBNF grammar for llama.cpp / Ollama.
+
+    The grammar is written for the *continuation* after the prompt's
+    ``<think>\\n``.  An optional ``<think>\\n`` is allowed so the same grammar
+    also works when the prompt does not pre-open the trace.
     """
-    gbnf_content = r'''# SymboLM v2.1 Grammar Specification (GBNF)
+    gbnf_content = r'''# SymboLM v3 Grammar Specification (GBNF)
+# Canonical continuation after the prompt's <think> newline.
+# Reasoning: plan -> deduce -> optional verify -> </think> -> <ans>.
+# Atomic:    <reg:bypass>...</reg:bypass> and stop.
 # Author: Sanish Gyawali (Rupandehi, Nepal)
-# Enforces Tri-Register execution and completely eliminates English CoT drift.
 
-root ::= think answer
+root ::= think_open? body
 
-think ::= "<think>\n" register_sequence "\n</think>"
+body ::= reasoning | bypass
 
-register_sequence ::= bypass_branch | reasoning_branch
+reasoning ::= plan "\n" deduce ("\n" verify)? "\n</think>\n" answer
 
-bypass_branch ::= "<reg:bypass>" [^<]+ "</reg:bypass>"
+bypass ::= "<reg:bypass>" [^<]+ "</reg:bypass>"
 
-reasoning_branch ::= plan_block "\n" deduce_block ( "\n" verify_block )?
+plan ::= "<reg:plan>" [^<]+ "</reg:plan>"
 
-plan_block ::= "<reg:plan>" [^<]+ "</reg:plan>"
+deduce ::= "<reg:deduce>" [^<]+ "</reg:deduce>"
 
-deduce_block ::= "<reg:deduce>" [^<]+ "</reg:deduce>"
+verify ::= "<reg:verify>" [^<]+ "</reg:verify>"
 
-verify_block ::= "<reg:verify>" [^<]+ "</reg:verify>"
+answer ::= "<ans>" [^<]+ "</ans>"
 
-answer ::= "\n<ans>" [^<]+ "</ans>"
+think_open ::= "<think>\n"
 '''
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(gbnf_content)

@@ -1,11 +1,14 @@
 # SymboLM Empirical Audit: Comprehensive Results Summary (Task 7)
 
+> [!WARNING]
+> **HISTORICAL AUDIT SNAPSHOT — SUPERSEDED (2026-10-22).** This document was written while the old Kaggle run was still active. That run stopped at **2,119/4,800 cells**; the 37.0% / 39.7% headline is retracted. The old scoring path is not the v3 strict scorer. Current status: [`docs/EVIDENCE_STATUS.md`](docs/EVIDENCE_STATUS.md). New protocol: [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md). The Hugging Face model repositories are now private.
+
 **Principal Systems Architect & Research Director:** **Sanish Gyawali** (Rupandehi, Nepal)  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
 **Adversarial Peer Reviewer:** Claude (Haiku 5.5, Anthropic)  
 **Repository Branch:** `audit/empirical-hardening`  
 **Date:** October 17, 2026  
-**Status:** EMPIRICAL AUDIT IN PROGRESS — ACTIVE KAGGLE GPU RUNNING  
+**Status:** HISTORICAL — the old run stopped at 2,119/4,800 cells; results below are audit material, not current claims.  
 
 ---
 
@@ -97,23 +100,20 @@ This document synthesizes the empirical findings across all audit tasks (Tasks 0
 
 ---
 
-## 5. Active Flagship Valuation: DeepSeek-R1-Distill-Qwen-1.5B Multi-Budget Grid
+## 5. Unfinished Flagship Valuation: DeepSeek-R1-Distill-Qwen-1.5B Multi-Budget Grid
 
 - **Kernel:** [`sanishgyawali/symbolm-deepseek-1-5b-valuation-grid`](https://www.kaggle.com/code/sanishgyawali/symbolm-deepseek-1-5b-valuation-grid)
 - **Base Architecture:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` (Flagship reasoning model).
 - **Adapter:** `gyawalisanish0/SymboLM-2.1-DeepSeek-1.5B`.
 - **Required Budget Grid:** $\{256, 512, 1024, 2048\}$ tokens to eliminate truncation bias and map the complete Accuracy-Energy Pareto frontier.
 - **Hypothesis Decision Rule:** Arm C must beat Arm D on $J/\text{correct}$ at every budget where Arm D is within 2% of peak accuracy.
-- **Status:** Actively queued/executing on Kaggle Dual Tesla T4 GPU.
+- **Status:** Not completed. The run stopped at 2,119/4,800 cells; its 37.0% / 39.7% claims are retracted. A fresh v3 run is pending under `PREREG_VALUATION_V2.md`.
 
 ---
 
-## 5. Safe Deployment Architecture & Branch Governance
+## 5. Branch Governance (updated 2026-10-22)
 
-- **Live Production (`main`):**
-  - Commit `011b2c0` is completely safe.
-  - Contains only 100% verified edge measurements (34.3 tok/s on CPU, 999MB Q4 GGUF, 80% bypass accuracy in 3 tokens) and an explicit Active Scientific Audit Notice.
-  - Zero unverified claims on `main`.
-- **Active Working Branch (`audit/empirical-hardening`):**
-  - Houses all audit scripts, rescoring receipts, pre-registration files, and active Kaggle orchestration.
-  - Will not merge to `main` without explicit review and approval by Sanish Gyawali.
+- **Old `main` snapshot:** Historical only. Do not treat commit `011b2c0` or its edge measurements as a current v3 result. The old audit notice is preserved in the archive.
+- **Old audit branch (`audit/empirical-hardening`):** Superseded by `research/rescue-v3`. Its partial six-arm receipts and lenient scores are audit material, not current claims.
+- **Current rescue branch (`research/rescue-v3`):** Contains the canonical SFT split, v2 benchmark, strict scorer, repaired evaluator, and the v3 preregistration. It must not be merged to `main` until the SFT generation check and the full strict evaluation are complete and reviewed by Sanish Gyawali.
+- **Hugging Face:** All four model repositories were made private on 2026-10-22. Public links now return 401; no repositories were deleted.

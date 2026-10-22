@@ -69,6 +69,7 @@ experiments/kaggle/cross_family_llama/*.ipynb
 
 # Kaggle Output Dumps
 experiments/**/output/
+experiments/kaggle/sft_v3/upload/
 
 
 # LLaMA Adapter Weights (host on Hub; keep json receipts in git)

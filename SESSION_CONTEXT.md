@@ -1,3 +1,6 @@
+> [!WARNING]
+> **HISTORICAL SESSION LOG — SUPERSEDED (2026-10-22).** This log contains the old v2.1 branch status and the retracted “Format Value Confirmed” claim. The six-arm run stopped at 2,119/4,800 cells, the old scorer allowed answers without `<ans>`, and the Hugging Face model repositories are now private. Current status: [`docs/EVIDENCE_STATUS.md`](docs/EVIDENCE_STATUS.md). Current protocol: [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md). The text below is preserved for audit only.
+
 **Project Name:** SymboLM (Version 2.1) — Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine  
 **Author & Principal Architect:** Sanish Gyawali  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  

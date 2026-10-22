@@ -1,0 +1,6 @@
+{
+  "MY2021_001": {
+    "ground_truth": "169.5",
+    "reason": "123 * 1.5 = 184.5; 184.5 - 15 = 169.5. The original benchmark value 169 silently truncates the half-dollar."
+  }
+}

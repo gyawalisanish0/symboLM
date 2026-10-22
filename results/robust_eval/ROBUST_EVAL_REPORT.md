@@ -1,5 +1,8 @@
 # SymboLM Robust Evaluation Report
 
+> [!WARNING]
+> **HISTORICAL, INCOMPLETE, AND RETRACTED AS A HEADLINE (2026-10-22).** This report was generated from a run that stopped at **2,119/4,800 cells**. Its 37.0% / 39.7% / “FORMAT VALUE CONFIRMED” labels are not completed preregistered results. The dataset hash preflight is `False`, and the old scoring path is not the v3 strict declared-answer scorer. Current status: [`../../docs/EVIDENCE_STATUS.md`](../../docs/EVIDENCE_STATUS.md). New protocol: [`../../PREREG_VALUATION_V2.md`](../../PREREG_VALUATION_V2.md). The numbers below are preserved as audit material only.
+
 **Run ID:** `robust_eval_20261019T070229Z`  
 **Commit:** `daaced2b4f09bbfffb778df7b3467ad87fd33b5b`  
 **Dataset SHA-256 verified:** `False`  

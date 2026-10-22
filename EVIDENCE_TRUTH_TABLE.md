@@ -1,9 +1,20 @@
 # Master Evidence Truth Table: Claims vs. Verified Empirical Receipts
 
+> [!WARNING]
+> **HISTORICAL AUDIT TRAIL, NOT A CURRENT SCORECARD (2026-10-22).** The table below preserves the claims and receipts that existed before the v3 rescue. Several rows are explicitly retracted. Current status: [`docs/EVIDENCE_STATUS.md`](docs/EVIDENCE_STATUS.md). Current protocol: [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md). The Hugging Face model repositories are now private.
+>
+> **Mandatory corrections:**
+> - **Rows 16 and 20 are retracted.** The six-arm run stopped at 2,119/4,800 cells. 37.0%, 39.7%, 822.6 J, and “Format Value Confirmed” are not completed results.
+> - **Row 15 is not format-value evidence.** C 10% vs the corrupted-plan control 9% is +1 pp with a confidence interval that includes zero.
+> - **Row 13’s cross-family claim is n=5.** The separate 200-problem SmolLM2 run is not a LLaMA universality result.
+> - **Row 17’s 13.0% is a legacy score.** The strict v2.1 rescore is 3.2% (32/1,000), with 91.7% truncation.
+> - **Row 3’s 10.0% / 23.0% figures predate the v3 strict scorer.** They are not comparable to the v3 run.
+> - The old 50.5% / 67.6% / 100% claims are not current results.
+
 **Principal Systems Architect & Research Director:** Sanish Gyawali (Rupandehi, Nepal)  
 **AI Systems Collaborator / Operational Exoskeleton:** Antigravity (Google DeepMind)  
 **Official Repository:** [`https://github.com/gyawalisanish0/symboLM`](https://github.com/gyawalisanish0/symboLM)  
-**Model Hub:** [`https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5)  
+**Model Hub:** [`https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5`](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5) *(all model repositories made private on 2026-10-22; public access returns 401)*  
 
 ---
 
