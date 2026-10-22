@@ -183,9 +183,10 @@ Until then, the project is an audit plus a small preregistered systems experimen
 - [x] Stop Arm C only at `<ans>`/bypass.
 - [x] Add run manifests and a post-training generation check.
 - [x] Pass the local test suite (55 tests).
-- [ ] Freeze `PREREG_VALUATION_V2.md`.
-- [ ] Commit the rescue branch.
-- [ ] Run fresh SFT on Kaggle.
+- [x] Freeze `PREREG_VALUATION_V2.md`.
+- [x] Commit the rescue branch (`6f6d1f0`) and tag it `sft-v3-20261022`.
+- [x] Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/`.
+- [ ] Run fresh SFT on Kaggle (kernel prepared, not launched).
 - [ ] Run the 100 × 4 diagnostic.
 - [ ] Run the full 200 × 4 × 6 experiment.
 - [ ] Update README/results with receipts, or publish the negative result.
