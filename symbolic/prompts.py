@@ -190,18 +190,68 @@ def classify_target_body(target_body: str) -> Tuple[str, str]:
         return "dialogue", "dialogue_target_out_of_scope"
 
     if "</ans>" in body:
-        required = ("<reg:plan>", "</reg:plan>", "<reg:deduce>", "</reg:deduce>", "</think>")
+        if not body.startswith("<reg:plan>"):
+            return "invalid_reasoning", "reasoning_target_prefix"
+        if "<reg:bypass>" in body or "</reg:bypass>" in body:
+            return "invalid_reasoning", "reasoning_target_contains_bypass"
+        required = (
+            "<reg:plan>",
+            "</reg:plan>",
+            "<reg:deduce>",
+            "</reg:deduce>",
+            "</think>",
+            "<ans>",
+            "</ans>",
+        )
         missing = [tag for tag in required if tag not in body]
         if missing:
             return "invalid_reasoning", "missing:" + ",".join(missing)
+        for tag in (
+            "<reg:plan>",
+            "</reg:plan>",
+            "<reg:deduce>",
+            "</reg:deduce>",
+            "<ans>",
+            "</ans>",
+        ):
+            if body.count(tag) != 1:
+                return "invalid_reasoning", f"duplicate_tag:{tag}"
+        # The declared answer must be the last thing in the training target.
+        # A trailing number or a second answer block is not a valid contract.
+        if not body.rstrip().endswith("</ans>"):
+            return "invalid_reasoning", "answer_not_terminal"
+        positions = [
+            body.find("<reg:plan>"),
+            body.find("</reg:plan>"),
+            body.find("<reg:deduce>"),
+            body.find("</reg:deduce>"),
+            body.find("</think>"),
+            body.find("<ans>"),
+            body.find("</ans>"),
+        ]
+        if positions != sorted(positions):
+            return "invalid_reasoning", "tag_order"
         return "reasoning", "canonical_reasoning_target"
 
     if "</reg:bypass>" in body:
-        if "<ans>" in body:
+        if "<reg:bypass>" not in body:
+            return "invalid_bypass", "missing:<reg:bypass>"
+        if "<ans>" in body or "</ans>" in body:
             return "invalid_bypass", "bypass_target_contains_ans"
         if "<reg:plan>" in body or "<reg:deduce>" in body:
             return "invalid_bypass", "bypass_target_contains_reasoning"
+        if "<think>" in body or "</think>" in body:
+            return "invalid_bypass", "bypass_target_contains_think"
+        if body.count("<reg:bypass>") != 1 or body.count("</reg:bypass>") != 1:
+            return "invalid_bypass", "bypass_tag_count"
+        if not body.rstrip().endswith("</reg:bypass>"):
+            return "invalid_bypass", "bypass_not_terminal"
+        if not re.search(r"^<reg:bypass>\s*[^<]+\s*</reg:bypass>\s*$", body, re.DOTALL):
+            return "invalid_bypass", "empty_or_extra_bypass_content"
         return "bypass", "canonical_bypass_target"
+
+    if "<ans>" in body or "<reg:bypass>" in body:
+        return "invalid", "missing_closing_terminal_tag"
 
     return "invalid", "no_terminal_answer_tag"
 

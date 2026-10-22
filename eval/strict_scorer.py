@@ -204,15 +204,30 @@ def _tag_names(text: str):
     return re.findall(r"</?([^<>]+)>", text)
 
 
-def validate_register_trace(text: str, arm: str = "C") -> Tuple[bool, str]:
+def validate_register_trace(
+    text: str,
+    arm: str = "C",
+    expected_kind: Optional[str] = None,
+) -> Tuple[bool, str]:
     """
     Validate the outer structure of a SymboLM register trace.
+
+    ``expected_kind`` is the route the router actually selected: ``reasoning``
+    for a non-atomic problem and ``bypass`` (or the synonym ``atomic``) for an
+    atomic one.  Passing it prevents Arm C from receiving format credit when it
+    emits a bypass on a problem that required reasoning, or vice versa.
 
     This is intentionally a format validator, not a grammar-constrained decoder.
     It is used to measure whether the model actually learned the contract.
     """
     if not (text or "").strip():
         return False, "empty_trace"
+
+    expected = (expected_kind or "").strip().lower()
+    if expected == "atomic":
+        expected = "bypass"
+    if expected not in {"", "reasoning", "bypass"}:
+        raise ValueError(f"Unknown expected_kind: {expected_kind!r}")
 
     loop_marker = contains_loop_marker(text)
     if loop_marker:
@@ -224,12 +239,17 @@ def validate_register_trace(text: str, arm: str = "C") -> Tuple[bool, str]:
     if "</reg:bypass>" in s:
         if "</ans>" in s:
             return False, "bypass_with_ans"
+        if expected == "reasoning":
+            return False, "expected_reasoning_got_bypass"
         if s.count("<reg:bypass>") != 1 or s.count("</reg:bypass>") != 1:
             return False, "bypass_tag_count"
         pattern = r"^\s*<reg:bypass>[^<]+</reg:bypass>\s*(?:</think>)?\s*$"
         if not re.match(pattern, s):
             return False, "bypass_not_terminal"
         return True, "bypass"
+
+    if expected == "bypass":
+        return False, "expected_bypass_got_reasoning"
 
     if arm != "C":
         return False, "not_a_register_arm"
@@ -320,8 +340,15 @@ def score_declared_answer(
     tokens_emitted: int,
     budget: int,
     eos_emitted: Optional[bool] = None,
+    expected_kind: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Full strict score record for one generated trace."""
+    """Full strict score record for one generated trace.
+
+    The preregistration's primary endpoint is declared-answer correctness
+    (``strict_correct``).  ``strict_correct_and_format`` is a stricter,
+    clearly-labeled secondary field; it is never silently substituted for the
+    preregistered endpoint.
+    """
     answer, method, meta = extract_declared_answer(
         text,
         arm=arm,
@@ -331,7 +358,9 @@ def score_declared_answer(
     )
     correct, verify_method = verify_answer(answer, ground_truth)
     if arm == "C":
-        format_valid, format_reason = validate_register_trace(text, arm=arm)
+        format_valid, format_reason = validate_register_trace(
+            text, arm=arm, expected_kind=expected_kind
+        )
     else:
         format_valid, format_reason = bool(answer), "declared_answer"
 
@@ -344,8 +373,18 @@ def score_declared_answer(
         "truncated": meta["truncated"],
         "format_valid": format_valid,
         "format_reason": format_reason,
+        "expected_kind": (
+            (
+                "bypass"
+                if (expected_kind or "").strip().lower() == "atomic"
+                else (expected_kind or "").strip().lower() or None
+            )
+            if arm == "C"
+            else None
+        ),
         "is_correct": correct,
         "strict_correct": correct,
+        "strict_correct_and_format": bool(correct and format_valid),
         "verification_method": verify_method,
     }
 

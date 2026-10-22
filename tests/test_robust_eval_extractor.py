@@ -10,6 +10,7 @@ from eval.strict_scorer import (
     validate_register_trace,
     verify_answer,
 )
+from symbolic.prompts import classify_target_body, extract_target_answer
 
 TRACE = (
     "<reg:plan>concept: percentage</reg:plan>\n"
@@ -120,6 +121,68 @@ class TestStrictScorer(unittest.TestCase):
     def test_format_validator_accepts_bypass(self):
         ok, reason = validate_register_trace("<reg:bypass>6</reg:bypass>", arm="C")
         self.assertTrue(ok, reason)
+
+    def test_expected_kind_rejects_wrong_route(self):
+        ok, reason = validate_register_trace(
+            "<reg:bypass>6</reg:bypass>", arm="C", expected_kind="reasoning"
+        )
+        self.assertFalse(ok)
+        self.assertEqual(reason, "expected_reasoning_got_bypass")
+
+        ok, reason = validate_register_trace(TRACE, arm="C", expected_kind="bypass")
+        self.assertFalse(ok)
+        self.assertEqual(reason, "expected_bypass_got_reasoning")
+
+    def test_expected_kind_is_recorded_in_score(self):
+        result = score_declared_answer(
+            "<reg:bypass>6</reg:bypass>",
+            arm="C",
+            ground_truth="6",
+            tokens_emitted=8,
+            budget=256,
+            eos_emitted=True,
+            expected_kind="reasoning",
+        )
+        self.assertTrue(result["strict_correct"])
+        self.assertFalse(result["format_valid"])
+        self.assertFalse(result["strict_correct_and_format"])
+
+
+class TestTargetContract(unittest.TestCase):
+    def test_canonical_targets_extract_answers(self):
+        kind, _ = classify_target_body(TRACE)
+        self.assertEqual(kind, "reasoning")
+        self.assertEqual(extract_target_answer(TRACE), "169.5")
+
+        kind, _ = classify_target_body("<reg:bypass>Heisenberg</reg:bypass>")
+        self.assertEqual(kind, "bypass")
+        self.assertEqual(extract_target_answer("<reg:bypass>Heisenberg</reg:bypass>"), "Heisenberg")
+
+    def test_missing_opening_terminal_tag_is_rejected(self):
+        text = TRACE.replace("<ans>169.5</ans>", "169.5</ans>")
+        kind, reason = classify_target_body(text)
+        self.assertEqual(kind, "invalid_reasoning")
+        self.assertIn("missing:<ans>", reason)
+
+    def test_trailing_number_is_rejected(self):
+        text = TRACE + " 169.5"
+        kind, reason = classify_target_body(text)
+        self.assertEqual(kind, "invalid_reasoning")
+        self.assertEqual(reason, "answer_not_terminal")
+
+    def test_missing_opening_bypass_tag_is_rejected(self):
+        kind, reason = classify_target_body("Heisenberg</reg:bypass>")
+        self.assertEqual(kind, "invalid_bypass")
+        self.assertEqual(reason, "missing:<reg:bypass>")
+
+    def test_target_prefix_text_is_rejected(self):
+        kind, reason = classify_target_body("Note: " + TRACE)
+        self.assertEqual(kind, "invalid_reasoning")
+        self.assertEqual(reason, "reasoning_target_prefix")
+
+        kind, reason = classify_target_body("Note: <reg:bypass>Heisenberg</reg:bypass>")
+        self.assertEqual(kind, "invalid_bypass")
+        self.assertEqual(reason, "empty_or_extra_bypass_content")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@
 **Repository branch:** `research/rescue-v3`  
 **Status date:** 2026-10-22  
 **Current phase:** clean SFT + strict evaluation pipeline ready; GPU re-run not yet executed.  
-**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261022-r2`); prepared but not launched.  
+**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261022-r3`); prepared but not launched.
 **Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links now return 401; nothing was deleted.
 
 ---
@@ -94,6 +94,17 @@ The audit found five independent failures, each of which could produce a false p
 - `training/sft_train.py` no longer auto-resumes stale checkpoints. Auto-resume is
   opt-in. It writes `run_manifest.json` with dataset hashes, counts, package versions,
   and post-training generation checks.
+- The r3 remediation pins the base model name, immutable base revision, and exact
+  runtime packages, rejects a dirty or unverified git checkout, and has no branch
+  fallback. The tokenizer extension is rebuilt if its recorded base revision does
+  not match.
+- The SFT artifact now initializes both the input and output rows for genuinely added
+  symbols, saves both `embed_tokens` and `lm_head` through `modules_to_save`, and keeps
+  Trainer checkpoints separate from the final adapter. The package gate reads the
+  actual safetensors keys rather than trusting `adapter_config.json` alone.
+- The post-training gate checks one reasoning and one bypass prompt: each must emit a
+  declared answer of the expected route, valid register structure, and the real EOS
+  token, with no loop marker.
 
 ### Evaluation
 
@@ -102,8 +113,12 @@ The audit found five independent failures, each of which could produce a false p
   `\boxed{}` because their prompt requests it.
 - Truncation without EOS = **fail**. No trailing-number fallback. No
   `deduce_equality_rhs` fallback in the primary score.
-- `eval/robust_eval.py` stops Arm C only at a declared answer. It records full traces,
-  EOS, format validity, strict and lenient scores, and the dataset hash preflight.
+- `eval/robust_eval.py` does **not** stop early at an answer in the strict run; it
+  lets generation reach the real EOS or the token budget, so EOS is not structurally
+  removed from every answered trace. It records full traces, EOS, route-aware format
+  validity, strict and lenient scores, and the dataset hash preflight. The primary
+  endpoint remains `strict_correct`; `strict_correct_and_format` is a labeled secondary
+  field.
 - The benchmark is `data/held_out_eval_200_v2.jsonl` (SHA-256
   `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED`).
 - One documented correction: `MY2021_001` is **169.5**, not 169.
@@ -137,14 +152,18 @@ python -m unittest discover -s tests
 
 # 3. Train (GPU/TPU; writes run_manifest.json and a generation check)
 python training/sft_train.py \
+  --base_model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \
+  --base_revision ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562 \
   --train_file data/research_sft/train.jsonl \
   --val_file data/research_sft/val.jsonl \
-  --generation_check 2
+  --output_dir checkpoints/sft_v3_trainer \
+  --adapter_dir checkpoints/sft_v3_adapter \
+  --generation_check 2 --strict_generation_check
 
 # 4. Evaluate strictly
 python eval/robust_eval.py \
   --input data/held_out_eval_200_v2.jsonl \
-  --adapter checkpoints/sft_adapter \
+  --adapter checkpoints/sft_v3_adapter \
   --expected-sha256 95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```

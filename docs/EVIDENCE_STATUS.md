@@ -84,10 +84,10 @@ These are preserved in the archive for audit, not for promotion. The old README 
 
 ## 5. What is pending
 
-1. ✅ Freeze and commit `PREREG_VALUATION_V2.md` (tag `sft-v3-20261022-r2`).
-2. ✅ Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/`.
+1. ✅ Freeze and commit `PREREG_VALUATION_V2.md` (tag `sft-v3-20261022-r3`; r2 is superseded).
+2. ✅ Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/` with the r3 provenance and artifact fixes.
 3. Run fresh SFT on the canonical 4,600-target split (**not launched yet**).
-4. Pass the post-training generation check (terminal answer + real EOS).
+4. Pass the mixed-kind post-training generation check (expected route + declared answer + real EOS).
 5. Run the 100 × 4 × 6 diagnostic.
 6. Run the full 200 × 4 × 6 experiment.
 7. Report strict accuracy, J/correct, format validity, and the preregistered C-vs-D decision.

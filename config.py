@@ -14,6 +14,7 @@ from pathlib import Path
 class SymboLMConfig:
     # Model: DeepSeek-R1-Distill-Qwen-1.5B (native reasoning + math capability)
     base_model_name: str = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+    base_model_revision: str = "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
 
     # Hardware target: Auto-detects TPU v5e / CUDA
     use_tpu: bool = False  # Set to True when running on TPU v5e

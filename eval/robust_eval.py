@@ -81,6 +81,7 @@ from symbolic.prompts import (  # noqa: E402
 DEFAULT_HELD_OUT   = ROOT_DIR / "data" / "held_out_eval_200_v2.jsonl"
 DEFAULT_ADAPTER    = ROOT_DIR / "checkpoints" / "SymboLM-2.1-DeepSeek-1.5B-Merged"
 DEFAULT_BASE_MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+DEFAULT_BASE_REVISION = "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
 DEFAULT_OUT_DIR    = ROOT_DIR / "results" / "robust_eval"
 DEFAULT_REPORT_MD  = ROOT_DIR / "ROBUST_EVAL_REPORT.md"
 DEFAULT_BUDGETS    = [256, 512, 1024, 2048]
@@ -683,6 +684,7 @@ def build_manifest(
     input_file: Path,
     adapter_path: Path,
     base_model: str,
+    base_revision: str,
     arms: List[str],
     budgets: List[int],
     seed: int,
@@ -707,6 +709,7 @@ def build_manifest(
         "ground_truth_overrides": str(gt_overrides_path) if gt_overrides_path else None,
         "adapter": str(adapter_path),
         "base_model": base_model,
+        "base_revision": base_revision,
         "arms": arms,
         "budgets": budgets,
         "random_seed": seed,
@@ -897,11 +900,13 @@ class AsyncPersistenceManager:
 
 class RobustStoppingCriteria(StoppingCriteria):
     """
-    Halts generation on a *declared* terminal answer.
+    Optional early stopping for diagnostic / legacy runs.
 
-    In strict mode, Arm C must reach ``</ans>``; stopping on
-    ``</reg:verify>`` is disabled because that is exactly the bug that made
-    the old Arm C outputs look closed while never declaring an answer.
+    Strict evaluation must let the model reach EOS; otherwise ``eos_emitted`` is
+    structurally false for every answer-terminated output.  Answer and boxed
+    stopping are therefore disabled by default and only available when
+    ``stop_on_answer=True`` is explicitly requested.  The rescue evaluation
+    never sets it.
     """
     def __init__(
         self,
@@ -909,12 +914,14 @@ class RobustStoppingCriteria(StoppingCriteria):
         prompt_len: int,
         arm: str,
         legacy_stop_on_verify: bool = False,
+        stop_on_answer: bool = False,
     ):
         super().__init__()
         self.tokenizer = tokenizer
         self.prompt_len = prompt_len
         self.arm = arm
         self.legacy_stop_on_verify = legacy_stop_on_verify
+        self.stop_on_answer = stop_on_answer
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
         gen_len = input_ids.shape[1] - self.prompt_len
@@ -925,13 +932,12 @@ class RobustStoppingCriteria(StoppingCriteria):
         window = min(30, gen_len)
         tail = self.tokenizer.decode(input_ids[0, -window:], skip_special_tokens=False)
 
-        # A declared terminal answer is the only strict stop condition.
-        if "</ans>" in tail or "</reg:bypass>" in tail:
+        if self.stop_on_answer and ("</ans>" in tail or "</reg:bypass>" in tail):
             return True
 
         # Boxed closure is a terminal answer only for the baseline arms whose
         # prompt explicitly requests \boxed{}.  Arm C must use <ans>.
-        if self.arm != "C" and "\\boxed{" in tail:
+        if self.stop_on_answer and self.arm != "C" and "\\boxed{" in tail:
             full_gen = self.tokenizer.decode(input_ids[0, self.prompt_len:], skip_special_tokens=False)
             if extract_boxed(full_gen) is not None:
                 return True
@@ -956,19 +962,32 @@ def generate_with_profiling(
     arm: str = "A",
     repetition_penalty: float = 1.15,
     legacy_stop_on_verify: bool = False,
+    stop_on_answer: bool = False,
 ) -> Tuple[str, int, float, float]:
     """
-    Run one forward pass with power sampling and anti-loop stopping criteria.
+    Run one forward pass with power sampling.
+
+    By default generation runs to the real EOS or the token budget.  Early
+    stopping on an answer is a diagnostic-only option because it makes a valid
+    answer-terminated generation look as if it never emitted EOS.
+
     Returns: (generated_text, tokens_emitted, dynamic_joules, elapsed_sec)
     """
     inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False).to(device)
     input_len = inputs["input_ids"].shape[1]
 
-    stopping = StoppingCriteriaList([
-        RobustStoppingCriteria(
-            tokenizer, input_len, arm, legacy_stop_on_verify=legacy_stop_on_verify
+    criteria = []
+    if stop_on_answer or legacy_stop_on_verify:
+        criteria.append(
+            RobustStoppingCriteria(
+                tokenizer,
+                input_len,
+                arm,
+                legacy_stop_on_verify=legacy_stop_on_verify,
+                stop_on_answer=stop_on_answer,
+            )
         )
-    ])
+    stopping = StoppingCriteriaList(criteria)
 
     power_sampler.start()
     t0 = time.perf_counter()
@@ -1028,6 +1047,7 @@ def run_robust_eval(
     input_file: Path,
     adapter_path: Path,
     base_model_id: str,
+    base_revision: str,
     out_dir: Path,
     report_md: Path,
     arms: List[str],
@@ -1071,6 +1091,7 @@ def run_robust_eval(
         input_file,
         adapter_path,
         base_model_id,
+        base_revision,
         arms,
         budgets,
         seed,
@@ -1139,6 +1160,7 @@ def run_robust_eval(
             from peft import PeftModel
             base = AutoModelForCausalLM.from_pretrained(
                 base_model_id,
+                revision=base_revision,
                 torch_dtype=model_dtype,
                 device_map=model_device_map,
                 trust_remote_code=True,
@@ -1164,9 +1186,12 @@ def run_robust_eval(
 
     if needs_vanilla:
         print(f"[INFO] Loading vanilla base model: {base_model_id}", flush=True)
-        vanilla_tokenizer = AutoTokenizer.from_pretrained(base_model_id, trust_remote_code=True)
+        vanilla_tokenizer = AutoTokenizer.from_pretrained(
+            base_model_id, revision=base_revision, trust_remote_code=True
+        )
         vanilla_model = AutoModelForCausalLM.from_pretrained(
             base_model_id,
+            revision=base_revision,
             torch_dtype=model_dtype,
             device_map=model_device_map,
             trust_remote_code=True,
@@ -1235,7 +1260,12 @@ def run_robust_eval(
                 # "correct" Arm C rows had zero <ans> declarations.
                 gt = problem.get("ground_truth", "")
                 eos_token = tokenizer.eos_token or ""
-                eos_emitted = bool(eos_token and eos_token in generated)
+                # EOS must be the final emitted token, not merely present
+                # somewhere in a long truncated trace.
+                eos_emitted = bool(eos_token and generated.rstrip().endswith(eos_token))
+                expected_kind = None
+                if arm == "C":
+                    expected_kind = "bypass" if is_bypass else "reasoning"
                 strict = score_declared_answer(
                     generated,
                     arm=arm,
@@ -1243,6 +1273,7 @@ def run_robust_eval(
                     tokens_emitted=tokens_emitted,
                     budget=budget,
                     eos_emitted=eos_emitted,
+                    expected_kind=expected_kind,
                 )
 
                 # Keep the legacy lenient result for transparency, but never use
@@ -1272,6 +1303,8 @@ def run_robust_eval(
                     "elapsed_sec":      elapsed,
                     "is_correct":       strict["is_correct"],
                     "strict_correct":   strict["is_correct"],
+                    "strict_correct_and_format": strict["strict_correct_and_format"],
+                    "expected_kind":    strict.get("expected_kind"),
                     "lenient_correct":  lenient_correct,
                     "verification_method": strict["verification_method"],
                     "lenient_verification_method": lenient_verify,
@@ -1634,6 +1667,12 @@ def main():
     parser.add_argument("--input",      type=Path, default=DEFAULT_HELD_OUT,   help="Held-out JSONL dataset")
     parser.add_argument("--adapter",    type=Path, default=DEFAULT_ADAPTER,    help="SymboLM adapter / merged checkpoint path")
     parser.add_argument("--base-model", type=str,  default=DEFAULT_BASE_MODEL, help="HF model ID for vanilla Arm F")
+    parser.add_argument(
+        "--base-revision",
+        type=str,
+        default=DEFAULT_BASE_REVISION,
+        help="Immutable Hugging Face revision/commit for the base model.",
+    )
     parser.add_argument("--out-dir",    type=Path, default=DEFAULT_OUT_DIR,    help="Output directory for JSONL results")
     parser.add_argument("--report",     type=Path, default=DEFAULT_REPORT_MD,  help="Markdown report output path")
     parser.add_argument("--budgets",    type=int,  nargs="+", default=DEFAULT_BUDGETS, help="Token budgets (space-separated)")
@@ -1686,6 +1725,7 @@ def main():
         input_file   = args.input,
         adapter_path = args.adapter,
         base_model_id= args.base_model,
+        base_revision= args.base_revision,
         out_dir      = args.out_dir,
         report_md    = args.report,
         arms         = args.arms,

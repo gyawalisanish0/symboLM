@@ -278,9 +278,11 @@ python -m unittest discover -s tests
 # SFT (example; use one GPU and the manifest-producing script).
 python training/sft_train.py \
   --base_model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \
+  --base_revision ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562 \
   --train_file data/research_sft/train.jsonl \
   --val_file data/research_sft/val.jsonl \
-  --output_dir checkpoints/sft_v3_adapter \
+  --output_dir checkpoints/sft_v3_trainer \
+  --adapter_dir checkpoints/sft_v3_adapter \
   --epochs 3 --batch_size 2 --grad_accum 8 --no_quant \
   --generation_check 2 --strict_generation_check
 
@@ -292,7 +294,9 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022-r2` and has not been launched at the time of this freeze.
+The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022-r3` and has not been launched at the time of this freeze.
+
+**r3 remediation note (2026-10-22):** the hypotheses, endpoints, budgets, arms, and analysis plan are unchanged. The r3 tag corrects provenance and artifact handling only: exact tag/commit identity with no branch fallback, a pinned base revision, exact runtime pins, input-and-output-row initialization for genuinely added tokens, separate Trainer/adapter directories, and a mixed-kind strict generation gate. The r2 tag is retained as a superseded historical checkpoint.
 
 ---
 

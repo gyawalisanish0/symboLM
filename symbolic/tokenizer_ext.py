@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import Iterable, Optional
 
 from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
@@ -25,10 +25,6 @@ from symbolic.grammar import (
     ANS_OPEN,
     ANS_CLOSE,
 )
-
-if TYPE_CHECKING:
-    pass
-
 
 # ---------------------------------------------------------------------------
 # All tokens to add to the vocabulary
@@ -87,6 +83,7 @@ def extend_tokenizer(
     model_name_or_path: str,
     save_path: str | Path,
     verbose: bool = True,
+    revision: Optional[str] = None,
 ) -> PreTrainedTokenizerFast:
     """
     Load a tokenizer, inject all symbolic DSL tokens, save to disk.
@@ -95,6 +92,7 @@ def extend_tokenizer(
         model_name_or_path: HuggingFace model ID or local path.
         save_path: Where to save the extended tokenizer.
         verbose: Print token mapping info.
+        revision: Immutable Hugging Face revision/commit for the base tokenizer.
 
     Returns:
         The extended tokenizer (also saved to save_path).
@@ -103,10 +101,11 @@ def extend_tokenizer(
     save_path.mkdir(parents=True, exist_ok=True)
 
     if verbose:
-        print(f"Loading base tokenizer: {model_name_or_path}")
+        print(f"Loading base tokenizer: {model_name_or_path}@{revision or 'default'}")
 
     tokenizer = AutoTokenizer.from_pretrained(
         model_name_or_path,
+        revision=revision,
         trust_remote_code=True,
     )
 
@@ -161,6 +160,7 @@ def extend_tokenizer(
     # Save metadata about what was added
     meta = {
         "base_model": model_name_or_path,
+        "base_revision": revision,
         "original_vocab_size": original_vocab_size,
         "new_vocab_size": new_vocab_size,
         "added_tokens": tokens_to_add,
@@ -215,37 +215,92 @@ SEMANTIC_ANCHORS = {
 }
 
 
-def initialize_symbol_embeddings(model, tokenizer, verbose: bool = True) -> int:
+def initialize_symbol_embeddings(
+    model,
+    tokenizer,
+    verbose: bool = True,
+    added_tokens: Optional[Iterable[str]] = None,
+) -> int:
     """
-    Initializes newly added symbolic token embeddings using the vector
-    of their closest English semantic equivalent rather than random noise.
-    
-    This grounds the symbols directly in pre-existing reasoning circuits,
-    mitigating the Symbol Grounding Problem and cold-start semantic drift.
+    Initialize genuinely *new* symbolic token rows from English anchors.
+
+    Both the input embedding matrix and the output LM head are initialized when
+    the model has untied embeddings.  The adapter freezes these modules, so the
+    initialized rows must be written before ``attach_lora_adapter``; otherwise
+    the output head would be saved with the random rows created by
+    ``resize_token_embeddings``.
+
+    Only tokens reported by ``tokenizer.get_added_vocab()`` (or explicitly
+    passed in ``added_tokens``) are touched.  In particular, existing base
+    tokens such as ``ans`` are never overwritten just because they appear in
+    ``SEMANTIC_ANCHORS``.
     """
     import torch
 
     embeddings = model.get_input_embeddings()
-    weight = embeddings.weight.data
-    initialized_count = 0
+    if embeddings is None:
+        return 0
+    input_weight = embeddings.weight.data
 
-    for symbol, anchor_word in SEMANTIC_ANCHORS.items():
-        sym_id = tokenizer.convert_tokens_to_ids(symbol)
-        anchor_ids = tokenizer.encode(anchor_word, add_special_tokens=False)
+    added_vocab = set(tokenizer.get_added_vocab().keys())
+    eligible = set(added_tokens) if added_tokens is not None else added_vocab
+    eligible &= added_vocab
 
-        # Ensure valid token IDs and that symbol was added
-        if sym_id is not None and sym_id < weight.shape[0] and anchor_ids:
-            with torch.no_grad():
-                # Average anchor token vectors (if word splits into multiple subwords)
-                anchor_vec = weight[anchor_ids].mean(dim=0)
-                # Copy into new symbol embedding
-                weight[sym_id] = anchor_vec
-                initialized_count += 1
+    output_embeddings = model.get_output_embeddings()
+    output_weight = output_embeddings.weight.data if output_embeddings is not None else None
+    tied = (
+        output_weight is None
+        or output_weight.data_ptr() == input_weight.data_ptr()
+    )
+
+    initialized_input = 0
+    initialized_output = 0
+    with torch.no_grad():
+        for symbol, anchor_word in SEMANTIC_ANCHORS.items():
+            if symbol not in eligible:
+                continue
+            sym_id = tokenizer.convert_tokens_to_ids(symbol)
+            anchor_ids = tokenizer.encode(anchor_word, add_special_tokens=False)
+            if (
+                not isinstance(sym_id, int)
+                or sym_id < 0
+                or sym_id >= input_weight.shape[0]
+                or sym_id == getattr(tokenizer, "unk_token_id", None)
+                or not anchor_ids
+            ):
+                continue
+            anchor_ids = [
+                int(token_id)
+                for token_id in anchor_ids
+                if 0 <= int(token_id) < input_weight.shape[0]
+            ]
+            if not anchor_ids:
+                continue
+
+            # Average anchor token vectors if the English word is split into
+            # multiple subword tokens.
+            input_weight[sym_id] = input_weight[anchor_ids].mean(dim=0)
+            initialized_input += 1
+
+            if not tied and sym_id < output_weight.shape[0]:
+                head_anchor_ids = [
+                    int(token_id)
+                    for token_id in anchor_ids
+                    if 0 <= int(token_id) < output_weight.shape[0]
+                ]
+                if head_anchor_ids:
+                    output_weight[sym_id] = output_weight[head_anchor_ids].mean(dim=0)
+                    initialized_output += 1
 
     if verbose:
-        print(f"[Semantic Warm-Start] Initialized {initialized_count} symbol embeddings from English semantic anchors.")
+        mode = "tied input/output" if tied else "input + output head"
+        print(
+            f"[Semantic Warm-Start] Initialized {initialized_input} genuinely "
+            f"added symbol rows ({mode}; output rows={initialized_output}) "
+            "from English semantic anchors."
+        )
 
-    return initialized_count
+    return initialized_input
 
 
 # ---------------------------------------------------------------------------
@@ -293,10 +348,15 @@ if __name__ == "__main__":
         default="./checkpoints/tokenizer_extended",
         help="Where to save the extended tokenizer",
     )
+    parser.add_argument(
+        "--revision",
+        default=None,
+        help="Immutable Hugging Face revision/commit for the base tokenizer",
+    )
     parser.add_argument("--audit", action="store_true", help="Run token efficiency audit after extension")
     args = parser.parse_args()
 
-    tok = extend_tokenizer(args.model, args.save_path)
+    tok = extend_tokenizer(args.model, args.save_path, revision=args.revision)
 
     if args.audit:
         print("\n--- Token Efficiency Audit ---")

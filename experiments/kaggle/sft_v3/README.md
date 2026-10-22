@@ -13,32 +13,37 @@
 | `make_notebook.py` | Regenerates the notebook deterministically |
 | `run_sft_kernel.py` | Hash preflight, full dataset smoke test, SFT launch, package gate |
 | `package_bundle.py` | Optional self-contained Kaggle dataset bundle |
+| `requirements.lock.txt` | Exact runtime pins used by the canonical notebook and package gate |
 | `upload/` | Generated bundle output; ignored by git |
 
 ## What the kernel does
 
-1. Verifies the canonical SFT train/validation hashes against
-   `data/research_sft/manifest.json`.
+1. Verifies the pinned base model/revision and the canonical SFT train/validation
+   hashes against `data/research_sft/manifest.json`.
 2. Builds the exact extended tokenizer that training will use.
 3. Walks **all 4,140 training rows** and asserts:
    - the prompt is an exact token prefix of the full sequence;
-   - prompt labels are exactly `-100`;
-   - the target ends with the tokenizer's real EOS token;
-   - the target declares `<ans>` or `<reg:bypass>`;
-   - there are supervised target tokens after the prompt.
-4. Runs the full 460-row validation check.
+   - prompt labels are exactly `-100`, and every target token is supervised;
+   - the sequence begins with the tokenizer's real BOS and ends with its real EOS;
+   - the target passes the same register-contract validator as evaluation, with the
+     expected reasoning/bypass route and a terminal declared answer;
+   - the split is exactly 3,780 reasoning + 360 bypass rows.
+4. Runs the full 460-row validation check (420 reasoning + 40 bypass).
 5. Trains with:
    - `--no_quant` (1.5B model, one T4);
    - batch 2, grad-accum 8, effective batch 16;
    - 3 epochs, lr `2e-4`, seed 42;
    - auto-resume **off**;
    - `--generation_check 2 --strict_generation_check`.
-6. Saves the exact resized `embed_tokens` and `lm_head` rows with the adapter via
+6. Initializes the input **and output** rows for genuinely added symbols, then saves the
+   exact resized `embed_tokens` and `lm_head` rows with the adapter via
    `modules_to_save`. The tokenizer extension adds `<ans>`/`</ans>`, so an adapter
-   containing only LoRA weights would leave those rows randomly initialized at
-   evaluation. The saved rows are frozen, not optimized.
-7. Refuses to package unless both generation checks emit a terminal answer and the
-   real EOS token, with no loop marker.
+   containing only LoRA weights would leave those rows different at evaluation.
+   Existing base tokens such as `ans` are not overwritten.
+7. Refuses to package unless one reasoning and one bypass generation check each emit a
+   nonempty declared answer of the expected route, valid register structure, and the
+   real EOS token, with no loop marker. It also verifies the actual safetensors keys and
+   keeps the Trainer checkpoint tree out of the archive.
 
 ## Repository inputs
 
@@ -48,14 +53,15 @@ The notebook prefers the optional bundle dataset:
 /kaggle/input/symbolm-v3-sft-bundle/repo_bundle.tar.gz
 ```
 
-If it is absent, it clones the pinned tag:
+If it is absent, it clones the exact pinned tag:
 
 ```text
-sft-v3-20261022-r2
+sft-v3-20261022-r3
 ```
 
-If the tag is not pushed, it falls back to `research/rescue-v3` and prints a warning.
-The receipt records the actual commit, so a fallback is visible.
+There is **no branch fallback**. A missing tag, a tag/commit mismatch, a missing bundle
+manifest, or a bundle hash mismatch is a hard failure. Every training command requires
+both `--expected_git_head` and `--expected_git_tag`.
 
 ### Optional bundle upload
 
@@ -83,7 +89,11 @@ python experiments/kaggle/sft_v3/make_notebook.py
 python -m unittest discover -s tests
 
 # Data/tokenizer/target preflight. This downloads the tokenizer and checks all 4,600 rows.
-python experiments/kaggle/sft_v3/run_sft_kernel.py --mode check
+python experiments/kaggle/sft_v3/run_sft_kernel.py \
+  --mode check \
+  --base_revision ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562 \
+  --expected_git_head "$(git rev-parse HEAD)" \
+  --expected_git_tag sft-v3-20261022-r3
 ```
 
 The last command must print `Dataset smoke test passed` and write
@@ -106,6 +116,8 @@ adapter/
   adapter_config.json
   adapter_model.safetensors
   tokenizer files
+trainer/
+  checkpoint-*           # retained for audit; never included in the adapter tarball
 run_manifest.json
 KERNEL_RECEIPT.json
 symbolm_v3_sft_adapter.tar.gz
@@ -115,13 +127,17 @@ symbolm_v3_sft_adapter.tar.gz
 
 Stop and fix the pipeline if any of these occurs:
 
-- data hash mismatch;
+- base revision, tag, or commit mismatch;
+- data hash or split-kind mismatch;
 - any preflight assertion failure;
 - training exits nonzero;
 - `run_manifest.json` is not `completed`;
-- either generation check lacks a terminal answer or real EOS;
+- either generation check lacks an expected-route declared answer, valid format, or real EOS;
 - a loop marker appears;
-- `adapter_config.json` does not list `embed_tokens` and `lm_head`;
+- `adapter_config.json` does not list `embed_tokens` and `lm_head`, or the actual
+  safetensors keys lack either tensor;
+- the adapter directory or tarball contains a `checkpoint-*` entry;
+- the runtime package versions differ from `requirements.lock.txt`;
 - the adapter files or tarball are missing.
 
 A failed generation check means the adapter is **not** admissible, even if the training

@@ -180,12 +180,16 @@ Until then, the project is an audit plus a small preregistered systems experimen
 - [x] Correct `MY2021_001` to 169.5.
 - [x] Add duplicate-prompt flags to the benchmark.
 - [x] Add strict declared-answer scoring and EOS-aware truncation.
-- [x] Stop Arm C only at `<ans>`/bypass.
-- [x] Add run manifests and a post-training generation check.
-- [x] Pass the local test suite (55 tests).
+- [x] Let strict generation reach real EOS; do not stop Arm C early at an answer.
+- [x] Add run manifests and a mixed-kind post-training generation check.
+- [x] Pass the local test suite (65 tests).
 - [x] Freeze `PREREG_VALUATION_V2.md`.
-- [x] Commit the rescue branch and tag it `sft-v3-20261022-r2`.
+- [x] Commit the rescue branch and tag it `sft-v3-20261022-r3` (r2 is superseded).
 - [x] Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/`.
+- [x] r3: require exact tag/commit with no branch fallback.
+- [x] r3: pin the base revision and exact runtime packages; record torch.
+- [x] r3: initialize input and output rows for genuinely added tokens.
+- [x] r3: separate Trainer checkpoints from the final adapter and verify actual tensors.
 - [ ] Run fresh SFT on Kaggle (kernel prepared, not launched).
 - [ ] Run the 100 × 4 diagnostic.
 - [ ] Run the full 200 × 4 × 6 experiment.

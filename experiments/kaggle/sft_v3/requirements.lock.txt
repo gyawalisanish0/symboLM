@@ -1,0 +1,15 @@
+# Canonical SymboLM v3 SFT runtime pins.
+#
+# The Kaggle notebook installs these exact versions and the package gate
+# re-verifies them from run_manifest.json.  PyTorch is supplied by the Kaggle
+# image; its exact version is recorded in the run manifest and kernel receipt
+# instead of being replaced here, because reinstalling torch on Kaggle can
+# break the CUDA/bitsandbytes stack.
+transformers==5.20.1
+peft==0.21.2
+accelerate==1.15.0
+datasets==5.1.0
+sympy==1.14.0
+huggingface_hub==2.2.0
+tokenizers==0.23.3
+safetensors==0.8.0

@@ -33,7 +33,8 @@ from transformers import (
 
 from config import config
 from data.symbolic_dataset import SymbolicDataCollator, SymbolicSFTDataset
-from symbolic.prompts import contains_loop_marker
+from eval.strict_scorer import extract_declared_answer, validate_register_trace
+from symbolic.prompts import classify_target_body, contains_loop_marker, extract_target_answer
 from symbolic.tokenizer_ext import extend_tokenizer, initialize_symbol_embeddings
 
 # Check for TPU environment
@@ -105,6 +106,10 @@ def sha256_file(path: Path) -> str:
 
 
 def git_head() -> str:
+    """Return the verified commit recorded by the Kaggle runner, if provided."""
+    recorded = os.environ.get("SYMBOLM_GIT_HEAD", "").strip()
+    if recorded:
+        return recorded
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=config.project_root, text=True,
@@ -132,12 +137,30 @@ def parse_args():
     parser = argparse.ArgumentParser(description="SymboLM SFT Stage (TPU & GPU)")
     parser.add_argument("--base_model", type=str, default=config.base_model_name)
     parser.add_argument(
+        "--base_revision",
+        type=str,
+        default=config.base_model_revision,
+        help="Immutable Hugging Face revision/commit for the base model and tokenizer.",
+    )
+    parser.add_argument(
         "--data_dir",
         type=str,
         default=str(config.project_root / "data" / "research_sft"),
         help="Directory containing canonical train.jsonl / val.jsonl",
     )
-    parser.add_argument("--output_dir", type=str, default=str(config.sft_output_dir))
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default=str(config.sft_output_dir),
+        help="Trainer checkpoint directory. The final adapter is written to --adapter_dir.",
+    )
+    parser.add_argument(
+        "--adapter_dir",
+        type=str,
+        default=None,
+        help="Final adapter directory (default: output_dir). Kaggle uses a separate path "
+             "so Trainer checkpoints are never packaged.",
+    )
     parser.add_argument("--epochs", type=int, default=config.sft_epochs)
     parser.add_argument("--batch_size", type=int, default=config.sft_batch_size)
     parser.add_argument("--grad_accum", type=int, default=config.sft_grad_accum_steps)
@@ -167,7 +190,8 @@ def parse_args():
         "--generation_check",
         type=int,
         default=2,
-        help="Generate N validation prompts after training to check the output contract (0=off).",
+        help="Generate N validation prompts after training to check the output contract "
+             "(0=off). The first N include one reasoning and one bypass row when both exist.",
     )
     parser.add_argument(
         "--strict_generation_check",
@@ -193,20 +217,56 @@ def setup_drive_sync(drive_dir: str):
     return False
 
 
+def _generation_indices(dataset: SymbolicSFTDataset, n: int) -> list[int]:
+    """Pick one reasoning and one bypass row before filling any remaining slots."""
+    if n <= 0 or dataset is None or len(dataset) == 0:
+        return []
+
+    first_by_kind: Dict[str, int] = {}
+    for idx in range(len(dataset)):
+        kind, _ = classify_target_body(dataset.get_target_body(idx))
+        if kind in {"reasoning", "bypass"} and kind not in first_by_kind:
+            first_by_kind[kind] = idx
+
+    selected: list[int] = []
+    for kind in ("reasoning", "bypass"):
+        if kind in first_by_kind and len(selected) < n:
+            selected.append(first_by_kind[kind])
+    for idx in range(len(dataset)):
+        if len(selected) >= n:
+            break
+        if idx not in selected:
+            selected.append(idx)
+    return selected[:n]
+
+
 def run_generation_check(
     model,
     tokenizer,
     dataset: SymbolicSFTDataset,
     n: int,
-    max_new_tokens: int = 192,
+    max_new_tokens: int = 512,
 ) -> list[Dict[str, Any]]:
-    """Generate a few validation prompts and check the terminal-answer contract."""
+    """Generate validation prompts and enforce the declared-answer contract.
+
+    The old check merely looked for the substring ``</ans>`` and always used the
+    first two validation rows, which were both reasoning rows.  This version
+    selects one reasoning and one bypass row, extracts the declared answer with
+    the same strict scorer used by evaluation, validates the expected trace
+    kind, and requires the real EOS token at the end.
+    """
     results: list[Dict[str, Any]] = []
     if n <= 0 or dataset is None or len(dataset) == 0:
         return results
 
     model.eval()
-    for idx in range(min(n, len(dataset))):
+    for idx in _generation_indices(dataset, n):
+        target_body = dataset.get_target_body(idx)
+        kind, _ = classify_target_body(target_body)
+        expected_kind = "bypass" if kind == "bypass" else "reasoning"
+        expected_closure = "bypass" if expected_kind == "bypass" else "ans"
+        target_answer = extract_target_answer(target_body)
+
         prompt = dataset.get_prompt(idx)
         inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False)
         inputs = {key: value.to(model.device) for key, value in inputs.items()}
@@ -220,28 +280,54 @@ def run_generation_check(
                 repetition_penalty=1.1,
                 no_repeat_ngram_size=8,
             )
-        generated = tokenizer.decode(
-            output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=False
+        generated_ids = output[0][inputs["input_ids"].shape[1]:]
+        generated = tokenizer.decode(generated_ids, skip_special_tokens=False)
+        eos_emitted = bool(
+            tokenizer.eos_token and generated.rstrip().endswith(tokenizer.eos_token)
         )
-        terminal = ("</ans>" in generated) or ("</reg:bypass>" in generated)
+        answer, method, meta = extract_declared_answer(
+            generated,
+            arm="C",
+            tokens_emitted=len(generated_ids),
+            budget=max_new_tokens,
+            eos_emitted=eos_emitted,
+        )
+        format_valid, format_reason = validate_register_trace(
+            generated, arm="C", expected_kind=expected_kind
+        )
         loop_marker = contains_loop_marker(generated)
+        terminal_answer = bool(
+            answer
+            and meta.get("closure") == expected_closure
+            and format_valid
+        )
         record = {
             "idx": idx,
             "id": dataset.records[idx].get("id"),
-            "terminal_answer": terminal,
+            "target_kind": kind,
+            "expected_kind": expected_kind,
+            "expected_closure": expected_closure,
+            "target_answer": target_answer,
+            "answer": answer,
+            "extraction_method": method,
+            "answer_declared": bool(answer),
+            "closure": meta.get("closure"),
+            "format_valid": format_valid,
+            "format_reason": format_reason,
+            "terminal_answer": terminal_answer,
             # The EOS must be the last thing generated.  The old run never
             # learned the real EOS and could "finish" only by hitting the token
             # budget; that is a failure, not a completed answer.
-            "eos_emitted": bool(
-                tokenizer.eos_token
-                and generated.rstrip().endswith(tokenizer.eos_token)
-            ),
+            "eos_emitted": eos_emitted,
             "loop_marker": loop_marker,
             "generated": generated,
         }
         results.append(record)
-        print(f"[GenerationCheck] idx={idx} id={record['id']} terminal={terminal} "
-              f"eos={record['eos_emitted']} loop={loop_marker}")
+        print(
+            f"[GenerationCheck] idx={idx} id={record['id']} kind={kind} "
+            f"answer={answer!r} fmt={format_valid} terminal={terminal_answer} "
+            f"eos={eos_emitted} loop={loop_marker}"
+        )
         print(generated[:1200].replace("\n", "\\n"))
     return results
 
@@ -261,9 +347,33 @@ def main():
 
     # 1. Tokenizer Extension
     tok_dir = Path(config.tokenizer_dir)
-    if not tok_dir.exists() or not (tok_dir / "tokenizer_config.json").exists():
+    tokenizer_meta_path = tok_dir / "tokenizer_extension_meta.json"
+    rebuild_tokenizer = not (
+        tok_dir.exists() and (tok_dir / "tokenizer_config.json").exists()
+    )
+    if not rebuild_tokenizer:
+        try:
+            tokenizer_meta = json.loads(tokenizer_meta_path.read_text(encoding="utf-8"))
+        except Exception:
+            tokenizer_meta = {}
+        recorded_revision = tokenizer_meta.get("base_revision")
+        if args.base_revision and recorded_revision != args.base_revision:
+            print(
+                "[Tokenizer] Cached extension has no matching base revision "
+                f"({recorded_revision!r} != {args.base_revision!r}); rebuilding."
+            )
+            rebuild_tokenizer = True
+        if tokenizer_meta.get("base_model") not in (None, args.base_model):
+            print("[Tokenizer] Cached extension belongs to a different base model; rebuilding.")
+            rebuild_tokenizer = True
+
+    if rebuild_tokenizer:
         print("Extending base tokenizer with symbolic operators...")
-        tokenizer = extend_tokenizer(args.base_model, tok_dir)
+        if tok_dir.exists():
+            shutil.rmtree(tok_dir)
+        tokenizer = extend_tokenizer(
+            args.base_model, tok_dir, revision=args.base_revision
+        )
     else:
         print(f"Loading pre-extended tokenizer from {tok_dir}...")
         tokenizer = AutoTokenizer.from_pretrained(tok_dir, trust_remote_code=True)
@@ -279,6 +389,7 @@ def main():
         print("[TPU v5e] Loading model in native bfloat16 for PyTorch/XLA...")
         model = AutoModelForCausalLM.from_pretrained(
             args.base_model,
+            revision=args.base_revision,
             torch_dtype=torch.bfloat16,
             trust_remote_code=True,
             # Do NOT use device_map="auto" on TPU; HF Trainer places onto XLA device
@@ -303,6 +414,7 @@ def main():
             )
             model = AutoModelForCausalLM.from_pretrained(
                 args.base_model,
+                revision=args.base_revision,
                 quantization_config=bnb_config,
                 device_map="auto",
                 trust_remote_code=True,
@@ -315,6 +427,7 @@ def main():
             print(f"[CUDA] Initializing model in native {dtype} (unquantized) for seamless checkpoint compatibility...")
             model = AutoModelForCausalLM.from_pretrained(
                 args.base_model,
+                revision=args.base_revision,
                 torch_dtype=dtype,
                 device_map="auto",
                 trust_remote_code=True,
@@ -388,16 +501,28 @@ def main():
         model.config.eos_token_id = tokenizer.eos_token_id
         model.config.pad_token_id = tokenizer.pad_token_id
 
+    adapter_dir = (
+        Path(args.adapter_dir) if args.adapter_dir else Path(args.output_dir)
+    )
     run_manifest_path = (
         Path(args.run_manifest)
         if args.run_manifest
         else Path(args.output_dir) / "run_manifest.json"
     )
+    tokenizer_extension_meta = {}
+    try:
+        tokenizer_extension_meta = json.loads(
+            (tok_dir / "tokenizer_extension_meta.json").read_text(encoding="utf-8")
+        )
+    except Exception:
+        pass
     manifest: Dict[str, Any] = {
         "status": "started",
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "git_head": git_head(),
+        "git_tag": os.environ.get("SYMBOLM_GIT_TAG", ""),
         "base_model": args.base_model,
+        "base_revision": args.base_revision,
         "backend": "tpu" if use_tpu else "cuda/cpu",
         "args": vars(args),
         "train_file": str(train_path),
@@ -411,20 +536,28 @@ def main():
             "bos_token_id": tokenizer.bos_token_id,
             "eos_token_id": tokenizer.eos_token_id,
             "pad_token_id": tokenizer.pad_token_id,
+            "extension_meta": tokenizer_extension_meta,
         },
         "packages": {
             "torch": package_version("torch"),
             "transformers": package_version("transformers"),
             "peft": package_version("peft"),
+            "accelerate": package_version("accelerate"),
+            "datasets": package_version("datasets"),
+            "sympy": package_version("sympy"),
+            "huggingface_hub": package_version("huggingface_hub"),
+            "tokenizers": package_version("tokenizers"),
+            "safetensors": package_version("safetensors"),
         },
         "adapter_artifact": {
             "type": "peft_lora",
             "modules_to_save": ["embed_tokens", "lm_head"],
             "frozen_modules_to_save": True,
+            "initialized_input_and_output_rows": True,
             "reason": (
                 "The extended tokenizer adds <ans>/</ans>; persisting the exact "
-                "resized embedding and LM-head rows prevents random "
-                "reinitialization between training and evaluation."
+                "resized embedding and LM-head rows prevents the adapter from "
+                "reserving different vectors for the input and output anchors."
             ),
         },
     }
@@ -512,9 +645,10 @@ def main():
     trainer.train(resume_from_checkpoint=resume_path)
 
     # 6. Save Adapter & Final Checkpoints
-    print(f"Saving final trained model/adapter to {args.output_dir}...")
-    trainer.model.save_pretrained(args.output_dir)
-    tokenizer.save_pretrained(args.output_dir)
+    print(f"Saving final trained model/adapter to {adapter_dir}...")
+    adapter_dir.mkdir(parents=True, exist_ok=True)
+    trainer.model.save_pretrained(adapter_dir)
+    tokenizer.save_pretrained(adapter_dir)
 
     # 7. Post-training generation sanity check.  This catches the old failure
     # mode where training "completed" but the model looped or never emitted a
@@ -529,39 +663,73 @@ def main():
             check_dataset,
             n=args.generation_check,
         )
-        failures = [
-            r for r in generation_results
-            if not r["terminal_answer"] or not r["eos_emitted"] or r["loop_marker"]
-        ]
-        if failures and args.strict_generation_check:
-            reasons = {
-                "terminal_answer": sum(not r["terminal_answer"] for r in failures),
-                "eos_emitted": sum(not r["eos_emitted"] for r in failures),
-                "loop_marker": sum(r["loop_marker"] for r in failures),
+
+    generation_summary = [
+        {
+            "idx": r["idx"],
+            "id": r["id"],
+            "target_kind": r["target_kind"],
+            "expected_kind": r["expected_kind"],
+            "expected_closure": r["expected_closure"],
+            "target_answer": r["target_answer"],
+            "answer": r["answer"],
+            "extraction_method": r["extraction_method"],
+            "answer_declared": r["answer_declared"],
+            "closure": r["closure"],
+            "format_valid": r["format_valid"],
+            "format_reason": r["format_reason"],
+            "terminal_answer": r["terminal_answer"],
+            "eos_emitted": r["eos_emitted"],
+            "loop_marker": r["loop_marker"],
+            "generated_preview": r["generated"][:2000],
+        }
+        for r in generation_results
+    ]
+    failures = [
+        r for r in generation_results
+        if (
+            not r["terminal_answer"]
+            or not r["eos_emitted"]
+            or r["loop_marker"]
+            or not r["format_valid"]
+        )
+    ]
+    if failures and args.strict_generation_check:
+        reasons = {
+            "terminal_answer": sum(not r["terminal_answer"] for r in failures),
+            "eos_emitted": sum(not r["eos_emitted"] for r in failures),
+            "loop_marker": sum(bool(r["loop_marker"]) for r in failures),
+            "format_valid": sum(not r["format_valid"] for r in failures),
+        }
+        manifest.update(
+            {
+                "status": "generation_check_failed",
+                "completed_utc": datetime.now(timezone.utc).isoformat(),
+                "run_manifest": str(run_manifest_path),
+                "trainer_output_dir": str(args.output_dir),
+                "adapter_dir": str(adapter_dir),
+                "generation_check": args.generation_check,
+                "generation_results": generation_summary,
+                "generation_failures": reasons,
             }
-            raise RuntimeError(
-                f"Post-training generation check failed for {len(failures)} prompt(s): "
-                f"{reasons}. Refusing to package a model that does not emit a "
-                "declared terminal answer followed by the real EOS token."
-            )
+        )
+        write_run_manifest(run_manifest_path, manifest)
+        raise RuntimeError(
+            f"Post-training generation check failed for {len(failures)} prompt(s): "
+            f"{reasons}. Refusing to package a model that does not emit a declared "
+            "terminal answer of the expected kind followed by the real EOS token."
+        )
 
     manifest.update(
         {
             "status": "completed",
             "completed_utc": datetime.now(timezone.utc).isoformat(),
             "run_manifest": str(run_manifest_path),
-            "final_output_dir": str(args.output_dir),
+            "trainer_output_dir": str(args.output_dir),
+            "adapter_dir": str(adapter_dir),
+            "final_output_dir": str(adapter_dir),
             "generation_check": args.generation_check,
-            "generation_results": [
-                {
-                    "id": r["id"],
-                    "terminal_answer": r["terminal_answer"],
-                    "eos_emitted": r["eos_emitted"],
-                    "loop_marker": r["loop_marker"],
-                    "generated_preview": r["generated"][:2000],
-                }
-                for r in generation_results
-            ],
+            "generation_results": generation_summary,
             "train_log_history": trainer.state.log_history,
         }
     )
@@ -577,7 +745,7 @@ def main():
         if drive_ok:
             drive_dest = Path(args.drive_backup) / "sft_adapter"
             print(f"Copying artifacts to Google Drive: {drive_dest}...")
-            shutil.copytree(args.output_dir, drive_dest, dirs_exist_ok=True)
+            shutil.copytree(adapter_dir, drive_dest, dirs_exist_ok=True)
             print("Drive backup complete!")
 
     print("Stage 1 SFT finished successfully!")

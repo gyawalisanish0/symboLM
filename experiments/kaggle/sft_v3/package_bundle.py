@@ -72,6 +72,32 @@ def git_head() -> str:
         return "unknown"
 
 
+def git_tag() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "describe", "--tags", "--exact-match", "HEAD"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        return "unknown"
+
+
+def require_clean_tracked_tree() -> None:
+    status = subprocess.check_output(
+        ["git", "status", "--porcelain", "--untracked-files=no"],
+        cwd=ROOT,
+        text=True,
+        stderr=subprocess.DEVNULL,
+    ).strip()
+    if status:
+        raise RuntimeError(
+            "Refusing to build a bundle from a dirty tracked tree. Commit the "
+            "reviewed changes first:\n" + status
+        )
+
+
 def write_json(path: Path, payload: dict) -> None:
     path.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
@@ -95,6 +121,7 @@ def add_path(archive: tarfile.TarFile, path: Path, arcname: str) -> None:
 
 
 def main() -> int:
+    require_clean_tracked_tree()
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
@@ -171,6 +198,9 @@ def main() -> int:
     bundle_manifest = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "git_head": git_head(),
+        "git_tag": git_tag(),
+        "git_dirty": False,
+        "base_revision": "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562",
         "repo_bundle": BUNDLE_NAME,
         "repo_bundle_sha256": sha256_file(tar_path),
         "repo_bundle_bytes": tar_path.stat().st_size,
@@ -186,8 +216,9 @@ def main() -> int:
         ),
         "notes": (
             "Extract repo_bundle.tar.gz into /kaggle/working; it creates "
-            "/kaggle/working/symboLM. The kernel verifies the tar hash, "
-            "SFT hashes, token prefix, label masks, and real EOS before training."
+            "/kaggle/working/symboLM. The kernel verifies the archive hash, "
+            "the exact tag/head, SFT hashes, prompt prefixes, label masks, "
+            "target kinds, and real BOS/EOS before training."
         ),
     }
     write_json(OUT / "bundle_manifest.json", bundle_manifest)
@@ -202,7 +233,9 @@ def main() -> int:
     readme = f"""# SymboLM v3 SFT Bundle
 
 Generated: {bundle_manifest['created_utc']}
+Git tag: `{bundle_manifest['git_tag']}`
 Git head: `{bundle_manifest['git_head']}`
+Base revision: `{bundle_manifest['base_revision']}`
 Archive SHA-256: `{bundle_manifest['repo_bundle_sha256']}`
 
 This dataset contains a snapshot of the code and canonical SFT data needed by
