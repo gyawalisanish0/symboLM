@@ -423,6 +423,15 @@ def package_output(root: Path, output_root: Path, receipt: Dict[str, Any]) -> Di
         ),
         f"No adapter weights found in {adapter_dir}",
     )
+    adapter_config = json.loads(
+        (adapter_dir / "adapter_config.json").read_text(encoding="utf-8")
+    )
+    saved_modules = adapter_config.get("modules_to_save") or []
+    require(
+        "embed_tokens" in saved_modules and "lm_head" in saved_modules,
+        "Adapter does not persist the resized embedding/lm_head modules; "
+        f"modules_to_save={saved_modules!r}",
+    )
 
     run_data = json.loads(run_manifest.read_text(encoding="utf-8"))
     require(run_data.get("status") == "completed", "run_manifest.json is not completed")
@@ -558,6 +567,7 @@ def main() -> int:
             "auto_resume": False,
             "strict_generation_check": True,
             "cuda_visible_devices": "0",
+            "modules_to_save": ["embed_tokens", "lm_head"],
         }
         if return_code != 0:
             raise RuntimeError(f"training/sft_train.py exited with code {return_code}")

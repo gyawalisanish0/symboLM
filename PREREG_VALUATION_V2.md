@@ -142,6 +142,7 @@ The exact prompt builder and system prompts live in `symbolic/prompts.py` and ar
 | Method | LoRA SFT (no GRPO in this run) |
 | LoRA rank / alpha / dropout | 16 / 32 / 0.05 |
 | Target modules | Qwen projection modules (`q,k,v,o,gate,up,down`) |
+| Adapter artifact | LoRA weights plus the exact resized `embed_tokens` and `lm_head` rows saved via `modules_to_save`; those rows are frozen, not optimized |
 | Epochs | 3 |
 | Per-device batch | 2–4, selected to fit one T4 |
 | Gradient accumulation | chosen so effective batch = 16 |
@@ -150,7 +151,7 @@ The exact prompt builder and system prompts live in `symbolic/prompts.py` and ar
 | Seed | 42 |
 | Precision | fp16/bf16 on GPU; no 4-bit required for a 1.5B model |
 | Auto-resume | **off**; explicit resume only |
-| Generation check | 2 validation prompts; strict terminal-answer check enabled |
+| Generation check | 2 validation prompts; strict terminal-answer and real-EOS check enabled |
 
 The training run must write `run_manifest.json` containing dataset hashes, counts, tokenizer special-token IDs, package versions, git commit, and the generation-check traces. A run without that manifest is not admissible.
 
@@ -291,7 +292,7 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022-r1` and has not been launched at the time of this freeze.
+The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022-r2` and has not been launched at the time of this freeze.
 
 ---
 

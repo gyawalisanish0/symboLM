@@ -33,7 +33,11 @@
    - 3 epochs, lr `2e-4`, seed 42;
    - auto-resume **off**;
    - `--generation_check 2 --strict_generation_check`.
-6. Refuses to package unless both generation checks emit a terminal answer and the
+6. Saves the exact resized `embed_tokens` and `lm_head` rows with the adapter via
+   `modules_to_save`. The tokenizer extension adds `<ans>`/`</ans>`, so an adapter
+   containing only LoRA weights would leave those rows randomly initialized at
+   evaluation. The saved rows are frozen, not optimized.
+7. Refuses to package unless both generation checks emit a terminal answer and the
    real EOS token, with no loop marker.
 
 ## Repository inputs
@@ -47,7 +51,7 @@ The notebook prefers the optional bundle dataset:
 If it is absent, it clones the pinned tag:
 
 ```text
-sft-v3-20261022-r1
+sft-v3-20261022-r2
 ```
 
 If the tag is not pushed, it falls back to `research/rescue-v3` and prints a warning.
@@ -117,6 +121,7 @@ Stop and fix the pipeline if any of these occurs:
 - `run_manifest.json` is not `completed`;
 - either generation check lacks a terminal answer or real EOS;
 - a loop marker appears;
+- `adapter_config.json` does not list `embed_tokens` and `lm_head`;
 - the adapter files or tarball are missing.
 
 A failed generation check means the adapter is **not** admissible, even if the training

@@ -36,7 +36,7 @@ cells = [
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
-**Pinned tag:** `sft-v3-20261022-r1`  
+**Pinned tag:** `sft-v3-20261022-r2`  
 **Status:** pre-run kernel. This notebook trains one adapter; it does **not** run the evaluation.
 
 ## What this kernel guarantees
@@ -47,6 +47,9 @@ cells = [
   target must declare a terminal answer.
 - Uses the same manual Qwen chat format as evaluation. The stock chat template is not
   used for training targets.
+- Saves the exact resized `embed_tokens` and `lm_head` rows with the adapter through
+  `modules_to_save`. The tokenizer adds `<ans>`/`</ans>`; without those rows, evaluation
+  would randomly reinitialize the terminal-answer markers.
 - Trains with auto-resume **off**, one GPU, `--no_quant`, and the strict post-training
   generation check.
 - Refuses to package the adapter if a generation check is missing a terminal answer,
@@ -86,7 +89,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 
 REPO_URL = "https://github.com/gyawalisanish0/symboLM.git"
-GIT_TAG = "sft-v3-20261022-r1"
+GIT_TAG = "sft-v3-20261022-r2"
 GIT_BRANCH = "research/rescue-v3"
 REPO_DIR = Path("/kaggle/working/symboLM")
 OUTPUT_ROOT = Path("/kaggle/working/symbolm_v3_sft")
@@ -245,8 +248,19 @@ for path in (receipt_path, run_manifest_path, bundle_path):
 
 receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
 run_manifest = json.loads(run_manifest_path.read_text(encoding="utf-8"))
+adapter_config_path = OUTPUT_ROOT / "adapter" / "adapter_config.json"
+if not adapter_config_path.exists():
+    raise RuntimeError(f"Missing adapter config: {adapter_config_path}")
+adapter_config = json.loads(adapter_config_path.read_text(encoding="utf-8"))
+saved_modules = set(adapter_config.get("modules_to_save") or [])
+if not {"embed_tokens", "lm_head"} <= saved_modules:
+    raise RuntimeError(
+        "Adapter does not persist resized embeddings/lm_head: "
+        f"modules_to_save={sorted(saved_modules)}"
+    )
 
 print("Receipt status :", receipt.get("status"))
+print("Artifact rows  :", sorted(saved_modules))
 print("Git head       :", receipt.get("git_head"))
 print("Adapter dir    :", receipt.get("adapter_dir"))
 print("Bundle         :", receipt.get("bundle"))
@@ -281,6 +295,8 @@ The adapter is admissible for the next stage only when all of these are true:
 - `data.val_sha256` is `EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3`.
 - Every generation check has `terminal_answer: true`, `eos_emitted: true`, and
   `loop_marker: false`.
+- `adapter_config.json` lists `embed_tokens` and `lm_head` in `modules_to_save`, so
+  the resized `<ans>`/`</ans>` rows are persisted exactly.
 - `symbolm_v3_sft_adapter.tar.gz` exists and its SHA-256 is in the receipt.
 
 If any gate fails, do not run the 4,800-cell evaluation. Fix the pipeline or report the

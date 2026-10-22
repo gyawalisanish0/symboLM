@@ -210,6 +210,8 @@ SEMANTIC_ANCHORS = {
     "base": "base",
     "step": "step",
     "ans": "answer",
+    "<ans>": "answer",
+    "</ans>": "answer",
 }
 
 

@@ -62,6 +62,40 @@ def _safe_torch_load(*args, **kwargs):
 torch.load = _safe_torch_load
 
 
+def attach_lora_adapter(model):
+    """Attach LoRA and persist the resized tokenizer embeddings/head.
+
+    The tokenizer extension adds ``<ans>`` and ``</ans>``.  Those rows are
+    created by ``resize_token_embeddings`` and are not part of a normal LoRA
+    state dict.  If only the LoRA weights were saved, evaluation would resize
+    the base model again and initialize those rows randomly, so training and
+    evaluation would use different vectors for the terminal-answer markers.
+    ``modules_to_save`` writes the exact resized embedding and LM head into the
+    adapter artifact.  The modules are frozen after attachment: they are saved
+    for reproducibility, not optimized.
+    """
+    lora_cfg = LoraConfig(
+        r=config.lora_r,
+        lora_alpha=config.lora_alpha,
+        lora_dropout=config.lora_dropout,
+        target_modules=config.lora_target_modules,
+        bias="none",
+        task_type="CAUSAL_LM",
+        modules_to_save=["embed_tokens", "lm_head"],
+    )
+    model = get_peft_model(model, lora_cfg)
+    for module in (model.get_input_embeddings(), model.get_output_embeddings()):
+        if module is not None:
+            for parameter in module.parameters():
+                parameter.requires_grad_(False)
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+    if hasattr(model, "config"):
+        model.config.use_cache = False
+    model.print_trainable_parameters()
+    return model
+
+
 def sha256_file(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -254,16 +288,7 @@ def main():
 
         if not args.full_finetune:
             print("[TPU v5e] Attaching bfloat16 LoRA adapters...")
-            lora_cfg = LoraConfig(
-                r=config.lora_r,
-                lora_alpha=config.lora_alpha,
-                lora_dropout=config.lora_dropout,
-                target_modules=config.lora_target_modules,
-                bias="none",
-                task_type="CAUSAL_LM",
-            )
-            model = get_peft_model(model, lora_cfg)
-            model.print_trainable_parameters()
+            model = attach_lora_adapter(model)
     else:
         # -------------------------------------------------------------
         # GPU / CUDA Fallback Path: 4-bit QLoRA / fp16
@@ -297,16 +322,7 @@ def main():
             model.resize_token_embeddings(len(tokenizer))
             initialize_symbol_embeddings(model, tokenizer)
 
-        lora_cfg = LoraConfig(
-            r=config.lora_r,
-            lora_alpha=config.lora_alpha,
-            lora_dropout=config.lora_dropout,
-            target_modules=config.lora_target_modules,
-            bias="none",
-            task_type="CAUSAL_LM",
-        )
-        model = get_peft_model(model, lora_cfg)
-        model.print_trainable_parameters()
+        model = attach_lora_adapter(model)
 
     # 3. Datasets
     if args.train_file:
@@ -400,6 +416,16 @@ def main():
             "torch": package_version("torch"),
             "transformers": package_version("transformers"),
             "peft": package_version("peft"),
+        },
+        "adapter_artifact": {
+            "type": "peft_lora",
+            "modules_to_save": ["embed_tokens", "lm_head"],
+            "frozen_modules_to_save": True,
+            "reason": (
+                "The extended tokenizer adds <ans>/</ans>; persisting the exact "
+                "resized embedding and LM-head rows prevents random "
+                "reinitialization between training and evaluation."
+            ),
         },
     }
     write_run_manifest(run_manifest_path, manifest)
