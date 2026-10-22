@@ -291,7 +291,7 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022` and has not been launched at the time of this freeze.
+The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022-r1` and has not been launched at the time of this freeze.
 
 ---
 

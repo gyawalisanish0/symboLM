@@ -36,7 +36,7 @@ cells = [
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
-**Pinned tag:** `sft-v3-20261022`  
+**Pinned tag:** `sft-v3-20261022-r1`  
 **Status:** pre-run kernel. This notebook trains one adapter; it does **not** run the evaluation.
 
 ## What this kernel guarantees
@@ -86,7 +86,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 
 REPO_URL = "https://github.com/gyawalisanish0/symboLM.git"
-GIT_TAG = "sft-v3-20261022"
+GIT_TAG = "sft-v3-20261022-r1"
 GIT_BRANCH = "research/rescue-v3"
 REPO_DIR = Path("/kaggle/working/symboLM")
 OUTPUT_ROOT = Path("/kaggle/working/symbolm_v3_sft")

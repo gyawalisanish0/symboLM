@@ -184,7 +184,7 @@ Until then, the project is an audit plus a small preregistered systems experimen
 - [x] Add run manifests and a post-training generation check.
 - [x] Pass the local test suite (55 tests).
 - [x] Freeze `PREREG_VALUATION_V2.md`.
-- [x] Commit the rescue branch (`6f6d1f0`) and tag it `sft-v3-20261022`.
+- [x] Commit the rescue branch and tag it `sft-v3-20261022-r1`.
 - [x] Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/`.
 - [ ] Run fresh SFT on Kaggle (kernel prepared, not launched).
 - [ ] Run the 100 × 4 diagnostic.

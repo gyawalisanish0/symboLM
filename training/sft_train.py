@@ -114,6 +114,11 @@ def parse_args():
     parser.add_argument("--train_file", type=str, default=None, help="Explicit path to training JSONL file")
     parser.add_argument("--val_file", type=str, default=None, help="Explicit path to validation JSONL file")
     parser.add_argument("--drive_backup", type=str, default=config.colab_drive_checkpoint)
+    parser.add_argument(
+        "--no_drive_backup",
+        action="store_true",
+        help="Disable the Google Drive checkpoint mirror (use on Kaggle).",
+    )
     parser.add_argument("--resume_from_checkpoint", type=str, default=None)
     parser.add_argument(
         "--auto_resume",
@@ -451,13 +456,14 @@ def main():
                 except Exception as e:
                     print(f"\n[Drive Backup Warning] Failed to backup checkpoint: {e}")
 
+    drive_backup = None if args.no_drive_backup else args.drive_backup
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
         data_collator=collator,
-        callbacks=[HostRAMCleanupCallback(drive_backup=args.drive_backup)],
+        callbacks=[HostRAMCleanupCallback(drive_backup=drive_backup)],
     )
 
     # 5. Execute Training
@@ -535,13 +541,18 @@ def main():
     )
     write_run_manifest(run_manifest_path, manifest)
 
-    # Backup to Drive if available
-    drive_ok = setup_drive_sync(args.drive_backup)
-    if drive_ok:
-        drive_dest = Path(args.drive_backup) / "sft_adapter"
-        print(f"Copying artifacts to Google Drive: {drive_dest}...")
-        shutil.copytree(args.output_dir, drive_dest, dirs_exist_ok=True)
-        print("Drive backup complete!")
+    # Backup to Drive only when explicitly enabled.  Kaggle runs use
+    # --no_drive_backup so they do not create a hidden duplicate checkpoint
+    # tree under /kaggle/working.
+    if args.no_drive_backup:
+        print("[Drive Sync] Disabled by --no_drive_backup.")
+    else:
+        drive_ok = setup_drive_sync(args.drive_backup)
+        if drive_ok:
+            drive_dest = Path(args.drive_backup) / "sft_adapter"
+            print(f"Copying artifacts to Google Drive: {drive_dest}...")
+            shutil.copytree(args.output_dir, drive_dest, dirs_exist_ok=True)
+            print("Drive backup complete!")
 
     print("Stage 1 SFT finished successfully!")
 

@@ -84,7 +84,7 @@ These are preserved in the archive for audit, not for promotion. The old README 
 
 ## 5. What is pending
 
-1. ✅ Freeze and commit `PREREG_VALUATION_V2.md` (commit `6f6d1f0`, tag `sft-v3-20261022`).
+1. ✅ Freeze and commit `PREREG_VALUATION_V2.md` (tag `sft-v3-20261022-r1`).
 2. ✅ Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/`.
 3. Run fresh SFT on the canonical 4,600-target split (**not launched yet**).
 4. Pass the post-training generation check (terminal answer + real EOS).

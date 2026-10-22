@@ -5,7 +5,7 @@
 **Repository branch:** `research/rescue-v3`  
 **Status date:** 2026-10-22  
 **Current phase:** clean SFT + strict evaluation pipeline ready; GPU re-run not yet executed.  
-**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261022`); prepared but not launched.  
+**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261022-r1`); prepared but not launched.  
 **Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links now return 401; nothing was deleted.
 
 ---

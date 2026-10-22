@@ -47,7 +47,7 @@ The notebook prefers the optional bundle dataset:
 If it is absent, it clones the pinned tag:
 
 ```text
-sft-v3-20261022
+sft-v3-20261022-r1
 ```
 
 If the tag is not pushed, it falls back to `research/rescue-v3` and prints a warning.

@@ -389,8 +389,7 @@ def run_training(
         str(run_manifest),
         "--seed",
         "42",
-        "--drive_backup",
-        str(Path("/kaggle/tmp/disabled_drive_backup/sft")),
+        "--no_drive_backup",
     ]
     if max_train_samples > 0:
         command.extend(["--max_train_samples", str(max_train_samples)])
