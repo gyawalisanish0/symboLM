@@ -49,7 +49,7 @@ Question ───┼── Social Intent ─────> <reg:intent> 8-15 Tok
 - **78.4% Average Token Reduction:** High-density symbolic traces solve complex problems in 219–512 tokens compared to 2,000–3,500 conversational tokens required by base DeepSeek-R1.
 - **Information Efficiency Ratio (IER) of 10.21:** Delivering **17× to 25× higher information density per token** than standard English Chain-of-Thought (0.40–0.60).
 - **1.1% Trailing Syntax Noise:** Clean grammar output with zero scraping artifacts or formatting hallucinations.
-- **Hardware Portability:** Native export of [`symbolm.gbnf`](file:///c:/Users/user/Dev/symboLM/symbolm.gbnf) enabling edge deployment in C++ inference engines (`llama.cpp`, Ollama).
+- **Hardware Portability:** Native export of [`symbolm.gbnf`](../symbolm.gbnf) enabling edge deployment in C++ inference engines (`llama.cpp`, Ollama).
 
 ---
 
@@ -192,7 +192,7 @@ True science documents limits with the same precision as victories. The 1,000-qu
 
 ## 7. Official Apples-to-Apples Framework on MATH-500 & AIME 2024
 
-To eliminate any ambiguity regarding baseline comparison, SymboLM v2.1 includes a standardized 3-arm evaluation harness ([`eval/benchmark_apples_to_apples.py`](file:///c:/Users/user/Dev/symboLM/eval/benchmark_apples_to_apples.py)) directly consuming official Hugging Face datasets:
+To eliminate any ambiguity regarding baseline comparison, SymboLM v2.1 includes a standardized 3-arm evaluation harness ([`eval/benchmark_apples_to_apples.py`](../eval/benchmark_apples_to_apples.py)) directly consuming official Hugging Face datasets:
 - [`HuggingFaceH4/MATH-500`](https://huggingface.co/datasets/HuggingFaceH4/MATH-500) (500 competition problems)
 - [`AI-MO/aimo-validation-aime`](https://huggingface.co/datasets/AI-MO/aimo-validation-aime) (AIME 2024 Olympiad)
 
@@ -212,7 +212,7 @@ SymboLM v2.1 is designed to be backbone-agnostic across modern open-weight found
 
 1. **Flagship Backbone:** `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B` (Alibaba Qwen-2.5 architecture, 151k vocabulary).
 2. **Cross-Architecture Transfer:** `HuggingFaceTB/SmolLM2-1.7B-Instruct` (Pure LLaMA architecture, 49k BPE vocabulary).
-3. **Edge C++ Runtime:** Standalone [`symbolm.gbnf`](file:///c:/Users/user/Dev/symboLM/symbolm.gbnf) grammar allowing instant deployment inside `llama.cpp` and Ollama without Python dependencies.
+3. **Edge C++ Runtime:** Standalone [`symbolm.gbnf`](../symbolm.gbnf) grammar allowing instant deployment inside `llama.cpp` and Ollama without Python dependencies.
 
 ### Reproduction Verification:
 Any independent researcher can reproduce the full evaluation locally or on cloud GPUs via:

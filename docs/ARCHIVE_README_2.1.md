@@ -23,14 +23,14 @@
 
 ## 📑 Core Documentation & Epistemic Receipts
 
-* 🏆 **[Robust 6-Arm × 4-Budget Silicon Report (results/robust_eval/ROBUST_EVAL_REPORT.md)](results/robust_eval/ROBUST_EVAL_REPORT.md)** — Independent multi-budget Pareto frontier (1,955 physical GPU evaluations; Arm C completed across all 200 clean problems, Format Value Confirmed) on Dual Tesla T4 GPUs.
-* ⚡ **[Physical Silicon Hardware Valuation Report (VALUATION.md)](VALUATION.md)** — Dynamic electrical energy ($J/\text{correct}$) and latency profiled on Dual Tesla T4 GPUs via NVML.
-* 📋 **[Consolidated Results Summary (RESULTS_SUMMARY.md)](RESULTS_SUMMARY.md)** — Definitive empirical audit synthesis across Tasks 0–7 for research grants.
-* 🛡️ **[Full Claims Audit (AUDIT.md)](AUDIT.md)** — Forensic classification of every claim into `MEASURED`, `SIMULATED`, `CONSTANT`, or `UNVERIFIED`.
-* 🔒 **[Pre-Registration Protocol (PREREG_VALUATION.md)](PREREG_VALUATION.md)** — Locked decision rules, multi-budget grid, and paired bootstrap 95% CIs.
-* 🔬 **[Real 4-Arm Ablation Report (eval/ABLATION_REAL_REPORT.md)](eval/ABLATION_REAL_REPORT.md)** — Forward-pass ablation and Lanham causal intervention on 200 clean problems.
-* ⚖️ **[Master Evidence Truth Table (EVIDENCE_TRUTH_TABLE.md)](EVIDENCE_TRUTH_TABLE.md)** — Exhaustive audit mapping every claim to verified logs and commit hashes.
-* 📄 **[Research Whitepaper & Architecture Manifesto (WHITEPAPER.md)](WHITEPAPER.md)** — Theoretical formulation and computer architecture physics.
+* 🏆 **[Robust 6-Arm × 4-Budget Silicon Report (results/robust_eval/ROBUST_EVAL_REPORT.md)](../results/robust_eval/ROBUST_EVAL_REPORT.md)** — Independent multi-budget Pareto frontier (1,955 physical GPU evaluations; Arm C completed across all 200 clean problems, Format Value Confirmed) on Dual Tesla T4 GPUs.
+* ⚡ **[Physical Silicon Hardware Valuation Report (VALUATION.md)](../VALUATION.md)** — Dynamic electrical energy ($J/\text{correct}$) and latency profiled on Dual Tesla T4 GPUs via NVML.
+* 📋 **[Consolidated Results Summary (RESULTS_SUMMARY.md)](../RESULTS_SUMMARY.md)** — Definitive empirical audit synthesis across Tasks 0–7 for research grants.
+* 🛡️ **[Full Claims Audit (AUDIT.md)](../AUDIT.md)** — Forensic classification of every claim into `MEASURED`, `SIMULATED`, `CONSTANT`, or `UNVERIFIED`.
+* 🔒 **[Pre-Registration Protocol (PREREG_VALUATION.md)](../PREREG_VALUATION.md)** — Locked decision rules, multi-budget grid, and paired bootstrap 95% CIs.
+* 🔬 **[Real 4-Arm Ablation Report (eval/ABLATION_REAL_REPORT.md)](../eval/ABLATION_REAL_REPORT.md)** — Forward-pass ablation and Lanham causal intervention on 200 clean problems.
+* ⚖️ **[Master Evidence Truth Table (EVIDENCE_TRUTH_TABLE.md)](../EVIDENCE_TRUTH_TABLE.md)** — Exhaustive audit mapping every claim to verified logs and commit hashes.
+* 📄 **[Research Whitepaper & Architecture Manifesto (WHITEPAPER.md)](../WHITEPAPER.md)** — Theoretical formulation and computer architecture physics.
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## ⚡ Task 2 Physical Silicon Hardware Valuation (Single-Budget Receipts)
 
-Following the **Claude Haiku 5.5 Empirical Auditing Protocol**, dynamic electrical energy was measured at 100ms intervals using NVIDIA NVML on Dual Tesla T4 GPUs (idle baseline: **32.60 W**) across 200 clean, held-out, non-contaminated problems ([`data/held_out_eval_200_clean.jsonl`](data/held_out_eval_200_clean.jsonl)):
+Following the **Claude Haiku 5.5 Empirical Auditing Protocol**, dynamic electrical energy was measured at 100ms intervals using NVIDIA NVML on Dual Tesla T4 GPUs (idle baseline: **32.60 W**) across 200 clean, held-out, non-contaminated problems ([`data/held_out_eval_200_clean.jsonl`](../data/held_out_eval_200_clean.jsonl)):
 
 | Valuation Arm | Pass@1 Accuracy | Dynamic J / Correct | Latency / Correct | Mean Tokens | Energy Profile | Status |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -106,7 +106,7 @@ Following the **Claude Haiku 5.5 Empirical Auditing Protocol**, dynamic electric
 ### Key Silicon Milestones:
 1. **$79.4\times$ Reflex Energy Compression:** Bypassing atomic facts reduces dynamic energy from $2052.4\text{ J}$ to $25.8\text{ J}$ per correct answer (80.0% accuracy in 3 tokens).
 2. **$38.3\%$ Dynamic Silicon Energy Reduction:** Arm C (Full Registers) reduces dynamic energy by 38.3% vs. Ordinary CoT on identical problems.
-3. **$78.4\%$ Energy Reduction + $3.3\times$ Accuracy Boost:** Decoupling arithmetic to a sandboxed deterministic execution runtime ([`symbolm/tiny_terminal.py`](symbolm/tiny_terminal.py)) elevates accuracy from 7.0% to 23.0% while slashing energy to $444.3\text{ J}$ / correct.
+3. **$78.4\%$ Energy Reduction + $3.3\times$ Accuracy Boost:** Decoupling arithmetic to a sandboxed deterministic execution runtime ([`symbolm/tiny_terminal.py`](../symbolm/tiny_terminal.py)) elevates accuracy from 7.0% to 23.0% while slashing energy to $444.3\text{ J}$ / correct.
 
 ---
 
