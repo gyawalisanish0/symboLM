@@ -24,9 +24,9 @@ The previous v2.1 public headline — 37.0% overall accuracy and “Format Value
 is **retracted**. That six-arm run stopped at 2,119 of 4,800 cells because the free Kaggle
 quota/infrastructure limit ended the session; it is an incomplete run, not a completed
 result and not a negative result. Its Arm C traces never emitted `<ans>`, and its scoring
-path is not the v3 strict scorer. No v3 adapter exists yet. The r3 SFT kernel is currently
-`ERROR` because of a CRLF/LF hash mismatch; the planned r4 revision will fix provenance
-before any training run.
+path is not the v3 strict scorer. No v3 adapter exists yet. The r3 SFT kernel is `ERROR`
+because of a CRLF/LF hash mismatch; the r4 provenance fix (tag `sft-v3-20261023-r4`) is
+applied, but SFT still must be rerun before any training result.
 
 ---
 
@@ -190,7 +190,7 @@ historical audit is in [`EVIDENCE_TRUTH_TABLE.md`](EVIDENCE_TRUTH_TABLE.md) and
 
 ## 6. Current blocker
 
-The r3 tag (`sft-v3-20261022-r3`) is frozen, but the Kaggle SFT kernel is `ERROR`:
+The r3 tag (`sft-v3-20261022-r3`) is frozen, and its Kaggle SFT kernel is `ERROR`:
 
 ```text
 Train hash mismatch:
@@ -198,14 +198,15 @@ got      BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC
 expected 5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E
 ```
 
-The mismatch is line endings, not data content. The working tree is CRLF and matches the
-manifest; the committed blobs are LF. The parser sees the same 4,140 rows. Validation has
-the same issue (`EB854A…` vs `3FCFCC…`). The planned r4 revision will add `.gitattributes`
-with LF rules, regenerate the manifest and preregistration hashes from LF bytes, update the
-kernel constants, and create a new tag. No hash check will be bypassed.
+The mismatch was line endings, not data content. The committed blobs were LF; the r3 tag did
+not force LF checkout, so Windows materialized CRLF and the manifest recorded CRLF hashes.
+The r4 revision (`sft-v3-20261023-r4`) adds `.gitattributes` LF rules, normalizes the canonical
+files, regenerates the manifest/preregistration hashes from LF bytes, and updates the kernel
+constants. The rows and split are unchanged. No hash check was bypassed.
 
-**No 4,800-cell evaluation has been launched.** It requires a clean adapter that passes the
-package gate and separate explicit approval.
+The remaining blocker is scientific and operational: **no r4 SFT adapter exists yet**. No
+4,800-cell evaluation has been launched. It requires a clean adapter that passes the package
+gate and separate explicit approval.
 
 ---
 
@@ -222,7 +223,7 @@ The thesis is falsified for practical purposes if:
 
 The next steps are:
 
-1. Fix the CRLF/LF provenance mismatch and create `r4`.
+1. ✅ Apply the CRLF/LF provenance fix and create `sft-v3-20261023-r4`.
 2. Run fresh SFT and pass the mixed-kind generation check.
 3. Run the 100 × 4 diagnostic (not the primary result).
 4. Run the full 200 × 4 experiment only with separate explicit approval.

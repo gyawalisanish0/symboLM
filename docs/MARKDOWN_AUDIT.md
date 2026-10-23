@@ -33,8 +33,10 @@ The old repository led with accuracy and “Format Value Confirmed.” The corre
 repo leads with token efficiency of correct reasoning and treats strict accuracy as a
 non-inferiority gate. The biological language is a design analogy, not a mechanism
 claim. The old six-arm run is incomplete (2,119/4,800; Kaggle quota/infrastructure),
-not a completed or negative result. No v3 adapter exists; the r3 SFT kernel is `ERROR`
-on a CRLF/LF hash mismatch. The 4,800-cell evaluation has not been launched.
+not a completed or negative result. No v3 adapter exists. The r3 SFT kernel is `ERROR`
+on a CRLF/LF hash mismatch; the r4 LF provenance fix is applied (tag
+`sft-v3-20261023-r4`), but SFT has not been rerun. The 4,800-cell evaluation has not been
+launched.
 
 ## File-by-file audit
 
@@ -46,9 +48,9 @@ on a CRLF/LF hash mismatch. The 4,800-cell evaluation has not been launched.
 | `GEMINI.md` | Canonical current | Updated session directive; SESSION_CONTEXT is now historical; current v3 subset stated. |
 | `OPTIMIZATIONS_RESEARCH.md` | Design / projection | Banner added: engineering options/projections, not measured v3 results. |
 | `PREREG_VALUATION.md` | Historical / retracted | Already historical/superseded. |
-| `PREREG_VALUATION_V2.md` | Canonical current | Added a dated framing amendment, token-efficiency reporting, and r4 note. Hypotheses/endpoints unchanged. |
-| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, and the r3 blocker. |
-| `REPRODUCIBILITY.md` | Canonical current | Rewritten for v3, strict scoring, the r3 hash blocker, and token-efficiency reporting. |
+| `PREREG_VALUATION_V2.md` | Canonical current | Added a dated framing amendment, token-efficiency reporting, and the applied r4 provenance note. Hypotheses/endpoints unchanged. |
+| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, and the r4 LF provenance fix; SFT and the full run are still pending. |
+| `REPRODUCIBILITY.md` | Canonical current | Rewritten for v3, strict scoring, the r4 LF provenance fix, and token-efficiency reporting. |
 | `RESULTS_SUMMARY.md` | Historical / retracted | Framing banner and tokens-per-correct table added; incomplete-run language corrected. |
 | `SESSION_CONTEXT.md` | Historical / retracted | Correction note added: 20x invalid, 224x projection, old 100%/confirmed claims historical. |
 | `VALUATION.md` | Tier B / audit receipt | Added tokens-per-correct table, C-vs-D null result, and biology caveat. Tier B only. |
@@ -85,8 +87,8 @@ on a CRLF/LF hash mismatch. The 4,800-cell evaluation has not been launched.
 | `eval/cross_family_llama/symbolm_llama_1_7b_adapter/README.md` | Historical / retracted | Historical model card; banner added; n=5 probe, not universality. |
 | `eval_cross_domain/EVAL_CROSS_DOMAIN_REPORT.md` | Historical / retracted | Historical duplicate; banner added. |
 | `experiments/README.md` | Archive / historical ops | Banner added; HF repositories private; old accuracy headlines not current. |
-| `experiments/kaggle/sft_v3/README.md` | Current operational | Added ERROR status, r4 plan, and token-efficiency caveat. Kernel blocked, not queued. |
-| `experiments/kaggle/sft_v3/upload/README.md` | Archive / historical ops | Warning added: r3 bundle is not usable for Linux training (CRLF/LF hash mismatch). |
+| `experiments/kaggle/sft_v3/README.md` | Current operational | Added r3 `ERROR` history, applied r4 status, and token-efficiency caveat. No r4 run is queued. |
+| `experiments/kaggle/sft_v3/upload/README.md` | Archive / historical ops | Warning added: the r3 bundle is not usable for Linux training (CRLF/LF hash mismatch); rebuild from r4. |
 | `experiments/lightning/README.md` | Archive / historical ops | Banner added; old SFT/GRPO paths are not the v3 artifact. |
 | `research/CLAUDE_EMPIRICAL_AUDIT_BRIEF.md` | Historical / retracted | Historical audit brief; banner added. |
 | `research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md` | Design / projection | 224x labeled assumption-only; co-design softened to hypothetical; no MoE in current model. |
@@ -104,7 +106,7 @@ on a CRLF/LF hash mismatch. The 4,800-cell evaluation has not been launched.
 | `results/robust_eval/ROBUST_EVAL_REPORT.md` | Historical / retracted | Already warning-marked; incomplete 2,119/4,800 run, C traces lack <ans>. Not a result. |
 | `symbolic/GRADIENT_REGISTERS_SPECIFICATION.md` | Design / projection | Status added: research extension, not implemented in v3. |
 | `symbolic/SPECIFICATION.md` | Design / projection | Scope note added: v3 uses a subset; token minimization is a goal, not a result. |
-| `task.md` | Canonical current | Rewritten to separate implementation from scientific validity and list r4/SFT/evaluation blockers. |
+| `task.md` | Canonical current | Rewritten to separate implementation from scientific validity and record the r4 fix plus remaining SFT/evaluation blockers. |
 
 ## Cross-cutting corrections
 
@@ -118,8 +120,9 @@ on a CRLF/LF hash mismatch. The 4,800-cell evaluation has not been launched.
    quota/infrastructure. It is not a confirmatory or negative result.
 5. **20x / 80x / 224x are not current measurements.** 20x is an invalid multiplication;
    80x is a narrow SmolLM2 pilot ratio; 224x is an assumption-only projection.
-6. **The r3 hashes are CRLF-based.** The committed blobs are LF; the Kaggle preflight
-   fails. The planned r4 tag will fix provenance. No check may be bypassed.
+6. **The r3 hashes were CRLF-based.** The committed blobs are LF; the r3 preflight
+   failed on the line-ending difference. The r4 tag fixes provenance with `.gitattributes`
+   and LF hashes. No check may be bypassed.
 7. **No format-value claim is allowed** without C beating D on the paired CI and passing
    the strict-accuracy non-inferiority gate.
 

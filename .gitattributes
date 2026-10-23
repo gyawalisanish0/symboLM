@@ -1,0 +1,13 @@
+# Canonical data is hashed byte-for-byte. Force LF on every platform so a
+# Windows checkout cannot change the provenance hash.
+/data/concept_math_contrastive_v2_1.jsonl text eol=lf
+/data/held_out_eval_200_clean.jsonl text eol=lf
+/data/held_out_eval_200_v2.jsonl text eol=lf
+/data/held_out_eval_200_v2_manifest.json text eol=lf
+/data/ground_truth_overrides.json text eol=lf
+/data/research_sft/train.jsonl text eol=lf
+/data/research_sft/val.jsonl text eol=lf
+/data/research_sft/manifest.json text eol=lf
+
+# The generated Kaggle notebook is a text artifact; keep it stable too.
+/experiments/kaggle/sft_v3/symbolm_v3_sft.ipynb text eol=lf

@@ -43,10 +43,10 @@ except Exception:
     pass
 
 EXPECTED_TRAIN_SHA256 = (
-    "5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E"
+    "BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC"
 )
 EXPECTED_VAL_SHA256 = (
-    "EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3"
+    "3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD"
 )
 EXPECTED_TRAIN_ROWS = 4140
 EXPECTED_VAL_ROWS = 460
@@ -83,7 +83,7 @@ def sha256_file(path: Path) -> str:
 
 def write_json(path: Path, payload: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as handle:
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
 
 

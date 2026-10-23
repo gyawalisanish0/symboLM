@@ -162,12 +162,14 @@ Until then, the training contribution is a carefully specified efficiency-orient
 
 | Item | Status | Meaning |
 |---|---|---|
-| v3 SFT adapter | **Does not exist** | The Kaggle kernel `sanishgyawali/symbolm-v3-sft-rescue` is `ERROR`; it failed the train-hash preflight. |
-| r3 provenance | **Broken for Linux** | The declared hashes in `manifest.json` and `PREREG_VALUATION_V2.md` were computed over Windows CRLF files. The committed blobs are LF. A Linux/Kaggle checkout hashes differently. |
+| v3 SFT adapter | **Does not exist** | The last Kaggle kernel `sanishgyawali/symbolm-v3-sft-rescue` is `ERROR`; it failed the r3 train-hash preflight. |
+| r3 provenance | **Superseded** | The r3 hashes were computed over Windows CRLF files. The committed blobs are LF, so a Linux/Kaggle checkout hashed differently. |
+| r4 provenance | **Fixed** | `.gitattributes` forces LF; the canonical manifests, preregistration, evaluator, and kernel constants record the LF byte hashes. The data rows and split are unchanged. |
 | Full 4,800-cell run | **Not started** | Requires a clean adapter and separate explicit approval. |
 | v3 token-efficiency result | **None** | No v3 result exists. |
 
-The hash mismatch is a packaging/provenance defect, not a scientific result. It must be fixed with a new tag and regenerated hashes from LF bytes before training. Do not bypass the check.
+The r3 hash mismatch was a packaging/provenance defect, not a scientific result. It was fixed
+in r4 with a new tag and regenerated hashes from LF bytes. Do not bypass the check.
 
 ### 5.2 Completed or historical evidence
 

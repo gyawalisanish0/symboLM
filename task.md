@@ -2,8 +2,8 @@
 
 **Status date:** 2026-10-23  
 **Branch:** `research/rescue-v3`  
-**Current phase:** documentation audit complete; the planned **r4** provenance fix is still
-pending. **No v3 adapter and no v3 GPU result.**
+**Current phase:** documentation audit and **r4 LF provenance fix complete**; SFT must be
+rerun. **No v3 adapter and no v3 GPU result.**
 
 This tracker records implementation state, not scientific validity. A checked box means the
 code or document exists; it does not mean the associated claim is confirmed.
@@ -52,11 +52,11 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 
 ### Provenance and training
 
-- [ ] Add `.gitattributes` with LF rules.
-- [ ] Convert canonical data files to LF and regenerate the manifest hashes.
-- [ ] Update `PREREG_VALUATION_V2.md`, docs, and kernel constants to LF hashes.
-- [ ] Create the `r4` tag.
-- [ ] Re-run the Kaggle SFT preflight (current r3 kernel is `ERROR`).
+- [x] Add `.gitattributes` with LF rules.
+- [x] Normalize canonical data files to LF and regenerate the manifest hashes.
+- [x] Update `PREREG_VALUATION_V2.md`, docs, and kernel constants to LF hashes.
+- [x] Create tag `sft-v3-20261023-r4`.
+- [ ] Re-run the Kaggle SFT preflight (last r3 kernel is `ERROR`; r4 not yet repushed).
 - [ ] Train the v3 adapter and pass the mixed-kind generation check.
 - [ ] Package the adapter and pass the package gate.
 

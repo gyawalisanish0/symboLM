@@ -51,6 +51,14 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest().upper()
 
 
+def display_path(path: Path) -> str:
+    """Return a repository-relative POSIX path when possible."""
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
+
+
 def load_jsonl(path: Path) -> List[Dict[str, Any]]:
     return [json.loads(line) for line in open(path, encoding="utf-8") if line.strip()]
 
@@ -104,9 +112,10 @@ def main() -> None:
 
     summary = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
-        "input": str(args.input),
+        "input": display_path(args.input),
         "input_sha256": sha256_file(args.input),
-        "output": str(args.output),
+        "output": display_path(args.output),
+        "line_endings": "lf",
         "n_rows": len(out_rows),
         "n_unique_prompts": unique_prompts,
         "n_duplicate_groups": len(duplicate_groups),
@@ -118,7 +127,9 @@ def main() -> None:
     }
 
     if not args.check_only:
-        with open(args.output, "w", encoding="utf-8") as f:
+        # The v2 benchmark is hashed raw and consumed on Linux.  Explicit LF
+        # prevents a Windows checkout from producing a different byte hash.
+        with open(args.output, "w", encoding="utf-8", newline="\n") as f:
             for row in out_rows:
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
         summary["output_sha256"] = sha256_file(args.output)
@@ -172,9 +183,10 @@ def main() -> None:
             f"- `{args.manifest}`",
             "",
         ]
-        args.report.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        with open(args.report, "w", encoding="utf-8", newline="\n") as f:
+            f.write("\n".join(lines) + "\n")
 
-        with open(args.manifest, "w", encoding="utf-8") as f:
+        with open(args.manifest, "w", encoding="utf-8", newline="\n") as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
 
     print(json.dumps(summary, indent=2))

@@ -28,11 +28,11 @@
 > 4. **Incomplete is not a result.** If the Kaggle quota or infrastructure ends the run
 >    before 4,800 cells, the run is reported as incomplete. This explains missing cells; it
 >    does not make the saved cells confirmatory or negative evidence.
-> 5. **The r3 hashes are CRLF-based and fail on Linux.** The declared hashes in this file and
->    in `data/research_sft/manifest.json` were computed over Windows CRLF files; the committed
->    blobs are LF. The Kaggle hash preflight therefore fails. A new tag (`r4`) with
->    `.gitattributes` enforcing LF and regenerated hashes is required before training. No
->    check may be bypassed. This is a provenance correction, not a change to the science.
+> 5. **The r3 revision's hashes were CRLF-based and failed on Linux.** The declared hashes
+>    in this file and in `data/research_sft/manifest.json` were computed over Windows CRLF files; the
+>    committed blobs are LF. The r4 revision fixed this with `.gitattributes`, LF-normalized
+>    working files, and LF hashes; the data rows are unchanged. No check may be bypassed. This
+>    is a provenance correction, not a change to the science.
 >
 > The canonical framing document is
 > [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
@@ -58,12 +58,13 @@ The register format is treated as a **control interface**, not as evidence of hi
 | Artifact | Value |
 |---|---|
 | Source file | `data/concept_math_contrastive_v2_1.jsonl` |
-| Source SHA-256 | `3F7DC86D5C6A0BF47F1C5E4E90F8F317727319BBE58C7F54C5C416D39EC7BD69` |
+| Source SHA-256 | `724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7` |
 | Canonical train file | `data/research_sft/train.jsonl` |
-| Train SHA-256 | `5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E` |
+| Train SHA-256 | `BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC` |
 | Canonical validation file | `data/research_sft/val.jsonl` |
-| Validation SHA-256 | `EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3` |
+| Validation SHA-256 | `3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD` |
 | Train / validation counts | 4,140 / 460 |
+| Line endings | LF, enforced by `.gitattributes` |
 | Target kinds | 4,200 reasoning, 400 atomic bypass |
 | Excluded | 400 dialogue/intent rows |
 | Duplicate handling | 350 legitimate source-ID collisions preserved with unique training IDs |
@@ -83,14 +84,15 @@ The training target must end with the tokenizer's real EOS token. The prompt mus
 | Artifact | Value |
 |---|---|
 | File | `data/held_out_eval_200_v2.jsonl` |
-| SHA-256 | `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED` |
+| SHA-256 | `F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707` |
+| Line endings | LF, enforced by `.gitattributes` |
 | Rows | 200 |
 | Unique prompts | 173 |
 | Duplicate-prompt groups | 20 (27 redundant rows) |
 | Ground-truth overrides | 1: `MY2021_001 = 169.5` |
 | Audit report | `data/held_out_eval_200_v2_audit.md` |
-| Old clean hash | `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B` |
-| Old Kaggle manifest hash | reported as `575B…`; it is not the old preregistered hash |
+| Old clean benchmark, CRLF-era hash | `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B` |
+| Old clean benchmark, LF hash (also old Kaggle manifest) | `575B247066B65E5B8514990280C534BAA9448014E100ADCFE67D385E43B9AA8E` |
 
 `MY2021_001` is a documented correction, not a post-hoc answer change: `123 × 1.5 = 184.5`, then `184.5 − 15 = 169.5`. The original value `169` silently truncated the half-unit.
 
@@ -261,7 +263,7 @@ No wording such as “confirmed,” “SOTA,” “general reasoning,” or “1
 
 ## 5. Stopping, exclusions, and deviations
 
-1. **Dataset mismatch:** the run stops if the input SHA-256 is not `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED`. There is no `--allow-dataset-mismatch` in the primary run.
+1. **Dataset mismatch:** the run stops if the input SHA-256 is not `F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707`. There is no `--allow-dataset-mismatch` in the primary run.
 2. **Format failure:** if more than 10% of Arm C cells are format-invalid, the run is a pipeline failure. The result is not interpreted as evidence about format value.
 3. **Infrastructure failure:** a cell may be rerun only for a documented infrastructure failure (OOM, CUDA error, truncated log). The original attempt and the replacement are both retained. No rerun is allowed because the answer was wrong.
 4. **No optional stopping:** do not stop after a favorable budget or arm. Complete the 4,800 cells or report the run as incomplete.
@@ -324,15 +326,15 @@ python training/sft_train.py \
 python eval/robust_eval.py \
   --input data/held_out_eval_200_v2.jsonl \
   --adapter checkpoints/sft_v3_adapter \
-  --expected-sha256 95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED \
+  --expected-sha256 F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707 \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022-r3` and has not been launched at the time of this freeze.
+The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261023-r4`; no r4 training run had been launched when this revision was frozen.
 
 **r3 remediation note (2026-10-22):** the hypotheses, endpoints, budgets, arms, and analysis plan are unchanged. The r3 tag corrects provenance and artifact handling only: exact tag/commit identity with no branch fallback, a pinned base revision, exact runtime pins, input-and-output-row initialization for genuinely added tokens, separate Trainer/adapter directories, and a mixed-kind strict generation gate. The r2 tag is retained as a superseded historical checkpoint.
 
-**r4 provenance note (2026-10-23, planned):** r3 is frozen but not usable for a Linux training run. Its declared hashes were computed over Windows CRLF files, while the committed blobs are LF. The Kaggle kernel failed preflight on `Train hash mismatch`. The r4 revision will (a) add `.gitattributes` with LF rules, (b) regenerate `data/research_sft/manifest.json` and the hashes in this protocol from LF bytes, (c) update `experiments/kaggle/sft_v3/run_sft_kernel.py`, and (d) create a new tag. This is a provenance-only change: no hypothesis, endpoint, budget, arm, prompt, or decision rule changes. If the full 4,800-cell run is not completed because of Kaggle quota or infrastructure, the result is reported as incomplete; the missing cells are not treated as a negative result.
+**r4 provenance note (2026-10-23, applied):** r3 is frozen but was not usable for a Linux training run. Its declared hashes were computed over Windows CRLF files, while the committed blobs are LF. The Kaggle kernel failed preflight on `Train hash mismatch`. The r4 revision (a) adds `.gitattributes` with LF rules, (b) normalizes the canonical working files and regenerates `data/research_sft/manifest.json` and the hashes in this protocol from LF bytes, (c) updates the Kaggle kernel and evaluator constants, and (d) creates the annotated tag `sft-v3-20261023-r4`. This is a provenance-only change: no hypothesis, endpoint, budget, arm, prompt, or decision rule changes. If the full 4,800-cell run is not completed because of Kaggle quota or infrastructure, the result is reported as incomplete; the missing cells are not treated as a negative result.
 
 ---
 

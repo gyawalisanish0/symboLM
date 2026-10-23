@@ -14,8 +14,9 @@
 - **Constraint:** strict declared-answer accuracy must be non-inferior to the control.
 - **Biological language:** a design analogy only. The current model is a dense 1.5B
   transformer with a LoRA adapter, not a sparse MoE, CED, Engram, or brain-like system.
-- **Current status:** no v3 adapter; the r3 Kaggle SFT kernel is `ERROR` on a CRLF/LF hash
-  mismatch; the 4,800-cell evaluation has not been run and requires separate approval.
+- **Current status:** no v3 adapter. The r3 Kaggle SFT kernel is `ERROR` on a CRLF/LF hash
+  mismatch; the r4 provenance fix is applied (tag `sft-v3-20261023-r4`), but SFT has not been
+  rerun. The 4,800-cell evaluation has not been run and requires separate approval.
 - **Canonical documents:** `README.md`, `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`,
   `docs/EVIDENCE_STATUS.md`, and `PREREG_VALUATION_V2.md`.
 

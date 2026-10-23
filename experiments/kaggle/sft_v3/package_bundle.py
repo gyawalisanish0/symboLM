@@ -99,10 +99,8 @@ def require_clean_tracked_tree() -> None:
 
 
 def write_json(path: Path, payload: dict) -> None:
-    path.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
 
 
 def tar_filter(info: tarfile.TarInfo):
@@ -212,7 +210,7 @@ def main() -> int:
             "val_rows": sft_manifest.get("val"),
         },
         "expected_benchmark_sha256": (
-            "95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED"
+            "F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707"
         ),
         "notes": (
             "Extract repo_bundle.tar.gz into /kaggle/working; it creates "
@@ -265,7 +263,7 @@ After uploading, add this to `kernel-metadata.json`:
 The kernel will prefer `/kaggle/input/symbolm-v3-sft-bundle/repo_bundle.tar.gz`
 when it is mounted, and otherwise clone the pinned git tag.
 """
-    (OUT / "README.md").write_text(readme, encoding="utf-8")
+    (OUT / "README.md").write_text(readme, encoding="utf-8", newline="\n")
 
     print(f"[OK] Wrote {tar_path} ({tar_path.stat().st_size / (1024**2):.2f} MiB)")
     print(f"[OK] Archive SHA-256: {bundle_manifest['repo_bundle_sha256']}")

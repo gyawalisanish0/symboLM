@@ -56,6 +56,14 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest().upper()
 
 
+def display_path(path: Path) -> str:
+    """Return a repository-relative POSIX path when possible."""
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
+
+
 def git_head() -> str:
     try:
         return subprocess.check_output(
@@ -134,7 +142,10 @@ def transform_record(
 
 def write_jsonl(path: Path, rows: List[Dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+    # The manifest hashes raw bytes.  Explicit LF keeps Windows and Linux
+    # checkouts byte-identical; Python's default text mode would emit CRLF on
+    # Windows and silently change the provenance hash.
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
@@ -234,17 +245,18 @@ def main() -> None:
     manifest = {
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "git_head": git_head(),
-        "source": str(args.input),
+        "source": display_path(args.input),
         "source_sha256": sha256_file(args.input),
         "train": str(train_path),
         "train_sha256": sha256_file(train_path),
         "val": str(val_path),
         "val_sha256": sha256_file(val_path),
+        "line_endings": "lf",
         "system_prompt": REGISTER_SYSTEM_PROMPT,
         **counts,
     }
     manifest_path = args.out_dir / "manifest.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
+    with open(manifest_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
     print("=" * 72)

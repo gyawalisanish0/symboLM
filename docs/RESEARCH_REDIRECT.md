@@ -187,8 +187,8 @@ Use this order when deciding what to cite:
 
 ### Tier A — admissible for v3 decisions
 
-- `data/held_out_eval_200_v2.jsonl` with the LF-normalized hash after the r4 fix.
-- `data/research_sft/manifest.json` and its LF-normalized train/validation hashes.
+- `data/held_out_eval_200_v2.jsonl` at the r4 LF hash.
+- `data/research_sft/manifest.json` and its r4 LF train/validation hashes.
 - `eval/strict_scorer.py` and the strict report produced by `eval/robust_eval.py`.
 - `run_manifest.json` from the v3 SFT run.
 - The preregistered 4,800-cell run, or the explicit statement that it is incomplete.
@@ -304,7 +304,7 @@ legitimate scope.
 - [x] Add strict declared-answer scoring and EOS-aware truncation.
 - [x] Let strict generation reach real EOS; do not stop Arm C early at an answer.
 - [x] Add run manifests and a mixed-kind post-training generation check.
-- [x] Pass the local test suite (65 tests).
+- [x] Pass the local test suite.
 - [x] Freeze `PREREG_VALUATION_V2.md`.
 - [x] Commit the rescue branch and tag it `sft-v3-20261022-r3` (r2 is superseded).
 - [x] Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/`.
@@ -313,8 +313,8 @@ legitimate scope.
 - [x] r3: initialize input and output rows for genuinely added tokens.
 - [x] r3: separate Trainer checkpoints from the final adapter and verify actual tensors.
 - [x] Correct the repository-wide framing around token efficiency and the biology analogy.
-- [ ] Fix the CRLF/LF provenance mismatch and create the `r4` tag.
-- [ ] Run fresh SFT on Kaggle (kernel prepared, currently `ERROR`).
+- [x] Fix the CRLF/LF provenance mismatch and create tag `sft-v3-20261023-r4`.
+- [ ] Run fresh SFT on Kaggle (r4 prepared; last r3 kernel is `ERROR`).
 - [ ] Pass the mixed-kind generation check and package gate.
 - [ ] Run the 100 × 4 diagnostic.
 - [ ] Run the full 200 × 4 × 6 experiment (requires separate explicit approval).

@@ -62,7 +62,7 @@ This document synthesizes the empirical findings across all audit tasks (Tasks 0
 - **Exact Verbatim Prompt Matches:** **Exactly 47 items (4.7%)**, confirming Claude Haiku 5.5's finding #7.
 - **8-Gram Partial Overlap:** 49 items (4.9%).
 - **Strictly Clean Out-of-Distribution Problems:** **904 items (90.4%)**.
-- **Action Taken:** Extracted a pristine, stratified, 100% clean evaluation set of 200 problems: [`data/held_out_eval_200_clean.jsonl`](data/held_out_eval_200_clean.jsonl) (SHA-256: `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B`).
+- **Action Taken:** Extracted a pristine, stratified, 100% clean evaluation set of 200 problems: [`data/held_out_eval_200_clean.jsonl`](data/held_out_eval_200_clean.jsonl) (SHA-256 at the time, CRLF checkout: `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B`; current LF bytes: `575B247066B65E5B8514990280C534BAA9448014E100ADCFE67D385E43B9AA8E`).
 
 ---
 

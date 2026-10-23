@@ -3,8 +3,9 @@
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
 **Status date:** 2026-10-23  
-**Current status:** the v3 adapter does not exist; the r3 Kaggle SFT kernel is `ERROR` on a
-CRLF/LF hash preflight. No v3 benchmark result exists.
+**Current status:** the v3 adapter does not exist. The r3 Kaggle SFT kernel is `ERROR` on a
+CRLF/LF hash preflight; the r4 provenance fix is applied (tag `sft-v3-20261023-r4`), but no
+r4 training run has been launched. No v3 benchmark result exists.
 
 This guide describes how to reproduce the **pipeline** and the **audit**, not a result that
 has not been produced. Every reported number must have a command, a hash, and a receipt.
@@ -21,7 +22,7 @@ has not been produced. Every reported number must have a command, a hash, and a 
 | Strict scorer | `python -m eval.strict_scorer` / unit tests | Works |
 | SmolLM2 pilot token/energy table | See [`VALUATION.md`](VALUATION.md) | Tier B historical measurement |
 | Old six-arm run | See audit docs | **Incomplete**; not reproducible as a completed result |
-| v3 SFT run | `experiments/kaggle/sft_v3/` | **Blocked** by r3 hash mismatch |
+| v3 SFT run | `experiments/kaggle/sft_v3/` | **Not run**; r4 tag prepared, last r3 kernel `ERROR` |
 | Full 4,800-cell v3 run | `eval/robust_eval.py` | **Not run**; requires a clean adapter and approval |
 
 ---
@@ -91,10 +92,10 @@ Expected properties:
 The manifest is `data/research_sft/manifest.json`. It records the source hash, train/validation
 hashes, counts, target-kind counts, filters, and seed.
 
-### Important provenance warning
+### r4 provenance fix
 
-The r3 manifest hashes were computed over **Windows CRLF** files. The committed git blobs are
-**LF** and hash differently. On a Linux/Kaggle checkout, the hash preflight fails:
+The r3 manifest hashes were computed over **Windows CRLF** files. The committed git blobs
+were already **LF**, so a Linux/Kaggle checkout hashed differently and the r3 kernel failed:
 
 ```text
 Train hash mismatch:
@@ -102,17 +103,19 @@ got      BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC
 expected 5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E
 ```
 
-Validation has the same issue:
+The r4 revision (`sft-v3-20261023-r4`) fixes this without changing any row. It adds
+`.gitattributes` LF rules, normalizes the canonical working files, regenerates the manifest
+and protocol hashes from LF bytes, and updates the kernel/evaluator constants. The current
+hashes are:
 
 ```text
-got      3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
-expected EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3
+source      724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7
+train       BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC
+validation  3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
 ```
 
-Do not bypass this check. The r4 revision will add `.gitattributes` with LF rules, regenerate
-the manifest and protocol hashes from LF bytes, update
-`experiments/kaggle/sft_v3/run_sft_kernel.py`, and create a new tag. Until then, r3 is not
-usable for a Linux training run.
+Do not bypass the hash check. If a checkout produces a different hash, the source of the
+difference is line endings or a modified file, not a valid reason to relax the gate.
 
 ---
 
@@ -129,21 +132,16 @@ Expected properties:
 - `MY2021_001` is corrected from **169** to **169.5**.
 - Primary analysis uses all 200 rows; the unique-prompt sensitivity analysis is secondary.
 
-Current CRLF working-tree hash:
-
-```text
-95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED
-```
-
-LF-normalized hash (r4 target):
+Current LF hash:
 
 ```text
 F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
 ```
 
-The old clean benchmark hash (`8369BD8…`) and the old Kaggle manifest hash (`575B…`) do not
-match. That mismatch is part of the audit trail; do not treat the old run as reproducible
-against the current file.
+The old clean benchmark was `8369BD8…` when checked out with CRLF. Its LF bytes are
+`575B247…`, which is also the old Kaggle manifest hash. The old mismatch was line endings,
+not a different benchmark. Do not treat the old run as reproducible against the current file
+without accounting for that difference.
 
 ---
 
@@ -168,7 +166,7 @@ The tests do not download the base model and do not prove a model result.
 
 ---
 
-## 6. SFT (once r4 exists)
+## 6. SFT (r4 checkout)
 
 ```bash
 python training/sft_train.py \
@@ -197,12 +195,11 @@ If either check fails, the adapter is not eligible for evaluation.
 python eval/robust_eval.py \
   --input data/held_out_eval_200_v2.jsonl \
   --adapter checkpoints/sft_v3_adapter \
-  --expected-sha256 95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED \
+  --expected-sha256 F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707 \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The `--expected-sha256` value above is the current CRLF working-tree hash. It must be replaced
-with the LF-normalized hash after r4. The evaluator records:
+The `--expected-sha256` value is the r4 LF hash. The evaluator records:
 
 - full generation text;
 - `strict_correct`, `lenient_correct`, and failure reason;
@@ -251,7 +248,7 @@ A CSV table with no raw traces is not a receipt.
 
 ## 9. Common failure modes
 
-- **CRLF/LF mismatch.** The r3 blocker. Fix with r4, do not bypass.
+- **CRLF/LF mismatch.** Fixed in r4 with `.gitattributes` and LF hashes; do not bypass the check.
 - **Using `apply_chat_template` for SFT.** It can drop the reasoning trace at `</think>`.
 - **Fake EOS strings.** `"<｜end of sentence｜>"` is seven ordinary tokens, not the tokenizer EOS.
 - **Stopping Arm C at `</reg:verify>`.** It removes the answer channel and makes strict

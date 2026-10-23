@@ -36,7 +36,7 @@ cells = [
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
-**Pinned tag:** `sft-v3-20261022-r3`
+**Pinned tag:** `sft-v3-20261023-r4`
 **Base revision:** `ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562`
 **Status:** pre-run kernel. This notebook trains one adapter; it does **not** run the evaluation.
 
@@ -68,7 +68,7 @@ cells = [
 
 If `/kaggle/input/symbolm-v3-sft-bundle/` is mounted, the kernel requires
 `bundle_manifest.json`, checks the archive SHA-256, requires the manifest's tag to
-match `sft-v3-20261022-r3`, and safely extracts it. Otherwise it clones the exact
+match `sft-v3-20261023-r4`, and safely extracts it. Otherwise it clones the exact
 tag from GitHub. A missing tag or missing bundle manifest is a hard failure.
 
 ## Not admissible
@@ -95,7 +95,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 
 REPO_URL = "https://github.com/gyawalisanish0/symboLM.git"
-GIT_TAG = "sft-v3-20261022-r3"
+GIT_TAG = "sft-v3-20261023-r4"
 EXPECTED_BASE_MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 EXPECTED_BASE_REVISION = "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
 EXPECTED_PACKAGES = {
@@ -334,9 +334,9 @@ if manifest_args.get("generation_check") != 2:
 if manifest_args.get("strict_generation_check") is not True:
     raise RuntimeError("run_manifest did not enforce the strict generation gate")
 
-if receipt.get("data", {}).get("train_sha256") != "5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E":
+if receipt.get("data", {}).get("train_sha256") != "BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC":
     raise RuntimeError("Receipt train hash mismatch")
-if receipt.get("data", {}).get("val_sha256") != "EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3":
+if receipt.get("data", {}).get("val_sha256") != "3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD":
     raise RuntimeError("Receipt validation hash mismatch")
 if run_manifest.get("train_summary", {}).get("kinds") != {"reasoning": 3780, "bypass": 360}:
     raise RuntimeError(f"Unexpected train kinds: {run_manifest.get('train_summary')}")
@@ -431,8 +431,8 @@ for path in sorted(OUTPUT_ROOT.iterdir()):
 The adapter is admissible for the next stage only when all of these are true:
 
 - `KERNEL_RECEIPT.json` has `"status": "completed"` and the exact pinned commit/tag.
-- `data.train_sha256` is `5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E`.
-- `data.val_sha256` is `EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3`.
+- `data.train_sha256` is `BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC`.
+- `data.val_sha256` is `3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD`.
 - The train split is exactly 3,780 reasoning + 360 bypass; validation is 420 + 40.
 - Every generation check has the expected kind, a nonempty answer, `format_valid: true`,
   `terminal_answer: true`, `eos_emitted: true`, and `loop_marker: false`.
@@ -477,5 +477,6 @@ notebook = {
     "nbformat_minor": 5,
 }
 
-OUT.write_text(json.dumps(notebook, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+with open(OUT, "w", encoding="utf-8", newline="\n") as handle:
+    handle.write(json.dumps(notebook, indent=2, ensure_ascii=False) + "\n")
 print(f"[OK] Wrote {OUT}")

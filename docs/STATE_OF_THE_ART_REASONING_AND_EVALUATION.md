@@ -165,8 +165,8 @@ implements a token-level gated router.
 1. **Weights and artifacts:**
    - The old Hugging Face repositories were made private on 2026-10-22. Public links return
      401; nothing was deleted.
-   - No v3 adapter exists yet. The next artifact is the LF-normalized r4 SFT adapter after
-     the provenance fix and package gate.
+   - No v3 adapter exists yet. The r4 provenance fix is applied; the next artifact is the
+     SFT adapter from the `sft-v3-20261023-r4` tag after the package gate.
 2. **Deterministic Evaluation Harness (`eval/robust_eval.py`):**
    - 6 arms (CoT, answer-only, full registers, router-only, Python sandbox, vanilla base).
    - 4 independent budgets (256, 512, 1024, 2048 tokens).

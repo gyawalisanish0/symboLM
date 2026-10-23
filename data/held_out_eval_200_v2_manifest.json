@@ -1,8 +1,9 @@
 {
-  "created_utc": "2026-10-22T07:55:34.354093+00:00",
-  "input": "C:\\Users\\user\\Dev\\symboLM\\data\\held_out_eval_200_clean.jsonl",
-  "input_sha256": "8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B",
-  "output": "C:\\Users\\user\\Dev\\symboLM\\data\\held_out_eval_200_v2.jsonl",
+  "created_utc": "2026-10-23T05:27:47.081830+00:00",
+  "input": "data/held_out_eval_200_clean.jsonl",
+  "input_sha256": "575B247066B65E5B8514990280C534BAA9448014E100ADCFE67D385E43B9AA8E",
+  "output": "data/held_out_eval_200_v2.jsonl",
+  "line_endings": "lf",
   "n_rows": 200,
   "n_unique_prompts": 173,
   "n_duplicate_groups": 20,
@@ -39,5 +40,5 @@
     "2024": 42,
     "2022": 40
   },
-  "output_sha256": "95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED"
+  "output_sha256": "F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707"
 }

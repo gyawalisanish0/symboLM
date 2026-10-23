@@ -5,9 +5,9 @@
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Repository branch:** `research/rescue-v3`  
 **Status date:** 2026-10-23  
-**Current phase:** documentation audit complete; **r3 provenance mismatch still blocks SFT**;
-**no v3 adapter and no v3 GPU result**.  
-**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261022-r3`); the last Kaggle run is `ERROR`, not queued.  
+**Current phase:** documentation audit and **r4 LF provenance fix complete**; **SFT still
+must be rerun**; **no v3 adapter and no v3 GPU result**.  
+**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r4`); the last Kaggle run (r3) is `ERROR`, not queued. No r4 training run has been launched.  
 **Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links return 401; nothing was deleted.
 
 ---
@@ -124,6 +124,9 @@ The audit found five independent failures, each of which could produce a false p
   runtime packages, rejects a dirty or unverified git checkout, and has no branch
   fallback. The tokenizer extension is rebuilt if its recorded base revision does
   not match.
+- The r4 provenance revision adds `.gitattributes` LF rules for the canonical data,
+  normalizes the working files to LF, and records LF byte hashes in the SFT and
+  benchmark manifests, the preregistration, the evaluator, and the Kaggle kernel.
 - The SFT artifact initializes both the input and output rows for genuinely added
   symbols, saves both `embed_tokens` and `lm_head` through `modules_to_save`, and keeps
   Trainer checkpoints separate from the final adapter. The package gate reads the
@@ -150,17 +153,16 @@ The audit found five independent failures, each of which could produce a false p
   separate thinking-token/answer-token split; no document may call total tokens
   “thinking tokens.”
 - The benchmark is `data/held_out_eval_200_v2.jsonl` (SHA-256
-  `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED` in the current
-  Windows/CRLF manifest; the LF-normalized hash is part of the r4 provenance fix).
+  `F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707`; r4 LF bytes).
 - One documented correction: `MY2021_001` is **169.5**, not 169.
 - The v2 file also flags 20 duplicate-prompt groups (27 redundant rows); primary
   analysis is n=200, with a unique-prompt sensitivity analysis.
 
-## 5. Current status and the provenance blocker
+## 5. Current status and the r4 provenance fix
 
 The pipeline is documented and locally testable, but the v3 SFT adapter does **not**
-exist. The last Kaggle SFT kernel is `ERROR`, not queued. The failure was a hash
-preflight mismatch:
+exist. The last Kaggle SFT kernel (r3) is `ERROR`, not queued. Its preflight failure was
+a line-ending mismatch:
 
 ```text
 Train hash mismatch:
@@ -168,15 +170,23 @@ got      BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC
 expected 5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E
 ```
 
-The mismatch is line endings, not data content. The working-tree files are CRLF and
-match the manifest; the committed blobs are LF and hash differently. The parser sees the
-same 4,140 rows. Validation has the same issue (`EB854A…` vs `3FCFCC…`). The fix is a new
-tag (`r4`) with `.gitattributes` enforcing LF, regenerated LF hashes in the manifest and
-preregistration, and updated kernel constants. The hash check must not be bypassed.
+The committed r3 data blobs were already LF, but the r3 tag did not force LF checkout.
+Windows `core.autocrlf=true` materialized CRLF, the manifest recorded CRLF hashes, and
+the Linux kernel hashed the LF files. The r4 tag (`sft-v3-20261023-r4`) fixes this with
+`.gitattributes`, LF-normalized working files, regenerated manifests, and updated hash
+constants. The rows, split, and targets are unchanged. No hash check was bypassed.
 
-**Until that fix lands and a clean adapter passes its package gate, there is no v3
-result.** The 4,800-cell evaluation also requires separate explicit approval; it has not
-been launched.
+The canonical r4 hashes are:
+
+```text
+source      724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7
+train       BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC
+validation  3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
+benchmark   F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
+```
+
+**Until a clean r4 adapter passes its package gate, there is no v3 result.** The 4,800-cell
+evaluation also requires separate explicit approval; it has not been launched.
 
 ## 6. The next experiment
 
@@ -219,12 +229,12 @@ python training/sft_train.py \
 python eval/robust_eval.py \
   --input data/held_out_eval_200_v2.jsonl \
   --adapter checkpoints/sft_v3_adapter \
-  --expected-sha256 95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED \
+  --expected-sha256 F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707 \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The commands above are the historical r3 form. The r4 provenance fix will update the
-expected hashes; do not run them against a mismatched checkout.
+The commands above use the r4 LF hashes. They still require a clean adapter; do not run
+the evaluation before SFT and the package gate pass.
 
 ## 8. Repository map
 

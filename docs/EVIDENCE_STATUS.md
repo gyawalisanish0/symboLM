@@ -2,8 +2,8 @@
 
 **As of:** 2026-10-23  
 **Branch:** `research/rescue-v3`  
-**Current phase:** documentation audit complete; **r3 provenance mismatch still blocks SFT**;
-**no v3 SFT adapter and no v3 GPU result**  
+**Current phase:** documentation audit and **r4 LF provenance fix complete**; **no r4 SFT run
+yet**; **no v3 SFT adapter and no v3 GPU result**  
 **Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
@@ -108,23 +108,23 @@ or that the partial numbers are an endpoint result.
 
 | Artifact | Hash / value |
 |---|---|
-| Canonical SFT source | `3F7DC86D5C6A0BF47F1C5E4E90F8F317727319BBE58C7F54C5C416D39EC7BD69` (CRLF working tree) |
-| Canonical train | `5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E` (CRLF working tree) |
-| Canonical validation | `EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3` (CRLF working tree) |
-| Held-out v2 benchmark | `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED` (CRLF working tree) |
-| Old clean benchmark | `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B` |
-| Old Kaggle manifest | reported as `575B…`; not equal to the old preregistered hash |
+| Canonical SFT source | `724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7` |
+| Canonical train | `BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC` |
+| Canonical validation | `3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD` |
+| Held-out v2 benchmark | `F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707` |
+| Line endings | LF, enforced by `.gitattributes` |
+| Old clean benchmark, CRLF-era | `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B` |
+| Old clean benchmark, LF (old Kaggle manifest) | `575B247066B65E5B8514990280C534BAA9448014E100ADCFE67D385E43B9AA8E` |
 | Ground-truth correction | `MY2021_001 = 169.5` (original 169 was wrong) |
 | SFT targets | 4,600 total: 4,200 reasoning + 400 bypass |
 | SFT split | 4,140 train / 460 validation |
 | Benchmark rows | 200 rows, 173 unique prompts, 20 duplicate groups (27 redundant rows) |
 
-**Provenance warning:** the hashes above are computed over Windows CRLF files. The committed
-git blobs are LF and hash differently (for example, train `BB50D9…`, validation `3FCFCC…`).
-The Kaggle Linux kernel therefore fails its hash preflight. The r3 tag is not usable for a
-Linux training run as-is. The fix is a new tagged revision (`r4`) with `.gitattributes`
-enforcing LF, regenerated manifest and preregistration hashes, and updated kernel constants.
-Do not bypass the check.
+**Provenance note.** The r3 data blobs were LF, but the r3 tag did not force LF checkout.
+Windows materialized CRLF and the manifest recorded CRLF hashes, so the Linux kernel failed
+preflight. The r4 tag (`sft-v3-20261023-r4`) adds `.gitattributes` LF rules, normalizes the
+working files, and records the LF hashes above. The rows and targets are unchanged. Do not
+bypass the check.
 
 ---
 
@@ -155,7 +155,7 @@ whitepaper are explicitly labeled historical.
 
 1. ✅ Freeze and commit `PREREG_VALUATION_V2.md` (tag `sft-v3-20261022-r3`; r2 is superseded).
 2. ✅ Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/` with the r3 provenance and artifact fixes.
-3. ⛔ **Blocked:** the r3 hash mismatch. Create the LF-normalized r4 tag and regenerate hashes.
+3. ✅ Apply the r4 LF provenance fix and create tag `sft-v3-20261023-r4`.
 4. ⛔ Run fresh SFT on the canonical 4,600-target split (**not launched**).
 5. ⛔ Pass the mixed-kind post-training generation check (expected route + declared answer + real EOS).
 6. ⛔ Run the 100 × 4 × 6 diagnostic.
@@ -165,8 +165,9 @@ whitepaper are explicitly labeled historical.
 
 Until step 7, the correct public statement is:
 
-> “The old claims are retracted. The documentation audit and preregistration are ready. The
-> pipeline still needs the r4 provenance fix, and the v3 experiment has not been run.”
+> “The old claims are retracted. The documentation audit, preregistration, and r4 provenance
+> fix are complete. The v3 SFT adapter has not been trained, and the v3 experiment has not
+> been run.”
 
 ---
 
@@ -190,17 +191,13 @@ print(len(rows), len({r["prompt"] for r in rows}))
 PY
 ```
 
-Expected v2 hash in the current CRLF working tree:
-
-```text
-95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED
-```
-
-Expected LF-normalized hash (r4 target):
+Expected v2 LF hash:
 
 ```text
 F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
 ```
+
+The old CRLF-era hash was `95E2B237…`. The difference is line endings, not rows.
 
 ---
 
