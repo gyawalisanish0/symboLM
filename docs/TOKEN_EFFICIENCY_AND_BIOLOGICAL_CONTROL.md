@@ -162,14 +162,18 @@ Until then, the training contribution is a carefully specified efficiency-orient
 
 | Item | Status | Meaning |
 |---|---|---|
-| v3 SFT adapter | **Does not exist** | The last Kaggle kernel `sanishgyawali/symbolm-v3-sft-rescue` is `ERROR`; it failed the r3 train-hash preflight. |
+| v3 SFT adapter | **Does not exist** | The r4 preflight passed, but training stopped before LoRA injection on Kaggle's `torchao 0.10.0`; r5 removes it. No run has completed. |
 | r3 provenance | **Superseded** | The r3 hashes were computed over Windows CRLF files. The committed blobs are LF, so a Linux/Kaggle checkout hashed differently. |
-| r4 provenance | **Fixed** | `.gitattributes` forces LF; the canonical manifests, preregistration, evaluator, and kernel constants record the LF byte hashes. The data rows and split are unchanged. |
+| r4 provenance | **Validated** | `.gitattributes` forces LF; the canonical manifests, preregistration, evaluator, and kernel constants record the LF byte hashes. The Kaggle preflight passed; the data rows and split are unchanged. |
+| r5 package fix | **Prepared** | The unused `torchao` is removed before LoRA injection and the package gate requires `"torchao": "absent"`. |
 | Full 4,800-cell run | **Not started** | Requires a clean adapter and separate explicit approval. |
 | v3 token-efficiency result | **None** | No v3 result exists. |
 
 The r3 hash mismatch was a packaging/provenance defect, not a scientific result. It was fixed
-in r4 with a new tag and regenerated hashes from LF bytes. Do not bypass the check.
+in r4 with a new tag and regenerated hashes from LF bytes; r4 then passed its Kaggle
+preflight. The subsequent stop at PEFT LoRA injection was a separate runtime-packaging
+failure (`torchao 0.10.0`), not a data or scientific result. The r5 fix removes the unused
+package. Do not bypass either gate.
 
 ### 5.2 Completed or historical evidence
 

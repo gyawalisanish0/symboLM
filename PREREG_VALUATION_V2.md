@@ -330,11 +330,13 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261023-r4`; no r4 training run had been launched when this revision was frozen.
+The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261023-r5`; no training run has completed. The r4 revision passed the full Kaggle preflight, but its training subprocess stopped before an optimizer step on a runtime package conflict; see the r4/r5 note below.
 
 **r3 remediation note (2026-10-22):** the hypotheses, endpoints, budgets, arms, and analysis plan are unchanged. The r3 tag corrects provenance and artifact handling only: exact tag/commit identity with no branch fallback, a pinned base revision, exact runtime pins, input-and-output-row initialization for genuinely added tokens, separate Trainer/adapter directories, and a mixed-kind strict generation gate. The r2 tag is retained as a superseded historical checkpoint.
 
 **r4 provenance note (2026-10-23, applied):** r3 is frozen but was not usable for a Linux training run. Its declared hashes were computed over Windows CRLF files, while the committed blobs are LF. The Kaggle kernel failed preflight on `Train hash mismatch`. The r4 revision (a) adds `.gitattributes` with LF rules, (b) normalizes the canonical working files and regenerates `data/research_sft/manifest.json` and the hashes in this protocol from LF bytes, (c) updates the Kaggle kernel and evaluator constants, and (d) creates the annotated tag `sft-v3-20261023-r4`. This is a provenance-only change: no hypothesis, endpoint, budget, arm, prompt, or decision rule changes. If the full 4,800-cell run is not completed because of Kaggle quota or infrastructure, the result is reported as incomplete; the missing cells are not treated as a negative result.
+
+**r4 run outcome and r5 package note (2026-10-23, applied):** the r4 Kaggle preflight passed the tag/commit, canonical hashes, all 4,140 training rows, all 460 validation rows, tokenizer, label-mask, terminal-answer, and EOS checks. The training subprocess then failed before an optimizer step at PEFT LoRA injection: Kaggle supplied `torchao 0.10.0`, while PEFT 0.21.2 rejects `torchao < 0.16.0`. This is a packaging/runtime failure, not a data failure and not a negative scientific result. The r5 revision removes the unused `torchao` before LoRA injection, records `"torchao": "absent"` in the run manifest, and requires that state in the package gate. No hypothesis, endpoint, budget, arm, prompt, data row, or decision rule changes.
 
 ---
 

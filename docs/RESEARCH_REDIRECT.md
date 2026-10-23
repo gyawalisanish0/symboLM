@@ -314,7 +314,9 @@ legitimate scope.
 - [x] r3: separate Trainer checkpoints from the final adapter and verify actual tensors.
 - [x] Correct the repository-wide framing around token efficiency and the biology analogy.
 - [x] Fix the CRLF/LF provenance mismatch and create tag `sft-v3-20261023-r4`.
-- [ ] Run fresh SFT on Kaggle (r4 prepared; last r3 kernel is `ERROR`).
+- [x] Validate the r4 preflight on Kaggle; diagnose the `torchao` packaging stop before LoRA injection.
+- [x] Create the r5 package fix (`sft-v3-20261023-r5`) and require `"torchao": "absent"`.
+- [ ] Complete fresh SFT on r5 (no training run has completed).
 - [ ] Pass the mixed-kind generation check and package gate.
 - [ ] Run the 100 × 4 diagnostic.
 - [ ] Run the full 200 × 4 × 6 experiment (requires separate explicit approval).

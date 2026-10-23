@@ -5,16 +5,18 @@
 **Not a result:** this kernel does not evaluate format value, routing value, or benchmark accuracy.
 
 > [!NOTE]
-> **Current status (2026-10-23): the r4 provenance fix is applied; no r4 training run has
-> been launched.** The last r3 kernel run is `ERROR`: it failed the train-hash preflight
-> because the r3 manifest hashes were computed over Windows CRLF files while the committed
-> blobs are LF. The data rows are identical; the bytes were not. The r4 tag
-> (`sft-v3-20261023-r4`) adds `.gitattributes` LF rules, regenerates the manifest/protocol
-> hashes from LF bytes, and updates the kernel constants. Do not bypass the preflight. The
-> training run is also efficiency-oriented — compact canonical traces, bypass examples,
-> terminal answers, and real EOS — but this kernel is not evidence that the training improves
-> tokens per correct answer. Token efficiency is evaluated only after a clean adapter passes
-> the package gate.
+> **Current status (2026-10-23): r5 is the current package-fix revision; no training run has
+> completed.** The r4 tag (`sft-v3-20261023-r4`) passed the full Kaggle preflight: tag/commit,
+> canonical hashes, counts, all 4,140 training rows, all 460 validation rows, tokenizer,
+> label masks, terminal answers, and EOS. Training then stopped before an optimizer step:
+> Kaggle supplied `torchao 0.10.0`, while PEFT 0.21.2 requires `torchao >= 0.16.0` for LoRA
+> dispatch. That is a packaging failure, not a data or scientific result. The r5 tag
+> (`sft-v3-20261023-r5`) removes the unused `torchao` before LoRA injection and the package
+> gate requires `"torchao": "absent"` in the run manifest. The r3 kernel remains `ERROR` on
+> the old CRLF/LF preflight. Do not bypass any preflight. The training run is
+> efficiency-oriented — compact canonical traces, bypass examples, terminal answers, and
+> real EOS — but this kernel is not evidence that training improves tokens per correct
+> answer. Token efficiency is evaluated only after a clean adapter passes the package gate.
 
 ## Files
 
@@ -29,6 +31,11 @@
 | `upload/` | Generated bundle output; ignored by git |
 
 ## What the kernel does
+
+Before LoRA injection it removes the Kaggle image's unused `torchao` package. PEFT 0.21.2
+raises if it finds `torchao < 0.16.0`, even though this run does not use torchao; r5 stops
+the failure at the package stage instead of changing the pinned PyTorch stack. The run
+manifest records `"torchao": "absent"` and the package gate requires that value.
 
 1. Verifies the pinned base model/revision and the canonical SFT train/validation
    hashes against `data/research_sft/manifest.json`.
@@ -68,12 +75,14 @@ The notebook prefers the optional bundle dataset:
 If it is absent, it clones the exact pinned tag:
 
 ```text
-sft-v3-20261023-r4
+sft-v3-20261023-r5
 ```
 
-> **r4 note:** this tag enforces LF canonical data. The previous r3 tag is frozen but is not
-> usable for a Linux training run because of the CRLF/LF hash mismatch. There is no branch
-> fallback; do not point a training run at r3.
+> **r4/r5 note:** r4 enforces LF canonical data; its Kaggle preflight passed. r5 keeps the
+> same data and hashes but removes the image-provided `torchao 0.10.0` before LoRA
+> injection. The previous r3 tag is frozen but is not usable for a Linux training run
+> because of the CRLF/LF hash mismatch. There is no branch fallback; do not point a training
+> run at r3.
 
 There is **no branch fallback**. A missing tag, a tag/commit mismatch, a missing bundle
 manifest, or a bundle hash mismatch is a hard failure. Every training command requires
@@ -109,7 +118,7 @@ python experiments/kaggle/sft_v3/run_sft_kernel.py \
   --mode check \
   --base_revision ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562 \
   --expected_git_head "$(git rev-parse HEAD)" \
-  --expected_git_tag sft-v3-20261023-r4
+  --expected_git_tag sft-v3-20261023-r5
 ```
 
 The last command must print `Dataset smoke test passed` and write
@@ -154,6 +163,7 @@ Stop and fix the pipeline if any of these occurs:
   safetensors keys lack either tensor;
 - the adapter directory or tarball contains a `checkpoint-*` entry;
 - the runtime package versions differ from `requirements.lock.txt`;
+- `torchao` is present, or `run_manifest.json` does not record `"torchao": "absent"`;
 - the adapter files or tarball are missing.
 
 A failed generation check means the adapter is **not** admissible, even if the training

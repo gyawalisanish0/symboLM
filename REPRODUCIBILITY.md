@@ -3,9 +3,12 @@
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
 **Status date:** 2026-10-23  
-**Current status:** the v3 adapter does not exist. The r3 Kaggle SFT kernel is `ERROR` on a
-CRLF/LF hash preflight; the r4 provenance fix is applied (tag `sft-v3-20261023-r4`), but no
-r4 training run has been launched. No v3 benchmark result exists.
+**Current status:** the v3 adapter does not exist. The r4 provenance fix is validated: its
+Kaggle preflight passed the hashes and all 4,600 rows. The r4 training run then stopped
+before an optimizer step because Kaggle supplied `torchao 0.10.0`, below PEFT 0.21.2's
+`0.16.0` minimum for LoRA dispatch. This is a packaging failure, not a data or scientific
+result. The r5 package-fix revision (tag `sft-v3-20261023-r5`) removes the unused package;
+no r5 training run has completed. No v3 benchmark result exists.
 
 This guide describes how to reproduce the **pipeline** and the **audit**, not a result that
 has not been produced. Every reported number must have a command, a hash, and a receipt.
@@ -22,7 +25,7 @@ has not been produced. Every reported number must have a command, a hash, and a 
 | Strict scorer | `python -m eval.strict_scorer` / unit tests | Works |
 | SmolLM2 pilot token/energy table | See [`VALUATION.md`](VALUATION.md) | Tier B historical measurement |
 | Old six-arm run | See audit docs | **Incomplete**; not reproducible as a completed result |
-| v3 SFT run | `experiments/kaggle/sft_v3/` | **Not run**; r4 tag prepared, last r3 kernel `ERROR` |
+| v3 SFT run | `experiments/kaggle/sft_v3/` | **Incomplete**; r4 preflight passed, then packaging stopped at LoRA injection (`torchao`); r5 fix prepared |
 | Full 4,800-cell v3 run | `eval/robust_eval.py` | **Not run**; requires a clean adapter and approval |
 
 ---
@@ -44,7 +47,10 @@ safetensors==0.8.0
 ```
 
 PyTorch is supplied by the Kaggle image; its exact version is recorded in
-`run_manifest.json` rather than replaced in the lock file.
+`run_manifest.json` rather than replaced in the lock file. `torchao` is intentionally
+absent: PEFT 0.21.2 raises during LoRA dispatch if it finds `torchao < 0.16.0`, and this
+run does not use torchao. The notebook removes the image-provided copy, and the package
+gate requires `"torchao": "absent"` in the run manifest.
 
 Base model pin:
 
@@ -117,6 +123,21 @@ validation  3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
 Do not bypass the hash check. If a checkout produces a different hash, the source of the
 difference is line endings or a modified file, not a valid reason to relax the gate.
 
+### r5 package fix
+
+The r4 Kaggle preflight passed the full data and tokenizer gate, but training stopped
+before optimization with:
+
+```text
+ImportError: Found an incompatible version of torchao. Found version 0.10.0,
+but only versions above 0.16.0 are supported
+```
+
+PEFT 0.21.2 probes for torchao while building LoRA layers, even though this run never
+uses torchao. The r5 revision removes the Kaggle-provided `torchao` before LoRA
+injection and requires the run manifest to record `"torchao": "absent"`. It does not
+replace PyTorch and does not change any data row or training hyperparameter.
+
 ---
 
 ## 4. Validate the benchmark
@@ -166,7 +187,7 @@ The tests do not download the base model and do not prove a model result.
 
 ---
 
-## 6. SFT (r4 checkout)
+## 6. SFT (r5 checkout)
 
 ```bash
 python training/sft_train.py \
@@ -199,7 +220,7 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The `--expected-sha256` value is the r4 LF hash. The evaluator records:
+The `--expected-sha256` value is the canonical LF hash. The evaluator records:
 
 - full generation text;
 - `strict_correct`, `lenient_correct`, and failure reason;
@@ -249,6 +270,8 @@ A CSV table with no raw traces is not a receipt.
 ## 9. Common failure modes
 
 - **CRLF/LF mismatch.** Fixed in r4 with `.gitattributes` and LF hashes; do not bypass the check.
+- **Old `torchao` in the Kaggle image.** PEFT 0.21.2 raises on `torchao < 0.16.0` during LoRA
+  dispatch. The r5 notebook removes the unused package; the package gate requires it absent.
 - **Using `apply_chat_template` for SFT.** It can drop the reasoning trace at `</think>`.
 - **Fake EOS strings.** `"<｜end of sentence｜>"` is seven ordinary tokens, not the tokenizer EOS.
 - **Stopping Arm C at `</reg:verify>`.** It removes the answer channel and makes strict

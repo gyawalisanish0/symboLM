@@ -36,7 +36,7 @@ cells = [
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
-**Pinned tag:** `sft-v3-20261023-r4`
+**Pinned tag:** `sft-v3-20261023-r5`
 **Base revision:** `ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562`
 **Status:** pre-run kernel. This notebook trains one adapter; it does **not** run the evaluation.
 
@@ -61,6 +61,9 @@ cells = [
   each emit a nonempty declared answer, the expected closure, valid register structure,
   and the real EOS token, with no loop marker.
 - Pins the dependency versions used for the run and records them in the receipt.
+- Removes Kaggle's unused `torchao` before LoRA injection. PEFT 0.21.2 raises on
+  `torchao < 0.16.0`; this run does not use torchao, and the package gate requires it
+  to be absent.
 - Writes `KERNEL_RECEIPT.json`, `run_manifest.json`, and
   `symbolm_v3_sft_adapter.tar.gz` to `/kaggle/working/symbolm_v3_sft/`.
 
@@ -68,7 +71,7 @@ cells = [
 
 If `/kaggle/input/symbolm-v3-sft-bundle/` is mounted, the kernel requires
 `bundle_manifest.json`, checks the archive SHA-256, requires the manifest's tag to
-match `sft-v3-20261023-r4`, and safely extracts it. Otherwise it clones the exact
+match `sft-v3-20261023-r5`, and safely extracts it. Otherwise it clones the exact
 tag from GitHub. A missing tag or missing bundle manifest is a hard failure.
 
 ## Not admissible
@@ -95,7 +98,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 
 REPO_URL = "https://github.com/gyawalisanish0/symboLM.git"
-GIT_TAG = "sft-v3-20261023-r4"
+GIT_TAG = "sft-v3-20261023-r5"
 EXPECTED_BASE_MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 EXPECTED_BASE_REVISION = "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
 EXPECTED_PACKAGES = {
@@ -108,6 +111,10 @@ EXPECTED_PACKAGES = {
     "tokenizers": "0.23.3",
     "safetensors": "0.8.0",
 }
+# PEFT 0.21.2 probes for torchao while building LoRA layers and raises if it
+# finds a version below 0.16.0. This run does not use torchao, and replacing the
+# Kaggle image's torch stack is riskier than removing the unused package.
+FORBIDDEN_PACKAGES = ("torchao",)
 REPO_DIR = Path("/kaggle/working/symboLM")
 OUTPUT_ROOT = Path("/kaggle/working/symbolm_v3_sft")
 BUNDLE_TAR = Path("/kaggle/input/symbolm-v3-sft-bundle/repo_bundle.tar.gz")
@@ -153,6 +160,31 @@ for name, expected in EXPECTED_PACKAGES.items():
     print(f"{name:16s}: {actual}")
     if actual != expected:
         raise RuntimeError(f"Pinned package mismatch for {name}: {actual} != {expected}")
+
+# PEFT 0.21.2 raises during LoRA dispatch if it finds torchao < 0.16.0, even
+# though this run never uses torchao. Kaggle supplies 0.10.0. Remove the
+# optional package instead of changing the pinned torch/CUDA stack.
+for name in FORBIDDEN_PACKAGES:
+    try:
+        installed = metadata.version(name)
+    except metadata.PackageNotFoundError:
+        installed = None
+    if installed is not None:
+        print(f"Removing unused {name} {installed} before LoRA injection ...")
+        subprocess.run(
+            [sys.executable, "-m", "pip", "uninstall", "-y", "-q", name],
+            check=True,
+        )
+    else:
+        print(f"{name:16s}: absent")
+for name in FORBIDDEN_PACKAGES:
+    try:
+        remaining = metadata.version(name)
+    except metadata.PackageNotFoundError:
+        remaining = None
+    if remaining is not None:
+        raise RuntimeError(f"Forbidden package {name} is still installed: {remaining}")
+    print(f"{name:16s}: absent (verified)")
 """
     ),
     code(
@@ -347,6 +379,12 @@ for name, expected in EXPECTED_PACKAGES.items():
     actual = (run_manifest.get("packages") or {}).get(name)
     if actual != expected:
         raise RuntimeError(f"Package {name} in manifest is {actual!r}, expected {expected!r}")
+for name in FORBIDDEN_PACKAGES:
+    actual = (run_manifest.get("packages") or {}).get(name)
+    if actual != "absent":
+        raise RuntimeError(
+            f"Forbidden package {name} in manifest is {actual!r}, expected 'absent'"
+        )
 
 if run_manifest.get("tokenizer", {}).get("vocab_size") != 151712:
     raise RuntimeError("Tokenizer vocabulary is not the expected 151,712 rows")
@@ -441,6 +479,7 @@ The adapter is admissible for the next stage only when all of these are true:
 - The adapter directory and tarball contain no Trainer checkpoint.
 - `symbolm_v3_sft_adapter.tar.gz` exists and its SHA-256 is in the receipt.
 - The recorded base revision is `ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562`.
+- `torchao` is absent from the runtime package record; it is not used by this run.
 
 If any gate fails, do not run the 4,800-cell evaluation. Fix the pipeline or report the
 run as a pipeline failure.

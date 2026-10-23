@@ -24,9 +24,12 @@ The previous v2.1 public headline — 37.0% overall accuracy and “Format Value
 is **retracted**. That six-arm run stopped at 2,119 of 4,800 cells because the free Kaggle
 quota/infrastructure limit ended the session; it is an incomplete run, not a completed
 result and not a negative result. Its Arm C traces never emitted `<ans>`, and its scoring
-path is not the v3 strict scorer. No v3 adapter exists yet. The r3 SFT kernel is `ERROR`
-because of a CRLF/LF hash mismatch; the r4 provenance fix (tag `sft-v3-20261023-r4`) is
-applied, but SFT still must be rerun before any training result.
+path is not the v3 strict scorer. No v3 adapter exists yet. The r3 SFT kernel failed on a
+CRLF/LF hash mismatch; the r4 provenance fix (tag `sft-v3-20261023-r4`) passed the full
+Kaggle preflight, but training stopped before an optimizer step because Kaggle supplied
+`torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`. That is a packaging failure,
+not a data or scientific result. The r5 fix (tag `sft-v3-20261023-r5`) removes the unused
+package; SFT still must complete before any training result.
 
 ---
 
@@ -204,7 +207,9 @@ The r4 revision (`sft-v3-20261023-r4`) adds `.gitattributes` LF rules, normalize
 files, regenerates the manifest/preregistration hashes from LF bytes, and updates the kernel
 constants. The rows and split are unchanged. No hash check was bypassed.
 
-The remaining blocker is scientific and operational: **no r4 SFT adapter exists yet**. No
+The remaining blocker is scientific and operational: **no r5 SFT adapter exists yet**. The
+r4 preflight passed, but the run stopped at LoRA injection on the Kaggle `torchao` package
+conflict; r5 removes that unused package and makes the package gate require it absent. No
 4,800-cell evaluation has been launched. It requires a clean adapter that passes the package
 gate and separate explicit approval.
 
@@ -224,10 +229,11 @@ The thesis is falsified for practical purposes if:
 The next steps are:
 
 1. ✅ Apply the CRLF/LF provenance fix and create `sft-v3-20261023-r4`.
-2. Run fresh SFT and pass the mixed-kind generation check.
-3. Run the 100 × 4 diagnostic (not the primary result).
-4. Run the full 200 × 4 experiment only with separate explicit approval.
-5. Report strict accuracy, tokens per correct, J/correct, format validity, and the
+2. ✅ Validate the r4 preflight, diagnose the `torchao` packaging stop, and create the r5 fix.
+3. Run fresh SFT on r5 and pass the mixed-kind generation check.
+4. Run the 100 × 4 diagnostic (not the primary result).
+5. Run the full 200 × 4 experiment only with separate explicit approval.
+6. Report strict accuracy, tokens per correct, J/correct, format validity, and the
    preregistered decision — including a negative result if that is what the data show.
 
 ---

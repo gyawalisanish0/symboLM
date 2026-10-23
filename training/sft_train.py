@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import gc
 import hashlib
+import importlib.metadata
 import json
 import os
 import shutil
@@ -121,8 +122,9 @@ def git_head() -> str:
 
 def package_version(name: str) -> str:
     try:
-        import importlib.metadata
         return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return "absent"
     except Exception:
         return "unknown"
 
@@ -548,6 +550,9 @@ def main():
             "huggingface_hub": package_version("huggingface_hub"),
             "tokenizers": package_version("tokenizers"),
             "safetensors": package_version("safetensors"),
+            # PEFT 0.21.2 rejects torchao < 0.16.0 during LoRA dispatch. The
+            # canonical Kaggle kernel removes this unused optional package.
+            "torchao": package_version("torchao"),
         },
         "adapter_artifact": {
             "type": "peft_lora",

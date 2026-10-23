@@ -3,7 +3,8 @@
 **Audit date:** 2026-10-23  
 **Scope:** first-party `.md` files, excluding `.venv/`, `vendor/`, `scratch/`,
 archived Kaggle output duplicates, and generated output directories.  
-**Files audited:** 65
+**Files audited:** 65<br>
+**Relative-link pass:** zero broken links in the 65-file scope (archived Kaggle output duplicates excluded)
 
 Some audit targets are gitignored in this working tree: the private grant documents under
 `research/` and the `checkpoints/` model cards. They were still audited and banner-marked on
@@ -34,8 +35,11 @@ repo leads with token efficiency of correct reasoning and treats strict accuracy
 non-inferiority gate. The biological language is a design analogy, not a mechanism
 claim. The old six-arm run is incomplete (2,119/4,800; Kaggle quota/infrastructure),
 not a completed or negative result. No v3 adapter exists. The r3 SFT kernel is `ERROR`
-on a CRLF/LF hash mismatch; the r4 LF provenance fix is applied (tag
-`sft-v3-20261023-r4`), but SFT has not been rerun. The 4,800-cell evaluation has not been
+on a CRLF/LF hash mismatch. The r4 LF provenance fix (tag `sft-v3-20261023-r4`) passed
+the full Kaggle preflight, but training stopped before an optimizer step because Kaggle
+supplied `torchao 0.10.0`, below PEFT 0.21.2's `0.16.0` minimum. That is a packaging
+failure, not a data or scientific result. The r5 fix (tag `sft-v3-20261023-r5`) removes
+the unused package; no r5 run has completed. The 4,800-cell evaluation has not been
 launched.
 
 ## File-by-file audit
@@ -45,29 +49,29 @@ launched.
 | `AUDIT.md` | Historical / retracted | Historical banner added; retains old 50.5% audit row as historical finding. |
 | `EVAL_V2_200_REPORT.md` | Historical / retracted | Historical duplicate; banner added. |
 | `EVIDENCE_TRUTH_TABLE.md` | Historical / retracted | Token-efficiency/biology banner added; rows 16 and 20 corrected to incomplete/retracted. |
-| `GEMINI.md` | Canonical current | Updated session directive; SESSION_CONTEXT is now historical; current v3 subset stated. |
+| `GEMINI.md` | Canonical current | Updated session directive; SESSION_CONTEXT is historical; records the r4 preflight pass, the `torchao` packaging stop, and the r5 fix. |
 | `OPTIMIZATIONS_RESEARCH.md` | Design / projection | Banner added: engineering options/projections, not measured v3 results. |
 | `PREREG_VALUATION.md` | Historical / retracted | Already historical/superseded. |
-| `PREREG_VALUATION_V2.md` | Canonical current | Added a dated framing amendment, token-efficiency reporting, and the applied r4 provenance note. Hypotheses/endpoints unchanged. |
-| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, and the r4 LF provenance fix; SFT and the full run are still pending. |
-| `REPRODUCIBILITY.md` | Canonical current | Rewritten for v3, strict scoring, the r4 LF provenance fix, and token-efficiency reporting. |
+| `PREREG_VALUATION_V2.md` | Canonical current | Added dated framing, token-efficiency, r4 provenance, and r4-outcome/r5 package notes. Hypotheses/endpoints unchanged. |
+| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, the r4 provenance fix, and the r5 package fix; SFT and the full run are pending. |
+| `REPRODUCIBILITY.md` | Canonical current | Rewritten for v3, strict scoring, the r4 LF provenance fix, the r5 `torchao` fix, and token-efficiency reporting. |
 | `RESULTS_SUMMARY.md` | Historical / retracted | Framing banner and tokens-per-correct table added; incomplete-run language corrected. |
 | `SESSION_CONTEXT.md` | Historical / retracted | Correction note added: 20x invalid, 224x projection, old 100%/confirmed claims historical. |
 | `VALUATION.md` | Tier B / audit receipt | Added tokens-per-correct table, C-vs-D null result, and biology caveat. Tier B only. |
-| `WHITEPAPER.md` | Canonical current | Replaced the historical v2.1 root with a current v3 research note. Old text preserved in docs/ARCHIVE_WHITEPAPER_2.1.md. |
+| `WHITEPAPER.md` | Canonical current | Replaced the historical v2.1 root with a current v3 research note; records the r4 preflight pass, `torchao` packaging stop, and r5 fix. Old text preserved in docs/ARCHIVE_WHITEPAPER_2.1.md. |
 | `checkpoints/symbolm_v2_adapter/README.md` | Historical / retracted | Historical model card; banner added; repository private. |
 | `data/DATASET_CURATION_STRATEGY.md` | Design / projection | 60/20/20 marked historical; v3 4,600 split stated; 100%-immaculate guarantee removed. |
 | `data/held_out_eval_200_v2_audit.md` | Tier B / audit receipt | Retained. Documents 200 rows, 173 unique prompts, 20 duplicate groups, MY2021_001=169.5. |
 | `docs/AI_GRANT_OPEN_SOURCE_APPLICATION.md` | Historical / retracted | Banner and one-line correction; currently-running/definitive-evaluation claims corrected. Do not submit as-is. |
 | `docs/ARCHIVE_README_2.1.md` | Archive / historical ops | Already banner-marked; preserved as historical provenance. |
 | `docs/ARCHIVE_WHITEPAPER_2.1.md` | Archive / historical ops | Already banner-marked; preserved as historical provenance. |
-| `docs/EVIDENCE_STATUS.md` | Canonical current | Rewritten with token-efficiency hierarchy, pilot ledger, incomplete-run language, and provenance warning. |
+| `docs/EVIDENCE_STATUS.md` | Canonical current | Rewritten with token-efficiency hierarchy, pilot ledger, incomplete-run language, and the r4/r5 provenance and package notes. |
 | `docs/HONEST_PITCH_AND_SOCIAL.md` | Historical / retracted | Banner added; currently-running corrected to incomplete; Tier B receipts labeled. |
 | `docs/MARKDOWN_AUDIT.md` | Audit index | This file. Lists every first-party Markdown document and the action taken. |
-| `docs/RESEARCH_REDIRECT.md` | Canonical current | Rewritten with token efficiency primary, biology as analogy, quota-stop language, and decision rules. |
-| `docs/STATE_OF_THE_ART_REASONING_AND_EVALUATION.md` | Canonical methodology | Removed “SymboLM solves” and hardware-receipt claims; reframed as hypotheses; retained evaluation-methods reference. |
+| `docs/RESEARCH_REDIRECT.md` | Canonical current | Rewritten with token efficiency primary, biology as analogy, quota-stop language, decision rules, and the r4/r5 status. |
+| `docs/STATE_OF_THE_ART_REASONING_AND_EVALUATION.md` | Canonical methodology | Removed “SymboLM solves” and hardware-receipt claims; reframed as hypotheses; updated the v3 artifact status to the r5 package fix. |
 | `docs/TINY_TERMINAL_AND_CONTEXT_PRUNING_SPEC.md` | Design / projection | Status changed to not active in v3; removed the outperform-70B claim. |
-| `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical current | New canonical doc: metric definitions, biology caveats, training scope, evidence ledger, claim rules. |
+| `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical current | New canonical doc: metric definitions, biology caveats, training scope, evidence ledger, claim rules, and the r4/r5 status. |
 | `eval/ABLATION_REAL_REPORT.md` | Tier B / audit receipt | Banner added; C 10.0% vs D 9.0% CI includes zero. Not format-value evidence. |
 | `eval/ADAPTIVE_ALLOCATION_REPORT.md` | Historical / retracted | Historical receipt; banner added. |
 | `eval/AI_ADVERSARIAL_CRITIQUE_LOG.md` | Historical / retracted | Historical audit log; banner added. |
@@ -87,8 +91,8 @@ launched.
 | `eval/cross_family_llama/symbolm_llama_1_7b_adapter/README.md` | Historical / retracted | Historical model card; banner added; n=5 probe, not universality. |
 | `eval_cross_domain/EVAL_CROSS_DOMAIN_REPORT.md` | Historical / retracted | Historical duplicate; banner added. |
 | `experiments/README.md` | Archive / historical ops | Banner added; HF repositories private; old accuracy headlines not current. |
-| `experiments/kaggle/sft_v3/README.md` | Current operational | Added r3 `ERROR` history, applied r4 status, and token-efficiency caveat. No r4 run is queued. |
-| `experiments/kaggle/sft_v3/upload/README.md` | Archive / historical ops | Warning added: the r3 bundle is not usable for Linux training (CRLF/LF hash mismatch); rebuild from r4. |
+| `experiments/kaggle/sft_v3/README.md` | Current operational | Added r3 `ERROR` history, the r4 preflight pass and `torchao` packaging stop, the r5 package fix, and the token-efficiency caveat. No run has completed. |
+| `experiments/kaggle/sft_v3/upload/README.md` | Archive / historical ops | Warning added: the r3 bundle is not usable for Linux training (CRLF/LF hash mismatch); rebuild from r5. |
 | `experiments/lightning/README.md` | Archive / historical ops | Banner added; old SFT/GRPO paths are not the v3 artifact. |
 | `research/CLAUDE_EMPIRICAL_AUDIT_BRIEF.md` | Historical / retracted | Historical audit brief; banner added. |
 | `research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md` | Design / projection | 224x labeled assumption-only; co-design softened to hypothetical; no MoE in current model. |
@@ -106,7 +110,7 @@ launched.
 | `results/robust_eval/ROBUST_EVAL_REPORT.md` | Historical / retracted | Already warning-marked; incomplete 2,119/4,800 run, C traces lack <ans>. Not a result. |
 | `symbolic/GRADIENT_REGISTERS_SPECIFICATION.md` | Design / projection | Status added: research extension, not implemented in v3. |
 | `symbolic/SPECIFICATION.md` | Design / projection | Scope note added: v3 uses a subset; token minimization is a goal, not a result. |
-| `task.md` | Canonical current | Rewritten to separate implementation from scientific validity and record the r4 fix plus remaining SFT/evaluation blockers. |
+| `task.md` | Canonical current | Separates implementation from scientific validity and records the r4 preflight pass, `torchao` packaging stop, r5 fix, and remaining SFT/evaluation blockers. |
 
 ## Cross-cutting corrections
 
@@ -121,8 +125,10 @@ launched.
 5. **20x / 80x / 224x are not current measurements.** 20x is an invalid multiplication;
    80x is a narrow SmolLM2 pilot ratio; 224x is an assumption-only projection.
 6. **The r3 hashes were CRLF-based.** The committed blobs are LF; the r3 preflight
-   failed on the line-ending difference. The r4 tag fixes provenance with `.gitattributes`
-   and LF hashes. No check may be bypassed.
+   failed on the line-ending difference. The r4 tag fixed provenance with `.gitattributes`
+   and LF hashes, and its Kaggle preflight passed. Training then stopped on Kaggle's
+   `torchao 0.10.0` before LoRA injection; the r5 tag removes that unused package and
+   requires it to be absent. No check may be bypassed.
 7. **No format-value claim is allowed** without C beating D on the paired CI and passing
    the strict-accuracy non-inferiority gate.
 

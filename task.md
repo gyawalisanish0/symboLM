@@ -2,8 +2,9 @@
 
 **Status date:** 2026-10-23  
 **Branch:** `research/rescue-v3`  
-**Current phase:** documentation audit and **r4 LF provenance fix complete**; SFT must be
-rerun. **No v3 adapter and no v3 GPU result.**
+**Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
+**r5 package-fix revision prepared**; SFT is not complete. **No v3 adapter and no v3 GPU
+result.**
 
 This tracker records implementation state, not scientific validity. A checked box means the
 code or document exists; it does not mean the associated claim is confirmed.
@@ -56,9 +57,12 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 - [x] Normalize canonical data files to LF and regenerate the manifest hashes.
 - [x] Update `PREREG_VALUATION_V2.md`, docs, and kernel constants to LF hashes.
 - [x] Create tag `sft-v3-20261023-r4`.
-- [ ] Re-run the Kaggle SFT preflight (last r3 kernel is `ERROR`; r4 not yet repushed).
-- [ ] Train the v3 adapter and pass the mixed-kind generation check.
-- [ ] Package the adapter and pass the package gate.
+- [x] Run the r4 Kaggle preflight: it passed the hashes, counts, tokenizer, and all 4,600 rows.
+- [x] Diagnose the r4 training stop: Kaggle `torchao 0.10.0` is below PEFT 0.21.2's
+      `0.16.0` minimum; this is a packaging failure, not a data or scientific result.
+- [x] Remove the unused `torchao` before LoRA injection and create tag `sft-v3-20261023-r5`.
+- [ ] Complete SFT on r5 and pass the mixed-kind generation check (**no completed run yet**).
+- [ ] Package the adapter and pass the package gate, including `"torchao": "absent"`.
 
 ### Evaluation
 

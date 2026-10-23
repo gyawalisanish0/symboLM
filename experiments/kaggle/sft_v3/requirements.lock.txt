@@ -13,3 +13,8 @@ sympy==1.14.0
 huggingface_hub==2.2.0
 tokenizers==0.23.3
 safetensors==0.8.0
+
+# torchao is intentionally absent. PEFT 0.21.2 raises during LoRA dispatch if
+# torchao < 0.16.0 is installed, and this run does not use torchao. The Kaggle
+# notebook removes the image-provided 0.10.0 and the package gate requires
+# "torchao": "absent" in run_manifest.json.

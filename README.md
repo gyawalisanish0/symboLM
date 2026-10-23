@@ -5,9 +5,10 @@
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Repository branch:** `research/rescue-v3`  
 **Status date:** 2026-10-23  
-**Current phase:** documentation audit and **r4 LF provenance fix complete**; **SFT still
-must be rerun**; **no v3 adapter and no v3 GPU result**.  
-**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r4`); the last Kaggle run (r3) is `ERROR`, not queued. No r4 training run has been launched.  
+**Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
+**r5 package-fix revision prepared**; **SFT is not complete**; **no v3 adapter and no v3 GPU
+result**.<br>
+**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r5`). The r4 run passed the full preflight, then stopped at LoRA injection because Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; this is a packaging failure, not a data or scientific result. No r5 training run has completed.<br>
 **Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links return 401; nothing was deleted.
 
 ---
@@ -127,6 +128,9 @@ The audit found five independent failures, each of which could produce a false p
 - The r4 provenance revision adds `.gitattributes` LF rules for the canonical data,
   normalizes the working files to LF, and records LF byte hashes in the SFT and
   benchmark manifests, the preregistration, the evaluator, and the Kaggle kernel.
+- The r5 package-fix revision removes Kaggle's unused `torchao` before LoRA injection.
+  PEFT 0.21.2 raises on `torchao < 0.16.0`; the run manifest and package gate require
+  `"torchao": "absent"`. No data, split, target, or model hyperparameter changes.
 - The SFT artifact initializes both the input and output rows for genuinely added
   symbols, saves both `embed_tokens` and `lm_head` through `modules_to_save`, and keeps
   Trainer checkpoints separate from the final adapter. The package gate reads the
@@ -158,11 +162,11 @@ The audit found five independent failures, each of which could produce a false p
 - The v2 file also flags 20 duplicate-prompt groups (27 redundant rows); primary
   analysis is n=200, with a unique-prompt sensitivity analysis.
 
-## 5. Current status and the r4 provenance fix
+## 5. Current status, the r4 provenance fix, and the r5 package fix
 
 The pipeline is documented and locally testable, but the v3 SFT adapter does **not**
-exist. The last Kaggle SFT kernel (r3) is `ERROR`, not queued. Its preflight failure was
-a line-ending mismatch:
+exist. No training run has completed. The r3 kernel failed preflight on a line-ending
+mismatch:
 
 ```text
 Train hash mismatch:
@@ -172,11 +176,22 @@ expected 5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E
 
 The committed r3 data blobs were already LF, but the r3 tag did not force LF checkout.
 Windows `core.autocrlf=true` materialized CRLF, the manifest recorded CRLF hashes, and
-the Linux kernel hashed the LF files. The r4 tag (`sft-v3-20261023-r4`) fixes this with
+the Linux kernel hashed the LF files. The r4 tag (`sft-v3-20261023-r4`) fixed this with
 `.gitattributes`, LF-normalized working files, regenerated manifests, and updated hash
 constants. The rows, split, and targets are unchanged. No hash check was bypassed.
 
-The canonical r4 hashes are:
+The r4 Kaggle run then **passed the exact preflight**: the tag, commit, canonical hashes,
+all 4,140 training rows, all 460 validation rows, tokenizer, labels, terminal answers, and
+EOS checks were accepted. It failed before any optimizer step at `get_peft_model`:
+Kaggle's image supplied `torchao 0.10.0`, while PEFT 0.21.2 rejects `torchao < 0.16.0`
+during LoRA dispatch. No adapter was produced. This is a runtime-packaging failure, not a
+data failure and not a scientific negative result.
+
+The r5 tag (`sft-v3-20261023-r5`) removes the unused `torchao` package before LoRA
+injection and records `"torchao": "absent"` in the run manifest. The package gate rejects
+any run where it is present. No data, split, target, hypothesis, or endpoint changed.
+
+The canonical LF hashes (unchanged in r5) are:
 
 ```text
 source      724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7
@@ -185,7 +200,7 @@ validation  3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
 benchmark   F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
 ```
 
-**Until a clean r4 adapter passes its package gate, there is no v3 result.** The 4,800-cell
+**Until a clean r5 adapter passes its package gate, there is no v3 result.** The 4,800-cell
 evaluation also requires separate explicit approval; it has not been launched.
 
 ## 6. The next experiment
@@ -233,8 +248,8 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The commands above use the r4 LF hashes. They still require a clean adapter; do not run
-the evaluation before SFT and the package gate pass.
+The commands above use the canonical LF hashes. They still require a clean adapter; do
+not run the evaluation before SFT and the package gate pass.
 
 ## 8. Repository map
 

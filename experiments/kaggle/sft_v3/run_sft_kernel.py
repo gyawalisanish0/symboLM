@@ -67,6 +67,9 @@ EXPECTED_PACKAGE_VERSIONS = {
     "tokenizers": "0.23.3",
     "safetensors": "0.8.0",
 }
+# PEFT 0.21.2 raises during LoRA dispatch if torchao < 0.16.0 is installed.
+# This run does not use torchao, so the canonical environment removes it.
+EXPECTED_ABSENT_PACKAGES = ("torchao",)
 
 
 def utc_now() -> str:
@@ -90,6 +93,26 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise RuntimeError(message)
+
+
+def installed_version(name: str) -> Optional[str]:
+    import importlib.metadata
+
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
+def require_absent_packages() -> None:
+    for name in EXPECTED_ABSENT_PACKAGES:
+        version = installed_version(name)
+        require(
+            version is None,
+            f"Package {name} must be absent for this run; found {version!r}. "
+            "The notebook removes the unused, incompatible torchao package before "
+            "LoRA injection.",
+        )
 
 
 def repo_root(explicit: Optional[str]) -> Path:
@@ -507,6 +530,7 @@ def environment_snapshot() -> Dict[str, Any]:
         snapshot["peft"] = peft.__version__
     except Exception as exc:
         snapshot["package_error"] = f"{type(exc).__name__}: {exc}"
+    snapshot["torchao"] = installed_version("torchao") or "absent"
     return snapshot
 
 
@@ -747,6 +771,11 @@ def package_output(root: Path, output_root: Path, receipt: Dict[str, Any]) -> Di
             package_versions.get(name) == expected,
             f"Package {name} version {package_versions.get(name)!r} != pinned {expected!r}",
         )
+    for name in EXPECTED_ABSENT_PACKAGES:
+        require(
+            package_versions.get(name) == "absent",
+            f"Package {name} must be absent; manifest records {package_versions.get(name)!r}",
+        )
 
     adapter_files = sorted(
         str(path.relative_to(adapter_dir))
@@ -905,6 +934,7 @@ def main() -> int:
                 "a branch name is not a valid provenance anchor.",
             )
             require_clean_tracked_tree(root)
+            require_absent_packages()
         actual_head, actual_tag = resolve_git_identity(
             root,
             expected_head=args.expected_git_head,

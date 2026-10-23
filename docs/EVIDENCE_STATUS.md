@@ -2,8 +2,9 @@
 
 **As of:** 2026-10-23  
 **Branch:** `research/rescue-v3`  
-**Current phase:** documentation audit and **r4 LF provenance fix complete**; **no r4 SFT run
-yet**; **no v3 SFT adapter and no v3 GPU result**  
+**Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
+**r5 package-fix revision prepared**; **SFT is not complete**; **no v3 SFT adapter and no
+v3 GPU result**<br>
 **Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
@@ -126,6 +127,15 @@ preflight. The r4 tag (`sft-v3-20261023-r4`) adds `.gitattributes` LF rules, nor
 working files, and records the LF hashes above. The rows and targets are unchanged. Do not
 bypass the check.
 
+**r4 run outcome and r5 package note.** The r4 Kaggle preflight passed the tag/commit,
+canonical hashes, all 4,140 training rows, all 460 validation rows, tokenizer, label masks,
+terminal answers, and EOS checks. Training then stopped before an optimizer step:
+Kaggle supplied `torchao 0.10.0`, while PEFT 0.21.2 requires `torchao >= 0.16.0` for its
+LoRA dispatch. This is a runtime-packaging failure, not a data failure or a scientific
+negative result. The r5 revision (`sft-v3-20261023-r5`) removes the unused `torchao`
+before LoRA injection, records `"torchao": "absent"` in the run manifest, and requires
+that state in the package gate. No data, split, target, hypothesis, or endpoint changed.
+
 ---
 
 ## 6. What not to cite
@@ -156,18 +166,20 @@ whitepaper are explicitly labeled historical.
 1. ✅ Freeze and commit `PREREG_VALUATION_V2.md` (tag `sft-v3-20261022-r3`; r2 is superseded).
 2. ✅ Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/` with the r3 provenance and artifact fixes.
 3. ✅ Apply the r4 LF provenance fix and create tag `sft-v3-20261023-r4`.
-4. ⛔ Run fresh SFT on the canonical 4,600-target split (**not launched**).
-5. ⛔ Pass the mixed-kind post-training generation check (expected route + declared answer + real EOS).
-6. ⛔ Run the 100 × 4 × 6 diagnostic.
-7. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
-8. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
+4. ✅ Validate the r4 preflight on Kaggle; it passed all data and tokenizer checks.
+5. ⛔ Complete SFT after the r5 `torchao` package fix (**no completed run yet**).
+6. ⛔ Pass the mixed-kind post-training generation check (expected route + declared answer + real EOS).
+7. ⛔ Run the 100 × 4 × 6 diagnostic.
+8. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
+9. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
    preregistered C-vs-D decision.
 
-Until step 7, the correct public statement is:
+Until step 9, the correct public statement is:
 
 > “The old claims are retracted. The documentation audit, preregistration, and r4 provenance
-> fix are complete. The v3 SFT adapter has not been trained, and the v3 experiment has not
-> been run.”
+> fix are complete. The r4 preflight passed, but training stopped on a Kaggle `torchao`
+> packaging conflict before an optimizer step; the r5 package fix is prepared. The v3 SFT
+> adapter has not been trained, and the v3 experiment has not been run.”
 
 ---
 
