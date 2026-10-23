@@ -6,9 +6,10 @@
 **Repository branch:** `research/rescue-v3`  
 **Status date:** 2026-10-23  
 **Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
-**r5 package-fix revision prepared**; **SFT is not complete**; **no v3 adapter and no v3 GPU
-result**.<br>
-**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r5`). The r4 run passed the full preflight, then stopped at LoRA injection because Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; this is a packaging failure, not a data or scientific result. No r5 training run has completed.<br>
+**r5 training completed but failed the strict generation gate**; the **r6 token-delta repair
+is prepared and has not been run**; **SFT is not complete**; **no admissible v3 adapter and no
+v3 GPU result**.<br>
+**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r6`). The r4 run passed the full preflight, then stopped at LoRA injection because Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; that was a packaging failure, not a data or scientific result. The r5 run trained 777 steps but failed the strict generation gate: the saved adapter had byte-identical frozen `<ans>`, `</ans>`, and `answer` output rows, so greedy decoding could not emit the terminal markers. r6 trains small deltas on the 47 genuinely added rows, merges them before save, and rejects exactly tied marker rows in both the training and package gates. No r6 run has completed.<br>
 **Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links return 401; nothing was deleted.
 
 ---
@@ -162,11 +163,10 @@ The audit found five independent failures, each of which could produce a false p
 - The v2 file also flags 20 duplicate-prompt groups (27 redundant rows); primary
   analysis is n=200, with a unique-prompt sensitivity analysis.
 
-## 5. Current status, the r4 provenance fix, and the r5 package fix
+## 5. Current status, the r4 provenance fix, the r5 generation failure, and the r6 token-delta repair
 
-The pipeline is documented and locally testable, but the v3 SFT adapter does **not**
-exist. No training run has completed. The r3 kernel failed preflight on a line-ending
-mismatch:
+The pipeline is documented and locally testable, but no admissible v3 SFT adapter exists.
+The r3 kernel failed preflight on a line-ending mismatch:
 
 ```text
 Train hash mismatch:
@@ -191,7 +191,22 @@ The r5 tag (`sft-v3-20261023-r5`) removes the unused `torchao` package before Lo
 injection and records `"torchao": "absent"` in the run manifest. The package gate rejects
 any run where it is present. No data, split, target, hypothesis, or endpoint changed.
 
-The canonical LF hashes (unchanged in r5) are:
+The r5 Kaggle run then **completed training**: 777 steps / 3 epochs, final eval loss
+`0.2768503725528717`. It **failed the strict generation gate** and was not packaged. The
+reasoning probe `concept_poly_30` declared no answer (`format_reason:
+loop_marker:letterSpacing`); the bypass probe `concept_bypass_183` returned `100` correctly.
+The saved adapter had byte-identical frozen `<ans>`, `</ans>`, and `answer` output rows, so
+their logits were permanently tied and greedy decoding chose the lower-id `answer` token. It
+emitted `answer62answer`, never `<ans>62</ans>`. That is an adapter bug, not a scientific
+result.
+
+The r6 tag (`sft-v3-20261023-r6`) keeps the resized `embed_tokens` and `lm_head` matrices
+frozen during training, adds trainable deltas for the 47 genuinely added tokenizer rows,
+merges those deltas into the saved matrices, and makes the training and package gates reject
+exactly tied `<ans>`, `</ans>`, and `answer` rows. No r6 run has completed. No data, split,
+target, hypothesis, or endpoint changed.
+
+The canonical LF hashes (unchanged in r5 and r6) are:
 
 ```text
 source      724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7
@@ -200,7 +215,7 @@ validation  3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
 benchmark   F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
 ```
 
-**Until a clean r5 adapter passes its package gate, there is no v3 result.** The 4,800-cell
+**Until a clean r6 adapter passes its package gate, there is no v3 result.** The 4,800-cell
 evaluation also requires separate explicit approval; it has not been launched.
 
 ## 6. The next experiment

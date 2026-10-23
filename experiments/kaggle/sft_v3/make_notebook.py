@@ -36,7 +36,7 @@ cells = [
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
-**Pinned tag:** `sft-v3-20261023-r5`
+**Pinned tag:** `sft-v3-20261023-r6`
 **Base revision:** `ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562`
 **Status:** pre-run kernel. This notebook trains one adapter; it does **not** run the evaluation.
 
@@ -52,9 +52,12 @@ cells = [
   reasoning + 40 bypass validation rows.
 - Uses the same manual Qwen chat format as evaluation. The stock chat template is not
   used for training targets.
-- Initializes both the input **and output** rows for genuinely added symbols before
-  freezing them, then saves the exact resized `embed_tokens` and `lm_head` with the
-  adapter through `modules_to_save`.
+- Initializes both the input **and output** rows for genuinely added symbols, then
+  trains a small delta on those rows. The deltas break exact ties between added
+  tokens and their English anchors; the r5 failure was caused by frozen `<ans>` and
+  `</ans>` output rows that were byte-identical to the base `answer` row. The deltas
+  are merged back into the exact resized `embed_tokens` and `lm_head` before save,
+  and the artifact still uses `modules_to_save`.
 - Trains with auto-resume **off**, one GPU, and `--no_quant`. Trainer checkpoints go
   to `trainer/`; only the final `adapter/` artifact is packaged.
 - Runs a mixed-kind post-training gate: one reasoning prompt and one bypass prompt must
@@ -71,7 +74,7 @@ cells = [
 
 If `/kaggle/input/symbolm-v3-sft-bundle/` is mounted, the kernel requires
 `bundle_manifest.json`, checks the archive SHA-256, requires the manifest's tag to
-match `sft-v3-20261023-r5`, and safely extracts it. Otherwise it clones the exact
+match `sft-v3-20261023-r6`, and safely extracts it. Otherwise it clones the exact
 tag from GitHub. A missing tag or missing bundle manifest is a hard failure.
 
 ## Not admissible
@@ -98,7 +101,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 
 REPO_URL = "https://github.com/gyawalisanish0/symboLM.git"
-GIT_TAG = "sft-v3-20261023-r5"
+GIT_TAG = "sft-v3-20261023-r6"
 EXPECTED_BASE_MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 EXPECTED_BASE_REVISION = "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
 EXPECTED_PACKAGES = {

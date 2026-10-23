@@ -316,8 +316,11 @@ legitimate scope.
 - [x] Fix the CRLF/LF provenance mismatch and create tag `sft-v3-20261023-r4`.
 - [x] Validate the r4 preflight on Kaggle; diagnose the `torchao` packaging stop before LoRA injection.
 - [x] Create the r5 package fix (`sft-v3-20261023-r5`) and require `"torchao": "absent"`.
-- [ ] Complete fresh SFT on r5 (no training run has completed).
-- [ ] Pass the mixed-kind generation check and package gate.
+- [x] Run r5 training to completion (777 steps) and diagnose the strict generation-gate
+      failure: frozen `<ans>`, `</ans>`, and `answer` rows were byte-identical.
+- [x] Implement the r6 token-delta repair (`sft-v3-20261023-r6`) and tied-row gates.
+- [ ] Run r6 training and pass the mixed-kind generation check (no r6 run yet).
+- [ ] Pass the package gate, including `"torchao": "absent"` and distinct marker rows.
 - [ ] Run the 100 × 4 diagnostic.
 - [ ] Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
 - [ ] Update README/results with receipts, or publish the negative result.

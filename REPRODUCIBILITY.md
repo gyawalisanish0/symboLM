@@ -3,12 +3,15 @@
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
 **Status date:** 2026-10-23  
-**Current status:** the v3 adapter does not exist. The r4 provenance fix is validated: its
+**Current status:** no admissible v3 adapter exists. The r4 provenance fix is validated: its
 Kaggle preflight passed the hashes and all 4,600 rows. The r4 training run then stopped
 before an optimizer step because Kaggle supplied `torchao 0.10.0`, below PEFT 0.21.2's
-`0.16.0` minimum for LoRA dispatch. This is a packaging failure, not a data or scientific
-result. The r5 package-fix revision (tag `sft-v3-20261023-r5`) removes the unused package;
-no r5 training run has completed. No v3 benchmark result exists.
+`0.16.0` minimum for LoRA dispatch. That was a packaging failure, not a data or scientific
+result. The r5 package fix (tag `sft-v3-20261023-r5`) removed the unused package; r5 then
+completed 777 training steps but failed the strict generation gate because its saved
+`<ans>`, `</ans>`, and `answer` output rows were byte-identical. The r6 revision (tag
+`sft-v3-20261023-r6`) adds trainable deltas for the 47 genuinely added tokenizer rows and
+rejects tied marker rows; no r6 run has completed. No v3 benchmark result exists.
 
 This guide describes how to reproduce the **pipeline** and the **audit**, not a result that
 has not been produced. Every reported number must have a command, a hash, and a receipt.
@@ -25,7 +28,7 @@ has not been produced. Every reported number must have a command, a hash, and a 
 | Strict scorer | `python -m eval.strict_scorer` / unit tests | Works |
 | SmolLM2 pilot token/energy table | See [`VALUATION.md`](VALUATION.md) | Tier B historical measurement |
 | Old six-arm run | See audit docs | **Incomplete**; not reproducible as a completed result |
-| v3 SFT run | `experiments/kaggle/sft_v3/` | **Incomplete**; r4 preflight passed, then packaging stopped at LoRA injection (`torchao`); r5 fix prepared |
+| v3 SFT run | `experiments/kaggle/sft_v3/` | **Incomplete**; r4 preflight passed, then packaging stopped at LoRA injection (`torchao`); r5 trained 777 steps but failed the generation gate (tied marker rows); r6 repair prepared |
 | Full 4,800-cell v3 run | `eval/robust_eval.py` | **Not run**; requires a clean adapter and approval |
 
 ---
@@ -138,6 +141,24 @@ uses torchao. The r5 revision removes the Kaggle-provided `torchao` before LoRA
 injection and requires the run manifest to record `"torchao": "absent"`. It does not
 replace PyTorch and does not change any data row or training hyperparameter.
 
+### r5 generation failure and r6 token-delta repair
+
+The r5 run completed 777 steps / 3 epochs with final eval loss
+`0.2768503725528717`, then failed the strict generation gate. The reasoning probe
+`concept_poly_30` declared no answer (`format_reason: loop_marker:letterSpacing`); the
+bypass probe `concept_bypass_183` returned `100`. The saved adapter had byte-identical
+frozen `<ans>` (151665), `</ans>` (151666), and base `answer` (9217) rows in both the input
+embedding and LM head. A frozen head cannot separate tied logits, so greedy decoding always
+selected the lower-id `answer` token.
+
+The r6 revision keeps the full resized `modules_to_save` matrices frozen but trains a small
+delta for each of the 47 genuinely added tokenizer rows (`151665`-`151711`). Forward hooks
+apply the deltas without copying the 151,712 x 1,536 matrices; `merge_token_deltas` adds
+them into the active rows before saving. The training script and the package gate fail
+closed if the saved `<ans>`, `</ans>`, and `answer` rows are still exactly tied. The
+adapter format and package contract are unchanged. This is an artifact repair, not a change
+to the hypothesis, data, split, targets, evaluation protocol, or decision rule.
+
 ---
 
 ## 4. Validate the benchmark
@@ -187,7 +208,7 @@ The tests do not download the base model and do not prove a model result.
 
 ---
 
-## 6. SFT (r5 checkout)
+## 6. SFT (r6 checkout)
 
 ```bash
 python training/sft_train.py \
@@ -206,7 +227,10 @@ The run must write `run_manifest.json` and pass the mixed-kind generation check:
   real EOS, no loop marker;
 - one bypass prompt: valid `<reg:bypass>` route, declared answer, real EOS.
 
-If either check fails, the adapter is not eligible for evaluation.
+If either check fails, the adapter is not eligible for evaluation. For r6, the manifest must
+also record `token_delta.present = true`, `token_delta.merged = true`, and
+`token_delta.terminal_marker_check.distinct = true`; the package gate independently reads
+the saved LM-head rows.
 
 ---
 
@@ -272,6 +296,9 @@ A CSV table with no raw traces is not a receipt.
 - **CRLF/LF mismatch.** Fixed in r4 with `.gitattributes` and LF hashes; do not bypass the check.
 - **Old `torchao` in the Kaggle image.** PEFT 0.21.2 raises on `torchao < 0.16.0` during LoRA
   dispatch. The r5 notebook removes the unused package; the package gate requires it absent.
+- **Tied terminal-marker rows.** r5 froze `<ans>`, `</ans>`, and `answer` with byte-identical
+  output rows, so greedy decoding could never emit the markers. r6 trains deltas for the 47
+  added rows, merges them before save, and both gates reject an exact tie. Do not bypass.
 - **Using `apply_chat_template` for SFT.** It can drop the reasoning trace at `</think>`.
 - **Fake EOS strings.** `"<｜end of sentence｜>"` is seven ordinary tokens, not the tokenizer EOS.
 - **Stopping Arm C at `</reg:verify>`.** It removes the answer channel and makes strict

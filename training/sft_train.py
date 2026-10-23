@@ -37,6 +37,11 @@ from data.symbolic_dataset import SymbolicDataCollator, SymbolicSFTDataset
 from eval.strict_scorer import extract_declared_answer, validate_register_trace
 from symbolic.prompts import classify_target_body, contains_loop_marker, extract_target_answer
 from symbolic.tokenizer_ext import extend_tokenizer, initialize_symbol_embeddings
+from training.token_delta import (
+    attach_token_delta_adapter,
+    assert_terminal_marker_rows_distinct,
+    merge_token_deltas,
+)
 
 # Check for TPU environment
 HAS_TPU = False
@@ -64,8 +69,8 @@ def _safe_torch_load(*args, **kwargs):
 torch.load = _safe_torch_load
 
 
-def attach_lora_adapter(model):
-    """Attach LoRA and persist the resized tokenizer embeddings/head.
+def attach_lora_adapter(model, added_token_ids=None):
+    """Attach LoRA, persist resized rows, and train deltas for added tokens.
 
     The tokenizer extension adds ``<ans>`` and ``</ans>``.  Those rows are
     created by ``resize_token_embeddings`` and are not part of a normal LoRA
@@ -73,8 +78,14 @@ def attach_lora_adapter(model):
     the base model again and initialize those rows randomly, so training and
     evaluation would use different vectors for the terminal-answer markers.
     ``modules_to_save`` writes the exact resized embedding and LM head into the
-    adapter artifact.  The modules are frozen after attachment: they are saved
-    for reproducibility, not optimized.
+    adapter artifact.
+
+    The copied matrices stay frozen, but the genuinely added rows are not left
+    as fixed semantic anchors.  A small trainable delta is applied to those
+    input and output rows.  This breaks exact ties between added tokens and
+    their English anchors; without it, two identical frozen output rows can
+    never be distinguished by greedy decoding.  The deltas are merged into the
+    saved ``modules_to_save`` rows after training.
     """
     lora_cfg = LoraConfig(
         r=config.lora_r,
@@ -90,6 +101,17 @@ def attach_lora_adapter(model):
         if module is not None:
             for parameter in module.parameters():
                 parameter.requires_grad_(False)
+    if added_token_ids:
+        delta_adapter = attach_token_delta_adapter(model, added_token_ids)
+        delta_params = sum(
+            parameter.numel()
+            for parameter in delta_adapter.parameters()
+            if parameter.requires_grad
+        )
+        print(
+            f"[Token Delta] Training {delta_adapter.num_tokens} added token rows "
+            f"with {delta_params:,} delta parameters."
+        )
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
     if hasattr(model, "config"):
@@ -383,6 +405,30 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+    # Load the extension metadata now: the token-delta adapter needs the exact
+    # list of genuinely added rows before LoRA attachment.  The base tokenizer
+    # already contains special tokens such as <think> and the EOS markers;
+    # those are not new rows and must not be perturbed.
+    tokenizer_extension_meta: Dict[str, Any] = {}
+    try:
+        tokenizer_extension_meta = json.loads(
+            tokenizer_meta_path.read_text(encoding="utf-8")
+        )
+    except Exception:
+        tokenizer_extension_meta = {}
+    added_token_ids: list[int] = []
+    for token in tokenizer_extension_meta.get("added_tokens", []):
+        token_id = tokenizer.convert_tokens_to_ids(token)
+        if isinstance(token_id, int) and token_id >= 0:
+            added_token_ids.append(token_id)
+    added_token_ids = sorted(set(added_token_ids))
+    if not added_token_ids and not args.full_finetune:
+        raise RuntimeError(
+            "Could not determine the genuinely added tokenizer rows from "
+            f"{tokenizer_meta_path}. Refusing to train a frozen output head with "
+            "potentially tied added-token rows."
+        )
+
     # 2. Model Initialization
     if use_tpu:
         # -------------------------------------------------------------
@@ -401,7 +447,7 @@ def main():
 
         if not args.full_finetune:
             print("[TPU v5e] Attaching bfloat16 LoRA adapters...")
-            model = attach_lora_adapter(model)
+            model = attach_lora_adapter(model, added_token_ids=added_token_ids)
     else:
         # -------------------------------------------------------------
         # GPU / CUDA Fallback Path: 4-bit QLoRA / fp16
@@ -437,7 +483,7 @@ def main():
             model.resize_token_embeddings(len(tokenizer))
             initialize_symbol_embeddings(model, tokenizer)
 
-        model = attach_lora_adapter(model)
+        model = attach_lora_adapter(model, added_token_ids=added_token_ids)
 
     # 3. Datasets
     if args.train_file:
@@ -511,13 +557,6 @@ def main():
         if args.run_manifest
         else Path(args.output_dir) / "run_manifest.json"
     )
-    tokenizer_extension_meta = {}
-    try:
-        tokenizer_extension_meta = json.loads(
-            (tok_dir / "tokenizer_extension_meta.json").read_text(encoding="utf-8")
-        )
-    except Exception:
-        pass
     manifest: Dict[str, Any] = {
         "status": "started",
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -559,11 +598,18 @@ def main():
             "modules_to_save": ["embed_tokens", "lm_head"],
             "frozen_modules_to_save": True,
             "initialized_input_and_output_rows": True,
-            "reason": (
-                "The extended tokenizer adds <ans>/</ans>; persisting the exact "
-                "resized embedding and LM-head rows prevents the adapter from "
-                "reserving different vectors for the input and output anchors."
-            ),
+            "token_delta": {
+                "enabled": bool(added_token_ids) and not args.full_finetune,
+                "added_token_count": len(added_token_ids),
+                "added_token_ids": added_token_ids,
+                "reason": (
+                    "The frozen modules_to_save matrices preserve the exact "
+                    "resized vocabulary, but identical frozen output rows can "
+                    "never be distinguished by greedy decoding.  Trainable "
+                    "deltas on genuinely added rows break those ties; they are "
+                    "merged into the saved embedding/LM-head rows."
+                ),
+            },
         },
     }
     write_run_manifest(run_manifest_path, manifest)
@@ -649,13 +695,38 @@ def main():
 
     trainer.train(resume_from_checkpoint=resume_path)
 
-    # 6. Save Adapter & Final Checkpoints
+    # 6. Merge the trainable added-token deltas before saving.  The full
+    # modules_to_save matrices stay frozen during training; these small deltas
+    # are what break ties between added tokens and their English anchors.
+    print("Merging trainable token deltas into the frozen embedding/LM-head rows...")
+    try:
+        token_delta_summary = merge_token_deltas(trainer.model)
+        if token_delta_summary.get("present"):
+            token_delta_summary["terminal_marker_check"] = (
+                assert_terminal_marker_rows_distinct(trainer.model, tokenizer)
+            )
+        manifest["token_delta"] = token_delta_summary
+        manifest["status"] = "token_delta_merged"
+        manifest["token_delta_merged_utc"] = datetime.now(timezone.utc).isoformat()
+        write_run_manifest(run_manifest_path, manifest)
+    except Exception as exc:
+        manifest.update(
+            {
+                "status": "token_delta_merge_failed",
+                "completed_utc": datetime.now(timezone.utc).isoformat(),
+                "error": f"{type(exc).__name__}: {exc}",
+            }
+        )
+        write_run_manifest(run_manifest_path, manifest)
+        raise
+
+    # 7. Save Adapter & Final Checkpoints
     print(f"Saving final trained model/adapter to {adapter_dir}...")
     adapter_dir.mkdir(parents=True, exist_ok=True)
     trainer.model.save_pretrained(adapter_dir)
     tokenizer.save_pretrained(adapter_dir)
 
-    # 7. Post-training generation sanity check.  This catches the old failure
+    # 8. Post-training generation sanity check.  This catches the old failure
     # mode where training "completed" but the model looped or never emitted a
     # terminal answer.
     generation_results: list[Dict[str, Any]] = []

@@ -173,7 +173,7 @@ The exact prompt builder and system prompts live in `symbolic/prompts.py` and ar
 | Method | LoRA SFT (no GRPO in this run) |
 | LoRA rank / alpha / dropout | 16 / 32 / 0.05 |
 | Target modules | Qwen projection modules (`q,k,v,o,gate,up,down`) |
-| Adapter artifact | LoRA weights plus the exact resized `embed_tokens` and `lm_head` rows saved via `modules_to_save`; those rows are frozen, not optimized |
+| Adapter artifact | LoRA weights plus the exact resized `embed_tokens` and `lm_head` rows saved via `modules_to_save`; the copied matrices are frozen, with trainable deltas only on the 47 genuinely added rows (r6) |
 | Epochs | 3 |
 | Per-device batch | 2–4, selected to fit one T4 |
 | Gradient accumulation | chosen so effective batch = 16 |
@@ -330,13 +330,17 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261023-r5`; no training run has completed. The r4 revision passed the full Kaggle preflight, but its training subprocess stopped before an optimizer step on a runtime package conflict; see the r4/r5 note below.
+The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261023-r6`; no r6 training run has completed. The r4 revision passed the full Kaggle preflight, but its training subprocess stopped before an optimizer step on a runtime package conflict. The r5 run then completed training but failed the strict generation gate. See the r4/r5/r6 notes below.
 
 **r3 remediation note (2026-10-22):** the hypotheses, endpoints, budgets, arms, and analysis plan are unchanged. The r3 tag corrects provenance and artifact handling only: exact tag/commit identity with no branch fallback, a pinned base revision, exact runtime pins, input-and-output-row initialization for genuinely added tokens, separate Trainer/adapter directories, and a mixed-kind strict generation gate. The r2 tag is retained as a superseded historical checkpoint.
 
 **r4 provenance note (2026-10-23, applied):** r3 is frozen but was not usable for a Linux training run. Its declared hashes were computed over Windows CRLF files, while the committed blobs are LF. The Kaggle kernel failed preflight on `Train hash mismatch`. The r4 revision (a) adds `.gitattributes` with LF rules, (b) normalizes the canonical working files and regenerates `data/research_sft/manifest.json` and the hashes in this protocol from LF bytes, (c) updates the Kaggle kernel and evaluator constants, and (d) creates the annotated tag `sft-v3-20261023-r4`. This is a provenance-only change: no hypothesis, endpoint, budget, arm, prompt, or decision rule changes. If the full 4,800-cell run is not completed because of Kaggle quota or infrastructure, the result is reported as incomplete; the missing cells are not treated as a negative result.
 
 **r4 run outcome and r5 package note (2026-10-23, applied):** the r4 Kaggle preflight passed the tag/commit, canonical hashes, all 4,140 training rows, all 460 validation rows, tokenizer, label-mask, terminal-answer, and EOS checks. The training subprocess then failed before an optimizer step at PEFT LoRA injection: Kaggle supplied `torchao 0.10.0`, while PEFT 0.21.2 rejects `torchao < 0.16.0`. This is a packaging/runtime failure, not a data failure and not a negative scientific result. The r5 revision removes the unused `torchao` before LoRA injection, records `"torchao": "absent"` in the run manifest, and requires that state in the package gate. No hypothesis, endpoint, budget, arm, prompt, data row, or decision rule changes.
+
+**r5 generation failure and r6 token-delta note (2026-10-23, applied):** the r5 run completed 777 steps / 3 epochs with final eval loss `0.2768503725528717`, then failed the strict generation gate. The reasoning probe declared no answer (`format_reason: loop_marker:letterSpacing`); the bypass probe returned `100`. The saved adapter had byte-identical frozen `<ans>` (151665), `</ans>` (151666), and base `answer` (9217) rows in both the input embedding and LM head. Because the head was frozen, those logits were permanently tied and greedy decoding could only select the lower-id `answer`; the model never emitted `<ans>62</ans>`. This is an adapter-artifact bug, not a scientific result.
+
+The r6 revision keeps the full resized `modules_to_save` matrices frozen but adds trainable deltas for the 47 genuinely added tokenizer rows, merges the deltas into the saved active rows, and makes both the training and package gates reject exactly tied terminal-marker rows. The adapter format and package contract are unchanged. This revision is limited to artifact construction: no hypothesis, endpoint, budget, arm, prompt, data row, scoring rule, or decision rule changes. r6 has not been run.
 
 ---
 

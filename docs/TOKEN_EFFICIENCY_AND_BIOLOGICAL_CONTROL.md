@@ -3,7 +3,7 @@
 **Status:** current thesis and framing document (2026-10-23)  
 **Scope:** explains what SymboLM is trying to measure, what “biologically inspired” means here, and which claims are allowed.  
 **Protocol:** this document does **not** change the frozen hypotheses or endpoints in [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md). It records the framing correction that the earlier, accuracy-first documents obscured.  
-**Current result:** **none for v3.** The SFT adapter does not exist yet; the 4,800-cell evaluation has not been run.
+**Current result:** **none for v3.** No admissible SFT adapter exists yet; the 4,800-cell evaluation has not been run.
 
 ---
 
@@ -162,18 +162,21 @@ Until then, the training contribution is a carefully specified efficiency-orient
 
 | Item | Status | Meaning |
 |---|---|---|
-| v3 SFT adapter | **Does not exist** | The r4 preflight passed, but training stopped before LoRA injection on Kaggle's `torchao 0.10.0`; r5 removes it. No run has completed. |
+| v3 SFT adapter | **No admissible adapter** | The r4 preflight passed, but training stopped before LoRA injection on Kaggle's `torchao 0.10.0`. r5 trained 777 steps but failed the strict generation gate because its frozen `<ans>`, `</ans>`, and `answer` rows were byte-identical. r6 repairs that artifact and has not been run. |
 | r3 provenance | **Superseded** | The r3 hashes were computed over Windows CRLF files. The committed blobs are LF, so a Linux/Kaggle checkout hashed differently. |
 | r4 provenance | **Validated** | `.gitattributes` forces LF; the canonical manifests, preregistration, evaluator, and kernel constants record the LF byte hashes. The Kaggle preflight passed; the data rows and split are unchanged. |
-| r5 package fix | **Prepared** | The unused `torchao` is removed before LoRA injection and the package gate requires `"torchao": "absent"`. |
+| r5 package fix | **Validated for packaging; run failed generation** | The unused `torchao` was removed before LoRA injection and the package gate requires `"torchao": "absent"`. Training completed but the strict generation gate failed; no adapter was packaged. |
+| r6 token-delta repair | **Prepared, not run** | Trainable deltas for the 47 genuinely added rows break the tied-marker failure; both gates reject exactly tied rows. |
 | Full 4,800-cell run | **Not started** | Requires a clean adapter and separate explicit approval. |
 | v3 token-efficiency result | **None** | No v3 result exists. |
 
 The r3 hash mismatch was a packaging/provenance defect, not a scientific result. It was fixed
 in r4 with a new tag and regenerated hashes from LF bytes; r4 then passed its Kaggle
 preflight. The subsequent stop at PEFT LoRA injection was a separate runtime-packaging
-failure (`torchao 0.10.0`), not a data or scientific result. The r5 fix removes the unused
-package. Do not bypass either gate.
+failure (`torchao 0.10.0`), not a data or scientific result. The r5 fix removed the unused
+package. The r5 run then completed training but failed the strict generation gate because
+frozen `<ans>`, `</ans>`, and `answer` output rows were exactly tied; greedy decoding could
+not emit the terminal markers. r6 repairs the artifact. Do not bypass either gate.
 
 ### 5.2 Completed or historical evidence
 

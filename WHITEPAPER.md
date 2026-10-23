@@ -24,12 +24,15 @@ The previous v2.1 public headline — 37.0% overall accuracy and “Format Value
 is **retracted**. That six-arm run stopped at 2,119 of 4,800 cells because the free Kaggle
 quota/infrastructure limit ended the session; it is an incomplete run, not a completed
 result and not a negative result. Its Arm C traces never emitted `<ans>`, and its scoring
-path is not the v3 strict scorer. No v3 adapter exists yet. The r3 SFT kernel failed on a
-CRLF/LF hash mismatch; the r4 provenance fix (tag `sft-v3-20261023-r4`) passed the full
-Kaggle preflight, but training stopped before an optimizer step because Kaggle supplied
-`torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`. That is a packaging failure,
-not a data or scientific result. The r5 fix (tag `sft-v3-20261023-r5`) removes the unused
-package; SFT still must complete before any training result.
+path is not the v3 strict scorer. No admissible v3 adapter exists yet. The r3 SFT kernel
+failed on a CRLF/LF hash mismatch; the r4 provenance fix (tag `sft-v3-20261023-r4`) passed
+the full Kaggle preflight, but training stopped before an optimizer step because Kaggle
+supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`. That was a packaging
+failure, not a data or scientific result. The r5 run (tag `sft-v3-20261023-r5`) completed
+training but failed its strict generation gate because the saved `<ans>`, `</ans>`, and
+`answer` output rows were byte-identical; r6 repairs that artifact with trainable deltas on
+the added rows. SFT still must pass its generation and package gates before any training
+result.
 
 ---
 
@@ -183,7 +186,7 @@ and cannot rescue a failed primary test. Energy claims require measured NVML dat
 | Tool use is a positive engineering signal | **Supported in the SmolLM2 pilot** (E 23.0%, 444.30 J/correct vs A 7.0%, 2,052.41 J/correct) |
 | Old 37.0% / 39.7% / “Format Value Confirmed” | **Retracted**; incomplete six-arm run |
 | 100% MATH500 and cross-family universality | **Retracted**; n=5 anecdotes |
-| A v3 token-efficiency result | **Does not exist**; no v3 adapter |
+| A v3 token-efficiency result | **Does not exist**; no admissible v3 adapter |
 
 The complete claim ledger is in [`docs/EVIDENCE_STATUS.md`](docs/EVIDENCE_STATUS.md). The
 historical audit is in [`EVIDENCE_TRUTH_TABLE.md`](EVIDENCE_TRUTH_TABLE.md) and
@@ -207,11 +210,14 @@ The r4 revision (`sft-v3-20261023-r4`) adds `.gitattributes` LF rules, normalize
 files, regenerates the manifest/preregistration hashes from LF bytes, and updates the kernel
 constants. The rows and split are unchanged. No hash check was bypassed.
 
-The remaining blocker is scientific and operational: **no r5 SFT adapter exists yet**. The
-r4 preflight passed, but the run stopped at LoRA injection on the Kaggle `torchao` package
-conflict; r5 removes that unused package and makes the package gate require it absent. No
-4,800-cell evaluation has been launched. It requires a clean adapter that passes the package
-gate and separate explicit approval.
+The remaining blocker is scientific and operational: **no admissible r6 SFT adapter exists
+yet**. The r4 preflight passed, but the run stopped at LoRA injection on the Kaggle `torchao`
+package conflict; r5 removed that unused package and the run completed 777 training steps.
+The r5 adapter then failed the strict generation gate: its frozen `<ans>`, `</ans>`, and
+`answer` output rows were byte-identical, so greedy decoding could not emit the terminal
+markers. r6 repairs that artifact with trainable deltas on the 47 added rows and rejects tied
+rows in both gates. It has not been run. No 4,800-cell evaluation has been launched. It
+requires a clean adapter that passes the package gate and separate explicit approval.
 
 ---
 
@@ -230,10 +236,11 @@ The next steps are:
 
 1. ✅ Apply the CRLF/LF provenance fix and create `sft-v3-20261023-r4`.
 2. ✅ Validate the r4 preflight, diagnose the `torchao` packaging stop, and create the r5 fix.
-3. Run fresh SFT on r5 and pass the mixed-kind generation check.
-4. Run the 100 × 4 diagnostic (not the primary result).
-5. Run the full 200 × 4 experiment only with separate explicit approval.
-6. Report strict accuracy, tokens per correct, J/correct, format validity, and the
+3. ✅ Complete r5 training; diagnose the generation-gate failure and create the r6 repair.
+4. Run r6 SFT and pass the mixed-kind generation check.
+5. Run the 100 × 4 diagnostic (not the primary result).
+6. Run the full 200 × 4 experiment only with separate explicit approval.
+7. Report strict accuracy, tokens per correct, J/correct, format validity, and the
    preregistered decision — including a negative result if that is what the data show.
 
 ---

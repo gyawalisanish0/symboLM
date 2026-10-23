@@ -57,6 +57,9 @@ EXPECTED_BASE_REVISION = "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
 EXPECTED_TOKENIZER_VOCAB = 151712
 EXPECTED_BOS_ID = 151646
 EXPECTED_EOS_ID = 151643
+EXPECTED_ANS_OPEN_ID = 151665
+EXPECTED_ANS_CLOSE_ID = 151666
+EXPECTED_ANSWER_ID = 9217
 EXPECTED_PACKAGE_VERSIONS = {
     "transformers": "5.20.1",
     "peft": "0.21.2",
@@ -629,6 +632,32 @@ def adapter_tensor_keys(weights_path: Path) -> set[str]:
     return set(payload.keys())
 
 
+def adapter_tensor_rows(
+    weights_path: Path,
+    tensor_key: str,
+    row_ids: Tuple[int, ...],
+) -> Dict[int, Any]:
+    """Read specific rows from the saved adapter without loading the full file."""
+    if weights_path.suffix == ".safetensors":
+        from safetensors import safe_open
+
+        with safe_open(str(weights_path), framework="pt", device="cpu") as handle:
+            if tensor_key not in handle.keys():
+                raise KeyError(f"{tensor_key!r} is absent from {weights_path}")
+            slice_ = handle.get_slice(tensor_key)
+            return {row: slice_[row] for row in row_ids}
+
+    import torch
+
+    payload = torch.load(str(weights_path), map_location="cpu", weights_only=True)
+    if isinstance(payload, dict) and "state_dict" in payload:
+        payload = payload["state_dict"]
+    require(isinstance(payload, dict), f"Unrecognized adapter weights format: {weights_path}")
+    require(tensor_key in payload, f"{tensor_key!r} is absent from {weights_path}")
+    weight = payload[tensor_key]
+    return {row: weight[row] for row in row_ids}
+
+
 def package_output(root: Path, output_root: Path, receipt: Dict[str, Any]) -> Dict[str, Any]:
     adapter_dir = output_root / "adapter"
     trainer_dir = output_root / "trainer"
@@ -670,8 +699,68 @@ def package_output(root: Path, output_root: Path, receipt: Dict[str, Any]) -> Di
         f"adapter weights contain no lm_head tensor: {sorted(tensor_keys)[:10]}",
     )
 
+    # Read the actual saved answer-marker rows.  A config-only check would have
+    # accepted r5 even though <ans>, </ans>, and the base "answer" row were
+    # byte-identical; that made the terminal markers impossible to emit under
+    # greedy decoding.
+    #
+    # PEFT may write the active lm_head under more than one key: the adapter
+    # key (``...lm_head.weight``) plus a full embedding-layer dump because the
+    # vocabulary was resized.  Check every non-original copy.  The loader only
+    # uses the active copy, but checking all of them prevents a stale duplicate
+    # from passing the gate and then being loaded by a different PEFT version.
+    head_keys = sorted(
+        key
+        for key in tensor_keys
+        if "lm_head" in key
+        and key.endswith(".weight")
+        and "original_module" not in key
+    )
+    require(head_keys, "No active lm_head weight tensor found in adapter artifact")
+
+    import torch
+
+    marker_pairs = (
+        ("ans_open_vs_answer", EXPECTED_ANS_OPEN_ID, EXPECTED_ANSWER_ID),
+        ("ans_close_vs_answer", EXPECTED_ANS_CLOSE_ID, EXPECTED_ANSWER_ID),
+        ("ans_open_vs_ans_close", EXPECTED_ANS_OPEN_ID, EXPECTED_ANS_CLOSE_ID),
+    )
+    marker_evidence = {}
+    for head_key in head_keys:
+        marker_rows = adapter_tensor_rows(
+            weights_path,
+            head_key,
+            (EXPECTED_ANS_OPEN_ID, EXPECTED_ANS_CLOSE_ID, EXPECTED_ANSWER_ID),
+        )
+        key_evidence = {}
+        for name, left_id, right_id in marker_pairs:
+            left = marker_rows[left_id]
+            right = marker_rows[right_id]
+            equal = torch.equal(left, right)
+            key_evidence[name] = {
+                "equal": bool(equal),
+                "max_abs_diff": float((left.float() - right.float()).abs().max().item()),
+            }
+            require(
+                not equal,
+                "Adapter lm_head rows for <ans>, </ans>, and answer are still exactly "
+                f"tied ({head_key}:{name}); refusing to package a model that cannot "
+                "emit its terminal-answer markers.",
+            )
+        marker_evidence[head_key] = key_evidence
+
     run_data = json.loads(run_manifest.read_text(encoding="utf-8"))
     require(run_data.get("status") == "completed", "run_manifest.json is not completed")
+    token_delta = run_data.get("token_delta") or {}
+    require(
+        token_delta.get("present") is True and token_delta.get("merged") is True,
+        f"run_manifest has no completed token-delta merge: {token_delta}",
+    )
+    marker_check = token_delta.get("terminal_marker_check") or {}
+    require(
+        marker_check.get("distinct") is True,
+        f"run_manifest terminal-marker check did not pass: {marker_check}",
+    )
     require(
         run_data.get("train_sha256", "").upper() == EXPECTED_TRAIN_SHA256,
         "run_manifest train hash does not match the canonical split",
@@ -792,6 +881,8 @@ def package_output(root: Path, output_root: Path, receipt: Dict[str, Any]) -> Di
     receipt["adapter_dir"] = str(adapter_dir)
     receipt["adapter_files"] = adapter_files
     receipt["adapter_tensor_keys"] = sorted(tensor_keys)
+    receipt["terminal_marker_rows"] = marker_evidence
+    receipt["token_delta"] = token_delta
     receipt["adapter_sha256"] = {
         name: sha256_file(adapter_dir / name)
         for name in ("adapter_config.json", "adapter_model.safetensors", "adapter_model.bin")

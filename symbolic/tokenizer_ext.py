@@ -210,8 +210,13 @@ SEMANTIC_ANCHORS = {
     "base": "base",
     "step": "step",
     "ans": "answer",
-    "<ans>": "answer",
-    "</ans>": "answer",
+    # Multi-token anchors: a single-token anchor here would make the added
+    # output rows exact copies of an existing token's row.  If those rows stay
+    # frozen, their logits are permanently tied and greedy decoding can only
+    # select the lower-id token.  The trainable token deltas are the primary
+    # fix; these distinct anchors also give them a non-degenerate warm start.
+    "<ans>": "final answer",
+    "</ans>": "answer end",
 }
 
 

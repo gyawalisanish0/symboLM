@@ -3,8 +3,9 @@
 **Status date:** 2026-10-23  
 **Branch:** `research/rescue-v3`  
 **Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
-**r5 package-fix revision prepared**; SFT is not complete. **No v3 adapter and no v3 GPU
-result.**
+**r5 training completed but failed the strict generation gate**; the **r6 token-delta repair
+is prepared and has not been run**; SFT is not complete. **No admissible v3 adapter and no
+v3 GPU result.**
 
 This tracker records implementation state, not scientific validity. A checked box means the
 code or document exists; it does not mean the associated claim is confirmed.
@@ -61,8 +62,14 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 - [x] Diagnose the r4 training stop: Kaggle `torchao 0.10.0` is below PEFT 0.21.2's
       `0.16.0` minimum; this is a packaging failure, not a data or scientific result.
 - [x] Remove the unused `torchao` before LoRA injection and create tag `sft-v3-20261023-r5`.
-- [ ] Complete SFT on r5 and pass the mixed-kind generation check (**no completed run yet**).
-- [ ] Package the adapter and pass the package gate, including `"torchao": "absent"`.
+- [x] Complete r5 training (777 steps / 3 epochs, final eval loss `0.2768503725528717`) and
+      diagnose the strict generation-gate failure: frozen `<ans>`, `</ans>`, and `answer`
+      output rows were byte-identical.
+- [x] Implement trainable token deltas for the 47 genuinely added rows, merge them before
+      save, make both gates reject tied marker rows, and create tag `sft-v3-20261023-r6`.
+- [ ] Run r6 training and pass the mixed-kind generation check (**no r6 run yet**).
+- [ ] Package the r6 adapter and pass the package gate, including `"torchao": "absent"` and
+      distinct terminal-marker rows.
 
 ### Evaluation
 

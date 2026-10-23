@@ -165,9 +165,12 @@ implements a token-level gated router.
 1. **Weights and artifacts:**
    - The old Hugging Face repositories were made private on 2026-10-22. Public links return
      401; nothing was deleted.
-   - No v3 adapter exists yet. The r4 preflight passed, but training stopped before
-     optimization on Kaggle's `torchao 0.10.0`; the r5 package fix removes it. The next
-     artifact is the SFT adapter from the `sft-v3-20261023-r5` tag after the package gate.
+   - No admissible v3 adapter exists yet. The r4 preflight passed, but training stopped
+     before optimization on Kaggle's `torchao 0.10.0`. The r5 run then completed training
+     but failed the strict generation gate because its saved `<ans>`, `</ans>`, and
+     `answer` output rows were byte-identical. The r6 repair (`sft-v3-20261023-r6`) adds
+     trainable deltas for the 47 genuinely added rows and rejects tied marker rows. The
+     next artifact is the SFT adapter from r6 after both gates pass.
 2. **Deterministic Evaluation Harness (`eval/robust_eval.py`):**
    - 6 arms (CoT, answer-only, full registers, router-only, Python sandbox, vanilla base).
    - 4 independent budgets (256, 512, 1024, 2048 tokens).

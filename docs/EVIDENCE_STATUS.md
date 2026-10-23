@@ -3,8 +3,8 @@
 **As of:** 2026-10-23  
 **Branch:** `research/rescue-v3`  
 **Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
-**r5 package-fix revision prepared**; **SFT is not complete**; **no v3 SFT adapter and no
-v3 GPU result**<br>
+**r5 training completed but failed the generation gate**; **r6 token-delta repair is
+prepared, not yet run**; **no admissible v3 SFT adapter and no v3 GPU result**<br>
 **Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
@@ -47,8 +47,8 @@ token-efficiency superiority is allowed.
 | MATH500 100% | **Retracted** | n=5 anecdote | Not a benchmark. |
 | Cross-family LLaMA transfer | **Retracted as a universality claim** | n=5 probe; separate SmolLM2 200-problem run | Not evidence of tokenizer/architecture invariance. |
 | Sub-50-token reasoning | **Not supported** | v2.1 averaged 494.5 tokens | The old 253.8-token figure is not the run mean. |
-| v3 register value | **Unknown / untested** | No v3 GPU run | The preregistered test has not been executed. |
-| v3 token-efficiency value | **Unknown / untested** | No v3 adapter | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
+| v3 register value | **Unknown / untested** | No admissible v3 adapter | The preregistered test has not been executed. r5 is ineligible after a generation-gate failure. |
+| v3 token-efficiency value | **Unknown / untested** | No admissible v3 adapter | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
 
 ---
 
@@ -127,14 +127,28 @@ preflight. The r4 tag (`sft-v3-20261023-r4`) adds `.gitattributes` LF rules, nor
 working files, and records the LF hashes above. The rows and targets are unchanged. Do not
 bypass the check.
 
-**r4 run outcome and r5 package note.** The r4 Kaggle preflight passed the tag/commit,
-canonical hashes, all 4,140 training rows, all 460 validation rows, tokenizer, label masks,
-terminal answers, and EOS checks. Training then stopped before an optimizer step:
-Kaggle supplied `torchao 0.10.0`, while PEFT 0.21.2 requires `torchao >= 0.16.0` for its
-LoRA dispatch. This is a runtime-packaging failure, not a data failure or a scientific
-negative result. The r5 revision (`sft-v3-20261023-r5`) removes the unused `torchao`
-before LoRA injection, records `"torchao": "absent"` in the run manifest, and requires
-that state in the package gate. No data, split, target, hypothesis, or endpoint changed.
+**r4 run outcome, r5 generation failure, and r6 token-delta repair.** The r4 Kaggle preflight
+passed the tag/commit, canonical hashes, all 4,140 training rows, all 460 validation rows,
+tokenizer, label masks, terminal answers, and EOS checks. Training then stopped before an
+optimizer step: Kaggle supplied `torchao 0.10.0`, while PEFT 0.21.2 requires
+`torchao >= 0.16.0` for its LoRA dispatch. This is a runtime-packaging failure, not a data
+failure or a scientific negative result. The r5 revision (`sft-v3-20261023-r5`) removed the
+unused `torchao` before LoRA injection, recorded `"torchao": "absent"` in the run manifest,
+and required that state in the package gate.
+
+The r5 run then completed 777 steps / 3 epochs with final eval loss
+`0.2768503725528717`, but **failed the strict generation gate**. The reasoning probe
+`concept_poly_30` declared no answer (`format_reason: loop_marker:letterSpacing`); the bypass
+probe `concept_bypass_183` returned `100` correctly. The saved r5 adapter had byte-identical
+frozen `<ans>` (151665), `</ans>` (151666), and base `answer` (9217) rows in both the input
+embedding and LM head. Frozen tied logits cannot be separated by greedy decoding, so the
+model emitted `answer62answer` instead of `<ans>62</ans>`. This is an adapter bug, not a
+scientific result.
+
+The r6 revision (`sft-v3-20261023-r6`) keeps the full resized `modules_to_save` matrices
+frozen but trains small deltas on the 47 genuinely added tokenizer rows (`151665`-`151711`),
+merges them before save, and makes both the training and package gates reject exactly tied
+marker rows. It has not been run. No data, split, target, hypothesis, or endpoint changed.
 
 ---
 
@@ -167,19 +181,25 @@ whitepaper are explicitly labeled historical.
 2. ✅ Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/` with the r3 provenance and artifact fixes.
 3. ✅ Apply the r4 LF provenance fix and create tag `sft-v3-20261023-r4`.
 4. ✅ Validate the r4 preflight on Kaggle; it passed all data and tokenizer checks.
-5. ⛔ Complete SFT after the r5 `torchao` package fix (**no completed run yet**).
-6. ⛔ Pass the mixed-kind post-training generation check (expected route + declared answer + real EOS).
-7. ⛔ Run the 100 × 4 × 6 diagnostic.
-8. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
-9. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
-   preregistered C-vs-D decision.
+5. ✅ Complete r5 training (777 steps) and diagnose the strict generation-gate failure:
+   frozen `<ans>`, `</ans>`, and `answer` output rows were byte-identical.
+6. ✅ Implement the r6 token-delta repair, merge-before-save, and tied-row gate; create tag
+   `sft-v3-20261023-r6`.
+7. ⛔ Run r6 training and pass the mixed-kind post-training generation check (**no r6 run yet**).
+8. ⛔ Package the r6 adapter and pass the package gate, including `"torchao": "absent"` and
+   distinct terminal-marker rows.
+9. ⛔ Run the 100 × 4 × 6 diagnostic.
+10. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
+11. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
+    preregistered C-vs-D decision.
 
-Until step 9, the correct public statement is:
+Until step 11, the correct public statement is:
 
 > “The old claims are retracted. The documentation audit, preregistration, and r4 provenance
-> fix are complete. The r4 preflight passed, but training stopped on a Kaggle `torchao`
-> packaging conflict before an optimizer step; the r5 package fix is prepared. The v3 SFT
-> adapter has not been trained, and the v3 experiment has not been run.”
+> fix are complete. The r4 preflight passed but training stopped on a Kaggle `torchao`
+> packaging conflict. The r5 run then trained but failed its generation gate because the
+> saved terminal-answer rows were exactly tied; r6 repairs that artifact. No admissible v3
+> adapter exists yet, and the v3 experiment has not been run.”
 
 ---
 

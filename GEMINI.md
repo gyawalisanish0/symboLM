@@ -14,13 +14,17 @@
 - **Constraint:** strict declared-answer accuracy must be non-inferior to the control.
 - **Biological language:** a design analogy only. The current model is a dense 1.5B
   transformer with a LoRA adapter, not a sparse MoE, CED, Engram, or brain-like system.
-- **Current status:** no v3 adapter. The r3 Kaggle SFT kernel is `ERROR` on a CRLF/LF hash
-  mismatch. The r4 provenance fix (tag `sft-v3-20261023-r4`) passed the full Kaggle
-  preflight, but training stopped before an optimizer step because Kaggle supplied
-  `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`. That is a packaging failure,
-  not a data or scientific result. The r5 fix (tag `sft-v3-20261023-r5`) removes the unused
-  package; no r5 run has completed. The 4,800-cell evaluation has not been run and requires
-  separate approval.
+- **Current status:** no admissible v3 adapter. The r3 Kaggle SFT kernel is `ERROR` on a
+  CRLF/LF hash mismatch. The r4 provenance fix (tag `sft-v3-20261023-r4`) passed the full
+  Kaggle preflight, but training stopped before an optimizer step because Kaggle supplied
+  `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`. That was a packaging failure,
+  not a data or scientific result. The r5 fix (tag `sft-v3-20261023-r5`) removed the unused
+  package and the run completed 777 training steps, but it failed the strict generation gate:
+  frozen `<ans>`, `</ans>`, and `answer` output rows were byte-identical, so greedy decoding
+  could not emit the terminal markers. The r6 repair (tag `sft-v3-20261023-r6`) trains deltas
+  on the 47 genuinely added tokenizer rows, merges them before save, and rejects tied rows;
+  no r6 run has completed. The 4,800-cell evaluation has not been run and requires separate
+  approval.
 - **Canonical documents:** `README.md`, `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`,
   `docs/EVIDENCE_STATUS.md`, and `PREREG_VALUATION_V2.md`.
 
