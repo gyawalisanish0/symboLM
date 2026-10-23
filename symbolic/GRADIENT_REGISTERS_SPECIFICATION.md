@@ -1,9 +1,24 @@
+> [!WARNING]
+> **DESIGN SPECIFICATION / RESEARCH PROJECTION - NOT A MEASUREMENT (2026-10-23).** This document describes a proposed mechanism, language, or co-design projection. It is not evidence that the mechanism works, and it is not a current v3 result. Biological language is a design analogy, not a claim of biological fidelity. The 20x/80x/224x figures are not measured compound effects.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [../docs/EVIDENCE_STATUS.md](../docs/EVIDENCE_STATUS.md). Canonical framing:
+> [../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 # SymboLM Architecture Specification: Gradient Registers & Scratchpad 2.0
 
 **Principal Systems Architect & Research Director:** Sanish Gyawali  
 **AI Systems Exoskeleton:** Antigravity (Google DeepMind)  
 **Version:** SRL v2.0-Gradient  
 **Date:** 2026-10-12  
+**Status:** Research extension. **Not implemented in the v3 SFT run.** The current artifact
+uses flat bypass/plan/deduce/verify registers, not gradient depth registers.
+
+> **Scope note (2026-10-23):** This is a design proposal, not a measured architecture. The
+> historical Stage 4 claim about a 220-token repetition tail is not a v3 result. Biological
+> language is an analogy; the current model is dense and does not contain separate cognitive
+> modules. Any efficiency claim must come from the strict v3 evaluation.  
 
 ---
 

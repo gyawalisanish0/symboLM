@@ -5,6 +5,15 @@
 **Project:** SymboLM (Adaptive Symbolic Reasoning & Token-Compressed Intelligence)  
 **Repository:** [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM)
 
+> [!IMPORTANT]
+> **Status note (2026-10-23):** This is a data-curation strategy, not a result. The current
+> v3 SFT split is **4,600 targets: 4,200 reasoning + 400 bypass** (4,140 train / 460
+> validation), and it **excludes the 400 dialogue/intent rows**. The 60/20/20 taxonomy below
+> is a historical design proposal, not the v3 mix. Token efficiency is the primary
+> evaluation lens; accuracy is a non-inferiority gate. “Model-agnostic” is a hypothesis, not
+> a demonstrated transfer result. See
+> [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 ---
 
 ## 1. Executive Summary & Theoretical Rationale
@@ -14,7 +23,7 @@ Large Language Models (LLMs) trained with conventional Chain-of-Thought (CoT) wa
 2. **Linguistic Drift & Hallucination:** Informal prose allows intermediate mathematical errors to hide behind persuasive rhetorical filler.
 3. **Prohibitive Test-Time Search Cost:** Best-of-$N$ consensus sampling is economically infeasible when each candidate trajectory generates hundreds of redundant English tokens.
 
-**SymboLM resolves this by transmuting Chain-of-Thought into the SymboLM Reasoning Language (SRL v1.0)**—a formally parsed, compiler-verifiable domain-specific language.
+**SymboLM is designed to test whether transmuting Chain-of-Thought into the SymboLM Reasoning Language (SRL v1.0)**—a formally parsed, compiler-verifiable domain-specific language—can reduce tokens and energy per correct answer without losing strict accuracy. The language is a proposed serving contract, not an established reasoning mechanism.
 
 To scale SymboLM from our initial 1.5B prototype to future frontier-challenging models (such as **Microsoft Phi-4-mini**, **Google Gemma 2/3**, and open-source GPT architectures), we require an automated, high-throughput **Synthetic Data Curation & Distillation Engine**. This document establishes the blueprint for extracting reasoning capabilities from frontier models (Claude 3.5 Sonnet, GPT-4o, DeepSeek-R1, and QwQ-32B), translating them into canonical SRL v1.0, and validating them through compiler-grade AST and SymPy invariants.
 
@@ -244,7 +253,10 @@ ORIGINAL TRACE:
 
 Fix the syntax violation while preserving the mathematical steps. Output ONLY the corrected <think>...</think><ans>...</ans>.
 ```
-If the repaired trace does not pass on the second attempt, it is discarded. This guarantees that **100% of the fine-tuning corpus is syntactically and mathematically immaculate**.
+If the repaired trace does not pass on the second attempt, it is discarded. This raises the
+chance that the fine-tuning corpus is syntactically and mathematically consistent, but it
+does **not** guarantee that 100% of traces are correct. Correctness must be measured on the
+held-out benchmark with the strict scorer.
 
 ---
 

@@ -1,8 +1,16 @@
+> [!WARNING]
+> **DESIGN SPECIFICATION / RESEARCH PROJECTION - NOT A MEASUREMENT (2026-10-23).** This document describes a proposed mechanism, language, or co-design projection. It is not evidence that the mechanism works, and it is not a current v3 result. Biological language is a design analogy, not a claim of biological fidelity. The 20x/80x/224x figures are not measured compound effects.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [EVIDENCE_STATUS.md](EVIDENCE_STATUS.md). Canonical framing:
+> [TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 # SymboLM v2.1 Architectural Specification: Pruned-Context Tiny Terminal
 **Author & Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
-**Status:** Approved Architectural Directive  
-**Date:** October 13, 2026  
+**Status:** Research proposal. **Not active in the v3 SFT run.** Arm E in the SmolLM2 pilot used a Python sandbox; the Tiny Terminal is a separate deterministic-tool design.  
+**Date:** October 13, 2026 (status note added 2026-10-23)  
 
 ---
 
@@ -15,7 +23,7 @@ Standard autonomous agent frameworks (e.g., ReAct, Reflexion, AutoGPT) fail cate
 2. **Mental Arithmetic & Uncertainty Failure:**  
    Language models are fuzzy statistical pattern recognizers. Forcing a 1.5B model to execute high-order mental arithmetic (e.g., modular inverses, primality tests, Legendre valuations) causes hallucination and blind guessing.
 
-Sanish Gyawali formulated the **Pruned-Context Tiny Terminal Architecture** to solve both bottlenecks simultaneously, enabling compact models to outperform 70B+ models in precision and sequence economy.
+Sanish Gyawali formulated the **Pruned-Context Tiny Terminal Architecture** as a proposed way to address both bottlenecks. The hypothesis is that a compact model plus deterministic tooling can improve precision and sequence economy; it is **not** an established claim that a 1.5B model outperforms 70B+ models. That would require a preregistered benchmark and a strict scorer.
 
 ---
 

@@ -1,55 +1,82 @@
 # Evidence Status
 
-**As of:** 2026-10-22  
+**As of:** 2026-10-23  
 **Branch:** `research/rescue-v3`  
-**Current phase:** clean pipeline and preregistration; **no v3 GPU result yet**  
-**Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)
+**Current phase:** documentation audit complete; **r3 provenance mismatch still blocks SFT**;
+**no v3 SFT adapter and no v3 GPU result**  
+**Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
+**Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
-This page is the short answer to “what can we actually claim?” The long audit trail is in [`EVIDENCE_TRUTH_TABLE.md`](../EVIDENCE_TRUTH_TABLE.md), [`RESULTS_SUMMARY.md`](../RESULTS_SUMMARY.md), and [`docs/RESEARCH_REDIRECT.md`](RESEARCH_REDIRECT.md).
+This page is the short answer to “what can we actually claim?” The long audit trail is in
+[`EVIDENCE_TRUTH_TABLE.md`](../EVIDENCE_TRUTH_TABLE.md),
+[`RESULTS_SUMMARY.md`](../RESULTS_SUMMARY.md), and
+[`docs/RESEARCH_REDIRECT.md`](RESEARCH_REDIRECT.md).
 
 ---
 
-## 1. Status table
+## 1. The claim hierarchy
 
-| Claim | Status | Evidence | What it means |
+1. **Primary:** token efficiency of correct reasoning — generated tokens per correct answer,
+   and dynamic joules per correct answer when NVML is available.
+2. **Gate:** strict declared-answer accuracy must be non-inferior to the control. The
+   preregistered margin for C versus D at 256 tokens is −2.0 percentage points.
+3. **Secondary:** format validity, terminal-answer rate, EOS rate, OAA/AUC_OAA, TokenEff,
+   overthinking score, and budget-stress diagnostics.
+4. **Not a result:** a partial, quota-stopped run; a post-hoc slice; a lenient score; a
+   projection; a biological metaphor.
+
+The v3 experiment has not been run. No current claim about C-versus-D format value or
+token-efficiency superiority is allowed.
+
+---
+
+## 2. Status table
+
+| Claim | Status | Evidence | Token-efficiency reading |
 |---|---|---|---|
-| A short bypass reflex can answer a subset of atomic facts | **Supported as a narrow mechanism** | Strict v2.1 rescore: 32/1,000 passes were atomic bypass; atomic subset 32/40 | Useful for a factual reflex, not general reasoning |
-| The old 1,000-question benchmark was mostly truncated | **Supported** | 917/1,000 (91.7%) hit the 512-token limit; 823 looped traces | The old model was not solving the benchmark |
-| Strict v2.1 accuracy | **3.2% (32/1,000)** | `eval/RESCORING_AUDIT_REPORT.md` | The old 50.5% / 67.6% numbers are lenient artifacts |
-| Task 2 causal ablation: C vs corrupted plan | **C 10.0%, D 9.0%, +1.0 pp** | `eval/ABLATION_REAL_REPORT.md`; SmolLM2-1.7B | CI includes zero; not evidence of format value |
-| Valuation: C vs router-only D | **C 9.5%, D 10.5%** | `VALUATION.md`; SmolLM2-1.7B | Paired 95% CI `[-844.57, +861.30]` includes zero; no format value |
-| Sandbox arm E | **23.0% vs A 7.0%** | `VALUATION.md`; SmolLM2-1.7B | 444.30 vs 2,052.41 J/correct; positive engineering pilot, not format value |
-| Answer-only compression | **20.67×** | Task 2; 8.1 vs 167.6 mean tokens | Cheap, but only 15% strict accuracy |
-| Full six-arm 200 × 4 run | **Incomplete** | 2,119/4,800 cells | 37.0% / 39.7% / “Format Value Confirmed” are retracted |
-| MATH500 100% | **Retracted** | n=5 anecdote | Not a benchmark |
-| Cross-family LLaMA transfer | **Retracted as a universality claim** | n=5 probe; separate SmolLM2 200-problem run | Not evidence of tokenizer/architecture invariance |
-| Sub-50-token reasoning | **Not supported** | v2.1 averaged 494.5 tokens | The old 253.8-token figure is not the run mean |
-| v3 register value | **Unknown / untested** | No v3 GPU run | The preregistered test has not been executed |
+| A short bypass reflex can answer a subset of atomic facts | **Supported as a narrow mechanism** | Strict v2.1 rescore: 32/1,000 passes were atomic bypass; atomic subset 32/40 | Useful for a factual reflex, not general reasoning. The old 3-token bypass is a pilot observation, not a v3 result. |
+| The old 1,000-question benchmark was mostly truncated | **Supported** | 917/1,000 (91.7%) hit the 512-token limit; 823 looped traces | The old model was not solving the benchmark; its token counts are not a valid efficiency comparison. |
+| Strict v2.1 accuracy | **3.2% (32/1,000)** | `eval/RESCORING_AUDIT_REPORT.md` | The old 50.5% / 67.6% numbers are lenient artifacts. Mean generated length was 494.5 tokens. |
+| Task 2 causal ablation: C vs corrupted plan | **C 10.0%, D 9.0%, +1.0 pp** | `eval/ABLATION_REAL_REPORT.md`; SmolLM2-1.7B | CI includes zero; not evidence of format value. C 125.0 tokens vs D 136.4 tokens. |
+| Valuation: C vs router-only D | **C 9.5%, D 10.5%** | `VALUATION.md`; SmolLM2-1.7B | Paired 95% CI `[-844.57, +861.30]` includes zero; C 141.3 tokens / 1,265.75 J per correct vs D 159.8 tokens / 1,301.41 J per correct. No format value. |
+| Sandbox arm E | **23.0% vs A 7.0%** | `VALUATION.md`; SmolLM2-1.7B | E 120.2 tokens / 444.30 J per correct vs A 167.6 tokens / 2,052.41 J per correct. Positive engineering pilot; it is tool use, not format value. |
+| Answer-only compression | **20.67×** | Task 2; 8.1 vs 167.6 mean tokens | Cheap, but only 15% strict accuracy. A floor, not a reasoning solution. |
+| Full six-arm 200 × 4 run | **Incomplete** | 2,119/4,800 cells; 1,955 rows saved | Stopped mid-grid by Kaggle quota/infrastructure. 37.0% / 39.7% / “Format Value Confirmed” are retracted. |
+| Old Arm C efficiency win | **Invalid** | All 800 C traces lack `<ans>`; 296 old “correct” C rows used `deduce_equality_rhs`; 692 contain `</reg:verify>` | The old C token count cannot be used to claim an efficiency win. |
+| MATH500 100% | **Retracted** | n=5 anecdote | Not a benchmark. |
+| Cross-family LLaMA transfer | **Retracted as a universality claim** | n=5 probe; separate SmolLM2 200-problem run | Not evidence of tokenizer/architecture invariance. |
+| Sub-50-token reasoning | **Not supported** | v2.1 averaged 494.5 tokens | The old 253.8-token figure is not the run mean. |
+| v3 register value | **Unknown / untested** | No v3 GPU run | The preregistered test has not been executed. |
+| v3 token-efficiency value | **Unknown / untested** | No v3 adapter | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
 
 ---
 
-## 2. Receipts and hashes
+## 3. What the SmolLM2 pilot actually says about efficiency
 
-| Artifact | Hash / value |
-|---|---|
-| Canonical SFT source | `3F7DC86D5C6A0BF47F1C5E4E90F8F317727319BBE58C7F54C5C416D39EC7BD69` |
-| Canonical train | `5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E` |
-| Canonical validation | `EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3` |
-| Held-out v2 benchmark | `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED` |
-| Old clean benchmark | `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B` |
-| Old Kaggle manifest | reported as `575B…`; not equal to the old preregistered hash |
-| Ground-truth correction | `MY2021_001 = 169.5` (original 169 was wrong) |
-| SFT targets | 4,600 total: 4,200 reasoning + 400 bypass |
-| SFT split | 4,140 train / 460 validation |
-| Benchmark rows | 200 rows, 173 unique prompts, 20 duplicate groups (27 redundant rows) |
+The SmolLM2-1.7B pilot is **Tier B**: measured, but not the flagship and not the v3
+protocol. Its useful signal is not “registers win.” It is:
 
-The v2 benchmark is the old clean 200 plus one documented correction and duplicate-prompt flags. It is not a new benchmark; it is an audited version of the old one.
+| Arm | Strict accuracy | Mean tokens | Dynamic J/correct | Reading |
+|---|---:|---:|---:|---|
+| A: ordinary CoT | 7.0% | 167.6 | 2,052.41 | Expensive and weak on this base model |
+| B: answer-only | 15.0% | 8.1 | 25.84 | Cheapest, low accuracy; the reflex floor |
+| C: full registers | 9.5% | 141.3 | 1,265.75 | Lower cost than A, but not better than D |
+| D: router-only control | 10.5% | 159.8 | 1,301.41 | The correct control; C-vs-D CI includes zero |
+| E: CoT + Python sandbox | 23.0% | 120.2 | 444.30 | Strongest engineering signal; external tool use |
+
+**Correct conclusion:** routing and tool use can reduce cost on this small base model, but
+the register format has **not** been shown to add value over routing. The C-versus-D
+difference is not statistically distinguishable from zero.
+
+The pilot does not measure `thinking_tokens` separately. Its `Mean tokens` is total
+generation, so it cannot support a claim about “thinking-token compression” specifically.
 
 ---
 
-## 3. What the partial six-arm run actually showed
+## 4. What the partial six-arm run actually showed
 
-The old run stopped at **2,119 / 4,800** cells. A post-hoc strict rescore on the 57 cells common to all arms at budget 2048 found:
+The old run stopped at **2,119 / 4,800** cells. A post-hoc strict rescore on the 57 cells
+common to all arms at budget 2048 found:
 
 | Arm | Strict accuracy |
 |---|---:|
@@ -60,11 +87,48 @@ The old run stopped at **2,119 / 4,800** cells. A post-hoc strict rescore on the
 | B: answer-only | 29.8% |
 | E: sandbox | 1.8% |
 
-This is **n=57, post-hoc, and not the preregistered 200 × 4 experiment**. It is a hypothesis generator only. It also shows why the full run matters: the vanilla base F was stronger than the register arm on these cells, which is exactly the kind of result the old headline concealed.
+This is **n=57, post-hoc, and not the preregistered 200 × 4 experiment**. It is a
+hypothesis generator only. It is not a token-efficiency result: the C traces lack `<ans>`
+and the old token accounting is not the v3 path. The vanilla base F being stronger than
+the register arm on these cells is exactly the kind of result the old headline concealed.
+
+### How to describe the stop
+
+> “The old six-arm run stopped at 2,119 of 4,800 cells because the free Kaggle quota and
+> infrastructure limit ended the session. The missing cells are incomplete; the saved cells
+> used a scoring path that is not the v3 strict scorer. The run is retained as an
+> engineering diagnostic, not as a confirmatory or negative result.”
+
+Do not say the run “failed and therefore disproved” the thesis. Do not say it “completed”
+or that the partial numbers are an endpoint result.
 
 ---
 
-## 4. What not to cite
+## 5. Receipts and hashes
+
+| Artifact | Hash / value |
+|---|---|
+| Canonical SFT source | `3F7DC86D5C6A0BF47F1C5E4E90F8F317727319BBE58C7F54C5C416D39EC7BD69` (CRLF working tree) |
+| Canonical train | `5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E` (CRLF working tree) |
+| Canonical validation | `EB854AFF33DD31210D0B4BE61AF0165E5392F44B7B6D472C8C747161062E3EE3` (CRLF working tree) |
+| Held-out v2 benchmark | `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED` (CRLF working tree) |
+| Old clean benchmark | `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B` |
+| Old Kaggle manifest | reported as `575B…`; not equal to the old preregistered hash |
+| Ground-truth correction | `MY2021_001 = 169.5` (original 169 was wrong) |
+| SFT targets | 4,600 total: 4,200 reasoning + 400 bypass |
+| SFT split | 4,140 train / 460 validation |
+| Benchmark rows | 200 rows, 173 unique prompts, 20 duplicate groups (27 redundant rows) |
+
+**Provenance warning:** the hashes above are computed over Windows CRLF files. The committed
+git blobs are LF and hash differently (for example, train `BB50D9…`, validation `3FCFCC…`).
+The Kaggle Linux kernel therefore fails its hash preflight. The r3 tag is not usable for a
+Linux training run as-is. The fix is a new tagged revision (`r4`) with `.gitattributes`
+enforcing LF, regenerated manifest and preregistration hashes, and updated kernel constants.
+Do not bypass the check.
+
+---
+
+## 6. What not to cite
 
 Do not cite any of the following as a current result:
 
@@ -76,29 +140,37 @@ Do not cite any of the following as a current result:
 - “Cross-family universality” from an n=5 probe.
 - “Sub-50-token reasoning.”
 - “1,955 complete evaluation records.”
-- Any number produced by `deduce_equality_rhs`, trailing-number regexes, or an Arm C stop at `</reg:verify>`.
+- “20× compound compute” or “224× serving compression.”
+- Any number produced by `deduce_equality_rhs`, trailing-number regexes, or an Arm C stop
+  at `</reg:verify>`.
+- Any claim that the model is “brain-like,” “biomimetic” in a mechanistic sense, or a
+  sparse mixture of experts.
 
-These are preserved in the archive for audit, not for promotion. The old README and whitepaper are explicitly labeled historical.
+These are preserved in the archive for audit, not for promotion. The old README and
+whitepaper are explicitly labeled historical.
 
 ---
 
-## 5. What is pending
+## 7. What is pending
 
 1. ✅ Freeze and commit `PREREG_VALUATION_V2.md` (tag `sft-v3-20261022-r3`; r2 is superseded).
 2. ✅ Prepare the Kaggle SFT kernel at `experiments/kaggle/sft_v3/` with the r3 provenance and artifact fixes.
-3. Run fresh SFT on the canonical 4,600-target split (**not launched yet**).
-4. Pass the mixed-kind post-training generation check (expected route + declared answer + real EOS).
-5. Run the 100 × 4 × 6 diagnostic.
-6. Run the full 200 × 4 × 6 experiment.
-7. Report strict accuracy, J/correct, format validity, and the preregistered C-vs-D decision.
+3. ⛔ **Blocked:** the r3 hash mismatch. Create the LF-normalized r4 tag and regenerate hashes.
+4. ⛔ Run fresh SFT on the canonical 4,600-target split (**not launched**).
+5. ⛔ Pass the mixed-kind post-training generation check (expected route + declared answer + real EOS).
+6. ⛔ Run the 100 × 4 × 6 diagnostic.
+7. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
+8. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
+   preregistered C-vs-D decision.
 
-Until step 6, the correct public statement is:
+Until step 7, the correct public statement is:
 
-> “The old claims are retracted. The repaired pipeline and preregistration are ready. The v3 experiment has not been run.”
+> “The old claims are retracted. The documentation audit and preregistration are ready. The
+> pipeline still needs the r4 provenance fix, and the v3 experiment has not been run.”
 
 ---
 
-## 6. Verification commands
+## 8. Verification commands
 
 ```bash
 # Rebuild the canonical split and v2 benchmark.
@@ -118,19 +190,28 @@ print(len(rows), len({r["prompt"] for r in rows}))
 PY
 ```
 
-Expected v2 hash:
+Expected v2 hash in the current CRLF working tree:
 
 ```text
 95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED
 ```
 
+Expected LF-normalized hash (r4 target):
+
+```text
+F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
+```
+
 ---
 
-## 7. Interpretation rules
+## 9. Interpretation rules
 
+- Token efficiency is the primary lens; strict accuracy is the non-inferiority gate.
 - Strict scores decide. Lenient scores are diagnostic only.
 - A confidence interval that includes zero is not evidence of value.
-- An incomplete run is not a result.
+- An incomplete run is not a result, in either direction.
 - An n=5 probe is not a benchmark.
 - A mechanism that works on atomic facts is not a general reasoning claim.
+- A biological metaphor is not a biological mechanism.
+- A projection is not a measurement.
 - A negative result is allowed to be the final answer.

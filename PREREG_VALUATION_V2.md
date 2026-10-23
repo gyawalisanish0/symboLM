@@ -1,12 +1,41 @@
-# Pre-Registration V2: Budget-Robust Register Routing
+# Pre-Registration V2: Token-Efficient Register Routing
 
-**Study title:** Route, Don't Format — a strict, budget-matched evaluation of a typed-register inference contract for a small reasoning model
+**Study title:** Spend Tokens Where They Change the Answer — a strict, budget-matched evaluation of a typed-register inference contract for a small reasoning model
 
 **Principal investigator / systems architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Repository branch:** `research/rescue-v3`  
 **Protocol date:** 2026-10-22  
 **Status:** frozen before the v3 GPU run. Any change after the first scored GPU cell is a protocol deviation and must be reported with the result.  
 **Supersedes for execution:** [`PREREG_VALUATION.md`](PREREG_VALUATION.md). The old protocol is preserved as a locked historical document, but its dataset hash and execution record do not match the actual old Kaggle run.
+
+> [!IMPORTANT]
+> **Framing amendment — 2026-10-23 (before any v3 scored GPU cell).** This amendment does
+> **not** change the hypotheses, arms, budgets, endpoints, or decision rule below. It records
+> the repository-wide correction that the earlier documents obscured:
+>
+> 1. **Token efficiency is the primary dependent variable.** The primary endpoint is
+>    `J/correct` at 256 tokens because it is the deployment cost per correct answer when
+>    NVML is available. Generated tokens per correct answer are the token-level analogue and
+>    are reported for every arm and budget. Raw accuracy is a non-inferiority constraint,
+>    not the headline.
+> 2. **`tokens_emitted` is total generation, not “thinking tokens.”** The harness does not
+>    yet log `thinking_tokens` and `answer_tokens` separately. No thinking-token-specific
+>    claim is allowed until that split is instrumented and reported.
+> 3. **The biological language is a design analogy.** “System 1 / System 2,” “working
+>    memory,” and “metabolic parsimony” describe a control policy and a training preference,
+>    not a claim of biological fidelity. The current base model is a dense 1.5B transformer;
+>    there is no sparse MoE, CED, Engram, or separate reflex module in this run.
+> 4. **Incomplete is not a result.** If the Kaggle quota or infrastructure ends the run
+>    before 4,800 cells, the run is reported as incomplete. This explains missing cells; it
+>    does not make the saved cells confirmatory or negative evidence.
+> 5. **The r3 hashes are CRLF-based and fail on Linux.** The declared hashes in this file and
+>    in `data/research_sft/manifest.json` were computed over Windows CRLF files; the committed
+>    blobs are LF. The Kaggle hash preflight therefore fails. A new tag (`r4`) with
+>    `.gitattributes` enforcing LF and regenerated hashes is required before training. No
+>    check may be bypassed. This is a provenance correction, not a change to the science.
+>
+> The canonical framing document is
+> [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
 
 ---
 
@@ -16,7 +45,7 @@ The v2.1 public result — **37.0% Pass@1 and “Format Value Confirmed”** —
 
 This protocol does not try to rescue that number. It defines a new, smaller, falsifiable test of the only claim that still matters:
 
-> **Given one small model and one fixed token budget, does serving it with typed registers plus a router improve correct answers per joule over serving the same model with ordinary chain-of-thought, answer-only, or a router-only contract?**
+> **Given one small model and one fixed token budget, does serving it with typed registers plus a router improve correct answers per generated token and per joule over serving the same model with ordinary chain-of-thought, answer-only, or a router-only contract?**
 
 The register format is treated as a **control interface**, not as evidence of hidden reasoning ability. If the format does not beat the control, the project will say so.
 
@@ -73,7 +102,7 @@ The 200 rows are the old clean 200 plus this correction and duplicate-prompt fla
 
 ### Q1 — Format value under a router-only control
 
-At a fixed budget, does the full register contract (C) produce fewer joules per correct answer than a router-only contract (D), without losing more than 2 percentage points of strict accuracy?
+At a fixed budget, does the full register contract (C) produce fewer joules and fewer generated tokens per correct answer than a router-only contract (D), without losing more than 2 percentage points of strict accuracy?
 
 - **H1 (format value):** C has a strictly positive paired 95% CI for `J/correct_D − J/correct_C` and is non-inferior to D on strict accuracy.
 - **H0 (routing-only):** The paired CI includes zero, or C is worse than D by more than the non-inferiority margin. The register grammar is not the source of value.
@@ -207,6 +236,11 @@ This is a single primary test. No alpha correction is applied to it.
 - Unique-prompt sensitivity analysis on the 173 distinct prompts.
 - Cluster-aware sensitivity analysis that resamples the 20 duplicate-prompt groups rather than individual rows.
 - Accuracy, EOS rate, format-valid rate, truncation rate, mean tokens, and J/correct for every arm × budget.
+- Token-efficiency reporting: `tokens_per_correct`, `correct_per_1k_tokens`, `OAA_t`,
+  `AUC_OAA`, `TokenEff`, and the harmonic overthinking score `O`. These are secondary and
+  cannot rescue a failed primary test.
+- Thinking-token diagnostics only if the harness is instrumented to log them separately;
+  otherwise the report must state that only total generated tokens are available.
 - Generation-length and loop diagnostics.
 
 Secondary results are reported honestly even when they contradict H1.
@@ -297,6 +331,8 @@ python eval/robust_eval.py \
 The exact Kaggle kernel metadata and commands are in `experiments/kaggle/sft_v3/README.md`. The kernel is prepared on tag `sft-v3-20261022-r3` and has not been launched at the time of this freeze.
 
 **r3 remediation note (2026-10-22):** the hypotheses, endpoints, budgets, arms, and analysis plan are unchanged. The r3 tag corrects provenance and artifact handling only: exact tag/commit identity with no branch fallback, a pinned base revision, exact runtime pins, input-and-output-row initialization for genuinely added tokens, separate Trainer/adapter directories, and a mixed-kind strict generation gate. The r2 tag is retained as a superseded historical checkpoint.
+
+**r4 provenance note (2026-10-23, planned):** r3 is frozen but not usable for a Linux training run. Its declared hashes were computed over Windows CRLF files, while the committed blobs are LF. The Kaggle kernel failed preflight on `Train hash mismatch`. The r4 revision will (a) add `.gitattributes` with LF rules, (b) regenerate `data/research_sft/manifest.json` and the hashes in this protocol from LF bytes, (c) update `experiments/kaggle/sft_v3/run_sft_kernel.py`, and (d) create a new tag. This is a provenance-only change: no hypothesis, endpoint, budget, arm, prompt, or decision rule changes. If the full 4,800-cell run is not completed because of Kaggle quota or infrastructure, the result is reported as incomplete; the missing cells are not treated as a negative result.
 
 ---
 

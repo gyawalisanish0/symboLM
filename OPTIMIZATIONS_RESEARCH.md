@@ -1,3 +1,11 @@
+> [!WARNING]
+> **DESIGN SPECIFICATION / RESEARCH PROJECTION - NOT A MEASUREMENT (2026-10-23).** This document describes a proposed mechanism, language, or co-design projection. It is not evidence that the mechanism works, and it is not a current v3 result. Biological language is a design analogy, not a claim of biological fidelity. The 20x/80x/224x figures are not measured compound effects.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [docs/EVIDENCE_STATUS.md](docs/EVIDENCE_STATUS.md). Canonical framing:
+> [docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 # SymboLM: Advanced Architectural & Training Optimizations
 
 This document serves as a comprehensive research reference for advanced model code manipulation. As project goals, hardware constraints (e.g., upgrading from Colab T4 to A100s), or priorities (e.g., shifting from grammar adherence to raw mathematical accuracy) evolve, you can select the appropriate optimizations from this menu.
@@ -98,16 +106,25 @@ The precision of the model weights and gradients dictates the absolute ceiling o
 | **Upgrade to 7B Model on T4** | 4-bit NF4 QLoRA + Fused Cross-Entropy (Liger) |
 | **Speed (Time-to-Train)** | Sequence Packing + SDPA + FP16 Base + LoRA |
 | **Max GRPO Rollout Size (G=8)** | Selective `lm_head` projection + 8-bit KV Cache |
-| **Edge & Datacenter Scale (224x Gain)** | DeepSeek CED Shared Global KV + SymboLM Symbolic AST |
+| **Edge & Datacenter Scale (224x projection, not measured)** | DeepSeek CED Shared Global KV + SymboLM Symbolic AST |
 
 ---
 
-## 5. Frontier Co-Design: DeepSeek-V4.1-Flash & SymboLM v2.0
+## 5. Frontier Co-Design (Hypothetical): DeepSeek-V4.1-Flash & SymboLM v2.0
+
+> The following is an assumption-only projection, not a measured co-design. The current
+> SymboLM model is dense and does not use CED, shared global KV, or Engram. See
+> [`research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md`](research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md).
 
 *Detailed technical memorandum:* [`research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md`](file:///c:/Users/user/Dev/symboLM/research/DEEPSEEK_V4_FLASH_AND_SYMBOLM_CO_DESIGN.md)
 
 ### Architectural Multiplier:
 * **DeepSeek Hardware Innovation:** Causal Encoder-Decoder (CED), Shared Global KV via CSA2 (Compressed Sparse Attention 2), and FP4 E2M1 quantization reduce KV cache from 4,000 B/token to **890 B/token**.
 * **SymboLM Sequence Innovation:** Replaces 2,000 verbal English tokens with **40 dense symbolic AST tokens** via SRL v2.0.
-* **Compound Result:** Memory footprint drops from **8.0 MB to 35.6 KB per request**—a **$224\times$ reduction** enabling massive concurrent scaling.
-* **MTP Synergy:** SRL's deterministic grammar enables near-100% speculative acceptance on Multi-Token Prediction (MTP) heads.
+* **Compound Result (illustrative arithmetic only):** Under the assumed 890 B/token and
+  40-token values, the memory footprint would drop from **8.0 MB to 35.6 KB per request** —
+  a **224× ratio**, not a measured throughput or latency result. It would need a real
+  implementation and benchmark to support any deployment claim.
+* **MTP Synergy (hypothesis):** SRL’s deterministic grammar could improve speculative
+  acceptance on Multi-Token Prediction heads. The “near-100%” figure is not measured in this
+  repository and must not be cited as a result.

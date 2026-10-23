@@ -2,9 +2,20 @@
 
 **Author:** Sanish Gyawali (Principal Systems Architect & Research Director, Rupandehi, Nepal)  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
-**Project:** SymboLM (2nd-Gen Test-Time Compute Architecture for Edge Silicon)  
+**Project:** SymboLM (token-efficiency research for small reasoning models)  
 **Date:** October 2026  
-**Status:** Canonical Living Research Dossier & Evaluation Specification  
+**Status:** Methodology and evaluation reference; **not a results page**  
+**Framing:** token efficiency of correct reasoning is the primary lens; strict accuracy is a
+non-inferiority gate. The biological language is a design analogy, not a mechanism claim.
+
+> [!WARNING]
+> **Historical claims corrected (2026-10-23).** This dossier was originally written as a
+> current “SymboLM solves the crisis” narrative. That framing is not supported. The old
+> hardware-receipt table in §4 mixed Tier B SmolLM2 pilot numbers with retracted flagship
+> numbers. The 20×/80×/224× multipliers are not current results. The old six-arm run is
+> incomplete (2,119/4,800 cells; Kaggle quota/infrastructure stop) and is not a confirmatory
+> or negative result. Use [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
+> and [`docs/EVIDENCE_STATUS.md`](EVIDENCE_STATUS.md) for current claims.  
 
 ---
 
@@ -15,7 +26,7 @@ Between late 2024 and 2026, the foundational paradigm of Artificial Intelligence
 ```
 Pre-2024 Paradigm:     Prompt ──> [ Static Forward Pass (System 1) ] ───────────────> Output
 1st-Gen TTC (2024):    Prompt ──> [ Unconstrained Serial Monologue (<think>...) ] ──> Output
-2nd-Gen TTC (SymboLM): Prompt ──> [ Cognitive Register State Machine (Bypass/Plan/Term) ] ──> Output
+Proposed control (SymboLM): Prompt ──> [ Register Control Policy (Bypass/Plan/Term) ] ──> Output
 ```
 
 Frontier systems—such as **OpenAI o1/o3/o4-mini**, **DeepSeek-R1 / R1-Zero**, **Anthropic Claude 3.7 Sonnet** (hybrid thinking budget), **Google Gemini 2.0 Flash Thinking**, **QwQ-32B**, and **Meta's Coconut** (Chain of Continuous Thought in latent space)—demonstrated that allocating dynamic compute at inference time unlocks breakthrough performance in complex mathematics, competitive programming, and formal logic.
@@ -97,20 +108,29 @@ A model with $\text{ChokeFactor} = 1.0$ completely collapses under edge budgets 
 
 ---
 
-## 4. How SymboLM Solves 1st-Gen Failure Modes
+## 4. How SymboLM proposes to test the failure modes
 
-SymboLM is not a "prompting trick" or an "anti-thinking" approach. It is a **2nd-Generation Test-Time Compute Architecture** implemented as a formal discrete cognitive register state machine:
+SymboLM is not a proven “2nd-generation architecture.” It is a **candidate control policy**
+with a preregistered evaluation. The mapping below is a set of hypotheses, not receipts.
 
-| 1st-Gen Reasoning Failure | Root Cause in 1st-Gen Models | SymboLM 2nd-Gen Solution | Hardware Receipt (Tesla T4) |
+| 1st-gen failure | Proposed SymboLM mechanism | What the v3 experiment would need to show | Current evidence |
 |---|---|---|---|
-| **The Overthinking Trap** | Uniform compute allocation; model overthinks atomic facts | **Subcortical Reflex (`<reg:bypass>`)**: Native token-level difficulty gating bypassing TTC | **25.8 J / solve** (80× dynamic energy cut) |
-| **Unstructured Drift & Hallucination** | High-entropy natural language monologue (`<think>...`) | **Structured Working Memory (`<reg:plan>`, `<reg:deduce>`)**: Formal state machine with `hyp [...] -> verify -> [✓/✗]` | **1,265.7 J / solve** (38.3% lower energy vs CoT) |
-| **Arithmetic Hallucination** | Forcing neural attention weights to simulate an ALU | **Deterministic REPL (`<reg:term>`)**: Offloads exact math to sandboxed SymPy ($<5\text{ms}$) | **3.3× accuracy boost (23% vs 7%)**, 78.4% energy drop |
-| **Edge Budget-Choking** | Model emits hundreds of thinking tokens before answer | **High-Entropy Symbolic Density**: Preserves solution invariants within small token budgets | **33.3% Pass@1 at 256 tokens** (vs 0.0% on Vanilla R1) |
+| Overthinking on atomic facts | `<reg:bypass>` short route | Fewer tokens per correct atomic answer than CoT, with non-inferior accuracy | Narrow 32/40 atomic subset in an old strict rescore; v3 untested |
+| Unstructured drift | `<reg:plan>`, `<reg:deduce>`, optional `<reg:verify>` | Higher format validity and lower loop rate than CoT; no accuracy loss | Structural validator exists; v3 adapter does not |
+| Arithmetic hallucination | Arm E Python sandbox; Tiny Terminal | Better strict accuracy or lower J/correct than CoT | SmolLM2 pilot: E 23.0% vs A 7.0%, 444.30 vs 2,052.41 J/correct; Tier B |
+| Edge budget choke | Short terminal-answer contract; early exit | Lower truncation and higher strict accuracy at 256 tokens | Old flagship run incomplete and invalid; v3 untested |
+| Token inflation | Bounded traces and parsimony-aware training | Lower tokens per correct answer at non-inferior accuracy | SmolLM2 pilot: B is cheap but 15%; C vs D null |
+
+The old table’s “hardware receipt” column has been removed because it mixed Tier B pilot
+numbers with retracted flagship numbers. The only current hardware receipts are in
+[`VALUATION.md`](../VALUATION.md) and are explicitly labeled Tier B.
 
 ---
 
-## 5. Architectural Comparison: 1st-Gen vs. 2nd-Gen TTC
+## 5. Architectural Comparison: 1st-Gen vs. Proposed Control
+
+The diagram is **illustrative**, not a measured trace or a claim that the current model
+implements a token-level gated router.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -126,7 +146,7 @@ SymboLM is not a "prompting trick" or an "anti-thinking" approach. It is a **2nd
 └────────────────────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────────────────────────────────────────────┐
-│ 2nd-GEN SYMBOLM COGNITIVE REGISTER ARCHITECTURE                        │
+│ PROPOSED SYMBOLM CONTROL POLICY                                        │
 ├────────────────────────────────────────────────────────────────────────┤
 │ Input ──> [TOKEN-LEVEL GATED ROUTER]                                   │
 │           ├── Simple Fact ──> <reg:bypass> 6 </reg:bypass> (3 tokens)  │
@@ -134,7 +154,7 @@ SymboLM is not a "prompting trick" or an "anti-thinking" approach. It is a **2nd
 │               <reg:plan> arithmetic | formula: 48*15 + 234 </reg:plan> │
 │               <reg:term> 48 * 15 + 234 </reg:term> ──> [SymPy <5ms]    │
 │               = 954                                                    │
-│               (Compact, deterministic, zero drift, 444J, solves at 256) │
+│               (illustrative compact trace; Tier B pilot: ~444 J, 256-token budget) │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -142,15 +162,20 @@ SymboLM is not a "prompting trick" or an "anti-thinking" approach. It is a **2nd
 
 ## 6. Open-Source Deliverables & Research Roadmap
 
-1. **Open Weights on Hugging Face:**
-   - Base Checkpoint: `gyawalisanish0/SymboLM-2.1-DeepSeek-1.5B`
-   - Future Checkpoint: Scaling to 7B (`SymboLM-7B-DeepSeek-R1-Distill-Qwen`)
+1. **Weights and artifacts:**
+   - The old Hugging Face repositories were made private on 2026-10-22. Public links return
+     401; nothing was deleted.
+   - No v3 adapter exists yet. The next artifact is the LF-normalized r4 SFT adapter after
+     the provenance fix and package gate.
 2. **Deterministic Evaluation Harness (`eval/robust_eval.py`):**
-   - 6 Arms (CoT, Reflex, Full Registers, Corrupted Router, Python Sandbox, Vanilla Base).
-   - 4 Independent Budgets (256, 512, 1024, 2048 tokens).
-   - Overthinking Metrics ($\text{OAA}_t$, $\text{AUC}_{\text{OAA}}$, $\mathcal{O}$, $\text{BSS}$).
-   - Dual-layer SymPy symbolic equality verification.
+   - 6 arms (CoT, answer-only, full registers, router-only, Python sandbox, vanilla base).
+   - 4 independent budgets (256, 512, 1024, 2048 tokens).
+   - Token-efficiency metrics: tokens per correct, OAA/AUC_OAA, TokenEff, and overthinking
+     score; energy metrics only when NVML is available.
+   - Strict declared-answer scoring with EOS-aware truncation.
    - Non-blocking multi-threaded persistence and checkpointing.
-3. **Hardware Reproducibility Manifest:**
-   - High-frequency NVML power polling (100ms interval).
-   - Commit hash, dataset SHA-256 validation, and random seed locks.
+3. **Hardware reproducibility manifest:**
+   - High-frequency NVML power polling (100 ms interval).
+   - Commit hash, LF-normalized dataset SHA-256 validation, and random seed locks.
+4. **Not yet delivered:** a completed 4,800-cell run, a token-split instrumentation, a
+   multi-seed SFT estimate, or an external-benchmark result.

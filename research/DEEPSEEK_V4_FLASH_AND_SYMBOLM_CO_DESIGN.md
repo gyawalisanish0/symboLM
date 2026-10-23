@@ -1,3 +1,11 @@
+> [!WARNING]
+> **DESIGN SPECIFICATION / RESEARCH PROJECTION - NOT A MEASUREMENT (2026-10-23).** This document describes a proposed mechanism, language, or co-design projection. It is not evidence that the mechanism works, and it is not a current v3 result. Biological language is a design analogy, not a claim of biological fidelity. The 20x/80x/224x figures are not measured compound effects.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [../docs/EVIDENCE_STATUS.md](../docs/EVIDENCE_STATUS.md). Canonical framing:
+> [../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 # SymboLM & DeepSeek Frontier Co-Design: CED, Shared Global KV & Symbolic Token Compression
 
 **Principal Systems Architect & Research Director:** Sanish Gyawali  
@@ -15,7 +23,15 @@ In late 2026, DeepSeek introduced **DeepSeek-V4.1-Flash**, departing from tradit
 3. **Engram Modules** for decoupling static memory from reasoning
 4. **FP4 (E2M1) KV Cache Quantization** with Sliding Window Attention (SWA) Bounded Replay
 
-This memorandum establishes the formal architectural co-design between **DeepSeek’s hardware/layer-level innovations** and **Sanish Gyawali’s SymboLM symbolic/sequence-level reasoning compression**.
+This memorandum explores a **hypothetical** co-design between possible DeepSeek-V4.1-Flash
+layer-level innovations and SymboLM’s sequence-level compression. It is a design sketch, not
+a measured deployment, not a current SymboLM result, and not evidence that the two systems
+compose as described. The 224× figure below is arithmetic under assumptions, not a benchmark.
+
+> **Status correction (2026-10-23):** The current SymboLM artifact is a dense 1.5B
+> transformer with a LoRA adapter. It does not use CED, shared global KV, Engram, CSA2, or
+> sparse routing. The “4× token compression × 5× sparse routing” shorthand used elsewhere is
+> invalid as a compound claim; the factors here are likewise assumptions, not measurements.
 
 ---
 
@@ -25,7 +41,10 @@ Datacenter operators running reasoning models face an unsustainable inference bo
 
 Large reasoning models (like DeepSeek-R1) generate between 1,000 and 3,000 English tokens of verbal rumination before reaching a solution. While DeepSeek-V4.1-Flash significantly slashes the memory footprint *per token*, generating thousands of tokens still forces the memory bus to perform thousands of autoregressive decoding steps.
 
-### Comparative Inference Footprint (Single Reasoning Query)
+### Illustrative Inference Footprint (Single Reasoning Query)
+
+> These are back-of-the-envelope assumptions, not measurements. The “40 tokens” and “890
+> B/tok” inputs are hypothetical; no SymboLM-V4 co-design has been built or benchmarked.
 
 | Architectural Configuration | KV Cache Density | Reasoning Tokens Generated | Active Memory Footprint | Latency to Solution |
 | :--- | :---: | :---: | :---: | :---: |
@@ -34,9 +53,12 @@ Large reasoning models (like DeepSeek-R1) generate between 1,000 and 3,000 Engli
 | **SymboLM Alone (on standard base)** | ~4,000 B/tok | 40 tokens (Symbolic AST) | **0.16 MB** | 0.8 s |
 | **SymboLM + DeepSeek-V4.1-Flash Co-Design** | **~890 B/tok** | **40 tokens (Symbolic AST)** | **0.035 MB (35.6 KB)** | **0.25 s** |
 
-$$\text{Compound Efficiency Multiplier} = \frac{8,000 \text{ KB}}{35.6 \text{ KB}} \approx \mathbf{224.7\times \text{ Reduction in Serving Memory Footprint}}$$
+$$\text{Illustrative Assumption-Only Ratio} = \frac{8,000 \text{ KB}}{35.6 \text{ KB}} \approx \mathbf{224.7\times \text{ Reduction in Serving Memory Footprint}}$$
 
-By combining **hardware layer-level KV compression** ($4.5\times$) with **symbolic sequence compression** ($50\times$), datacenter clusters can achieve over **two orders of magnitude ($224\times$) higher concurrent query throughput** per GPU node.
+This is not a measured throughput or latency result. Even if the assumptions held, a
+memory-footprint ratio would not establish a 224× end-to-end speedup, and it would not
+establish a token-efficiency or accuracy claim. The current v3 experiment tests a much
+narrower C-versus-D serving contract on one dense 1.5B model.
 
 ---
 

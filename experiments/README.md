@@ -3,13 +3,23 @@
 **Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **AI Systems Collaborator / Operational Exoskeleton:** Antigravity (Google DeepMind)  
 
+> [!WARNING]
+> **HISTORICAL EXPERIMENT ARCHIVE (2026-10-23).** This directory preserves old stages and
+> receipts; it is not the current v3 pipeline. The old scores are retracted or incomplete,
+> and the Hugging Face repositories are private. The current v3 SFT kernel is
+> [`kaggle/sft_v3/`](kaggle/sft_v3/), which is blocked on the r4 provenance fix. Token
+> efficiency is the primary lens for v3; old accuracy headlines must not be reused as current
+> claims. See [`docs/EVIDENCE_STATUS.md`](../docs/EVIDENCE_STATUS.md).
+
 ---
 
 ## 📌 Overview
 
 This directory preserves the experimental evolution, exploratory cloud notebooks, cluster synchronization pipelines, and raw execution logs produced across the five progressive development stages of SymboLM (Stages 1 through 5).
 
-For production deployment and stable inference, use the official package (`symbolm/`), standalone GGUF binaries, and official models on [Hugging Face Hub](https://huggingface.co/gyawalisanish0/SymboLM-1.5B-v1.0-DSR1-Qwen2.5).
+For historical deployment artifacts, use the archived package (`symbolm/`) and notes in this
+directory. The old Hugging Face model/checkpoint repositories were made private on
+2026-10-22 and public links return 401; nothing was deleted.
 
 ---
 
@@ -25,7 +35,7 @@ Contains the reproducible Kaggle notebook kernels executed across dual NVIDIA Te
 * **`stage5_parsimony/`**: Continuous Parsimony GRPO with Sanish Gyawali's Unbounded Parsimony Gradient ($K=40$, $\gamma_{\text{floor}}=0.20$).
 * **`eval_200/`**: Stage 2 mixed benchmark evaluation.
 * **`eval_cross_domain/`**: 200-question cross-domain evaluation (stratified across 8 domains).
-* **`eval_1000_p100/`**: The definitive 1,000-question multi-year benchmark (2021–2026) executed on NVIDIA Tesla P100 GPU (79.46 min duration).
+* **`eval_1000_p100/`**: Historical 1,000-question multi-year run (2021–2026) on NVIDIA Tesla P100 GPU (79.46 min duration). Its 50.5% headline is a lenient-score artifact; the strict rescore is 3.2%.
 
 ### 2. `colab/` — Google Colab TPU v5e & GPU Notebooks
 * `01_setup_tpu.ipynb`: Environment verification & Google Drive mounting.

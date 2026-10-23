@@ -1,5 +1,12 @@
 # SymboLM on Lightning AI & Kaggle
 
+> [!WARNING]
+> **HISTORICAL INFRASTRUCTURE GUIDE (2026-10-23).** This page describes the old SFT/GRPO
+> pipeline, not the v3 rescue. The old adapters are not the v3 artifact, and the Hugging Face
+> repositories are private. The current v3 SFT path is
+> [`../kaggle/sft_v3/`](../kaggle/sft_v3/), currently blocked on the r4 CRLF/LF provenance fix.
+> Do not use the old checkpoint paths below as a current result.
+
 This directory contains automation scripts to run and resume SymboLM SFT and GRPO training across **Lightning AI** and **Kaggle**.
 
 ---

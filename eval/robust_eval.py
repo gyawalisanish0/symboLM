@@ -1378,7 +1378,10 @@ def _summarise(
     ci_lo, ci_hi = wilson_ci_95(correct, n)
     total_j = sum(r.get("dynamic_joules", 0.0) for r in recs)
     j_per_correct = total_j / correct if correct > 0 else float("inf")
-    mean_tok = sum(r.get("tokens_emitted", 0) for r in recs) / n
+    total_tokens = sum(int(r.get("tokens_emitted", 0)) for r in recs)
+    tokens_per_correct = total_tokens / correct if correct > 0 else float("inf")
+    correct_per_1k_tokens = (1000.0 * correct / total_tokens) if total_tokens > 0 else 0.0
+    mean_tok = total_tokens / n
     sympy_wins = sum(1 for r in recs if r.get("verification_method") == "sympy_symbolic")
     return {
         "n": n, "correct": correct, "accuracy": round(acc, 4),
@@ -1398,6 +1401,9 @@ def _summarise(
         "duplicate_prompt_rows": duplicate_count,
         "total_joules": round(total_j, 2),
         "j_per_correct": round(j_per_correct, 2),
+        "total_tokens": total_tokens,
+        "tokens_per_correct": round(tokens_per_correct, 1),
+        "correct_per_1k_tokens": round(correct_per_1k_tokens, 3),
         "mean_tokens": round(mean_tok, 1),
         "sympy_bonus_correct": sympy_wins,
     }
@@ -1444,8 +1450,8 @@ def generate_report(
     lines.append("")
 
     # ── Pareto frontier table (arms × budgets) ────────────────────────────────
-    lines.append("## 1. Accuracy–Energy Pareto Frontier\n")
-    lines.append("Format: `Acc% [CI-lo, CI-hi] | J/correct | mean-tok | trunc`\n")
+    lines.append("## 1. Correctness–Token–Energy Pareto Frontier\n")
+    lines.append("Format: `Acc% [CI-lo, CI-hi] | tok/correct | J/correct | mean-tok | trunc`\n")
     header = "| Budget |" + "".join(f" {ARM_LABELS[a]} |" for a in arms)
     sep    = "|--------|" + "".join("---|" for _ in arms)
     lines.append(header)
@@ -1459,6 +1465,7 @@ def generate_report(
             else:
                 row += (
                     f" {s['accuracy']*100:.1f}% [{s['ci_lo']*100:.1f},{s['ci_hi']*100:.1f}]"
+                    f" \\| {s['tokens_per_correct']:.1f} tok/✓"
                     f" \\| {s['j_per_correct']:.1f} J/✓"
                     f" \\| {s['mean_tokens']:.0f}tok"
                     f" \\| {s['truncated']}trunc |"
@@ -1489,22 +1496,24 @@ def generate_report(
     lines.append("")
 
     # ── 2025/2026 Test-Time Compute & Overthinking Metrics ───────────────────
-    lines.append("### 1.1 SOTA Test-Time Compute & Overthinking Metrics (OptimalThinkingBench & LLMTHINKBENCH)\n")
+    lines.append("### 1.1 Test-Time Compute & Overthinking Metrics (OptimalThinkingBench & LLMTHINKBENCH)\n")
     lines.append(
         "Overthinking-Adjusted Accuracy (OAA), Area Under Curve (AUC_OAA), and Harmonic Overthinking Score (O).\n"
         "Formulation: O = 2 * (Acc * TokenEff) / (Acc + TokenEff). Penalizes runaway token bloat and rewards edge efficiency.\n"
     )
-    lines.append("| Arm | Budget | Pass@1 | Mean Tok | OAA@256 | AUC_OAA | TokenEff | Overthinking Score (O) |")
-    lines.append("|-----|--------|--------|----------|---------|---------|----------|------------------------|")
+    lines.append("| Arm | Budget | Pass@1 | Mean Tok | Tok/correct | Correct/1k tok | OAA@256 | AUC_OAA | TokenEff | Overthinking Score (O) |")
+    lines.append("|-----|--------|--------|----------|-------------|----------------|---------|---------|----------|------------------------|")
     for a in arms:
         for b in budgets:
             ot = compute_overthinking_metrics(all_results, arm=a, budget=b)
             if ot["n"] == 0:
                 continue
+            s = _summarise(all_results, arm_filter=a, budget_filter=b)
             oaa_256 = ot["oaa_by_threshold"].get("OAA_256", 0.0)
             lines.append(
                 f"| {ARM_LABELS[a]} | {b} | {ot['accuracy']*100:.1f}% "
-                f"| {ot['mean_tokens']:.1f}tok | {oaa_256*100:.1f}% "
+                f"| {ot['mean_tokens']:.1f}tok | {s['tokens_per_correct']:.1f} "
+                f"| {s['correct_per_1k_tokens']:.3f} | {oaa_256*100:.1f}% "
                 f"| {ot['auc_oaa']:.3f} | {ot['token_efficiency']:.2f} "
                 f"| **{ot['overthinking_score']:.3f}** |"
             )

@@ -1,6 +1,18 @@
 > [!WARNING]
 > **HISTORICAL SESSION LOG — SUPERSEDED (2026-10-22).** This log contains the old v2.1 branch status and the retracted “Format Value Confirmed” claim. The six-arm run stopped at 2,119/4,800 cells, the old scorer allowed answers without `<ans>`, and the Hugging Face model repositories are now private. Current status: [`docs/EVIDENCE_STATUS.md`](docs/EVIDENCE_STATUS.md). Current protocol: [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md). The text below is preserved for audit only.
 
+> [!CAUTION]
+> **Reading guide for the historical log below (2026-10-23):**
+> - **Token efficiency is now the primary lens**, with strict accuracy as a non-inferiority
+>   gate. The old log is accuracy-first and sometimes treats raw accuracy as the headline.
+> - **“20× compound compute” is invalid.** It multiplied a token-compression estimate by a
+>   sparse-routing estimate that does not exist in the current dense 1.5B model.
+> - **“224× serving compression” is an analytical projection**, not a measurement.
+> - **“Currently running,” “100%,” “confirmed,” 37.0%, 39.7%, 50.5%, and 67.6%** are
+>   historical or retracted. The old run is incomplete, not a completed result.
+> - The biological and “20-watt brain” language is a design analogy, not a mechanism claim.
+> Canonical framing: [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 **Project Name:** SymboLM (Version 2.1) — Biomimetic Multi-Register Reasoning & Adaptive Symbolic Engine  
 **Author & Principal Architect:** Sanish Gyawali  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
@@ -195,7 +207,7 @@
 - **Status:** **`KernelWorkerStatus.COMPLETE`**
 - **Compute Run:** Kaggle Dual Tesla T4 GPUs executed for **3 hours 31 minutes** (250/250 steps, 16,000 candidate rollouts).
 - **Curriculum:** 1,600 unified samples (`data/stage3_unified_curriculum.jsonl`) blending 1,400 Register v2.0 concept samples across 7 invariant families with 200 legacy arithmetic anchors.
-- **Local Persistence:** Final policy adapter weights successfully downloaded via streaming Kaggle SDK into [`checkpoints/stage3_adapter/`](checkpoints/stage3_adapter) (`adapter_model.safetensors` 1.0 GB, `adapter_config.json`, `tokenizer.json`, `chat_template.jinja`).
+- **Local Persistence:** Final policy adapter weights successfully downloaded via streaming Kaggle SDK into [`checkpoints/`](checkpoints/) (the historical `stage3_adapter` directory is no longer present; `symbolm_v2_adapter` is the surviving v2 adapter).
 - **Remote Cloud Hub Persistence:** Authenticated private repository sync completed with **100% success** to:
   [https://huggingface.co/gyawalisanish0/symboLM-checkpoints](https://huggingface.co/gyawalisanish0/symboLM-checkpoints) (`stage3_concept_adapter`).
 

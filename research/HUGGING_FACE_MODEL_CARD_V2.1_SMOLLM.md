@@ -14,6 +14,15 @@ language:
 pipeline_tag: text-generation
 ---
 
+> [!WARNING]
+> **HISTORICAL MODEL CARD - REPOSITORY IS PRIVATE (2026-10-23).** The scores below are pre-v3 and are not current results. The Hugging Face repositories were made private on 2026-10-22. No v3 adapter exists. Keep this card only as an audit record; do not cite its metrics.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [../docs/EVIDENCE_STATUS.md](../docs/EVIDENCE_STATUS.md). Canonical framing:
+> [../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
+
 # SymboLM v2.1 (SmolLM2-1.7B Cross-Family LLaMA Adapter)
 
 **Author & Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  

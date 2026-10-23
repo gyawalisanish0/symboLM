@@ -25,6 +25,37 @@
 | **Arm D: Router Only (Control)** | **10.50%** | **1301.41 J** | 39.412 s | 159.8 | `MEASURED (NVML)` | `VERIFIED` |
 | **Arm E: CoT + Python Sandbox** | **23.00%** | **444.3 J** | 13.571 s | 120.2 | `MEASURED (NVML)` | `VERIFIED` |
 
+### 1.1 Token-efficiency reading of the same pilot
+
+The table above is the primary lens: cost per correct answer. The derived token cost is
+`mean tokens ÷ strict accuracy`, which is exact for a fixed problem set because
+`total tokens / correct = (mean tokens × n) / (accuracy × n)`. All values are **total
+generated tokens**, not a separate thinking-token count.
+
+| Arm | Strict accuracy | Mean tokens | Implied tokens per correct | J per correct |
+|---|---:|---:|---:|---:|
+| A: ordinary CoT | 7.0% | 167.6 | ~2,394 | 2,052.41 |
+| B: answer-only | 15.0% | 8.1 | ~54 | 25.84 |
+| C: full registers | 9.5% | 141.3 | ~1,487 | 1,265.75 |
+| D: router-only | 10.5% | 159.8 | ~1,522 | 1,301.41 |
+| E: CoT + Python sandbox | 23.0% | 120.2 | ~523 | 444.30 |
+
+The ranking is the point: **B is the cheap floor, E is the strongest engineering result,
+and C is not better than the router-only D.** The apparent C-versus-A saving is not a
+format-value result; it is a comparison against a weak CoT baseline on a small non-reasoning
+model. The preregistered C-versus-D interval includes zero.
+
+### 1.2 What this pilot does not establish
+
+- It is **SmolLM2-1.7B**, not the pinned DeepSeek-R1-Distill-Qwen-1.5B flagship.
+- It is a **single run**, not a multi-seed estimate.
+- It does not log **thinking tokens** separately from answer tokens.
+- It does not establish that the register format, rather than routing or tool use, caused
+  the cost difference.
+- It does not support a claim of biological fidelity. “System 1 / System 2” and “metabolic
+  parsimony” are design analogies for the control policy and length preference, not
+  measurements of a brain-like mechanism.
+
 ---
 
 ## 2. Pre-Registered Hypothesis Test (Arm C vs. Arm D)

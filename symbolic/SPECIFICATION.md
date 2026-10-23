@@ -1,9 +1,23 @@
+> [!WARNING]
+> **DESIGN SPECIFICATION / RESEARCH PROJECTION - NOT A MEASUREMENT (2026-10-23).** This document describes a proposed mechanism, language, or co-design projection. It is not evidence that the mechanism works, and it is not a current v3 result. Biological language is a design analogy, not a claim of biological fidelity. The 20x/80x/224x figures are not measured compound effects.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [../docs/EVIDENCE_STATUS.md](../docs/EVIDENCE_STATUS.md). Canonical framing:
+> [../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](../docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 # SymboLM Reasoning Language (SRL v1.0) Specification
 
 **Author:** Sanish Gyawali  
 **Version:** 1.0.0 (Formal Specification)  
-**Status:** Canonical Reference Standard  
-**Project:** SymboLM (Version 1.1)
+**Status:** Language design reference. The **v3 experiment uses only** the subset
+`<reg:bypass>`, `<reg:plan>`, `<reg:deduce>`, optional `<reg:verify>`, and `<ans>`.  
+**Project:** SymboLM (Version 1.1; v3 rescue branch uses a subset)
+
+> **Scope note (2026-10-23):** SRL v1.0 is a proposed intermediate representation, not a
+> demonstrated reasoning mechanism. Token minimization is a design goal, not an established
+> result. Any efficiency claim must come from the strict v3 evaluation, with accuracy as a
+> non-inferiority gate.
 
 ---
 

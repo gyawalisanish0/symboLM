@@ -1,3 +1,11 @@
+> [!WARNING]
+> **HISTORICAL GRANT / PITCH NARRATIVE - DO NOT SUBMIT AS-IS (2026-10-23).** This document contains pre-rescue claims (including 37.0%, 39.7%, 50.5%, 67.6%, 100%, and 20x/80x/224x projections) that are retracted, incomplete, or Tier B pilot readings. It is retained for provenance. Rewrite any application against the current evidence ledger before sending it.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [EVIDENCE_STATUS.md](EVIDENCE_STATUS.md). Canonical framing:
+> [TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 # Grounded Pitch Packet: Direct Email & Twitter/X Thread (2025–2026 Frontier Positioning)
 
 **Project:** SymboLM (2nd-Gen Test-Time Compute Architecture for Edge LLMs)  
@@ -32,11 +40,11 @@ SymboLM is an open-source, biologically-inspired Tri-Register architecture engin
 • Structured Cognitive State Machine (System 2: <reg:plan>, <reg:deduce>): Replaces rambling monologue with bounded working memory registers and explicit counterfactual branching (hyp [...] -> verify(...) -> [✗|✓]) that backtracks and prunes wandering thoughts before token emission.
 • Deterministic REPL Sandbox (<reg:term>): Humans don't multiply 6-digit numbers purely in their head; we use pen and paper. SymboLM offloads exact arithmetic to an isolated SymPy terminal (<5ms). Weights guide strategy; silicon handles exact arithmetic.
 
-Physical Silicon Receipts (Audited on NVIDIA Tesla T4, NVML 100ms Polled across 200 Clean Problems):
+Physical Silicon Receipts (Tier B SmolLM2-1.7B pilot, NVIDIA Tesla T4, NVML 100ms polled across 200 clean problems):
 - Base SLM CoT (SmolLM2-1.7B): 7.0% Pass@1 | 2,052 Joules/correct | burns massive compute simulating arithmetic.
 - SymboLM Deterministic REPL (Arm E): 23.0% Pass@1 (3.3× accuracy surge) | 444 Joules/correct (78.4% energy drop) by offloading exact math.
 - SymboLM Subcortical Reflex (Arm B): 15.0% Pass@1 | 25.8 Joules/correct (80× dynamic energy cut) on atomic factual queries.
-- Flagship 6-Arm × 4-Budget Evaluation on DeepSeek-R1-Distill-1.5B: Currently running on Kaggle Dual Tesla T4 GPUs to definitively test register computation on reasoning models.
+- Flagship 6-Arm × 4-Budget Evaluation on DeepSeek-R1-Distill-1.5B: **incomplete** — it stopped at 2,119/4,800 cells because the free Kaggle quota/infrastructure limit ended the session. It is not a completed result, and no v3 result exists.
 
 Everything is open source under Apache 2.0:
 - Code & Multi-Threaded Evaluation Harness: https://github.com/gyawalisanish0/symboLM

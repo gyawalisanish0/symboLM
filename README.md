@@ -1,55 +1,80 @@
-# SymboLM v3 — Route, Don't Format
+# SymboLM v3 — Spend Tokens Where They Change the Answer
 
-**A scientific rescue of the SymboLM project.**  
+**Token efficiency first. Correctness is the constraint. Biology is the design analogy.**
+
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Repository branch:** `research/rescue-v3`  
-**Status date:** 2026-10-22  
-**Current phase:** clean SFT + strict evaluation pipeline ready; GPU re-run not yet executed.  
-**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261022-r3`); prepared but not launched.
-**Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links now return 401; nothing was deleted.
+**Status date:** 2026-10-23  
+**Current phase:** documentation audit complete; **r3 provenance mismatch still blocks SFT**;
+**no v3 adapter and no v3 GPU result**.  
+**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261022-r3`); the last Kaggle run is `ERROR`, not queued.  
+**Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links return 401; nothing was deleted.
 
 ---
 
 > **Read this first.** The v2.1 public headline — *“37.0% / Format Value Confirmed”* — is
-> **retracted**. The six-arm run stopped at 2,119 of 4,800 cells; “37.0%” appeared in a
-> commit message, not in a completed preregistered result. The Task 2 causal ablation
-> found **no format value over a corrupted-plan control**, and the router-only
-> valuation also failed to establish a format advantage. The old README and whitepaper are preserved as
-> historical documents in [`docs/ARCHIVE_README_2.1.md`](docs/ARCHIVE_README_2.1.md)
-> and [`docs/ARCHIVE_WHITEPAPER_2.1.md`](docs/ARCHIVE_WHITEPAPER_2.1.md).
+> **retracted**. The old six-arm run stopped at **2,119 of 4,800 cells** because the free
+> Kaggle quota/infrastructure limit ended the session. It is an **incomplete run**, not a
+> completed result and not a negative result. Its saved cells used a lenient scorer that is
+> not the v3 scorer. The old README and whitepaper are preserved as historical documents in
+> [`docs/ARCHIVE_README_2.1.md`](docs/ARCHIVE_README_2.1.md) and
+> [`docs/ARCHIVE_WHITEPAPER_2.1.md`](docs/ARCHIVE_WHITEPAPER_2.1.md).
 
-## 1. The thesis we can actually test
+## 1. The thesis: allocate deliberation, then measure the cost
 
-**Route, don’t format: budget-robust reasoning for small models.**
+The scientific question is not “does a pretty symbolic format make a small model smart?”
 
-The scientific question is not “does a pretty symbolic format make a small model
-smart?” The question is:
+> Under a fixed correctness constraint, does a **fast reflex route for atomic facts plus a
+> bounded deliberative route for everything else** produce more correct answers per generated
+> token — and per joule — than ordinary chain-of-thought, answer-only, or a router-only
+> control?
 
-> Under a fixed token budget, does a **typed register interface plus a router**
-> produce more correct answers per joule than ordinary chain-of-thought, answer-only,
-> or a router-only control?
+The primary dependent variable is **token efficiency of correct reasoning**. Accuracy is a
+**non-inferiority constraint**: an arm that is cheaper because it solves fewer problems has
+not won. When NVML is available, the same comparison is made in joules per correct answer.
 
-The register format is a **control interface**, not a claimed source of reasoning
-ability. The possible value is that it gives the model a short, checkable execution
-contract and gives the serving system an early-exit signal.
+The register format is a **serving contract**, not a claimed source of reasoning ability.
+Its possible value is that it gives the model a short, checkable execution contract and gives
+the serving system an early-exit signal. The biological language is a design analogy, not a
+mechanism claim. The full framing is in
+[`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
+### What “biologically inspired” means here — and what it does not
+
+| Analogy | What is implemented | What is not claimed |
+|---|---|---|
+| **System 1 / reflex** | `<reg:bypass>answer</reg:bypass>` for atomic facts | A separate fast brain module, or general reasoning ability |
+| **System 2 / deliberation** | `<reg:plan>`, `<reg:deduce>`, optional `<reg:verify>`, then `<ans>` | That typed registers cause better reasoning |
+| **Bounded working memory** | A short, parseable register trace | A cognitive-science model of working memory |
+| **Metabolic parsimony** | Compact SFT targets; length-aware reward code | That parsimony training produced the v3 adapter |
+| **Router** | Prompt-level atomic/non-atomic route selection | A learned sparse router or a mixture of experts |
+| **Tool use** | Arm E Python blocks; `symbolm/tiny_terminal.py` | That the Tiny Terminal is active in the v3 SFT run |
+
+The current base model is a **dense 1.5B transformer** with a LoRA adapter. There is no
+sparse expert routing, shared global KV cache, CED encoder, or Engram module in this
+experiment. The “20×” multiplication, the “224×” KV projection, and the “20-watt brain”
+comparison are **not measurements** and are not current claims. See §5 of the framing
+document.
 
 ## 2. What survives the audit
 
-| Claim | Status | Evidence |
+| Claim | Status | Token-efficiency reading |
 |---|---|---|
-| Atomic facts can be answered by a short bypass reflex | **Supported as a mechanism** | 32/1,000 strict v2.1 passes were atomic bypass answers; the atomic subset was 32/40 |
-| The full register format adds value over a router-only control | **Not established** | Valuation: C 9.5% vs D 10.5%; paired 95% CI includes zero. Task 2: C 10% vs corrupted-plan 9%, +1.0 pp; CI includes zero |
-| The sandbox arm is a positive engineering result | **Supported in the SmolLM2 pilot** | E 23% vs A 7%; 444 vs 2,052 J per correct answer |
-| The v2.1 model is a strong math reasoner | **Retracted** | Strict rescore of the 1,000-question run: 3.2% (32/1,000), 91.7% truncated, 823 looped traces |
-| 100% MATH500 / cross-family transfer | **Retracted** | Both were n=5 anecdotes, not benchmarks |
-| 37.0% overall accuracy | **Retracted** | Run stopped at 2,119/4,800 (44%); 37.0% is a git commit message |
-| “Format Value Confirmed” | **Retracted** | The paired CI includes zero; see [`eval/ABLATION_REAL_REPORT.md`](eval/ABLATION_REAL_REPORT.md) |
-| Sub-50-token reasoning | **Not supported** | The v2.1 run averaged 494.5 tokens, not 253.8 |
+| Atomic facts can be answered by a short bypass reflex | **Supported as a narrow mechanism** | 32/1,000 strict v2.1 passes were atomic bypass answers; the atomic subset was 32/40. Useful for a factual reflex, not general reasoning. |
+| The full register format adds value over a router-only control | **Not established** | SmolLM2 pilot: C 9.5% vs D 10.5%; paired 95% CI `[-844.57, +861.30]` includes zero. C 1,265.75 J/correct vs D 1,301.41 J/correct. |
+| Answer-only is the cheap floor | **Supported in the SmolLM2 pilot** | B 15.0% at 8.1 mean tokens and 25.84 J/correct. Cheap, but only 15% strict accuracy; not a general replacement for reasoning. |
+| The sandbox arm is a positive engineering result | **Supported in the SmolLM2 pilot** | E 23.0% at 120.2 mean tokens and 444.30 J/correct vs A 7.0% at 167.6 tokens and 2,052.41 J/correct. This is tool use, not format value. |
+| The v2.1 model is a strong math reasoner | **Retracted** | Strict rescore of the 1,000-question run: 3.2% (32/1,000), 91.7% truncated, 823 looped traces. |
+| 100% MATH500 / cross-family transfer | **Retracted** | Both were n=5 anecdotes, not benchmarks. |
+| 37.0% overall accuracy / “Format Value Confirmed” | **Retracted** | Run stopped at 2,119/4,800 (44%); 37.0% is a commit-message number, not a completed result. |
+| Sub-50-token reasoning | **Not supported** | The v2.1 run averaged 494.5 tokens, not 253.8. |
 
-The honest exploratory signal from the partial six-arm run is narrower: on the 57
-cells common to all arms at budget 2048, strict declared-answer accuracy was
-C 26.3%, D 1.8%, F 42.1%, A 0%, B 29.8%, E 1.8%. That is **n=57, post-hoc, and not
-the preregistered 200 × 4 experiment**. It motivates the re-run; it does not replace it.
+The honest exploratory signal from the partial six-arm run is narrower: on the 57 cells
+common to all arms at budget 2048, strict declared-answer accuracy was C 26.3%, D 1.8%,
+F 42.1%, A 0%, B 29.8%, E 1.8%. That is **n=57, post-hoc, and not the preregistered
+200 × 4 experiment**. It motivates the re-run; it does not replace it. It is also not a
+token-efficiency result, because the old Arm C traces lack `<ans>` and the old token counts
+come from a scoring path that is not the v3 strict scorer.
 
 ## 3. What was broken
 
@@ -68,9 +93,10 @@ The audit found five independent failures, each of which could produce a false p
    truncated loops into “correct” answers. C’s 296 old “correct” rows had **zero**
    `<ans>` declarations and 52 were truncated.
 5. **Stale or partial runs.** A cancelled Kaggle run, a stale checkpoint, and a dataset
-   hash mismatch (`575B…` vs the preregistered `8369…`) were reported as completed.
+   hash mismatch were reported as completed. The old six-arm run is the main example:
+   2,119/4,800 cells, 1,955 saved rows, and a headline that was never a completed result.
 
-## 4. The repaired pipeline
+## 4. The corrected pipeline
 
 ### Data
 
@@ -98,13 +124,15 @@ The audit found five independent failures, each of which could produce a false p
   runtime packages, rejects a dirty or unverified git checkout, and has no branch
   fallback. The tokenizer extension is rebuilt if its recorded base revision does
   not match.
-- The SFT artifact now initializes both the input and output rows for genuinely added
+- The SFT artifact initializes both the input and output rows for genuinely added
   symbols, saves both `embed_tokens` and `lm_head` through `modules_to_save`, and keeps
   Trainer checkpoints separate from the final adapter. The package gate reads the
   actual safetensors keys rather than trusting `adapter_config.json` alone.
 - The post-training gate checks one reasoning and one bypass prompt: each must emit a
   declared answer of the expected route, valid register structure, and the real EOS
   token, with no loop marker.
+- **Not in this run:** GRPO, Tiny Terminal execution, FSM-constrained decoding, or a
+  mixture-of-experts layer. Those are historical or future work.
 
 ### Evaluation
 
@@ -116,31 +144,58 @@ The audit found five independent failures, each of which could produce a false p
 - `eval/robust_eval.py` does **not** stop early at an answer in the strict run; it
   lets generation reach the real EOS or the token budget, so EOS is not structurally
   removed from every answered trace. It records full traces, EOS, route-aware format
-  validity, strict and lenient scores, and the dataset hash preflight. The primary
-  endpoint remains `strict_correct`; `strict_correct_and_format` is a labeled secondary
-  field.
+  validity, strict and lenient scores, token counts, joules, and the dataset hash
+  preflight.
+- `tokens_emitted` is total generated tokens. The harness does **not** yet log a
+  separate thinking-token/answer-token split; no document may call total tokens
+  “thinking tokens.”
 - The benchmark is `data/held_out_eval_200_v2.jsonl` (SHA-256
-  `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED`).
+  `95E2B237AE2B724DC0856AEE7220EBD79436F91630F77BBB3BAD0913127F10ED` in the current
+  Windows/CRLF manifest; the LF-normalized hash is part of the r4 provenance fix).
 - One documented correction: `MY2021_001` is **169.5**, not 169.
 - The v2 file also flags 20 duplicate-prompt groups (27 redundant rows); primary
   analysis is n=200, with a unique-prompt sensitivity analysis.
 
-## 5. The next experiment
+## 5. Current status and the provenance blocker
 
-The new preregistration is [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md).
-The design is a full **200 problems × 4 budgets × 6 arms = 4,800 cells** run with:
+The pipeline is documented and locally testable, but the v3 SFT adapter does **not**
+exist. The last Kaggle SFT kernel is `ERROR`, not queued. The failure was a hash
+preflight mismatch:
+
+```text
+Train hash mismatch:
+got      BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC
+expected 5D05003B495DE3322568C4B40713CCE376A1AC05AC9B85A50B579A68A49FF63E
+```
+
+The mismatch is line endings, not data content. The working-tree files are CRLF and
+match the manifest; the committed blobs are LF and hash differently. The parser sees the
+same 4,140 rows. Validation has the same issue (`EB854A…` vs `3FCFCC…`). The fix is a new
+tag (`r4`) with `.gitattributes` enforcing LF, regenerated LF hashes in the manifest and
+preregistration, and updated kernel constants. The hash check must not be bypassed.
+
+**Until that fix lands and a clean adapter passes its package gate, there is no v3
+result.** The 4,800-cell evaluation also requires separate explicit approval; it has not
+been launched.
+
+## 6. The next experiment
+
+The preregistration is [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md). The design is a
+full **200 problems × 4 budgets × 6 arms = 4,800 cells** run with:
 
 - the same 4,600-target SFT split for every register arm;
 - identical system prompts in training and evaluation;
 - strict declared-answer scoring;
 - paired bootstrap on J/correct and a strict accuracy non-inferiority check;
 - a pre-specified rule that **no format-value claim** is allowed unless C beats D on
-  the paired CI and is not worse by more than 2 pp.
+  the paired CI and is not worse by more than 2 pp;
+- a token-efficiency report (tokens per correct answer, OAA/AUC_OAA, TokenEff, and
+  joules per correct answer when NVML is available).
 
 The first run after this rescue should be a 100 × 4 diagnostic to catch formatting or
 EOS regressions. That diagnostic is **not** the primary result. The full 200 × 4 run is.
 
-## 6. Quick start
+## 7. Quick start
 
 ```bash
 # 1. Build the canonical SFT split and audit the benchmark
@@ -168,15 +223,21 @@ python eval/robust_eval.py \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-## 7. Repository map
+The commands above are the historical r3 form. The r4 provenance fix will update the
+expected hashes; do not run them against a mismatched checkout.
+
+## 8. Repository map
 
 | Path | Purpose |
 |---|---|
-| `PREREG_VALUATION_V2.md` | Locked protocol for the rescue run |
-| `docs/RESEARCH_REDIRECT.md` | What survives, what dies, and why |
+| `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical token-efficiency and biology-analogy framing |
+| `docs/MARKDOWN_AUDIT.md` | File-by-file audit of every first-party Markdown document |
+| `PREREG_VALUATION_V2.md` | Frozen protocol for the rescue run |
+| `docs/RESEARCH_REDIRECT.md` | What survives, what is retracted, and why |
 | `docs/EVIDENCE_STATUS.md` | Short evidence-status table |
-| `EVIDENCE_TRUTH_TABLE.md` | Full claim-by-claim audit |
+| `EVIDENCE_TRUTH_TABLE.md` | Full claim-by-claim historical audit |
 | `RESULTS_SUMMARY.md` | Audit narrative and strict rescore |
+| `VALUATION.md` | SmolLM2 pilot token/energy numbers |
 | `eval/strict_scorer.py` | Declared-answer scorer and trace validator |
 | `eval/robust_eval.py` | Six-arm, four-budget evaluation harness |
 | `data/symbolic_dataset.py` | Manual chat formatting, EOS, label masking |
@@ -188,11 +249,12 @@ python eval/robust_eval.py \
 | `docs/ARCHIVE_README_2.1.md` | Archived old README (historical only) |
 | `docs/ARCHIVE_WHITEPAPER_2.1.md` | Archived old whitepaper (historical only) |
 
-## 8. Citation and contact
+## 9. Citation and contact
 
-If you use this work, cite the **v3 research note**, not the retracted v2.1
-scorecard. The author is Sanish Gyawali (Rupandehi, Nepal). The repository is
+If you use this work, cite the **v3 research note**, not the retracted v2.1 scorecard.
+The author is Sanish Gyawali (Rupandehi, Nepal). The repository is
 [https://github.com/gyawalisanish0/symboLM](https://github.com/gyawalisanish0/symboLM).
 
 **One rule for collaborators:** do not add a number to this README unless it has a
-receipt, a hash, and a command that reproduces it.
+receipt, a hash, and a command that reproduces it. Do not add a token-efficiency claim
+unless the strict correctness gate and the paired interval support it.

@@ -1,3 +1,11 @@
+> [!WARNING]
+> **HISTORICAL GRANT / PITCH NARRATIVE - DO NOT SUBMIT AS-IS (2026-10-23).** This document contains pre-rescue claims (including 37.0%, 39.7%, 50.5%, 67.6%, 100%, and 20x/80x/224x projections) that are retracted, incomplete, or Tier B pilot readings. It is retained for provenance. Rewrite any application against the current evidence ledger before sending it.
+>
+> **Current framing:** token efficiency of correct reasoning is the primary lens;
+> strict accuracy is a non-inferiority gate. The biological language is a design
+> analogy, not a mechanism claim. Current status: [EVIDENCE_STATUS.md](EVIDENCE_STATUS.md). Canonical framing:
+> [TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 # AI Grant (Nat Friedman & Daniel Gross) — Non-Dilutive Open-Source Application
 
 **Project Name:** SymboLM (Symbolic Reasoning Language & Tri-Register Cognitive Architecture)  
@@ -9,7 +17,7 @@
 ---
 
 ## 1. One-Line Summary
-**SymboLM is an open-source, biologically-inspired 2nd-generation Test-Time Compute (TTC) architecture that eliminates the "Overthinking Trap" on edge LLMs (1.5B–1.7B), achieving an 80× dynamic energy cut on factual reflex and 3.3× math accuracy via a deterministic Tiny Terminal.**
+**SymboLM is an open-source research project testing whether a token-efficient, biologically inspired control policy — a short reflex route for atomic facts plus a bounded deliberative register contract — can reduce generated tokens and energy per correct answer on edge LLMs, with strict accuracy as a non-inferiority constraint.**
 
 ---
 
@@ -44,11 +52,17 @@ Following an adversarial empirical audit, all synthetic benchmarks and regex fal
 | **Arm D (Shuffled Plan Ablation)** | Corrupted / Mismatched Concept Plan | 9.00% | 1,301.41 Joules | 136.4 tokens | Shuffling the plan drops accuracy by only 1.0 pp; free-text register content does not carry heavy computation on base SLMs. |
 | **Arm A (Ordinary CoT)** | Unconstrained Greedy English Monologue | 7.00% | 2,052.41 Joules | 167.6 tokens | Base CoT without external tools burns high energy and suffers arithmetic drift. |
 
+> **Table note:** this is the **Task 2 four-arm SmolLM2 ablation**, not the separate
+> six-arm valuation in [`VALUATION.md`](../VALUATION.md). C/D token counts differ between the
+> two runs (125.0/136.4 here vs 141.3/159.8 in the valuation). Both are Tier B, single-run
+> pilots. Neither establishes format value; the C-versus-D confidence interval includes zero.
+> The register arm does not beat the router-only control.
+
 ### The Flagship Reasoning Model Benchmark (`DeepSeek-R1-Distill-Qwen-1.5B`):
-Because a base SLM (`SmolLM2`) operates near performance floor (7–15%), it cannot settle whether cognitive registers carry computation on genuine reasoning tasks. We are currently executing the **definitive 6-arm × 4-budget ($256, 512, 1024, 2048$ tokens) evaluation** on `DeepSeek-R1-Distill-Qwen-1.5B` on Kaggle Dual Tesla T4 GPUs (including Arm F: un-adapted Vanilla DeepSeek base).
+Because a base SLM (`SmolLM2`) operates near performance floor (7–15%), it cannot settle whether cognitive registers carry computation on genuine reasoning tasks. The old six-arm × four-budget evaluation on `DeepSeek-R1-Distill-Qwen-1.5B` stopped at **2,119 / 4,800 cells** because the free Kaggle quota/infrastructure limit ended the session; it is **incomplete**, not a definitive result, and its saved cells used a scoring path that is not the v3 strict scorer. A clean v3 adapter and the full run do not yet exist.
 
 **Pre-Registered Falsification Criteria:**
-If Arm C (Full Registers) fails to outperform Arm A (CoT) and Arm D (Router Control) by at least $\Delta \text{Pass@1} \ge 2.0\%$ or lower $J/\text{correct}$ with non-overlapping bootstrap 95% CIs on DeepSeek-1.5B, we will formally accept the null hypothesis that natural language register content does not carry computation. In that event, SymboLM will officially pivot to a typed executor DSL interface (Router + Deterministic Terminal), which our data already proves delivers massive efficiency gains.
+If Arm C (Full Registers) fails to satisfy the preregistered C-versus-D token/energy test at 256 tokens, or loses more than 2 percentage points of strict accuracy versus D, we will report a negative result: the data do not establish format value. The Tier B SmolLM2 pilot suggests routing and tool use may reduce cost, but it does not prove a register advantage and does not establish a general efficiency gain.
 
 ---
 

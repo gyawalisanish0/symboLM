@@ -1,5 +1,5 @@
 """
-Standalone Verification Script for SOTA Reasoning & Overthinking Metrics
+Standalone Verification Script for Reasoning & Overthinking Metrics
 ========================================================================
 Strictly implements published mathematical formulas from:
 1. Meta FAIR & CMU (arXiv:2508.13141): OptimalThinkingBench (OAA_t, AUC_OAA)
@@ -44,7 +44,7 @@ def verify_and_compute(results_jsonl: Path) -> Dict[str, Any]:
     budgets = sorted(set(r["budget"] for r in records))
 
     print("=" * 85)
-    print(f"  SOTA REASONING METRICS VERIFICATION (Meta FAIR & CMU arXiv:2508.13141)")
+    print(f"  REASONING METRICS VERIFICATION (Meta FAIR & CMU arXiv:2508.13141)")
     print(f"  Input: {results_jsonl.name} | Records Loaded: {len(records)}")
     print(f"  Arms: {arms} | Budgets: {budgets}")
     print("=" * 85)
@@ -135,7 +135,7 @@ def verify_and_compute(results_jsonl: Path) -> Dict[str, Any]:
     return {"records_verified": len(records), "metrics": summary_table}
 
 def main():
-    parser = argparse.ArgumentParser(description="Verify SOTA Reasoning & Overthinking Metrics from Receipts")
+    parser = argparse.ArgumentParser(description="Verify Reasoning & Overthinking Metrics from Receipts")
     parser.add_argument("results_file", type=Path, help="Path to robust_eval_results.jsonl")
     args = parser.parse_args()
     verify_and_compute(args.results_file)

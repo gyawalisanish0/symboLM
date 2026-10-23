@@ -1,5 +1,9 @@
 import unittest
-from eval.robust_eval import compute_overthinking_metrics, compute_budget_choke_factor
+from eval.robust_eval import (
+    _summarise,
+    compute_overthinking_metrics,
+    compute_budget_choke_factor,
+)
 
 
 class TestOverthinkingMetrics(unittest.TestCase):
@@ -58,6 +62,17 @@ class TestOverthinkingMetrics(unittest.TestCase):
         self.assertEqual(res_reflex["accuracy"], 1.0)
         self.assertGreater(res_reflex["overthinking_score"], res_verbose["overthinking_score"])
         self.assertGreater(res_reflex["auc_oaa"], res_verbose["auc_oaa"])
+
+    def test_tokens_per_correct_counts_failed_answers(self):
+        records = [
+            {"arm": "A", "budget": 256, "is_correct": True,  "tokens_emitted": 10},
+            {"arm": "A", "budget": 256, "is_correct": False, "tokens_emitted": 30},
+        ]
+        s = _summarise(records, arm_filter="A", budget_filter=256)
+        self.assertEqual(s["total_tokens"], 40)
+        self.assertEqual(s["tokens_per_correct"], 40.0)
+        self.assertEqual(s["correct_per_1k_tokens"], 25.0)
+        self.assertEqual(s["mean_tokens"], 20.0)
 
     def test_budget_choke_factor(self):
         # Complete choke: acc drops from 30% at 2048 to 0% at 256

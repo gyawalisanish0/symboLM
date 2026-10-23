@@ -4,6 +4,16 @@
 **Purpose:** train one clean LoRA adapter on the canonical 4,600-target SFT split.  
 **Not a result:** this kernel does not evaluate format value, routing value, or benchmark accuracy.
 
+> [!WARNING]
+> **Current status (2026-10-23): this kernel is `ERROR`, not queued.** It failed the train-hash
+> preflight because the r3 manifest hashes were computed over Windows CRLF files while the
+> committed blobs are LF. The data rows are identical; the bytes are not. The planned `r4`
+> revision will add `.gitattributes` LF rules, regenerate the manifest/protocol hashes, and
+> update the kernel constants. Do not bypass the preflight. The training run is also
+> efficiency-oriented — compact canonical traces, bypass examples, terminal answers, and real
+> EOS — but this kernel is not evidence that the training improves tokens per correct answer.
+> Token efficiency is evaluated only after a clean adapter passes the package gate.
+
 ## Files
 
 | File | Purpose |
@@ -58,6 +68,11 @@ If it is absent, it clones the exact pinned tag:
 ```text
 sft-v3-20261022-r3
 ```
+
+> **r4 note:** the tag above is the current frozen r3 tag, but it is not usable for a Linux
+> training run because of the CRLF/LF hash mismatch. The r4 tag will replace it in the
+> notebook and in the commands below. Do not point a training run at r3 without the r4
+> provenance fix.
 
 There is **no branch fallback**. A missing tag, a tag/commit mismatch, a missing bundle
 manifest, or a bundle hash mismatch is a hard failure. Every training command requires

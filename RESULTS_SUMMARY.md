@@ -3,6 +3,16 @@
 > [!WARNING]
 > **HISTORICAL AUDIT SNAPSHOT — SUPERSEDED (2026-10-22).** This document was written while the old Kaggle run was still active. That run stopped at **2,119/4,800 cells**; the 37.0% / 39.7% headline is retracted. The old scoring path is not the v3 strict scorer. Current status: [`docs/EVIDENCE_STATUS.md`](docs/EVIDENCE_STATUS.md). New protocol: [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md). The Hugging Face model repositories are now private.
 
+> [!IMPORTANT]
+> **Framing correction (2026-10-23).** Read this document through the token-efficiency lens:
+> the dependent variable is generated tokens and joules per **correct** answer, while strict
+> accuracy is a non-inferiority constraint. The SmolLM2 pilot is a Tier B measurement, not
+> the v3 result. The six-arm run stopped because the free Kaggle quota/infrastructure limit
+> ended the session; it is **incomplete**, not a negative or confirmatory result. “Biomimetic”
+> and “System 1/2” language in the historical sections is a design analogy, not a claim of
+> biological fidelity. Canonical framing:
+> [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md).
+
 **Principal Systems Architect & Research Director:** **Sanish Gyawali** (Rupandehi, Nepal)  
 **AI Systems Collaborator:** Antigravity (Google DeepMind)  
 **Adversarial Peer Reviewer:** Claude (Haiku 5.5, Anthropic)  
@@ -91,12 +101,31 @@ This document synthesizes the empirical findings across all audit tasks (Tasks 0
 | **Arm D: Router Only (Control)** | **10.50%** | **1301.41 J** | 39.412 s | 159.8 | `MEASURED (NVML)` | `VERIFIED` |
 | **Arm E: CoT + Python Sandbox** | **23.00%** | **444.30 J** | 13.571 s | 120.2 | `MEASURED (NVML)` | `VERIFIED` |
 
-- **Physical Silicon Efficiency Gains:**
+- **Physical Silicon Efficiency Gains (pilot only):**
   - Arm C consumes **38.3% less dynamic energy per correct solve** than Ordinary CoT ($1265.75\text{ J}$ vs. $2052.41\text{ J}$).
   - Arm E (Tiny Terminal emulation) delivers **78.4% lower energy per correct solve** ($444.30\text{ J}$ vs. $2052.41\text{ J}$) with a **3.3× accuracy boost** (23.0% vs. 7.0%).
+  - These are **Tier B pilot readings**, not v3 results. They do not establish format value, because C is not better than the router-only D.
 - **Pre-Registered Hypothesis Test (Arm C vs. Arm D on SmolLM2):**
   - $\Delta J = +24.26\text{ J}$, Paired Bootstrap 95% CI: $[-844.57, +861.30]$.
   - As Claude Haiku 5.5 noted, SmolLM2 is a small non-reasoning base model, so router-dominated savings are expected on this transfer check.
+  - The correct conclusion is **no format value established**. The old “Format Value Confirmed” phrase is retracted.
+
+### 4.1 Token-efficiency reading (derived, Tier B)
+
+Using the same fixed 200-problem set, `tokens per correct = mean tokens ÷ strict accuracy`:
+
+| Arm | Strict accuracy | Mean tokens | Implied tokens/correct | J/correct |
+|---|---:|---:|---:|---:|
+| A: ordinary CoT | 7.0% | 167.6 | ~2,394 | 2,052.41 |
+| B: answer-only | 15.0% | 8.1 | ~54 | 25.84 |
+| C: full registers | 9.5% | 141.3 | ~1,487 | 1,265.75 |
+| D: router-only | 10.5% | 159.8 | ~1,522 | 1,301.41 |
+| E: CoT + Python sandbox | 23.0% | 120.2 | ~523 | 444.30 |
+
+All token values are **total generation**, not a separate thinking-token count. B is the cheap
+floor; E is the strongest engineering signal; C is not better than D. The old flagship’s
+apparent token win is not comparable because its Arm C traces lacked `<ans>` and its scoring
+path was different.
 
 ---
 
