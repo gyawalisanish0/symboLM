@@ -79,6 +79,13 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
       preregistered C-versus-D decision.
 - [ ] Publish the result, including a negative result if that is what the data show.
 
+## Long-term roadmap
+
+The plan for symbolic-interface scaling, teacher–student distillation, and
+architecture-level edge efficiency is in [`docs/ROADMAP.md`](docs/ROADMAP.md). It is
+planning only; no phase beyond r6 has started. A target edge device and its latency/energy
+budget still need to be chosen.
+
 ## Non-negotiable rules
 
 1. Token efficiency is the primary lens; strict accuracy is the non-inferiority gate.

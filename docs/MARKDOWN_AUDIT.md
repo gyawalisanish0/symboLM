@@ -3,8 +3,8 @@
 **Audit date:** 2026-10-23  
 **Scope:** first-party `.md` files, excluding `.venv/`, `vendor/`, `scratch/`,
 archived Kaggle output duplicates, and generated output directories.  
-**Files audited:** 65<br>
-**Relative-link pass:** zero broken links in the 65-file scope (archived Kaggle output duplicates excluded)
+**Files audited:** 66<br>
+**Relative-link pass:** zero broken links in the 66-file scope (archived Kaggle output duplicates excluded)
 
 Some audit targets are gitignored in this working tree: the private grant documents under
 `research/` and the `checkpoints/` model cards. They were still audited and banner-marked on
@@ -73,6 +73,7 @@ launched.
 | `docs/HONEST_PITCH_AND_SOCIAL.md` | Historical / retracted | Banner added; currently-running corrected to incomplete; Tier B receipts labeled. |
 | `docs/MARKDOWN_AUDIT.md` | Audit index | This file. Lists every first-party Markdown document and the action taken. |
 | `docs/RESEARCH_REDIRECT.md` | Canonical current | Rewritten with token efficiency primary, biology as analogy, quota-stop language, decision rules, and the r4/r5/r6 status. |
+| `docs/ROADMAP.md` | Design / projection | New long-term plan: symbolic-interface scaling, teacher–student distillation, architecture-level edge efficiency, gates, controls, and resources. Planning only; no measured claim. |
 | `docs/STATE_OF_THE_ART_REASONING_AND_EVALUATION.md` | Canonical methodology | Removed “SymboLM solves” and hardware-receipt claims; reframed as hypotheses; updated the v3 artifact status through the r5 failure and r6 repair. |
 | `docs/TINY_TERMINAL_AND_CONTEXT_PRUNING_SPEC.md` | Design / projection | Status changed to not active in v3; removed the outperform-70B claim. |
 | `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical current | New canonical doc: metric definitions, biology caveats, training scope, evidence ledger, claim rules, and the r4/r5/r6 status. |
