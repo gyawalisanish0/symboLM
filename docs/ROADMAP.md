@@ -31,6 +31,9 @@ notation. Test adaptive depth, KV/state compression, quantization/pruning, and
 speculative decoding against a strong static baseline, on the target device, at matched
 accuracy.
 
+**First deployment target (2026-10-24): Android phone, `llama.cpp`, 0.5B Q4 student first.**
+The 1.5B model remains the GPU/teacher artifact until a phone measurement says otherwise.
+
 The tracks meet in two places:
 
 1. **Teacher → student distillation:** a larger model generates and verifies symbolic
@@ -140,7 +143,8 @@ human cognition.
 - Any 7B, 14B, or 32B run.
 - Any teacher–student distillation run.
 - Any architecture-level modification or on-device benchmark.
-- A target edge device and a latency/energy budget.
+- An exact Android phone, backend, and latency/energy budget. The runtime decision is
+  `llama.cpp`; the device decision is not yet pinned.
 
 ### 2.3 Current evidence boundary
 
@@ -479,12 +483,13 @@ depending on quantization and provider. Replace with a measured feasibility run.
 **Question:** Can a large symbolic teacher train a small edge student without losing the
 accuracy that matters?
 
-**Design:** verified teacher traces; 0.5B and/or 1.5B students; natural-language and
-answer-only distillation controls; held-out and external evaluation; edge proxy.
+**Design:** verified teacher traces; 0.5B student first (Q4 GGUF, `llama.cpp` on the chosen
+Android phone); 1.5B as a measured stretch; natural-language and answer-only distillation
+controls; held-out and external evaluation; edge proxy.
 
 **Gate G4:** student accuracy is non-inferior to the best static student baseline within a
 preregistered margin (default −2 pp unless the deployment requires tighter), and
-tokens/latency/energy per correct answer are lower on the target device.
+tokens/latency/energy per correct answer are lower on the Android device.
 
 **Deliverable:** a distillation report with teacher/student revisions, filter rates, and
 raw traces.
@@ -494,8 +499,10 @@ raw traces.
 **Question:** Does one architecture change beat the strongest quantized/distilled baseline
 on the target device?
 
-**Design:** C0 bottleneck analysis first; then one of early exit, KV/state compression, or
-speculative decoding; matched accuracy; batch 1; multiple runs.
+**Design:** C0 bottleneck analysis first on the Android phone; then one of early exit,
+KV/state compression, or speculative decoding; matched accuracy; batch 1; multiple runs.
+Stock `llama.cpp` cannot expose early exit cleanly, so prototype that change in PyTorch or
+a pinned fork; do not mix a runtime rewrite into the first mobile benchmark.
 
 **Gate G5:** on-device latency or energy improves with a paired CI that excludes zero, at
 non-inferior accuracy. If not, publish the negative and do not stack mechanisms.
@@ -606,23 +613,116 @@ committing to a phase.
 
 ### 8.3 Hardware decision
 
-The roadmap requires a target device by Gate G2b/G3. Provisional profiles:
+**Decision (2026-10-24): Android phone first, using `llama.cpp`.** This supersedes the
+earlier “Jetson first” recommendation.
 
 | Profile | Example | Model budget | What it favors |
 |---|---|---|---|
-| E1: Edge GPU | Jetson Orin Nano 8 GB, 10–25 W | 1.5B at 4-bit | Early exit, quantization, KV compression |
-| E2: Phone | 8–12 GB RAM, 5–10 W | 0.5B–1.5B at 4-bit | Distillation, quantization, speculative decoding |
-| E3: MCU | <1 MB RAM, mW | Symbolic solver or tiny model, not 1.5B | A different architecture; not the current LLM path |
+| E1: Android phone (primary) | 8–12 GB RAM, recent Snapdragon/Exynos/Tensor, Android 12+ | 0.5B at Q4 first; 1.5B Q4 as a measured stretch | Distillation, quantization, CPU/GPU/NPU comparison |
+| E2: Laptop CPU (control) | x86/ARM laptop on AC power | 0.5B–1.5B Q4 | Stable baseline; easy energy measurement |
+| E3: Edge GPU (secondary) | Jetson Orin Nano 8 GB, 10–25 W | 1.5B Q4 | Early exit, KV compression |
+| E4: MCU | <1 MB RAM, mW | Symbolic solver or tiny model, not 1.5B | A different architecture; not the current LLM path |
 
-**Recommendation:** start with E1 for the 1.5B proof because it can actually run the model
-and measure energy; then test E2 with the distilled 0.5B student. Do not claim E3 support
-without a separate feasibility study.
+**Recommendation:** prove the edge study on Android with the **0.5B distilled student at
+Q4** first. Treat the 1.5B model as a measured stretch only if the phone has enough RAM and
+the decode speed is acceptable. Use the laptop CPU as the control and measurement anchor.
+Do not claim 1.5B mobile support from a desktop result.
 
-**Required input:** target device, power mode, latency target, energy target, and batch
-size. Without these, the architecture track can measure relative gains but not deployment
-fitness.
+**Required input:** exact phone model, SoC, RAM, Android version, backend (CPU / OpenCL /
+Hexagon / Vulkan), power mode, latency target, energy target, and batch size. Without these,
+the architecture track can measure relative gains but not deployment fitness.
 
-### 8.4 Funding and collaboration
+**Available low-end device (user-reported, 2026-10-24):** Redmi 15 4G, Snapdragon 685,
+HyperOS 3, CPU-only path, no Arm dot-product extension; RAM variant to confirm. This is a
+low-end case study, not a representative “mobile” claim. Use the 0.5B Q4 model first; treat
+1.5B as likely out of scope unless the RAM variant and measured speed say otherwise.
+
+### 8.4 Android-first runtime plan
+
+The runtime ladder is:
+
+1. **Desktop CPU reference:** `llama.cpp` GGUF, fixed flags, AC power. This is the
+   reproducibility anchor.
+2. **Android CPU:** `llama.cpp` `arm64-v8a` build; NEON/KleidiAI; fixed thread count on
+   performance cores. This is the primary claim.
+3. **Android GPU/NPU:** OpenCL (Adreno), Hexagon (Snapdragon), or Vulkan where the device
+   and build support it. This is a comparison, not an automatic improvement.
+4. **Custom runtime:** only for architecture changes stock `llama.cpp` does not expose
+   (for example, early exit). A fork is a research artifact, not a deployment baseline.
+
+Build paths:
+
+- Android Studio binding: `examples/llama.android` in the pinned `llama.cpp` tree.
+- CLI: Termux or Android NDK cross-compile, `arm64-v8a`, then `adb push` the binary and
+  model.
+- Pin the `llama.cpp` commit; record the backend, build flags, thread count, context size,
+  and model hash.
+- On the Redmi 15 / Snapdragon 685, build CPU-only with `GGML_NATIVE=OFF` and no
+  `+dotprod`/KleidiAI path; verify the reported CPU features before trusting the binary.
+  Pin four worker threads to the Cortex-A73 cluster; do not use all eight cores.
+
+**Existing harness:** [`gyawalisanish0/DomainAI`](https://github.com/gyawalisanish0/DomainAI)
+(Apache-2.0) is the deployment base. Do not build a second Android app. Reference snapshot:
+`main` at `dd0eff1094cfdd3835a79775cc11e09975852eaf` (2026-06-26), vendored `llama.cpp`
+`f3e1828` (cloned 2026-06-18). Pin a fork/commit before measuring.
+
+It already provides Kotlin/Compose + C++/JNI, GGUF import, a model manager, CPU/GPU backend
+diagnostics, thread pinning, prefill/decode timing, and an in-app CPU-vs-GPU benchmark. It
+is **not yet a research instrument**. Required changes:
+
+1. Deterministic sampler profile (greedy/temperature 0) or a fixed, recorded seed; log
+   top-k, top-p, temperature, and seed. The current native sampler is top-k 40, top-p
+   0.95, temperature 0.7, default seed.
+2. Stop-string support for the terminal symbolic marker in addition to EOS; record the
+   stop reason and include emitted stop tokens in the token accounting. The current loop
+   stops only on EOG or context length.
+3. Exact training-template mode: bypass the app/embedded chat prompt or override it with
+   the frozen v3 prompt. Hash the fully rendered prompt and log it. The current app uses
+   the GGUF's embedded chat template; v3 training used manual Qwen formatting.
+4. Headless benchmark runner (debug activity, instrumentation, or ADB-triggered service)
+   that writes one JSONL row per cell: model/prompt hashes, backend, threads, context,
+   sampler, token counts, prefill/TTFT/decode/total ms, peak RSS, battery/thermal state,
+   stop reason, and raw output.
+5. GGUF tokenizer/format gate for the 47 added tokens before any phone run.
+6. Real arm64 phone execution; the current CI emulator is x86_64 and cannot load the
+   native library.
+
+Model path:
+
+- Start with the 0.5B student in GGUF `Q4_K_M`; test `Q5_K_M` or `Q8_0` if accuracy drops.
+- A stock 0.5B is a **baseline**, not the distilled student. Label it accordingly and do
+  not present it as a teacher–student result.
+- Do not substitute the catalog's DeepSeek-R1-Distill-Qwen-1.5B for the r6 base; record the
+  exact base revision and the merged adapter hash.
+- Run a **GGUF tokenizer/format gate** before any mobile benchmark: the added symbolic
+  markers must tokenize the same way, the chat template and stop tokens must match, and the
+  strict accuracy/format-valid rates must pass on the desktop with the GGUF model.
+- Do not assume the FP16 adapter result transfers to Q4. Quantization is a new artifact and
+  needs its own accuracy receipt.
+- Test the 1.5B GGUF only after the 0.5B path is clean.
+
+Android benchmark protocol:
+
+- One specified phone, airplane mode, fixed brightness, unplugged, batch size 1.
+- On HyperOS, use a foreground service and exempt the benchmark from battery optimization;
+  disable memory extension and adaptive battery; record the thermal status. Otherwise the
+  OS can kill or throttle the run and the latency receipt is invalid.
+- Record prefill tokens/s, decode tokens/s, time-to-first-token, p50/p95 end-to-end
+  latency, peak RSS, and battery/energy delta where measurable.
+- Warm up, then run at least five measured repetitions per prompt; report variance and
+  thermal state.
+- Compare symbolic vs natural-language CoT vs answer-only, and CPU vs GPU/NPU if available.
+- Label a CPU-only result as CPU-only; do not generalize it to “mobile.”
+
+Architecture caveat:
+
+- Stock `llama.cpp` already supports quantization, speculative decoding, and several
+  backends. It does **not** give you a clean early-exit or custom-KV interface.
+- Early-exit and custom-state experiments need a PyTorch prototype first, then a pinned
+  `llama.cpp` fork if the result justifies the engineering.
+- Do not promise architecture-level results from a stock runtime benchmark.
+
+### 8.5 Funding and collaboration
 
 - Use the honest v3 result, positive or negative, as preliminary data for cloud credits or
   edge-hardware grants.
@@ -646,6 +746,9 @@ fitness.
 | Edge energy unmeasurable | No J/correct claim | Report tokens/latency only; no estimated joules |
 | Architecture change confounds | Uninterpretable gain | One change at a time; matched accuracy; static baseline |
 | Quantization breaks format | Invalid outputs | Format gate; QAT; fallback precision |
+| App template ≠ training template | Invalid accuracy comparison | Raw-prompt mode; prompt hash; desktop GGUF gate |
+| Stochastic app sampler | Noisy or invalid cell comparison | Greedy or fixed seed; record sampler profile |
+| Android app measures UI, not model | Misleading latency | Headless runner; batch 1; fixed device state |
 | Compute/quota stop | Incomplete run | Label incomplete; resume; never call negative |
 | Benchmark overfitting | Inflated result | Held-out external benchmark; unique-prompt sensitivity |
 | Token gain ≠ energy gain | Overclaim | Measure on device; report both; no projection |
@@ -698,10 +801,13 @@ Venues are secondary. The claim ladder and receipts are primary.
 4. Draft the Phase 1b preregistration for the matched no-register adapter and seeds.
 5. Check 7B base-model availability, tokenizer compatibility, and QLoRA feasibility.
 6. Write a one-page Phase 2 protocol before spending 7B compute.
-7. Choose the target edge device and budget; without it, architecture work is relative, not
+7. Record the target decision: **Android phone + `llama.cpp`**. Choose the exact phone,
+   RAM/SoC, and CPU or GPU/NPU backend. Without those, architecture work is relative, not
    deployable.
-8. Add `docs/ROADMAP.md` to the Markdown audit and the README repository map.
-9. Keep the claim ledger and retractions current; no new number without a receipt.
+8. Add a GGUF tokenizer/accuracy gate before any mobile benchmark; the 0.5B student is the
+   first model, not the 1.5B.
+9. Add `docs/ROADMAP.md` to the Markdown audit and the README repository map.
+10. Keep the claim ledger and retractions current; no new number without a receipt.
 
 ---
 

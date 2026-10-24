@@ -5,8 +5,8 @@
 **Not a result:** this kernel does not evaluate format value, routing value, or benchmark accuracy.
 
 > [!NOTE]
-> **Current status (2026-10-23): r5 trained but failed the generation gate; r6 is the
-> token-delta repair revision and has not been run.** The r4 tag
+> **Current status (2026-10-24): r5 trained but failed the generation gate; r6 is the
+> token-delta repair revision and is running on Kaggle with no result yet.** The r4 tag
 > (`sft-v3-20261023-r4`) passed the full Kaggle preflight. Its training stopped before an
 > optimizer step because Kaggle supplied `torchao 0.10.0`, below PEFT 0.21.2's `0.16.0`
 > minimum; that was a packaging failure, not a data or scientific result. The r5 tag
@@ -21,9 +21,10 @@
 > bug, not a scientific result. The r6 tag (`sft-v3-20261023-r6`) adds trainable deltas
 > for the 47 genuinely added tokenizer rows, keeps the resized `modules_to_save` matrices
 > frozen during training, merges the deltas before save, and makes both the training
-> script and package gate reject exactly tied marker rows. r6 has not been run. The
-> kernel is efficiency-oriented, but it is not evidence that training improves tokens
-> per correct answer. Token efficiency is evaluated only after a clean adapter passes
+> script and package gate reject exactly tied marker rows. r6 is running; no result
+> exists yet. The kernel is efficiency-oriented, but it is not evidence that training
+> improves tokens per correct answer. Token efficiency is evaluated only after a clean
+> adapter passes
 > the package gate.
 
 ## Files

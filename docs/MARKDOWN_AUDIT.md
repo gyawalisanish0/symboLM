@@ -1,6 +1,6 @@
 # Markdown Audit: Every First-Party Document
 
-**Audit date:** 2026-10-23  
+**Audit date:** 2026-10-24  
 **Scope:** first-party `.md` files, excluding `.venv/`, `vendor/`, `scratch/`,
 archived Kaggle output duplicates, and generated output directories.  
 **Files audited:** 66<br>
@@ -57,7 +57,7 @@ launched.
 | `OPTIMIZATIONS_RESEARCH.md` | Design / projection | Banner added: engineering options/projections, not measured v3 results. |
 | `PREREG_VALUATION.md` | Historical / retracted | Already historical/superseded. |
 | `PREREG_VALUATION_V2.md` | Canonical current | Added dated framing, token-efficiency, r4 provenance, r4-outcome/r5 package notes, and the r5-outcome/r6 token-delta note. Hypotheses/endpoints unchanged. |
-| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, r4 provenance, r5 generation failure, and r6 token-delta repair; SFT and the full run are pending. |
+| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, r4 provenance, r5 generation failure, and r6 token-delta repair; r6 is running, SFT and the full run are pending. Adds the Android/`llama.cpp` harness status. |
 | `REPRODUCIBILITY.md` | Canonical current | Rewritten for v3, strict scoring, the r4 LF provenance fix, the r5 `torchao` fix and generation failure, the r6 token-delta repair, and token-efficiency reporting. |
 | `RESULTS_SUMMARY.md` | Historical / retracted | Framing banner and tokens-per-correct table added; incomplete-run language corrected. |
 | `SESSION_CONTEXT.md` | Historical / retracted | Correction note added: 20x invalid, 224x projection, old 100%/confirmed claims historical. |
@@ -73,7 +73,7 @@ launched.
 | `docs/HONEST_PITCH_AND_SOCIAL.md` | Historical / retracted | Banner added; currently-running corrected to incomplete; Tier B receipts labeled. |
 | `docs/MARKDOWN_AUDIT.md` | Audit index | This file. Lists every first-party Markdown document and the action taken. |
 | `docs/RESEARCH_REDIRECT.md` | Canonical current | Rewritten with token efficiency primary, biology as analogy, quota-stop language, decision rules, and the r4/r5/r6 status. |
-| `docs/ROADMAP.md` | Design / projection | New long-term plan: symbolic-interface scaling, teacher–student distillation, architecture-level edge efficiency, gates, controls, and resources. Planning only; no measured claim. |
+| `docs/ROADMAP.md` | Design / projection | Long-term plan: symbolic-interface scaling, teacher–student distillation, architecture-level edge efficiency, gates, controls, and resources. Android + `llama.cpp` is the first deployment target; `DomainAI` is the harness. Planning only; no measured claim. |
 | `docs/STATE_OF_THE_ART_REASONING_AND_EVALUATION.md` | Canonical methodology | Removed “SymboLM solves” and hardware-receipt claims; reframed as hypotheses; updated the v3 artifact status through the r5 failure and r6 repair. |
 | `docs/TINY_TERMINAL_AND_CONTEXT_PRUNING_SPEC.md` | Design / projection | Status changed to not active in v3; removed the outperform-70B claim. |
 | `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical current | New canonical doc: metric definitions, biology caveats, training scope, evidence ledger, claim rules, and the r4/r5/r6 status. |
@@ -96,7 +96,7 @@ launched.
 | `eval/cross_family_llama/symbolm_llama_1_7b_adapter/README.md` | Historical / retracted | Historical model card; banner added; n=5 probe, not universality. |
 | `eval_cross_domain/EVAL_CROSS_DOMAIN_REPORT.md` | Historical / retracted | Historical duplicate; banner added. |
 | `experiments/README.md` | Archive / historical ops | Banner added; HF repositories private; old accuracy headlines not current. |
-| `experiments/kaggle/sft_v3/README.md` | Current operational | Added r3 `ERROR` history, the r4 preflight pass and `torchao` packaging stop, the r5 generation-gate failure and tied-row diagnosis, the r6 token-delta repair, and the token-efficiency caveat. No r6 run has completed. |
+| `experiments/kaggle/sft_v3/README.md` | Current operational | Added r3 `ERROR` history, the r4 preflight pass and `torchao` packaging stop, the r5 generation-gate failure and tied-row diagnosis, the r6 token-delta repair, and the token-efficiency caveat. r6 is running; no result exists yet. |
 | `experiments/kaggle/sft_v3/upload/README.md` | Archive / historical ops | Generated r4 bundle metadata; stale and not used by the r6 kernel. Rebuild with `package_bundle.py` on the r6 tag if a bundle is needed. |
 | `experiments/lightning/README.md` | Archive / historical ops | Banner added; old SFT/GRPO paths are not the v3 artifact. |
 | `research/CLAUDE_EMPIRICAL_AUDIT_BRIEF.md` | Historical / retracted | Historical audit brief; banner added. |

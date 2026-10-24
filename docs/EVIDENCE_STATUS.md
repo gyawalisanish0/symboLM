@@ -1,10 +1,9 @@
 # Evidence Status
 
-**As of:** 2026-10-23  
+**As of:** 2026-10-24  
 **Branch:** `research/rescue-v3`  
-**Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
-**r5 training completed but failed the generation gate**; **r6 token-delta repair is
-prepared, not yet run**; **no admissible v3 SFT adapter and no v3 GPU result**<br>
+**Current phase:** **r6 token-delta repair is running on Kaggle; no result yet**; r5 is
+superseded; **no admissible v3 SFT adapter and no v3 GPU result**<br>
 **Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
@@ -185,7 +184,8 @@ whitepaper are explicitly labeled historical.
    frozen `<ans>`, `</ans>`, and `answer` output rows were byte-identical.
 6. ✅ Implement the r6 token-delta repair, merge-before-save, and tied-row gate; create tag
    `sft-v3-20261023-r6`.
-7. ⛔ Run r6 training and pass the mixed-kind post-training generation check (**no r6 run yet**).
+7. ⛔ Run r6 training and pass the mixed-kind post-training generation check (**kernel
+   running; no result yet**).
 8. ⛔ Package the r6 adapter and pass the package gate, including `"torchao": "absent"` and
    distinct terminal-marker rows.
 9. ⛔ Run the 100 × 4 × 6 diagnostic.

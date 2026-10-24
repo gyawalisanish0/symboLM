@@ -4,12 +4,12 @@
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Repository branch:** `research/rescue-v3`  
-**Status date:** 2026-10-23  
-**Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
-**r5 training completed but failed the strict generation gate**; the **r6 token-delta repair
-is prepared and has not been run**; **SFT is not complete**; **no admissible v3 adapter and no
-v3 GPU result**.<br>
-**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r6`). The r4 run passed the full preflight, then stopped at LoRA injection because Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; that was a packaging failure, not a data or scientific result. The r5 run trained 777 steps but failed the strict generation gate: the saved adapter had byte-identical frozen `<ans>`, `</ans>`, and `answer` output rows, so greedy decoding could not emit the terminal markers. r6 trains small deltas on the 47 genuinely added rows, merges them before save, and rejects exactly tied marker rows in both the training and package gates. No r6 run has completed.<br>
+**Status date:** 2026-10-24  
+**Current phase:** **r6 token-delta repair is running on Kaggle; no result yet**; r5 is
+superseded, and **SFT is not complete**; **no admissible v3 adapter and no v3 GPU
+result**.<br>
+**SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r6`). The r4 run passed the full preflight, then stopped at LoRA injection because Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; that was a packaging failure, not a data or scientific result. The r5 run trained 777 steps but failed the strict generation gate: the saved adapter had byte-identical frozen `<ans>`, `</ans>`, and `answer` output rows, so greedy decoding could not emit the terminal markers. r6 trains small deltas on the 47 genuinely added rows, merges them before save, and rejects exactly tied marker rows in both the training and package gates. No r6 result exists yet.<br>
+**Android harness:** [`gyawalisanish0/DomainAI`](https://github.com/gyawalisanish0/DomainAI) (Apache-2.0) is the intended native `llama.cpp` deployment base. Integration has not started; it needs deterministic sampling, stop strings, exact v3 prompt parity, and a headless benchmark path before it can produce research receipts.<br>
 **Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links return 401; nothing was deleted.
 
 ---

@@ -1,11 +1,9 @@
 # SymboLM — Task Tracker
 
-**Status date:** 2026-10-23  
+**Status date:** 2026-10-24  
 **Branch:** `research/rescue-v3`  
-**Current phase:** documentation audit, **r4 LF provenance fix validated on Kaggle**, and
-**r5 training completed but failed the strict generation gate**; the **r6 token-delta repair
-is prepared and has not been run**; SFT is not complete. **No admissible v3 adapter and no
-v3 GPU result.**
+**Current phase:** **r6 token-delta repair is running on Kaggle; no result yet**; r5 is
+superseded, and SFT is not complete. **No admissible v3 adapter and no v3 GPU result.**
 
 This tracker records implementation state, not scientific validity. A checked box means the
 code or document exists; it does not mean the associated claim is confirmed.
@@ -67,7 +65,8 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
       output rows were byte-identical.
 - [x] Implement trainable token deltas for the 47 genuinely added rows, merge them before
       save, make both gates reject tied marker rows, and create tag `sft-v3-20261023-r6`.
-- [ ] Run r6 training and pass the mixed-kind generation check (**no r6 run yet**).
+- [ ] Run r6 training and pass the mixed-kind generation check (**kernel running; no result
+      yet**).
 - [ ] Package the r6 adapter and pass the package gate, including `"torchao": "absent"` and
       distinct terminal-marker rows.
 
@@ -83,8 +82,23 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 
 The plan for symbolic-interface scaling, teacher–student distillation, and
 architecture-level edge efficiency is in [`docs/ROADMAP.md`](docs/ROADMAP.md). It is
-planning only; no phase beyond r6 has started. A target edge device and its latency/energy
-budget still need to be chosen.
+planning only; no phase beyond r6 has started. The target decision is **Android first,
+using `llama.cpp`**, with a 0.5B Q4 student as the first mobile model. The exact phone,
+RAM/SoC, backend, and latency/energy budget still need to be chosen.
+
+Deployment harness: [`gyawalisanish0/DomainAI`](https://github.com/gyawalisanish0/DomainAI)
+(Apache-2.0), reference `main` `dd0eff1094cfdd3835a79775cc11e09975852eaf`, vendored
+`llama.cpp` `f3e1828`. It is the app base, not yet a research instrument.
+
+- [ ] Pin a DomainAI commit and record its `llama.cpp` commit, NDK, ABI, and build flags.
+- [ ] Add deterministic sampling, stop-string support, exact v3 prompt mode, and a
+      headless JSONL benchmark runner.
+- [ ] Pass the GGUF tokenizer/format/accuracy gate on desktop before any phone claim.
+- [ ] Record the Redmi 15 4G / Snapdragon 685 / HyperOS 3 profile; confirm the RAM variant;
+      build CPU-only without dotprod and pin four A73 threads.
+- [ ] Run the 0.5B Q4 student on the Redmi 15; CPU baseline first. Treat 1.5B as a separate
+      stretch, not the primary mobile claim.
+- [ ] Add energy/thermal/peak-memory receipts; no projected joules.
 
 ## Non-negotiable rules
 
