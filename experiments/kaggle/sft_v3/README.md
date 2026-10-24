@@ -5,27 +5,26 @@
 **Not a result:** this kernel does not evaluate format value, routing value, or benchmark accuracy.
 
 > [!NOTE]
-> **Current status (2026-10-24): r5 trained but failed the generation gate; r6 is the
-> token-delta repair revision and is running on Kaggle with no result yet.** The r4 tag
-> (`sft-v3-20261023-r4`) passed the full Kaggle preflight. Its training stopped before an
-> optimizer step because Kaggle supplied `torchao 0.10.0`, below PEFT 0.21.2's `0.16.0`
-> minimum; that was a packaging failure, not a data or scientific result. The r5 tag
-> (`sft-v3-20261023-r5`) removed the unused `torchao` and then **completed training**:
-> 777 steps / 3 epochs, final eval loss `0.2768503725528717`. It **failed the strict
-> generation gate** and was not packaged. The reasoning probe `concept_poly_30` declared
-> no answer (`format_reason: loop_marker:letterSpacing`), while the bypass probe
-> `concept_bypass_183` returned `100` correctly. The cause is concrete: the saved r5
+> **Current status (2026-10-24): r6 SFT is complete and passed both pre-evaluation
+> gates.** The r4 tag (`sft-v3-20261023-r4`) passed the full Kaggle preflight. Its training
+> stopped before an optimizer step because Kaggle supplied `torchao 0.10.0`, below PEFT
+> 0.21.2's `0.16.0` minimum; that was a packaging failure, not a data or scientific result.
+> The r5 tag (`sft-v3-20261023-r5`) removed the unused `torchao` and then **completed
+> training**: 777 steps / 3 epochs, final eval loss `0.2768503725528717`. It **failed the
+> strict generation gate** and was not packaged. The reasoning probe `concept_poly_30`
+> declared no answer (`format_reason: loop_marker:letterSpacing`), while the bypass probe
+> `concept_bypass_183` returned `100` correctly. The cause was concrete: the saved r5
 > adapter had byte-identical, frozen `<ans>`, `</ans>`, and `answer` output rows. Their
 > logits were permanently tied, so greedy decoding always chose the lower-id `answer`
 > token and the model emitted `answer62answer` instead of `<ans>62</ans>`. That is a real
 > bug, not a scientific result. The r6 tag (`sft-v3-20261023-r6`) adds trainable deltas
 > for the 47 genuinely added tokenizer rows, keeps the resized `modules_to_save` matrices
 > frozen during training, merges the deltas before save, and makes both the training
-> script and package gate reject exactly tied marker rows. r6 is running; no result
-> exists yet. The kernel is efficiency-oriented, but it is not evidence that training
-> improves tokens per correct answer. Token efficiency is evaluated only after a clean
-> adapter passes
-> the package gate.
+> script and package gate reject exactly tied marker rows. r6 then completed 777 steps /
+> 3 epochs with final eval loss `0.00748848170042038`; `concept_poly_30` returned `62` and
+> `concept_bypass_183` returned `100`, both terminal/EOS-valid. The package gate passed.
+> Receipts are in `results/r6_closeout/R6_CLOSEOUT.json`. This is an artifact result, not
+> evidence that training improves tokens per correct answer; v3 evaluation has not run.
 
 ## Files
 
@@ -93,10 +92,10 @@ sft-v3-20261023-r6
 > **r4/r5/r6 note:** r4 enforces LF canonical data; its Kaggle preflight passed. r5 keeps
 > the same data and hashes and removes the image-provided `torchao 0.10.0` before LoRA
 > injection. r5 training completed but failed the generation gate because frozen `<ans>`,
-> `</ans>`, and `answer` output rows were byte-identical. r6 fixes that with trainable
-> token deltas and a stricter package check. The r3 tag is frozen but not usable for a
-> Linux training run because of the CRLF/LF hash mismatch. There is no branch fallback;
-> do not point a training run at r3 or r5.
+> `</ans>`, and `answer` output rows were byte-identical. r6 fixed that with trainable
+> token deltas and passed the generation and package gates. The r3 tag is frozen but not
+> usable for a Linux training run because of the CRLF/LF hash mismatch. There is no branch
+> fallback; do not point a training run at r3 or r5.
 
 There is **no branch fallback**. A missing tag, a tag/commit mismatch, a missing bundle
 manifest, or a bundle hash mismatch is a hard failure. Every training command requires

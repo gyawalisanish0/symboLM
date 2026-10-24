@@ -2,8 +2,8 @@
 
 **As of:** 2026-10-24  
 **Branch:** `research/rescue-v3`  
-**Current phase:** **r6 token-delta repair is running on Kaggle; no result yet**; r5 is
-superseded; **no admissible v3 SFT adapter and no v3 GPU result**<br>
+**Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded; **no v3
+benchmark result exists yet**<br>
 **Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
@@ -25,8 +25,8 @@ This page is the short answer to “what can we actually claim?” The long audi
 4. **Not a result:** a partial, quota-stopped run; a post-hoc slice; a lenient score; a
    projection; a biological metaphor.
 
-The v3 experiment has not been run. No current claim about C-versus-D format value or
-token-efficiency superiority is allowed.
+The v3 benchmark has not been run. The r6 adapter is gate-eligible, but no current claim
+about C-versus-D format value or token-efficiency superiority is allowed.
 
 ---
 
@@ -46,8 +46,9 @@ token-efficiency superiority is allowed.
 | MATH500 100% | **Retracted** | n=5 anecdote | Not a benchmark. |
 | Cross-family LLaMA transfer | **Retracted as a universality claim** | n=5 probe; separate SmolLM2 200-problem run | Not evidence of tokenizer/architecture invariance. |
 | Sub-50-token reasoning | **Not supported** | v2.1 averaged 494.5 tokens | The old 253.8-token figure is not the run mean. |
-| v3 register value | **Unknown / untested** | No admissible v3 adapter | The preregistered test has not been executed. r5 is ineligible after a generation-gate failure. |
-| v3 token-efficiency value | **Unknown / untested** | No admissible v3 adapter | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
+| r6 SFT artifact | **Gate-eligible** | `results/r6_closeout/R6_CLOSEOUT.json` | 777 steps / 3 epochs; final eval loss `0.00748848170042038`; strict generation and package gates passed. This is an artifact status, not a benchmark result. |
+| v3 register value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | The preregistered test has not been executed. r5 is ineligible after a generation-gate failure. |
+| v3 token-efficiency value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
 
 ---
 
@@ -147,7 +148,15 @@ scientific result.
 The r6 revision (`sft-v3-20261023-r6`) keeps the full resized `modules_to_save` matrices
 frozen but trains small deltas on the 47 genuinely added tokenizer rows (`151665`-`151711`),
 merges them before save, and makes both the training and package gates reject exactly tied
-marker rows. It has not been run. No data, split, target, hypothesis, or endpoint changed.
+marker rows. The r6 run completed 777 steps / 3 epochs with final eval loss
+`0.00748848170042038` and passed the strict mixed-kind generation gate: `concept_poly_30`
+returned `62` and `concept_bypass_183` returned `100`, both with valid format, a terminal
+answer, and a real EOS. The package gate passed with `"torchao": "absent"`, merged token
+deltas, and distinct terminal-marker rows. The adapter SHA-256 is
+`204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C`; the bundle SHA-256 is
+`C711EF8BF119DC0B8DDF78BF09F6EDB2276996312901936C1EA67BED55FCC573`. Receipts:
+`results/r6_closeout/`. No data, split, target, hypothesis, or endpoint changed. This is an
+artifact gate result, not a v3 benchmark result.
 
 ---
 
@@ -184,11 +193,12 @@ whitepaper are explicitly labeled historical.
    frozen `<ans>`, `</ans>`, and `answer` output rows were byte-identical.
 6. ✅ Implement the r6 token-delta repair, merge-before-save, and tied-row gate; create tag
    `sft-v3-20261023-r6`.
-7. ⛔ Run r6 training and pass the mixed-kind post-training generation check (**kernel
-   running; no result yet**).
-8. ⛔ Package the r6 adapter and pass the package gate, including `"torchao": "absent"` and
-   distinct terminal-marker rows.
-9. ⛔ Run the 100 × 4 × 6 diagnostic.
+7. ✅ Run r6 training and pass the mixed-kind post-training generation check: 777 steps /
+   3 epochs, final eval loss `0.00748848170042038`; probes returned `62` and `100`.
+8. ✅ Package the r6 adapter and pass the package gate, including `"torchao": "absent"`,
+   merged token deltas, and distinct terminal-marker rows.
+9. ⛔ Run the 100 × 4 × 6 diagnostic. This requires a v3-compatible harness; the existing
+   `eval/robust_eval.py` is the v2.1 six-arm path and must not be treated as v3-ready.
 10. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
 11. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
     preregistered C-vs-D decision.
@@ -197,9 +207,10 @@ Until step 11, the correct public statement is:
 
 > “The old claims are retracted. The documentation audit, preregistration, and r4 provenance
 > fix are complete. The r4 preflight passed but training stopped on a Kaggle `torchao`
-> packaging conflict. The r5 run then trained but failed its generation gate because the
-> saved terminal-answer rows were exactly tied; r6 repairs that artifact. No admissible v3
-> adapter exists yet, and the v3 experiment has not been run.”
+> packaging conflict. The r5 run trained but failed its generation gate because the saved
+> terminal-answer rows were exactly tied. The r6 run completed and passed both the
+> mixed-kind generation gate and the package gate; its adapter is gate-eligible. No v3
+> benchmark result exists yet, and the 4,800-cell experiment has not been run.”
 
 ---
 

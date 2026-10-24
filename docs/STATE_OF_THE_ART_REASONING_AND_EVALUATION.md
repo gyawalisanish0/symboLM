@@ -116,7 +116,7 @@ with a preregistered evaluation. The mapping below is a set of hypotheses, not r
 | 1st-gen failure | Proposed SymboLM mechanism | What the v3 experiment would need to show | Current evidence |
 |---|---|---|---|
 | Overthinking on atomic facts | `<reg:bypass>` short route | Fewer tokens per correct atomic answer than CoT, with non-inferior accuracy | Narrow 32/40 atomic subset in an old strict rescore; v3 untested |
-| Unstructured drift | `<reg:plan>`, `<reg:deduce>`, optional `<reg:verify>` | Higher format validity and lower loop rate than CoT; no accuracy loss | Structural validator exists; v3 adapter does not |
+| Unstructured drift | `<reg:plan>`, `<reg:deduce>`, optional `<reg:verify>` | Higher format validity and lower loop rate than CoT; no accuracy loss | Structural validator exists; r6 adapter is gate-eligible, but the v3 comparison is untested |
 | Arithmetic hallucination | Arm E Python sandbox; Tiny Terminal | Better strict accuracy or lower J/correct than CoT | SmolLM2 pilot: E 23.0% vs A 7.0%, 444.30 vs 2,052.41 J/correct; Tier B |
 | Edge budget choke | Short terminal-answer contract; early exit | Lower truncation and higher strict accuracy at 256 tokens | Old flagship run incomplete and invalid; v3 untested |
 | Token inflation | Bounded traces and parsimony-aware training | Lower tokens per correct answer at non-inferior accuracy | SmolLM2 pilot: B is cheap but 15%; C vs D null |
@@ -165,13 +165,17 @@ implements a token-level gated router.
 1. **Weights and artifacts:**
    - The old Hugging Face repositories were made private on 2026-10-22. Public links return
      401; nothing was deleted.
-   - No admissible v3 adapter exists yet. The r4 preflight passed, but training stopped
-     before optimization on Kaggle's `torchao 0.10.0`. The r5 run then completed training
-     but failed the strict generation gate because its saved `<ans>`, `</ans>`, and
-     `answer` output rows were byte-identical. The r6 repair (`sft-v3-20261023-r6`) adds
-     trainable deltas for the 47 genuinely added rows and rejects tied marker rows. The
-     next artifact is the SFT adapter from r6 after both gates pass.
+   - The r6 SFT adapter (`sft-v3-20261023-r6`) now exists and passed both the strict
+     mixed-kind generation gate and the package gate. It is gate-eligible for the v3
+     diagnostic; no v3 benchmark result exists yet.
+   - The r4 preflight passed, but training stopped before optimization on Kaggle's
+     `torchao 0.10.0`. The r5 run then completed training but failed the strict generation
+     gate because its saved `<ans>`, `</ans>`, and `answer` output rows were byte-identical.
+     r6 adds trainable deltas for the 47 genuinely added rows and rejects tied marker rows.
 2. **Deterministic Evaluation Harness (`eval/robust_eval.py`):**
+   - The existing file is the v2.1 six-arm harness. It is **not yet v3-compatible**: its
+     prompt construction and adapter path differ from the v3 SFT contract. Do not relabel a
+     run from it as a v3 diagnostic without a prompt/scorer parity check.
    - 6 arms (CoT, answer-only, full registers, router-only, Python sandbox, vanilla base).
    - 4 independent budgets (256, 512, 1024, 2048 tokens).
    - Token-efficiency metrics: tokens per correct, OAA/AUC_OAA, TokenEff, and overthinking

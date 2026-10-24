@@ -22,7 +22,7 @@ library_name: transformers
 ---
 
 > [!WARNING]
-> **HISTORICAL MODEL CARD - REPOSITORY IS PRIVATE (2026-10-23).** The scores below are pre-v3 and are not current results. The Hugging Face repositories were made private on 2026-10-22. No v3 adapter exists. Keep this card only as an audit record; do not cite its metrics.
+> **HISTORICAL MODEL CARD - REPOSITORY IS PRIVATE (2026-10-23).** The scores below are pre-v3 and are not current results. The Hugging Face repositories were made private on 2026-10-22. No v3 adapter existed at the time of this card. Keep this card only as an audit record; do not cite its metrics.
 >
 > **Current framing:** token efficiency of correct reasoning is the primary lens;
 > strict accuracy is a non-inferiority gate. The biological language is a design

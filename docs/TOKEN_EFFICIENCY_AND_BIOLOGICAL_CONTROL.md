@@ -1,9 +1,9 @@
 # Token Efficiency and Biologically Inspired Control
 
-**Status:** current thesis and framing document (2026-10-23)  
+**Status:** current thesis and framing document (2026-10-24)  
 **Scope:** explains what SymboLM is trying to measure, what “biologically inspired” means here, and which claims are allowed.  
 **Protocol:** this document does **not** change the frozen hypotheses or endpoints in [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md). It records the framing correction that the earlier, accuracy-first documents obscured.  
-**Current result:** **none for v3.** No admissible SFT adapter exists yet; the 4,800-cell evaluation has not been run.
+**Current result:** **none for v3.** The r6 SFT adapter is gate-eligible, but the v3 diagnostic and the 4,800-cell evaluation have not been run.
 
 ---
 
@@ -162,12 +162,12 @@ Until then, the training contribution is a carefully specified efficiency-orient
 
 | Item | Status | Meaning |
 |---|---|---|
-| v3 SFT adapter | **No admissible adapter** | The r4 preflight passed, but training stopped before LoRA injection on Kaggle's `torchao 0.10.0`. r5 trained 777 steps but failed the strict generation gate because its frozen `<ans>`, `</ans>`, and `answer` rows were byte-identical. r6 repairs that artifact and has not been run. |
+| v3 SFT adapter | **Gate-eligible (r6)** | The r4 preflight passed, but training stopped before LoRA injection on Kaggle's `torchao 0.10.0`. r5 trained 777 steps but failed the strict generation gate because its frozen `<ans>`, `</ans>`, and `answer` rows were byte-identical. r6 trained deltas on the 47 added rows and passed both the strict generation and package gates. No benchmark result exists. |
 | r3 provenance | **Superseded** | The r3 hashes were computed over Windows CRLF files. The committed blobs are LF, so a Linux/Kaggle checkout hashed differently. |
 | r4 provenance | **Validated** | `.gitattributes` forces LF; the canonical manifests, preregistration, evaluator, and kernel constants record the LF byte hashes. The Kaggle preflight passed; the data rows and split are unchanged. |
 | r5 package fix | **Validated for packaging; run failed generation** | The unused `torchao` was removed before LoRA injection and the package gate requires `"torchao": "absent"`. Training completed but the strict generation gate failed; no adapter was packaged. |
-| r6 token-delta repair | **Prepared, not run** | Trainable deltas for the 47 genuinely added rows break the tied-marker failure; both gates reject exactly tied rows. |
-| Full 4,800-cell run | **Not started** | Requires a clean adapter and separate explicit approval. |
+| r6 token-delta repair | **Validated at the artifact gates** | Trainable deltas for the 47 genuinely added rows broke the tied-marker failure; both gates reject exactly tied rows. Adapter and bundle hashes match `results/r6_closeout/R6_CLOSEOUT.json`. |
+| Full 4,800-cell run | **Not started** | Requires the 100 × 4 diagnostic, a clean adapter, and separate explicit approval. |
 | v3 token-efficiency result | **None** | No v3 result exists. |
 
 The r3 hash mismatch was a packaging/provenance defect, not a scientific result. It was fixed
@@ -176,7 +176,8 @@ preflight. The subsequent stop at PEFT LoRA injection was a separate runtime-pac
 failure (`torchao 0.10.0`), not a data or scientific result. The r5 fix removed the unused
 package. The r5 run then completed training but failed the strict generation gate because
 frozen `<ans>`, `</ans>`, and `answer` output rows were exactly tied; greedy decoding could
-not emit the terminal markers. r6 repairs the artifact. Do not bypass either gate.
+not emit the terminal markers. r6 repaired the artifact and passed both gates. Do not bypass
+either gate, and do not treat the r6 artifact as a benchmark result.
 
 ### 5.2 Completed or historical evidence
 
@@ -257,5 +258,5 @@ Do not use “confirmed,” “SOTA,” “general reasoning,” “brain-like,�
 ---
 
 **Author:** Sanish Gyawali (Rupandehi, Nepal)  
-**Date:** 2026-10-23  
+**Date:** 2026-10-24  
 **Status:** current framing document; not a substitute for the preregistration.

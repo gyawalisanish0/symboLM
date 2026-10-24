@@ -2,16 +2,20 @@
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Branch:** `research/rescue-v3`  
-**Status date:** 2026-10-23  
-**Current status:** no admissible v3 adapter exists. The r4 provenance fix is validated: its
-Kaggle preflight passed the hashes and all 4,600 rows. The r4 training run then stopped
-before an optimizer step because Kaggle supplied `torchao 0.10.0`, below PEFT 0.21.2's
-`0.16.0` minimum for LoRA dispatch. That was a packaging failure, not a data or scientific
-result. The r5 package fix (tag `sft-v3-20261023-r5`) removed the unused package; r5 then
-completed 777 training steps but failed the strict generation gate because its saved
-`<ans>`, `</ans>`, and `answer` output rows were byte-identical. The r6 revision (tag
-`sft-v3-20261023-r6`) adds trainable deltas for the 47 genuinely added tokenizer rows and
-rejects tied marker rows; no r6 run has completed. No v3 benchmark result exists.
+**Status date:** 2026-10-24  
+**Current status:** r6 SFT is complete and gate-eligible; **no v3 benchmark result exists**.
+The r4 provenance fix is validated: its Kaggle preflight passed the hashes and all 4,600 rows.
+The r4 training run then stopped before an optimizer step because Kaggle supplied `torchao
+0.10.0`, below PEFT 0.21.2's `0.16.0` minimum for LoRA dispatch. That was a packaging failure,
+not a data or scientific result. The r5 package fix (tag `sft-v3-20261023-r5`) removed the
+unused package; r5 then completed 777 training steps but failed the strict generation gate
+because its saved `<ans>`, `</ans>`, and `answer` output rows were byte-identical. The r6
+revision (tag `sft-v3-20261023-r6`) added trainable deltas for the 47 genuinely added
+tokenizer rows and rejected tied marker rows. The r6 run completed 777 steps / 3 epochs with
+final eval loss `0.00748848170042038` and passed both the strict mixed-kind generation gate
+and the package gate. The adapter SHA-256 is
+`204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C`; receipts are in
+`results/r6_closeout/`.
 
 This guide describes how to reproduce the **pipeline** and the **audit**, not a result that
 has not been produced. Every reported number must have a command, a hash, and a receipt.
@@ -28,8 +32,8 @@ has not been produced. Every reported number must have a command, a hash, and a 
 | Strict scorer | `python -m eval.strict_scorer` / unit tests | Works |
 | SmolLM2 pilot token/energy table | See [`VALUATION.md`](VALUATION.md) | Tier B historical measurement |
 | Old six-arm run | See audit docs | **Incomplete**; not reproducible as a completed result |
-| v3 SFT run | `experiments/kaggle/sft_v3/` | **Incomplete**; r4 preflight passed, then packaging stopped at LoRA injection (`torchao`); r5 trained 777 steps but failed the generation gate (tied marker rows); r6 repair prepared |
-| Full 4,800-cell v3 run | `eval/robust_eval.py` | **Not run**; requires a clean adapter and approval |
+| v3 SFT run | `experiments/kaggle/sft_v3/` | **Complete at the pre-evaluation gates**; r6 trained 777 steps and passed the generation and package gates. No benchmark result. |
+| Full 4,800-cell v3 run | v3 harness (not yet built) | **Not run**; requires a v3-compatible diagnostic harness, a clean adapter, and approval |
 
 ---
 
@@ -159,6 +163,16 @@ closed if the saved `<ans>`, `</ans>`, and `answer` rows are still exactly tied.
 adapter format and package contract are unchanged. This is an artifact repair, not a change
 to the hypothesis, data, split, targets, evaluation protocol, or decision rule.
 
+The r6 run completed 777 steps / 3 epochs with final eval loss
+`0.00748848170042038`. The strict generation gate passed on both probes:
+`concept_poly_30` returned `<ans>62</ans>` and `concept_bypass_183` returned
+`<reg:bypass>100</reg:bypass>`, both with valid format, a terminal answer, and a real EOS.
+The package gate passed with `"torchao": "absent"`, merged deltas, and distinct marker rows.
+The adapter SHA-256 is
+`204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C`; the bundle SHA-256 is
+`C711EF8BF119DC0B8DDF78BF09F6EDB2276996312901936C1EA67BED55FCC573`. Receipts:
+`results/r6_closeout/`.
+
 ---
 
 ## 4. Validate the benchmark
@@ -235,6 +249,11 @@ the saved LM-head rows.
 ---
 
 ## 7. Strict evaluation
+
+> **Harness status:** `eval/robust_eval.py` is the v2.1 six-arm path. Its prompt construction
+> and adapter loading differ from the v3 SFT contract. It is **not** the v3 diagnostic
+> harness. Do not run it against the r6 adapter and label the output a v3 result until the
+> prompt/scorer parity check and a v3-compatible entry point exist.
 
 ```bash
 python eval/robust_eval.py \

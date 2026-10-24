@@ -7,24 +7,24 @@
 - **AI Collaboration Model:** Antigravity (Google DeepMind) serves as Sanish's **cognitive and operational exoskeleton**—translating high-level architectural directives into terminal commands, compiler code, test suites, and cloud execution pipelines. We practice **radical transparency** regarding this collaboration across all papers, grant applications, and public releases.
 - **Grant Potential & Strategy:** Targeted toward high-agency, unrestricted fellowships (Emergent Ventures / Dr. Tyler Cowen, 1517 Fund Medici Grants, Nat Friedman & Daniel Gross AI Grant) with an unedited video, aiming for $15k–$25k to permanently solve electrical power stability (solar/batteries), secure dedicated A100/H100 compute, and provide a 12-month living and care runway. Grant narratives must use the current evidence ledger; old 37.0% / 39.7% / 67.6% / 100% / 20× / 80× / 224× claims are retracted or projections.
 
-## Current Research Framing (2026-10-23)
+## Current Research Framing (2026-10-24)
 
 - **Primary dependent variable:** token efficiency of correct reasoning — generated tokens per
   correct answer, and dynamic joules per correct answer when NVML is available.
 - **Constraint:** strict declared-answer accuracy must be non-inferior to the control.
 - **Biological language:** a design analogy only. The current model is a dense 1.5B
   transformer with a LoRA adapter, not a sparse MoE, CED, Engram, or brain-like system.
-- **Current status:** no admissible v3 adapter. The r3 Kaggle SFT kernel is `ERROR` on a
-  CRLF/LF hash mismatch. The r4 provenance fix (tag `sft-v3-20261023-r4`) passed the full
-  Kaggle preflight, but training stopped before an optimizer step because Kaggle supplied
-  `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`. That was a packaging failure,
-  not a data or scientific result. The r5 fix (tag `sft-v3-20261023-r5`) removed the unused
-  package and the run completed 777 training steps, but it failed the strict generation gate:
-  frozen `<ans>`, `</ans>`, and `answer` output rows were byte-identical, so greedy decoding
-  could not emit the terminal markers. The r6 repair (tag `sft-v3-20261023-r6`) trains deltas
-  on the 47 genuinely added tokenizer rows, merges them before save, and rejects tied rows;
-  no r6 run has completed. The 4,800-cell evaluation has not been run and requires separate
-  approval.
+- **Current status:** **r6 SFT is complete and gate-eligible; no v3 benchmark result exists
+  yet.** The r3 Kaggle SFT kernel failed on a CRLF/LF hash mismatch. The r4 provenance fix
+  passed the full Kaggle preflight, but training stopped before an optimizer step because
+  Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; that was a
+  packaging failure, not a data or scientific result. The r5 fix removed the unused package
+  and completed 777 training steps, but it failed the strict generation gate because frozen
+  `<ans>`, `</ans>`, and `answer` output rows were byte-identical. The r6 repair (tag
+  `sft-v3-20261023-r6`) trained deltas on the 47 genuinely added tokenizer rows, merged them
+  before save, and passed both the mixed-kind generation gate and the package gate. Receipts:
+  `results/r6_closeout/R6_CLOSEOUT.json`. The 100 × 4 × 6 diagnostic and the 4,800-cell
+  evaluation have not been run; the full run requires separate approval.
 - **Canonical documents:** `README.md`, `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`,
   `docs/EVIDENCE_STATUS.md`, and `PREREG_VALUATION_V2.md`.
 

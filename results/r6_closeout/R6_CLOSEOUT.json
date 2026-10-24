@@ -1,0 +1,200 @@
+{
+  "schema": "symboLM.r6_closeout.v1",
+  "created_utc": "2026-10-24T08:15:00Z",
+  "source": {
+    "kernel": "sanishgyawali/symbolm-v3-sft-rescue",
+    "url": "https://www.kaggle.com/code/sanishgyawali/symbolm-v3-sft-rescue",
+    "kernel_status": "COMPLETE",
+    "git_head": "c6d13dd0fbbb83a498f7ef722b9c6afbc70f1255",
+    "git_tag": "sft-v3-20261023-r6",
+    "base_model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "base_revision": "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
+  },
+  "scope": {
+    "what_passed": [
+      "full preflight",
+      "3-epoch SFT training",
+      "two-prompt mixed-kind generation gate",
+      "token-delta merge",
+      "adapter package gate"
+    ],
+    "what_is_not_claimed": [
+      "v3 strict accuracy",
+      "v3 token efficiency",
+      "C-versus-D format value",
+      "any 100 x 4 x 6 diagnostic result",
+      "any 4,800-cell result"
+    ],
+    "statement": "r6 is a gate-eligible SFT artifact. It is not a v3 benchmark result."
+  },
+  "data": {
+    "train_rows": 4140,
+    "train_sha256": "BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC",
+    "val_rows": 460,
+    "val_sha256": "3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD",
+    "train_kinds": {
+      "reasoning": 3780,
+      "bypass": 360
+    },
+    "val_kinds": {
+      "reasoning": 420,
+      "bypass": 40
+    },
+    "tokenizer_vocab_size": 151712,
+    "added_token_ids": "151665-151711"
+  },
+  "training": {
+    "epochs": 3,
+    "global_step": 777,
+    "train_runtime_seconds": 17544.1635,
+    "train_loss": 0.06559032119302369,
+    "final_eval_loss": 0.00748848170042038,
+    "eval_loss_history": [
+      {
+        "step": 100,
+        "eval_loss": 0.018779490143060684
+      },
+      {
+        "step": 200,
+        "eval_loss": 0.010836443863809109
+      },
+      {
+        "step": 300,
+        "eval_loss": 0.009801872074604034
+      },
+      {
+        "step": 400,
+        "eval_loss": 0.008690605871379375
+      },
+      {
+        "step": 500,
+        "eval_loss": 0.007881692610681057
+      },
+      {
+        "step": 600,
+        "eval_loss": 0.007650220766663551
+      },
+      {
+        "step": 700,
+        "eval_loss": 0.00750709930434823
+      },
+      {
+        "step": 777,
+        "eval_loss": 0.00748848170042038
+      }
+    ]
+  },
+  "generation_gate": {
+    "strict": true,
+    "prompt_count": 2,
+    "covered_target_kinds": [
+      "reasoning",
+      "bypass"
+    ],
+    "probes": [
+      {
+        "id": "concept_poly_30",
+        "target_kind": "reasoning",
+        "target_answer": "62",
+        "answer": "62",
+        "closure": "ans",
+        "expected_closure": "ans",
+        "format_valid": true,
+        "terminal_answer": true,
+        "eos_emitted": true,
+        "loop_marker": null,
+        "extraction_method": "closed_ans_tag"
+      },
+      {
+        "id": "concept_bypass_183",
+        "target_kind": "bypass",
+        "target_answer": "100",
+        "answer": "100",
+        "closure": "bypass",
+        "expected_closure": "bypass",
+        "format_valid": true,
+        "terminal_answer": true,
+        "eos_emitted": true,
+        "loop_marker": null,
+        "extraction_method": "closed_bypass_tag"
+      }
+    ]
+  },
+  "token_delta": {
+    "present": true,
+    "merged": true,
+    "token_count": 47,
+    "embed_delta_l2": 0.35452523827552795,
+    "head_delta_l2": 1.0538901090621948,
+    "embed_delta_max_abs": 0.009942418895661831,
+    "head_delta_max_abs": 0.015927303582429886,
+    "terminal_marker_check": {
+      "distinct": true,
+      "token_ids": {
+        "<ans>": 151665,
+        "</ans>": 151666,
+        "answer": 9217
+      },
+      "max_abs_diff": {
+        "output:<ans>_vs_answer": 0.092529296875,
+        "output:</ans>_vs_answer": 0.0751953125,
+        "output:<ans>_vs_</ans>": 0.0740966796875,
+        "input:<ans>_vs_answer": 0.08349609375,
+        "input:</ans>_vs_answer": 0.073883056640625,
+        "input:<ans>_vs_</ans>": 0.081298828125
+      }
+    }
+  },
+  "package_gate": {
+    "receipt_status": "completed",
+    "train_return_code": 0,
+    "torchao": "absent",
+    "adapter_files": [
+      "README.md",
+      "adapter_config.json",
+      "adapter_model.safetensors",
+      "chat_template.jinja",
+      "tokenizer.json",
+      "tokenizer_config.json"
+    ],
+    "adapter_sha256": {
+      "adapter_config.json": "03BDD025BE3DF781655939749FFA2CFEC2CB651F89863112FA3D15A621B70EA7",
+      "adapter_model.safetensors": "204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C"
+    },
+    "bundle_sha256": "C711EF8BF119DC0B8DDF78BF09F6EDB2276996312901936C1EA67BED55FCC573",
+    "bundle_members": [
+      "symbolm_v3_sft/adapter/README.md",
+      "symbolm_v3_sft/adapter/adapter_config.json",
+      "symbolm_v3_sft/adapter/adapter_model.safetensors",
+      "symbolm_v3_sft/adapter/chat_template.jinja",
+      "symbolm_v3_sft/adapter/tokenizer.json",
+      "symbolm_v3_sft/adapter/tokenizer_config.json",
+      "symbolm_v3_sft/run_manifest.json"
+    ]
+  },
+  "local_verification": {
+    "source_download": "C:\\Users\\user\\AppData\\Local\\Temp\\opencode\\r6_kaggle_complete\\symbolm_v3_sft",
+    "preserved_artifact_dir": "checkpoints/sft_v3_r6",
+    "adapter_model_sha256": "204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C",
+    "adapter_config_sha256": "03BDD025BE3DF781655939749FFA2CFEC2CB651F89863112FA3D15A621B70EA7",
+    "bundle_sha256": "C711EF8BF119DC0B8DDF78BF09F6EDB2276996312901936C1EA67BED55FCC573",
+    "hashes_match_receipt": true,
+    "receipt_files": [
+      "results/r6_closeout/KERNEL_CHECK.json",
+      "results/r6_closeout/KERNEL_RECEIPT.json",
+      "results/r6_closeout/run_manifest.json"
+    ],
+    "receipt_sha256": {
+      "KERNEL_CHECK.json": "0CA7C249A5453676C14ADF9B4A33168DD701568A3566150D967832418D01764A",
+      "KERNEL_RECEIPT.json": "06E603D3C746F666C650ECFED38FEA1E5456D7E64052D3F641D01D0C8983EF07",
+      "run_manifest.json": "C8DB02DB162359AFB03C4AC0DD0ED74DE681492EE6B567A067DB022B6E12C47D"
+    }
+  },
+  "next_gate": {
+    "name": "100 x 4 x 6 diagnostic",
+    "cells": 2400,
+    "status": "not_run",
+    "requires": "v3-compatible six-arm harness; not the v2.1 robust_eval path",
+    "primary_result": false
+  }
+}

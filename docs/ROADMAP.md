@@ -2,8 +2,9 @@
 
 **Status:** planning document, not a result.
 **Date:** 2026-10-24
-**Current gate:** r6 adapter training/generation/package. The r6 Kaggle kernel is
-`RUNNING`; no admissible v3 adapter exists yet.
+**Current gate:** the 100 × 4 × 6 v3 diagnostic. The r6 Kaggle kernel is `COMPLETE`; its
+adapter passed the generation and package gates and is gate-eligible. No v3 benchmark result
+exists yet.
 **Companion documents:** [`EVIDENCE_STATUS.md`](EVIDENCE_STATUS.md),
 [`RESEARCH_REDIRECT.md`](RESEARCH_REDIRECT.md),
 [`TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md),
@@ -43,7 +44,7 @@ The tracks meet in two places:
 
 The sequence is deliberately conservative:
 
-1. Close r6.
+1. Close r6 (done: artifact gates passed).
 2. Confirm the 1.5B result under the frozen protocol.
 3. Replicate at 7B.
 4. Distill a teacher into an edge-sized student.
@@ -68,7 +69,8 @@ The frozen v3 test is Arm C versus Arm D at 256 tokens, with a strict-accuracy
 non-inferiority margin of −2 percentage points. See
 [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md) §4.1.
 
-**Status:** untested. r6 is the current gate.
+**Status:** untested. The r6 adapter is gate-eligible; the 100 × 4 × 6 diagnostic is the
+next gate.
 
 ### H2 — Scaling hypothesis
 
@@ -128,13 +130,13 @@ human cognition.
 | Benchmark | 200 held-out rows, 173 unique prompts, 20 duplicate groups | A paired evaluation set with sensitivity analyses |
 | v3 protocol | Frozen six arms × four budgets; strict scorer; C-vs-D primary at 256 | One narrow confirmatory test |
 | Base model | `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`, dense transformer, pinned revision | 1.5B SFT and edge proxy |
-| r6 repair | Token deltas for the 47 added rows; tied-row gates | A candidate fix for the r5 artifact bug |
-| Eval harness | Strict declared-answer scoring, EOS-aware truncation, energy path | Admissible v3 evaluation if the adapter is clean |
+| r6 repair | Token deltas for the 47 added rows; tied-row gates; generation and package gates passed | A gate-eligible 1.5B SFT adapter; not a benchmark result |
+| Eval harness | Strict declared-answer scoring, EOS-aware truncation, energy path; `robust_eval.py` is the v2.1 path | A v3 diagnostic harness still has to be built and parity-checked |
 | Old evidence | Retracted headlines, Tier B pilots, incomplete six-arm run | Hypothesis generation only |
 
 ### 2.2 What is missing
 
-- A clean r6 adapter that passes the generation and package gates.
+- A v3-compatible diagnostic harness; `eval/robust_eval.py` is the v2.1 path.
 - The 100 × 4 diagnostic.
 - The full 4,800-cell confirmatory run (separate explicit approval required).
 - A matched no-register adapter for a training-data comparison.
@@ -143,14 +145,15 @@ human cognition.
 - Any 7B, 14B, or 32B run.
 - Any teacher–student distillation run.
 - Any architecture-level modification or on-device benchmark.
-- An exact Android phone, backend, and latency/energy budget. The runtime decision is
-  `llama.cpp`; the device decision is not yet pinned.
+- A measured latency/energy budget for the recorded Android target (Redmi 15 4G,
+  Snapdragon 685, HyperOS 3, 8 GB). The runtime decision is `llama.cpp`, CPU-only first;
+  no phone measurement exists yet.
 
 ### 2.3 Current evidence boundary
 
 No v3 token-efficiency, accuracy, format-value, scaling, or edge claim is allowed yet.
-The r6 run is the current gate, not a result. A quota or infrastructure stop is
-**incomplete**, never a negative result.
+The r6 artifact passed its gates, but it is not a result; the 100 × 4 × 6 diagnostic is the
+current gate. A quota or infrastructure stop is **incomplete**, never a negative result.
 
 ---
 
@@ -226,8 +229,8 @@ allowed without a separate preregistered test.
 
 #### A0. Close the 1.5B experiment
 
-- Finish r6; pass the generation gate and the package gate.
-- Run the 100 × 4 diagnostic.
+- ✅ Finish r6; the generation and package gates passed.
+- Run the 100 × 4 diagnostic with a v3-compatible harness.
 - Request separate approval for the full 4,800-cell run.
 - Report strict accuracy, tokens/correct, J/correct, format validity, terminal-answer rate,
   EOS rate, and the C-vs-D decision.
@@ -405,26 +408,29 @@ neuro-symbolic controllers. Do not mix this into the v3 claim.
 Timelines are planning estimates, not commitments. Compute estimates are rough and must be
 replaced by measured receipts.
 
-### Phase 0 — r6 closeout (now, days)
+### Phase 0 — r6 closeout (done) and diagnostic (now)
 
 **Question:** Is there a clean 1.5B adapter at all?
 
 **Actions:**
 
-1. Monitor the r6 kernel; verify `run_manifest.json`, generation previews, merged token
+1. ✅ Monitor the r6 kernel; verify `run_manifest.json`, generation previews, merged token
    rows, `terminal_marker_rows`, and `token_delta` evidence.
-2. If generation fails, do not evaluate. Diagnose, fix in a new revision, and repeat.
-3. If generation passes, run the package gate, including `"torchao": "absent"` and distinct
-   terminal-marker rows.
-4. If packaging passes, run the 100 × 4 diagnostic.
-5. Only then request approval for the full 4,800-cell run.
+2. ✅ Generation passed: `concept_poly_30` returned `62`, `concept_bypass_183` returned
+   `100`; both were terminal/EOS-valid with no loop marker.
+3. ✅ Package gate passed, including `"torchao": "absent"`, merged deltas, and distinct
+   terminal-marker rows. Adapter and bundle hashes match the receipt.
+4. ⛔ Run the 100 × 4 diagnostic with a v3-compatible harness. The existing
+   `eval/robust_eval.py` is the v2.1 path and is not v3-ready.
+5. ⛔ Only then request approval for the full 4,800-cell run.
 
-**Gate G0:** clean adapter + package manifest.
+**Gate G0:** met for r6: clean adapter + package manifest
+(`results/r6_closeout/R6_CLOSEOUT.json`).
 **Gate G1:** diagnostic passes format/EOS/terminal-answer checks; no more than 10% Arm C
-format-invalid cells.
+format-invalid cells. Pending.
 
-**Deliverables:** adapter hash, run manifest, generation previews, package manifest,
-diagnostic report.
+**Deliverables:** adapter hash, run manifest, generation previews, package manifest
+(available for r6); diagnostic report (pending).
 
 **Stop:** any gate failure means no v3 result. A failure is an artifact/pipeline event, not
 a scientific negative result.
@@ -750,7 +756,7 @@ Architecture caveat:
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| r6 fails generation again | No v3 result | Diagnose artifact; new revision; do not weaken gate |
+| Diagnostic fails format/EOS | No v3 result | Diagnose pipeline; do not weaken gate or relabel the diagnostic |
 | 1.5B C-vs-D null | Thesis weakened | Publish negative; pivot to tool use/architecture |
 | 7B ignores the format | Scaling branch stops | Zero-shot probe first; matched SFT; report boundary |
 | 7B effect vanishes | No scaling claim | Report boundary; focus on edge/teacher |
@@ -807,19 +813,22 @@ Venues are secondary. The claim ladder and receipts are primary.
 
 ## 11. Immediate next actions
 
-1. Monitor the r6 kernel. Do not evaluate before the generation and package gates pass.
-2. If r6 passes, run the 100 × 4 diagnostic; if it fails, fix the artifact and repeat.
-3. Request separate explicit approval for the 4,800-cell run.
-4. Draft the Phase 1b preregistration for the matched no-register adapter and seeds.
-5. Check 7B base-model availability, tokenizer compatibility, and QLoRA feasibility.
-6. Write a one-page Phase 2 protocol before spending 7B compute.
-7. Record the target decision: **Android phone + `llama.cpp`**. Choose the exact phone,
-   RAM/SoC, and CPU or GPU/NPU backend. Without those, architecture work is relative, not
-   deployable.
-8. Add a GGUF tokenizer/accuracy gate before any mobile benchmark; the 0.5B student is the
+1. ✅ Verify r6; the generation and package gates passed. Receipts:
+   `results/r6_closeout/R6_CLOSEOUT.json`.
+2. ⛔ Build the v3-compatible 100 × 4 diagnostic harness. The existing
+   `eval/robust_eval.py` is the v2.1 path and must not be relabeled as v3.
+3. ⛔ Run the 100 × 4 diagnostic; if it fails, fix the pipeline and do not run the full grid.
+4. ⛔ Request separate explicit approval for the 4,800-cell run.
+5. Draft the Phase 1b preregistration for the matched no-register adapter and seeds.
+6. Check 7B base-model availability, tokenizer compatibility, and QLoRA feasibility.
+7. Write a one-page Phase 2 protocol before spending 7B compute.
+8. Record the target decision: **Android phone + `llama.cpp`**. The recorded device profile
+   is Redmi 15 4G / Snapdragon 685 / HyperOS 3 / 8 GB; build CPU-only without dotprod and pin
+   four A73 threads. No phone claim until the desktop GGUF gate passes.
+9. Add a GGUF tokenizer/accuracy gate before any mobile benchmark; the 0.5B student is the
    first model, not the 1.5B.
-9. Add `docs/ROADMAP.md` to the Markdown audit and the README repository map.
-10. Keep the claim ledger and retractions current; no new number without a receipt.
+10. Add `docs/ROADMAP.md` to the Markdown audit and the README repository map.
+11. Keep the claim ledger and retractions current; no new number without a receipt.
 
 ---
 

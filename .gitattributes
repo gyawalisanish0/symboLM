@@ -11,3 +11,7 @@
 
 # The generated Kaggle notebook is a text artifact; keep it stable too.
 /experiments/kaggle/sft_v3/symbolm_v3_sft.ipynb text eol=lf
+
+# r6 closeout receipts are hashed in R6_CLOSEOUT.json. Force LF so a Windows
+# checkout cannot silently change the receipt hashes.
+/results/r6_closeout/*.json text eol=lf

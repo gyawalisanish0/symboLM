@@ -2,8 +2,9 @@
 
 **Status date:** 2026-10-24  
 **Branch:** `research/rescue-v3`  
-**Current phase:** **r6 token-delta repair is running on Kaggle; no result yet**; r5 is
-superseded, and SFT is not complete. **No admissible v3 adapter and no v3 GPU result.**
+**Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded. The r6
+adapter passed the strict mixed-kind generation gate and the package gate. **No v3 benchmark
+result exists yet**; the 100 × 4 × 6 diagnostic is next.
 
 This tracker records implementation state, not scientific validity. A checked box means the
 code or document exists; it does not mean the associated claim is confirmed.
@@ -65,10 +66,12 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
       output rows were byte-identical.
 - [x] Implement trainable token deltas for the 47 genuinely added rows, merge them before
       save, make both gates reject tied marker rows, and create tag `sft-v3-20261023-r6`.
-- [ ] Run r6 training and pass the mixed-kind generation check (**kernel running; no result
-      yet**).
-- [ ] Package the r6 adapter and pass the package gate, including `"torchao": "absent"` and
-      distinct terminal-marker rows.
+- [x] Run r6 training and pass the mixed-kind generation check: 777 steps / 3 epochs, final
+      eval loss `0.00748848170042038`; `concept_poly_30` returned `62` and
+      `concept_bypass_183` returned `100`, both terminal/EOS-valid.
+- [x] Package the r6 adapter and pass the package gate, including `"torchao": "absent"`,
+      merged token deltas, and distinct terminal-marker rows. Adapter and bundle hashes
+      match `results/r6_closeout/R6_CLOSEOUT.json`.
 
 ### Evaluation
 
@@ -82,9 +85,10 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 
 The plan for symbolic-interface scaling, teacher–student distillation, and
 architecture-level edge efficiency is in [`docs/ROADMAP.md`](docs/ROADMAP.md). It is
-planning only; no phase beyond r6 has started. The target decision is **Android first,
-using `llama.cpp`**, with a 0.5B Q4 student as the first mobile model. The exact phone,
-RAM/SoC, backend, and latency/energy budget still need to be chosen.
+planning only; r6 is complete, but the v3 diagnostic has not started. The target decision
+is **Android first, using `llama.cpp`**, with a 0.5B Q4 student as the first mobile model.
+The recorded device is a Redmi 15 4G (Snapdragon 685, HyperOS 3, 8 GB), CPU-only; the
+latency/energy budget still needs to be measured.
 
 Deployment harness: [`gyawalisanish0/DomainAI`](https://github.com/gyawalisanish0/DomainAI)
 (Apache-2.0), reference `main` `dd0eff1094cfdd3835a79775cc11e09975852eaf`, vendored

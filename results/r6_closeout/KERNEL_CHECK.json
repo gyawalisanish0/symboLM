@@ -1,0 +1,208 @@
+{
+  "status": "check_passed",
+  "created_utc": "2026-10-24T03:20:48.595198+00:00",
+  "mode": "check",
+  "base_model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+  "base_revision": "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562",
+  "expected_git_head": "c6d13dd0fbbb83a498f7ef722b9c6afbc70f1255",
+  "expected_git_tag": "sft-v3-20261023-r6",
+  "observed_git_head": "c6d13dd0fbbb83a498f7ef722b9c6afbc70f1255",
+  "observed_git_tag": "sft-v3-20261023-r6",
+  "environment": {
+    "python": "3.13.15",
+    "platform": "Linux-6.18.55+-x86_64-with-glibc2.39",
+    "cuda_visible_devices": "0",
+    "torch": "2.11.0+cu128",
+    "cuda_available": true,
+    "cuda_device_count": 1,
+    "gpus": [
+      {
+        "index": 0,
+        "name": "Tesla T4",
+        "memory_gb": 14.56
+      }
+    ],
+    "transformers": "5.20.1",
+    "peft": "0.21.2",
+    "torchao": "absent"
+  },
+  "git_head": "c6d13dd0fbbb83a498f7ef722b9c6afbc70f1255",
+  "git_tag": "sft-v3-20261023-r6",
+  "data": {
+    "train_file": "/kaggle/working/symboLM/data/research_sft/train.jsonl",
+    "train_sha256": "BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC",
+    "train_rows": 4140,
+    "val_file": "/kaggle/working/symboLM/data/research_sft/val.jsonl",
+    "val_sha256": "3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD",
+    "val_rows": 460,
+    "source_sha256": "724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7",
+    "target_kinds": {
+      "reasoning": 4200,
+      "bypass": 400
+    },
+    "source_records": 5000,
+    "kept": 4600,
+    "filtered": {
+      "dialogue": 400
+    },
+    "renamed_duplicate_ids": 350
+  },
+  "preflight": {
+    "train": {
+      "records": 4140,
+      "kinds": {
+        "reasoning": 3780,
+        "bypass": 360
+      },
+      "skipped": {},
+      "max_length": 1024,
+      "strict_format": true
+    },
+    "val": {
+      "records": 460,
+      "kinds": {
+        "reasoning": 420,
+        "bypass": 40
+      },
+      "skipped": {},
+      "max_length": 1024,
+      "strict_format": true
+    },
+    "tokenizer": {
+      "vocab_size": 151712,
+      "bos_token_id": 151646,
+      "eos_token_id": 151643,
+      "pad_token_id": 151643,
+      "extension_meta": {
+        "base_model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+        "base_revision": "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562",
+        "original_vocab_size": 151665,
+        "new_vocab_size": 151712,
+        "added_tokens": [
+          "<ans>",
+          "</ans>",
+          "→",
+          "∴",
+          "∵",
+          "∧",
+          "∨",
+          "⊕",
+          "≡",
+          "≠",
+          "≤",
+          "≥",
+          "∈",
+          "∉",
+          "⊂",
+          "⊃",
+          "∀",
+          "∃",
+          "∄",
+          "∩",
+          "∪",
+          "∅",
+          "✓",
+          "✗",
+          "↑",
+          "↓",
+          "∞",
+          "conclude",
+          "backtrack",
+          "∂",
+          "∫",
+          "Σ",
+          "Π",
+          "√",
+          "lcm",
+          "∴ ans=",
+          "→ans=",
+          "verify(",
+          ")✓",
+          ")✗",
+          "hyp(",
+          "let(",
+          "case(",
+          "derive(",
+          "∂f=",
+          "∀x∈",
+          "∃x∈"
+        ],
+        "symbolic_tokens": [
+          "→",
+          "∴",
+          "∵",
+          "∧",
+          "∨",
+          "¬",
+          "⊕",
+          "≡",
+          "≠",
+          "≤",
+          "≥",
+          "∈",
+          "∉",
+          "⊂",
+          "⊃",
+          "∀",
+          "∃",
+          "∄",
+          "∩",
+          "∪",
+          "∅",
+          "✓",
+          "✗",
+          "↑",
+          "↓",
+          "~",
+          "∞"
+        ],
+        "keyword_tokens": [
+          "hyp",
+          "derive",
+          "conclude",
+          "let",
+          "verify",
+          "backtrack",
+          "case",
+          "base",
+          "step",
+          "∂",
+          "∫",
+          "Σ",
+          "Π",
+          "√",
+          "ans",
+          "if",
+          "else",
+          "loop",
+          "try",
+          "gcd",
+          "lcm",
+          "mod",
+          "abs",
+          "max",
+          "min",
+          "len",
+          "sort"
+        ],
+        "special_tokens": [
+          "<think>",
+          "</think>",
+          "<ans>",
+          "</ans>"
+        ]
+      }
+    },
+    "checked_train_rows": 4140,
+    "checked_val_rows": 460,
+    "expected_train_kinds": {
+      "reasoning": 3780,
+      "bypass": 360
+    },
+    "expected_val_kinds": {
+      "reasoning": 420,
+      "bypass": 40
+    },
+    "full_preflight": true
+  }
+}

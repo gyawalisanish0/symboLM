@@ -1,9 +1,9 @@
 # Research Redirect: Token Efficiency First, Biology as Analogy
 
 **Author:** Sanish Gyawali (Rupandehi, Nepal)  
-**Date:** 2026-10-23  
+**Date:** 2026-10-24  
 **Branch:** `research/rescue-v3`  
-**Status:** active rescue. No v3 adapter and no v3 GPU result exist yet.
+**Status:** active rescue. The r6 adapter is gate-eligible; no v3 GPU result exists yet.
 
 ---
 
@@ -319,9 +319,12 @@ legitimate scope.
 - [x] Run r5 training to completion (777 steps) and diagnose the strict generation-gate
       failure: frozen `<ans>`, `</ans>`, and `answer` rows were byte-identical.
 - [x] Implement the r6 token-delta repair (`sft-v3-20261023-r6`) and tied-row gates.
-- [ ] Run r6 training and pass the mixed-kind generation check (no r6 run yet).
-- [ ] Pass the package gate, including `"torchao": "absent"` and distinct marker rows.
-- [ ] Run the 100 × 4 diagnostic.
+- [x] Run r6 training and pass the mixed-kind generation check: 777 steps / 3 epochs,
+      final eval loss `0.00748848170042038`; probes returned `62` and `100`.
+- [x] Pass the package gate, including `"torchao": "absent"`, merged token deltas, and
+      distinct marker rows.
+- [ ] Run the 100 × 4 diagnostic with a v3-compatible harness. The existing
+      `eval/robust_eval.py` is the v2.1 path and is not v3-ready.
 - [ ] Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
 - [ ] Update README/results with receipts, or publish the negative result.
 
