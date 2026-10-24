@@ -94,10 +94,10 @@ Deployment harness: [`gyawalisanish0/DomainAI`](https://github.com/gyawalisanish
 - [ ] Add deterministic sampling, stop-string support, exact v3 prompt mode, and a
       headless JSONL benchmark runner.
 - [ ] Pass the GGUF tokenizer/format/accuracy gate on desktop before any phone claim.
-- [ ] Record the Redmi 15 4G / Snapdragon 685 / HyperOS 3 profile; confirm the RAM variant;
-      build CPU-only without dotprod and pin four A73 threads.
+- [ ] Record the Redmi 15 4G / Snapdragon 685 / HyperOS 3 / 8 GB profile; build CPU-only
+      without dotprod and pin four A73 threads.
 - [ ] Run the 0.5B Q4 student on the Redmi 15; CPU baseline first. Treat 1.5B as a separate
-      stretch, not the primary mobile claim.
+      memory-feasible but compute-limited stretch, not the primary mobile claim.
 - [ ] Add energy/thermal/peak-memory receipts; no projected joules.
 
 ## Non-negotiable rules

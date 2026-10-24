@@ -633,9 +633,10 @@ Hexagon / Vulkan), power mode, latency target, energy target, and batch size. Wi
 the architecture track can measure relative gains but not deployment fitness.
 
 **Available low-end device (user-reported, 2026-10-24):** Redmi 15 4G, Snapdragon 685,
-HyperOS 3, CPU-only path, no Arm dot-product extension; RAM variant to confirm. This is a
-low-end case study, not a representative “mobile” claim. Use the 0.5B Q4 model first; treat
-1.5B as likely out of scope unless the RAM variant and measured speed say otherwise.
+HyperOS 3, **8 GB RAM**, CPU-only path, no Arm dot-product extension. This is a low-end
+case study, not a representative “mobile” claim. The 8 GB removes the memory blocker for
+1.5B Q4, but not the compute blocker: use the 0.5B Q4 model first; treat 1.5B as a measured
+stretch only, not the primary mobile claim.
 
 ### 8.4 Android-first runtime plan
 
@@ -713,6 +714,17 @@ Android benchmark protocol:
   thermal state.
 - Compare symbolic vs natural-language CoT vs answer-only, and CPU vs GPU/NPU if available.
 - Label a CPU-only result as CPU-only; do not generalize it to “mobile.”
+
+Mobile feasibility gates (engineering, not scientific claims):
+
+- **0.5B gate:** complete a five-prompt timing run, then the 50-prompt stratified subset
+  within the session budget. Record free RAM and peak RSS. If it OOMs or throttles into
+  unusability, stop and report the device boundary.
+- **1.5B gate:** only after the 0.5B path is clean. Run five prompts first; if the
+  50-prompt subset would exceed the session budget, or thermal throttling is severe, stop.
+  “Memory-feasible” is not “usable.”
+- Disable HyperOS memory extension; virtual RAM can mask OOM and distort peak-RSS receipts.
+- Report burst and sustained numbers separately; a short fast run is not a sustained claim.
 
 Architecture caveat:
 
