@@ -1,10 +1,12 @@
 # SymboLM Long-Term Roadmap
 
 **Status:** planning document, not a result.
-**Date:** 2026-10-24
+**Date:** 2026-10-25
 **Current gate:** the 100 × 4 × 6 v3 diagnostic. The r6 Kaggle kernel is `COMPLETE`; its
 adapter passed the generation and package gates and is gate-eligible. No v3 benchmark result
-exists yet.
+exists yet. A 38-prompt CPU sweep is a diagnostic only: 24/38 strict, 38/38 format,
+38/38 EOS, no truncation; its failures are arithmetic/semantic, not format. See
+`results/r6_closeout/CPU_SWEEP.json`.
 **Companion documents:** [`EVIDENCE_STATUS.md`](EVIDENCE_STATUS.md),
 [`RESEARCH_REDIRECT.md`](RESEARCH_REDIRECT.md),
 [`TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md),
@@ -137,7 +139,7 @@ human cognition.
 ### 2.2 What is missing
 
 - A v3-compatible diagnostic harness; `eval/robust_eval.py` is the v2.1 path.
-- The 100 × 4 diagnostic.
+- The 100 × 4 × 6 diagnostic.
 - The full 4,800-cell confirmatory run (separate explicit approval required).
 - A matched no-register adapter for a training-data comparison.
 - Multiple SFT seeds.
@@ -230,7 +232,7 @@ allowed without a separate preregistered test.
 #### A0. Close the 1.5B experiment
 
 - ✅ Finish r6; the generation and package gates passed.
-- Run the 100 × 4 diagnostic with a v3-compatible harness.
+- Run the 100 × 4 × 6 diagnostic with a v3-compatible harness.
 - Request separate approval for the full 4,800-cell run.
 - Report strict accuracy, tokens/correct, J/correct, format validity, terminal-answer rate,
   EOS rate, and the C-vs-D decision.
@@ -420,7 +422,7 @@ replaced by measured receipts.
    `100`; both were terminal/EOS-valid with no loop marker.
 3. ✅ Package gate passed, including `"torchao": "absent"`, merged deltas, and distinct
    terminal-marker rows. Adapter and bundle hashes match the receipt.
-4. ⛔ Run the 100 × 4 diagnostic with a v3-compatible harness. The existing
+4. ⛔ Run the 100 × 4 × 6 diagnostic with a v3-compatible harness. The existing
    `eval/robust_eval.py` is the v2.1 path and is not v3-ready.
 5. ⛔ Only then request approval for the full 4,800-cell run.
 
@@ -815,20 +817,28 @@ Venues are secondary. The claim ladder and receipts are primary.
 
 1. ✅ Verify r6; the generation and package gates passed. Receipts:
    `results/r6_closeout/R6_CLOSEOUT.json`.
-2. ⛔ Build the v3-compatible 100 × 4 diagnostic harness. The existing
-   `eval/robust_eval.py` is the v2.1 path and must not be relabeled as v3.
-3. ⛔ Run the 100 × 4 diagnostic; if it fails, fix the pipeline and do not run the full grid.
-4. ⛔ Request separate explicit approval for the 4,800-cell run.
-5. Draft the Phase 1b preregistration for the matched no-register adapter and seeds.
-6. Check 7B base-model availability, tokenizer compatibility, and QLoRA feasibility.
-7. Write a one-page Phase 2 protocol before spending 7B compute.
-8. Record the target decision: **Android phone + `llama.cpp`**. The recorded device profile
-   is Redmi 15 4G / Snapdragon 685 / HyperOS 3 / 8 GB; build CPU-only without dotprod and pin
-   four A73 threads. No phone claim until the desktop GGUF gate passes.
-9. Add a GGUF tokenizer/accuracy gate before any mobile benchmark; the 0.5B student is the
-   first model, not the 1.5B.
-10. Add `docs/ROADMAP.md` to the Markdown audit and the README repository map.
-11. Keep the claim ledger and retractions current; no new number without a receipt.
+2. ✅ Run the 38-prompt CPU sweep and record `results/r6_closeout/CPU_SWEEP.json`.
+   It is a diagnostic, not a benchmark. The failures are arithmetic/semantic and the
+   `verify` blocks are often tautological or false.
+3. ⛔ Harden the v3-compatible 100 × 4 × 6 diagnostic harness. The existing
+   `eval/robust_eval.py` is the v2.1 path and must not be relabeled as v3. It must fail
+   closed on generation errors, corrupted rows, adapter-hash mismatch, and nondeterministic
+   subset selection.
+4. ⛔ Run the 100 × 4 × 6 diagnostic; if it fails, fix the pipeline and do not run the full grid.
+5. ⛔ Request separate explicit approval for the 4,800-cell run.
+6. ⛔ Design and preflight r7 Verified-Trace Repair per
+   `docs/NEXT_TRAINING_SESSION.md`; do not launch it before the v3 diagnostic path is closed
+   and a Phase 1b preregistration exists.
+7. Draft the Phase 1b preregistration for the matched no-register adapter and seeds.
+8. Check 7B base-model availability, tokenizer compatibility, and QLoRA feasibility.
+9. Write a one-page Phase 2 protocol before spending 7B compute.
+10. Record the target decision: **Android phone + `llama.cpp`**. The recorded device profile
+    is Redmi 15 4G / Snapdragon 685 / HyperOS 3 / 8 GB; build CPU-only without dotprod and pin
+    four A73 threads. No phone claim until the desktop GGUF gate passes.
+11. Add a GGUF tokenizer/accuracy gate before any mobile benchmark; the 0.5B student is the
+    first model, not the 1.5B.
+12. Add `docs/ROADMAP.md` to the Markdown audit and the README repository map.
+13. Keep the claim ledger and retractions current; no new number without a receipt.
 
 ---
 
@@ -837,7 +847,7 @@ Venues are secondary. The claim ladder and receipts are primary.
 ```
 r6 clean?
 ├─ no  → fix artifact; no science; repeat
-└─ yes → 100×4 diagnostic
+└─ yes → 100×4×6 diagnostic
          ├─ fail → fix pipeline; no full run
          └─ pass → 4,800-cell C-vs-D (approval)
                   ├─ null → publish negative; pivot to tool use/architecture

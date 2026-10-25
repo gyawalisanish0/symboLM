@@ -15,3 +15,4 @@
 # r6 closeout receipts are hashed in R6_CLOSEOUT.json. Force LF so a Windows
 # checkout cannot silently change the receipt hashes.
 /results/r6_closeout/*.json text eol=lf
+/results/r6_closeout/*.jsonl text eol=lf

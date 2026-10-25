@@ -284,6 +284,7 @@ not run the evaluation before SFT and the package gate pass.
 | `PREREG_VALUATION_V2.md` | Frozen protocol for the rescue run |
 | `docs/RESEARCH_REDIRECT.md` | What survives, what is retracted, and why |
 | `docs/ROADMAP.md` | Long-term plan for symbolic scaling and architecture-level edge efficiency; planning only |
+| `docs/NEXT_TRAINING_SESSION.md` | r7 Verified-Trace Repair design; planning only, not a run |
 | `docs/EVIDENCE_STATUS.md` | Short evidence-status table |
 | `EVIDENCE_TRUTH_TABLE.md` | Full claim-by-claim historical audit |
 | `RESULTS_SUMMARY.md` | Audit narrative and strict rescore |

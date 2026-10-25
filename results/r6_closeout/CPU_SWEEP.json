@@ -1,0 +1,586 @@
+{
+  "schema": "symboLM.cpu_sweep.v1",
+  "status": "diagnostic_only_not_a_benchmark",
+  "timestamp_utc": "2026-10-25T15:53:30.924660+00:00",
+  "device": "cpu",
+  "arm": "C",
+  "budget": 256,
+  "decoding": {
+    "do_sample": false,
+    "repetition_penalty": 1.15
+  },
+  "selection": {
+    "method": "two distinct prompts per category, ranked by SHA-256(seed|id|prompt)",
+    "seed": "20261025",
+    "n_per_category": 2,
+    "categories": 19,
+    "problem_ids": [
+      "MY2021_007",
+      "MY2021_008",
+      "MY2021_105",
+      "MY2021_106",
+      "MY2021_166",
+      "MY2021_183",
+      "MY2022_003",
+      "MY2022_004",
+      "MY2022_063",
+      "MY2022_066",
+      "MY2022_113",
+      "MY2022_115",
+      "MY2022_162",
+      "MY2022_164",
+      "MY2023_006",
+      "MY2023_007",
+      "MY2023_062",
+      "MY2023_070",
+      "MY2023_119",
+      "MY2023_121",
+      "MY2023_167",
+      "MY2023_169",
+      "MY2024_005",
+      "MY2024_008",
+      "MY2024_064",
+      "MY2024_065",
+      "MY2024_113",
+      "MY2024_117",
+      "MY2024_162",
+      "MY2024_170",
+      "MY2026_004",
+      "MY2026_006",
+      "MY2026_061",
+      "MY2026_062",
+      "MY2026_105",
+      "MY2026_110",
+      "MY2026_144",
+      "MY2026_150"
+    ]
+  },
+  "hardware": {
+    "cpu": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "torch_threads": 8
+  },
+  "library_versions": {
+    "torch": "2.14.1+cpu",
+    "transformers": "5.20.1",
+    "peft": "0.21.2"
+  },
+  "base_model": {
+    "id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "revision": "ad9f0ae0864d7fbcd1cd905e3c6c5b069cc8b562"
+  },
+  "adapter": {
+    "path": "C:\\Users\\user\\Dev\\symboLM\\checkpoints\\sft_v3_r6\\adapter",
+    "adapter_model_sha256": "204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C"
+  },
+  "benchmark": {
+    "path": "C:\\Users\\user\\Dev\\symboLM\\data\\held_out_eval_200_v2.jsonl",
+    "sha256": "F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707"
+  },
+  "counts": {
+    "n": 38,
+    "strict_correct": 24,
+    "strict_correct_rate": 0.631579,
+    "format_valid": 38,
+    "format_valid_rate": 1.0,
+    "strict_correct_and_format": 24,
+    "strict_correct_and_format_rate": 0.631579,
+    "eos": 38,
+    "eos_rate": 1.0,
+    "truncated": 0,
+    "truncation_rate": 0.0,
+    "total_generated_tokens": 4327,
+    "total_elapsed_sec": 1677.19,
+    "mean_generated_tokens": 113.868,
+    "mean_elapsed_sec": 44.137,
+    "tokens_per_correct": 180.292
+  },
+  "by_category": {
+    "arithmetic_word_problem": {
+      "n": 2,
+      "strict_correct": 1,
+      "format_valid": 2,
+      "strict_correct_and_format": 1,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 97.0,
+      "mean_elapsed_sec": 29.946,
+      "problem_ids": [
+        "MY2021_007",
+        "MY2021_008"
+      ]
+    },
+    "atomic_scientific_fact": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 13.5,
+      "mean_elapsed_sec": 8.513,
+      "problem_ids": [
+        "MY2021_166",
+        "MY2021_183"
+      ]
+    },
+    "chinese_remainder_theorem": {
+      "n": 2,
+      "strict_correct": 1,
+      "format_valid": 2,
+      "strict_correct_and_format": 1,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 142.5,
+      "mean_elapsed_sec": 65.751,
+      "problem_ids": [
+        "MY2026_004",
+        "MY2026_006"
+      ]
+    },
+    "combinatorics_combinations": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 116.5,
+      "mean_elapsed_sec": 38.285,
+      "problem_ids": [
+        "MY2023_167",
+        "MY2023_169"
+      ]
+    },
+    "combinatorics_derangements": {
+      "n": 2,
+      "strict_correct": 1,
+      "format_valid": 2,
+      "strict_correct_and_format": 1,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 124.0,
+      "mean_elapsed_sec": 38.066,
+      "problem_ids": [
+        "MY2023_062",
+        "MY2023_070"
+      ]
+    },
+    "diophantine_factorization": {
+      "n": 2,
+      "strict_correct": 0,
+      "format_valid": 2,
+      "strict_correct_and_format": 0,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 143.5,
+      "mean_elapsed_sec": 65.293,
+      "problem_ids": [
+        "MY2024_064",
+        "MY2024_065"
+      ]
+    },
+    "discrete_recurrences": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 172.5,
+      "mean_elapsed_sec": 79.151,
+      "problem_ids": [
+        "MY2026_144",
+        "MY2026_150"
+      ]
+    },
+    "elementary_algebra": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 96.5,
+      "mean_elapsed_sec": 28.956,
+      "problem_ids": [
+        "MY2021_105",
+        "MY2021_106"
+      ]
+    },
+    "euler_totient": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 107.0,
+      "mean_elapsed_sec": 32.25,
+      "problem_ids": [
+        "MY2023_119",
+        "MY2023_121"
+      ]
+    },
+    "fermat_modular_orders": {
+      "n": 2,
+      "strict_correct": 0,
+      "format_valid": 2,
+      "strict_correct_and_format": 0,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 134.5,
+      "mean_elapsed_sec": 60.394,
+      "problem_ids": [
+        "MY2024_113",
+        "MY2024_117"
+      ]
+    },
+    "geometric_inradius": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 109.0,
+      "mean_elapsed_sec": 52.435,
+      "problem_ids": [
+        "MY2024_162",
+        "MY2024_170"
+      ]
+    },
+    "harmonic_work_rates": {
+      "n": 2,
+      "strict_correct": 0,
+      "format_valid": 2,
+      "strict_correct_and_format": 0,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 126.5,
+      "mean_elapsed_sec": 59.519,
+      "problem_ids": [
+        "MY2026_061",
+        "MY2026_062"
+      ]
+    },
+    "legendre_prime_valuation": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 142.5,
+      "mean_elapsed_sec": 64.223,
+      "problem_ids": [
+        "MY2024_005",
+        "MY2024_008"
+      ]
+    },
+    "modular_arithmetic": {
+      "n": 2,
+      "strict_correct": 1,
+      "format_valid": 2,
+      "strict_correct_and_format": 1,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 108.0,
+      "mean_elapsed_sec": 32.674,
+      "problem_ids": [
+        "MY2022_162",
+        "MY2022_164"
+      ]
+    },
+    "physics_kinematics": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 110.0,
+      "mean_elapsed_sec": 53.397,
+      "problem_ids": [
+        "MY2026_105",
+        "MY2026_110"
+      ]
+    },
+    "polynomial_invariants": {
+      "n": 2,
+      "strict_correct": 1,
+      "format_valid": 2,
+      "strict_correct_and_format": 1,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 127.0,
+      "mean_elapsed_sec": 39.677,
+      "problem_ids": [
+        "MY2023_006",
+        "MY2023_007"
+      ]
+    },
+    "quadratic_algebra": {
+      "n": 2,
+      "strict_correct": 1,
+      "format_valid": 2,
+      "strict_correct_and_format": 1,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 81.5,
+      "mean_elapsed_sec": 26.214,
+      "problem_ids": [
+        "MY2022_003",
+        "MY2022_004"
+      ]
+    },
+    "sequences_progressions": {
+      "n": 2,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "strict_correct_and_format": 2,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 107.5,
+      "mean_elapsed_sec": 32.156,
+      "problem_ids": [
+        "MY2022_063",
+        "MY2022_066"
+      ]
+    },
+    "triangle_geometry": {
+      "n": 2,
+      "strict_correct": 0,
+      "format_valid": 2,
+      "strict_correct_and_format": 0,
+      "eos": 2,
+      "truncated": 0,
+      "mean_generated_tokens": 104.0,
+      "mean_elapsed_sec": 31.697,
+      "problem_ids": [
+        "MY2022_113",
+        "MY2022_115"
+      ]
+    }
+  },
+  "plan_concept_counts": {
+    "arithmetic_progression": 1,
+    "binomial_coefficient": 2,
+    "chinese_remainder": 2,
+    "derangement": 2,
+    "diophantine_difference_of_squares": 2,
+    "factorial_divisibility": 2,
+    "geometric_sequence": 1,
+    "harmonic_work_rate": 3,
+    "inradius_geometry": 2,
+    "kinematics_work_energy": 2,
+    "linear_equation": 2,
+    "lucas_recurrence": 2,
+    "modular_totient": 4,
+    "polynomial_invariant": 4,
+    "proportion": 1,
+    "pythagorean_theorem": 2,
+    "totient_function": 2
+  },
+  "failures": [
+    {
+      "problem_id": "MY2021_008",
+      "category": "arithmetic_word_problem",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "7",
+      "ground_truth": "119",
+      "generated_tokens": 82,
+      "eos_emitted": true,
+      "plan_concept": "proportion"
+    },
+    {
+      "problem_id": "MY2022_004",
+      "category": "quadratic_algebra",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "15",
+      "ground_truth": "36",
+      "generated_tokens": 77,
+      "eos_emitted": true,
+      "plan_concept": "polynomial_invariant"
+    },
+    {
+      "problem_id": "MY2022_113",
+      "category": "triangle_geometry",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "40",
+      "ground_truth": "68",
+      "generated_tokens": 109,
+      "eos_emitted": true,
+      "plan_concept": "pythagorean_theorem"
+    },
+    {
+      "problem_id": "MY2022_115",
+      "category": "triangle_geometry",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "7",
+      "ground_truth": "5",
+      "generated_tokens": 99,
+      "eos_emitted": true,
+      "plan_concept": "pythagorean_theorem"
+    },
+    {
+      "problem_id": "MY2022_164",
+      "category": "modular_arithmetic",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "10",
+      "ground_truth": "11",
+      "generated_tokens": 104,
+      "eos_emitted": true,
+      "plan_concept": "modular_totient"
+    },
+    {
+      "problem_id": "MY2023_006",
+      "category": "polynomial_invariants",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "19876",
+      "ground_truth": "20162",
+      "generated_tokens": 141,
+      "eos_emitted": true,
+      "plan_concept": "polynomial_invariant"
+    },
+    {
+      "problem_id": "MY2023_070",
+      "category": "combinatorics_derangements",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "532",
+      "ground_truth": "265",
+      "generated_tokens": 68,
+      "eos_emitted": true,
+      "plan_concept": "derangement"
+    },
+    {
+      "problem_id": "MY2024_064",
+      "category": "diophantine_factorization",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "25",
+      "ground_truth": "24",
+      "generated_tokens": 154,
+      "eos_emitted": true,
+      "plan_concept": "diophantine_difference_of_squares"
+    },
+    {
+      "problem_id": "MY2024_065",
+      "category": "diophantine_factorization",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "21",
+      "ground_truth": "7",
+      "generated_tokens": 133,
+      "eos_emitted": true,
+      "plan_concept": "diophantine_difference_of_squares"
+    },
+    {
+      "problem_id": "MY2024_113",
+      "category": "fermat_modular_orders",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "32",
+      "ground_truth": "23",
+      "generated_tokens": 134,
+      "eos_emitted": true,
+      "plan_concept": "modular_totient"
+    },
+    {
+      "problem_id": "MY2024_117",
+      "category": "fermat_modular_orders",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "8",
+      "ground_truth": "2",
+      "generated_tokens": 135,
+      "eos_emitted": true,
+      "plan_concept": "modular_totient"
+    },
+    {
+      "problem_id": "MY2026_004",
+      "category": "chinese_remainder_theorem",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "158",
+      "ground_truth": "160",
+      "generated_tokens": 152,
+      "eos_emitted": true,
+      "plan_concept": "chinese_remainder"
+    },
+    {
+      "problem_id": "MY2026_061",
+      "category": "harmonic_work_rates",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "4.29",
+      "ground_truth": "5",
+      "generated_tokens": 127,
+      "eos_emitted": true,
+      "plan_concept": "harmonic_work_rate"
+    },
+    {
+      "problem_id": "MY2026_062",
+      "category": "harmonic_work_rates",
+      "expected_kind": "reasoning",
+      "strict_correct": false,
+      "format_valid": true,
+      "format_reason": "reasoning",
+      "truncated": false,
+      "answer": "20/7",
+      "ground_truth": "5",
+      "generated_tokens": 126,
+      "eos_emitted": true,
+      "plan_concept": "harmonic_work_rate"
+    }
+  ],
+  "jsonl_path": "C:\\Users\\user\\Dev\\symboLM\\results\\r6_closeout\\CPU_SWEEP.jsonl",
+  "jsonl_sha256": "8F41B1B31E1FC59716F1696BBD939D87A1C537E6D4A2ACFAB19E67A1A18B2AB4",
+  "note": "38-prompt stratified CPU diagnostic only. It is not the preregistered 200x4x6 v3 experiment and supports no accuracy, token-efficiency, latency, or mobile claim."
+}

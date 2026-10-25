@@ -1,10 +1,10 @@
 # Markdown Audit: Every First-Party Document
 
-**Audit date:** 2026-10-24  
+**Audit date:** 2026-10-25<br>
 **Scope:** first-party `.md` files, excluding `.venv/`, `vendor/`, `scratch/`,
 archived Kaggle output duplicates, and generated output directories.  
-**Files audited:** 66<br>
-**Relative-link pass:** zero broken links in the 66-file scope (archived Kaggle output duplicates excluded)
+**Files audited:** 67<br>
+**Relative-link pass:** zero broken links in the 67-file scope (archived Kaggle output duplicates excluded)
 
 Some audit targets are gitignored in this working tree: the private grant documents under
 `research/` and the `checkpoints/` model cards. They were still audited and banner-marked on
@@ -54,7 +54,7 @@ receipts: `results/r6_closeout/R6_CLOSEOUT.json`.
 | `AUDIT.md` | Historical / retracted | Historical banner added; retains old 50.5% audit row as historical finding. |
 | `EVAL_V2_200_REPORT.md` | Historical / retracted | Historical duplicate; banner added. |
 | `EVIDENCE_TRUTH_TABLE.md` | Historical / retracted | Token-efficiency/biology banner added; rows 16 and 20 corrected to incomplete/retracted. |
-| `GEMINI.md` | Canonical current | Updated session directive; SESSION_CONTEXT is historical; records the r4 preflight pass, the `torchao` packaging stop, the r5 generation-gate failure, and the completed r6 artifact gates. |
+| `GEMINI.md` | Canonical current | Updated 2026-10-25 with the 38-prompt CPU sweep result, the r7 Verified-Trace Repair design, and a strict next-run directive covering fail-closed evaluation, the 4,800-cell approval gate, benchmark ambiguity, and receipt rules. |
 | `OPTIMIZATIONS_RESEARCH.md` | Design / projection | Banner added: engineering options/projections, not measured v3 results. |
 | `PREREG_VALUATION.md` | Historical / retracted | Already historical/superseded. |
 | `PREREG_VALUATION_V2.md` | Canonical current | Added dated framing, token-efficiency, r4 provenance, r4-outcome/r5 package notes, and the r5-outcome/r6 token-delta note. The note now records the completed r6 artifact gates; hypotheses/endpoints unchanged. |
@@ -70,11 +70,12 @@ receipts: `results/r6_closeout/R6_CLOSEOUT.json`.
 | `docs/AI_GRANT_OPEN_SOURCE_APPLICATION.md` | Historical / retracted | Banner and one-line correction; currently-running/definitive-evaluation claims corrected. Do not submit as-is. |
 | `docs/ARCHIVE_README_2.1.md` | Archive / historical ops | Already banner-marked; preserved as historical provenance. |
 | `docs/ARCHIVE_WHITEPAPER_2.1.md` | Archive / historical ops | Already banner-marked; preserved as historical provenance. |
-| `docs/EVIDENCE_STATUS.md` | Canonical current | Rewritten with token-efficiency hierarchy, pilot ledger, incomplete-run language, and the r4/r5/r6 provenance, package, failure, and completed artifact-gate notes. The v3 benchmark is still marked unknown/untested. |
+| `docs/EVIDENCE_STATUS.md` | Canonical current | Rewritten with token-efficiency hierarchy, pilot ledger, incomplete-run language, and the r4/r5/r6 provenance, package, failure, and completed artifact-gate notes. The v3 benchmark is still marked unknown/untested. The 2026-10-25 38-prompt CPU sweep is recorded as diagnostic only. |
+| `docs/NEXT_TRAINING_SESSION.md` | Design / projection | New 2026-10-25 plan: r7 Verified-Trace Repair, based on the 38-prompt CPU sweep's false-verification finding. No run, no result. Includes data-audit rules, verification gate, stop conditions, and the follow-on matched no-register control. |
 | `docs/HONEST_PITCH_AND_SOCIAL.md` | Historical / retracted | Banner added; currently-running corrected to incomplete; Tier B receipts labeled. |
 | `docs/MARKDOWN_AUDIT.md` | Audit index | This file. Lists every first-party Markdown document and the action taken. |
 | `docs/RESEARCH_REDIRECT.md` | Canonical current | Rewritten with token efficiency primary, biology as analogy, quota-stop language, decision rules, and the r4/r5/r6 status. r6 artifact gates are checked; the v3 diagnostic is pending. |
-| `docs/ROADMAP.md` | Design / projection | Long-term plan: symbolic-interface scaling, teacher–student distillation, architecture-level edge efficiency, gates, controls, and resources. Android + `llama.cpp` is the first deployment target; `DomainAI` is the harness. Planning only; no measured claim. |
+| `docs/ROADMAP.md` | Design / projection | Long-term plan: symbolic-interface scaling, teacher–student distillation, architecture-level edge efficiency, gates, controls, and resources. Android + `llama.cpp` is the first deployment target; `DomainAI` is the harness. Planning only; no measured claim. Updated 2026-10-25 with the CPU sweep diagnostic and the r7 Verified-Trace Repair preflight. |
 | `docs/STATE_OF_THE_ART_REASONING_AND_EVALUATION.md` | Canonical methodology | Removed “SymboLM solves” and hardware-receipt claims; reframed as hypotheses; updated the v3 artifact status through the r5 failure and completed r6 gates. Flags the v2.1/v3 harness gap. |
 | `docs/TINY_TERMINAL_AND_CONTEXT_PRUNING_SPEC.md` | Design / projection | Status changed to not active in v3; removed the outperform-70B claim. |
 | `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical current | New canonical doc: metric definitions, biology caveats, training scope, evidence ledger, claim rules, and the r4/r5/r6 status. r6 is gate-eligible; no v3 result exists. |
