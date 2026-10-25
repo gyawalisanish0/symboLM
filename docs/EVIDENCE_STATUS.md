@@ -47,6 +47,7 @@ about C-versus-D format value or token-efficiency superiority is allowed.
 | Cross-family LLaMA transfer | **Retracted as a universality claim** | n=5 probe; separate SmolLM2 200-problem run | Not evidence of tokenizer/architecture invariance. |
 | Sub-50-token reasoning | **Not supported** | v2.1 averaged 494.5 tokens | The old 253.8-token figure is not the run mean. |
 | r6 SFT artifact | **Gate-eligible** | `results/r6_closeout/R6_CLOSEOUT.json` | 777 steps / 3 epochs; final eval loss `0.00748848170042038`; strict generation and package gates passed. This is an artifact status, not a benchmark result. |
+| r6 CPU smoke test | **Diagnostic only; 2/2 valid** | `results/r6_closeout/CPU_PROBE.json` | Two greedy probes on a Ryzen 7 5700G, bf16, 8 threads: `295` (114 tokens, 35.8 s) and `26` (13 tokens, 8.4 s). Both emitted EOS, valid format, strict correct. n=2; no accuracy, token-efficiency, or latency claim. |
 | v3 register value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | The preregistered test has not been executed. r5 is ineligible after a generation-gate failure. |
 | v3 token-efficiency value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
 
