@@ -62,6 +62,17 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+from eval.run_contract import (  # noqa: E402
+    EvalContractError,
+    adapter_artifact_sha256,
+    expected_cell_keys,
+    load_benchmark_rows,
+    select_stratified_subset,
+    sha256_text,
+    validate_adapter_config,
+    validate_resume_manifest,
+    verify_completed_cells,
+)
 from eval.strict_scorer import (  # noqa: E402
     apply_ground_truth_override,
     extract_declared_answer,
@@ -76,6 +87,7 @@ from symbolic.prompts import (  # noqa: E402
     REGISTER_SYSTEM_PROMPT,
     SANDBOX_SYSTEM_PROMPT,
     build_chat_prompt,
+    contains_loop_marker,
 )
 
 DEFAULT_HELD_OUT   = ROOT_DIR / "data" / "held_out_eval_200_v2.jsonl"
@@ -141,6 +153,7 @@ class PowerSampler:
         self.idle_power_baseline = 0.0
         self.running = False
         self.thread: Optional[threading.Thread] = None
+        self.measurement_mode = "nvml" if self.has_nvidia else "cpu_tdp_estimate"
 
     def _check_nvidia(self):
         try:
@@ -680,6 +693,29 @@ def _pkg_version(pkg: str) -> str:
         return "unknown"
 
 
+def _contract_hashes(gt_overrides_path: Optional[Path]) -> Dict[str, Optional[str]]:
+    """Hash the code and data contracts that define a scored cell."""
+    files = {
+        "evaluator_sha256": ROOT_DIR / "eval" / "robust_eval.py",
+        "run_contract_sha256": ROOT_DIR / "eval" / "run_contract.py",
+        "strict_scorer_sha256": ROOT_DIR / "eval" / "strict_scorer.py",
+        "prompts_sha256": ROOT_DIR / "symbolic" / "prompts.py",
+    }
+    hashes: Dict[str, Optional[str]] = {}
+    for name, path in files.items():
+        if not path.is_file():
+            raise EvalContractError(f"Required contract file is missing: {path}")
+        hashes[name] = _sha256_file(path)
+    if gt_overrides_path is None:
+        hashes["ground_truth_overrides_sha256"] = None
+    else:
+        overrides = Path(gt_overrides_path)
+        hashes["ground_truth_overrides_sha256"] = (
+            _sha256_file(overrides) if overrides.is_file() else None
+        )
+    return hashes
+
+
 def build_manifest(
     input_file: Path,
     adapter_path: Path,
@@ -692,14 +728,24 @@ def build_manifest(
     expected_sha256: str = DATASET_SHA256,
     strict_scoring: bool = True,
     gt_overrides_path: Optional[Path] = None,
+    adapter_sha256: Optional[str] = None,
+    expected_adapter_sha256: Optional[str] = None,
+    subset_info: Optional[Dict[str, Any]] = None,
+    run_kind: str = "full",
+    expected_cells: Optional[int] = None,
+    energy_measurement: Optional[str] = None,
 ) -> Dict[str, Any]:
     dataset_sha = _sha256_file(input_file)
     sha_match   = dataset_sha.upper() == expected_sha256.upper()
+    adapter_match: Optional[bool] = None
+    if adapter_sha256 is not None and expected_adapter_sha256 is not None:
+        adapter_match = adapter_sha256.upper() == expected_adapter_sha256.upper()
     gpu         = _gpu_info()
     return {
         "run_id": run_id,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "commit_hash": _git_head(),
+        "run_kind": run_kind,
         "dataset": str(input_file),
         "dataset_sha256": dataset_sha,
         "dataset_sha256_match": sha_match,
@@ -707,12 +753,19 @@ def build_manifest(
         "strict_scoring": strict_scoring,
         "truncation_rule": "hit_budget_without_eos_is_fail",
         "ground_truth_overrides": str(gt_overrides_path) if gt_overrides_path else None,
+        "contracts": _contract_hashes(gt_overrides_path),
+        "subset": subset_info,
+        "expected_cells": expected_cells,
         "adapter": str(adapter_path),
+        "adapter_sha256": adapter_sha256,
+        "adapter_sha256_expected": expected_adapter_sha256,
+        "adapter_sha256_match": adapter_match,
         "base_model": base_model,
         "base_revision": base_revision,
         "arms": arms,
         "budgets": budgets,
         "random_seed": seed,
+        "energy_measurement": energy_measurement,
         "hardware": {
             **gpu,
             "python": platform.python_version(),
@@ -790,6 +843,7 @@ class AsyncPersistenceManager:
         contaminated_ids: Set[str],
         sync_every: int = 5,
         replace_arms: Optional[List[str]] = None,
+        expected_keys: Optional[Set[str]] = None,
     ):
         self.out_dir = out_dir
         self.tarball_path = tarball_path
@@ -798,6 +852,7 @@ class AsyncPersistenceManager:
         self.contaminated_ids = contaminated_ids
         self.sync_every = sync_every
         self.replace_arms = replace_arms or []
+        self.expected_keys = expected_keys
 
         self.queue: queue.Queue = queue.Queue()
         self.running = True
@@ -805,6 +860,8 @@ class AsyncPersistenceManager:
         self.done_keys: Set[str] = set()
         self.lock = threading.Lock()
         self.write_count = 0
+        self.error: Optional[BaseException] = None
+        self.sync_error: Optional[BaseException] = None
 
         self._load_existing()
         self.worker = threading.Thread(
@@ -818,40 +875,92 @@ class AsyncPersistenceManager:
             return
         replace_set = set(self.replace_arms)
         kept_records = []
+        seen_keys: Set[str] = set()
         with open(results_file, "r", encoding="utf-8") as f:
-            for line in f:
+            for line_no, line in enumerate(f, start=1):
                 line = line.strip()
                 if not line:
                     continue
                 try:
                     rec = json.loads(line)
-                    arm = rec.get("arm", "")
-                    if arm in replace_set:
-                        # Skip this record because it is targeted for clean re-evaluation
-                        continue
-                    kept_records.append(rec)
-                    self.done_keys.add(_result_key(rec["problem_id"], arm, rec["budget"]))
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as exc:
+                    raise EvalContractError(
+                        f"Corrupted checkpoint JSONL at {results_file}:{line_no}: {exc}"
+                    ) from exc
+                if not isinstance(rec, dict):
+                    raise EvalContractError(
+                        f"Non-object checkpoint row at {results_file}:{line_no}"
+                    )
+                missing = [
+                    field for field in ("problem_id", "arm", "budget")
+                    if field not in rec
+                ]
+                if missing:
+                    raise EvalContractError(
+                        f"Checkpoint row at {results_file}:{line_no} is missing "
+                        f"required field(s): {', '.join(missing)}"
+                    )
+                arm = str(rec.get("arm", ""))
+                key = _result_key(
+                    str(rec["problem_id"]), arm, int(rec["budget"])
+                )
+                if key in seen_keys:
+                    raise EvalContractError(
+                        f"Duplicate checkpoint cell {key!r} at {results_file}:{line_no}"
+                    )
+                seen_keys.add(key)
+                if arm in replace_set:
+                    # Skip this record because it is targeted for clean re-evaluation.
                     continue
+                if self.expected_keys is not None and key not in self.expected_keys:
+                    raise EvalContractError(
+                        f"Checkpoint cell {key!r} is not in the frozen evaluation grid"
+                    )
+                kept_records.append(rec)
+                self.done_keys.add(key)
         self.all_results = kept_records
         if replace_set:
-            # Safely rewrite jsonl with all preserved records from other arms
-            with open(results_file, "w", encoding="utf-8") as f:
+            # Safely rewrite jsonl with all preserved records from other arms.
+            tmp_file = results_file.with_suffix(".jsonl.tmp")
+            with open(tmp_file, "w", encoding="utf-8", newline="\n") as f:
                 for rec in kept_records:
                     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-            print(f"[PERSISTENCE] Target arms for rerun: {replace_set}. Preserved {len(kept_records)} established records for other arms.", flush=True)
+                f.flush()
+                os.fsync(f.fileno())
+            shutil.move(str(tmp_file), str(results_file))
+            print(
+                f"[PERSISTENCE] Target arms for rerun: {replace_set}. "
+                f"Preserved {len(kept_records)} established records for other arms.",
+                flush=True,
+            )
         else:
-            print(f"[PERSISTENCE] Restored {len(self.done_keys)} completed cells from disk cache.", flush=True)
+            print(
+                f"[PERSISTENCE] Restored {len(self.done_keys)} completed cells "
+                "from disk cache.",
+                flush=True,
+            )
 
     def is_done(self, problem_id: str, arm: str, budget: int) -> bool:
         with self.lock:
             return _result_key(problem_id, arm, budget) in self.done_keys
 
     def enqueue(self, rec: Dict[str, Any]):
+        self.check_health()
+        key = _result_key(rec["problem_id"], rec["arm"], rec["budget"])
+        if self.expected_keys is not None and key not in self.expected_keys:
+            raise EvalContractError(
+                f"Attempted to enqueue cell {key!r}, which is not in the frozen grid"
+            )
         with self.lock:
-            self.done_keys.add(_result_key(rec["problem_id"], rec["arm"], rec["budget"]))
+            self.done_keys.add(key)
             self.all_results.append(rec)
         self.queue.put(rec)
+
+    def check_health(self):
+        if self.error is not None:
+            raise EvalContractError(
+                f"Result persistence failed; refusing to continue: {self.error}"
+            ) from self.error
 
     def _worker_loop(self):
         results_file = self.out_dir / "robust_eval_results.jsonl"
@@ -862,36 +971,52 @@ class AsyncPersistenceManager:
                 continue
 
             try:
-                with open(results_file, "a", encoding="utf-8") as f:
+                with open(results_file, "a", encoding="utf-8", newline="\n") as f:
                     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
                     f.flush()
                     os.fsync(f.fileno())
                 self.write_count += 1
-            except Exception as e:
-                print(f"[PERSISTENCE ERROR] File append failed: {e}", flush=True)
+            except Exception as exc:
+                # Do not silently continue after losing a result.  The main
+                # loop checks health before the next generation cell, and
+                # close() re-raises if the run reaches the end first.
+                self.error = exc
+                print(f"[PERSISTENCE ERROR] File append failed: {exc}", flush=True)
             finally:
                 self.queue.task_done()
 
-            # Periodic background sync of report & tarball
+            # Periodic background sync of report & tarball.
             if self.write_count % self.sync_every == 0:
                 self._sync_artifacts()
 
-    def _sync_artifacts(self):
+    def _sync_artifacts(self, raise_on_error: bool = False):
         try:
             with self.lock:
                 recs_copy = list(self.all_results)
             generate_report(recs_copy, self.contaminated_ids, self.manifest, self.report_path)
             backup_tarball(self.out_dir, self.tarball_path)
-        except Exception as e:
-            print(f"[PERSISTENCE WARN] Background artifact sync failed: {e}", flush=True)
+        except Exception as exc:
+            self.sync_error = exc
+            print(f"[PERSISTENCE WARN] Background artifact sync failed: {exc}", flush=True)
+            if raise_on_error:
+                raise
 
     def close(self):
         self.running = False
         self.queue.join()
         if self.worker.is_alive():
             self.worker.join(timeout=5)
-        self._sync_artifacts()
-        print(f"[PERSISTENCE] All records saved & synced. Total records: {len(self.all_results)}", flush=True)
+        self.check_health()
+        self._sync_artifacts(raise_on_error=True)
+        if self.sync_error is not None:
+            raise EvalContractError(
+                f"Final report/tarball packaging failed: {self.sync_error}"
+            ) from self.sync_error
+        print(
+            f"[PERSISTENCE] All records saved & synced. "
+            f"Total records: {len(self.all_results)}",
+            flush=True,
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -963,7 +1088,7 @@ def generate_with_profiling(
     repetition_penalty: float = 1.15,
     legacy_stop_on_verify: bool = False,
     stop_on_answer: bool = False,
-) -> Tuple[str, int, float, float]:
+) -> Tuple[str, int, float, float, bool]:
     """
     Run one forward pass with power sampling.
 
@@ -971,7 +1096,9 @@ def generate_with_profiling(
     stopping on an answer is a diagnostic-only option because it makes a valid
     answer-terminated generation look as if it never emitted EOS.
 
-    Returns: (generated_text, tokens_emitted, dynamic_joules, elapsed_sec)
+    Returns:
+        (generated_text, tokens_emitted, dynamic_joules, elapsed_sec,
+         eos_emitted)
     """
     inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False).to(device)
     input_len = inputs["input_ids"].shape[1]
@@ -1006,12 +1133,17 @@ def generate_with_profiling(
     joules, measured_elapsed = power_sampler.stop_and_compute()
 
     generated_ids = out[0][input_len:]
-    tokens_emitted = len(generated_ids)
+    tokens_emitted = int(len(generated_ids))
     text = tokenizer.decode(generated_ids, skip_special_tokens=False)
+    eos_emitted = bool(
+        tokens_emitted > 0
+        and tokenizer.eos_token_id is not None
+        and int(generated_ids[-1].item()) == int(tokenizer.eos_token_id)
+    )
 
     # Use measured elapsed if sampler captured it; else timing clock
     actual_elapsed = measured_elapsed if measured_elapsed > 0 else elapsed
-    return text, tokens_emitted, joules, actual_elapsed
+    return text, tokens_emitted, joules, actual_elapsed, eos_emitted
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1052,15 +1184,20 @@ def run_robust_eval(
     report_md: Path,
     arms: List[str],
     budgets: List[int],
-    limit: int,
-    device: str,
-    seed: int,
+    limit: int = 0,
+    device: str = "cpu",
+    seed: int = 42,
     backup_every: int = 20,
     replace_arms: Optional[List[str]] = None,
     expected_sha256: str = DATASET_SHA256,
     allow_dataset_mismatch: bool = False,
     legacy_stop_on_verify: bool = False,
     gt_overrides_path: Optional[Path] = DEFAULT_GT_OVERRIDES,
+    subset_size: int = 0,
+    subset_seed: int | str = 42,
+    run_kind: str = "auto",
+    expected_adapter_sha256: Optional[str] = None,
+    allow_unverified_adapter: bool = False,
 ):
     random.seed(seed)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1068,25 +1205,111 @@ def run_robust_eval(
     run_id = f"robust_eval_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}Z"
     tarball = out_dir.parent / f"symbolm_robust_eval_receipts_{run_id}.tar.gz"
 
+    if run_kind not in {"auto", "full", "diagnostic", "historical"}:
+        raise EvalContractError(f"Unknown run kind: {run_kind!r}")
+    if limit < 0:
+        raise EvalContractError("--limit cannot be negative")
+    if limit and subset_size:
+        raise EvalContractError("Use either --limit or --subset-size, not both")
+    if allow_dataset_mismatch and run_kind != "historical":
+        raise EvalContractError(
+            "--allow-dataset-mismatch is only admissible for --run-kind historical"
+        )
+
     # ── Dataset ───────────────────────────────────────────────────────────────
-    problems = []
-    with open(input_file, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                problems.append(json.loads(line))
+    raw_problems = load_benchmark_rows(
+        input_file,
+        expected_sha256=None if allow_dataset_mismatch else expected_sha256,
+    )
+    subset_info: Optional[Dict[str, Any]] = None
+    if subset_size:
+        if subset_size > len(raw_problems):
+            raise EvalContractError(
+                f"--subset-size {subset_size} exceeds benchmark size {len(raw_problems)}"
+            )
+        problems, subset_info = select_stratified_subset(
+            raw_problems, subset_size, subset_seed
+        )
+    elif limit and limit < len(raw_problems):
+        problems = raw_problems[:limit]
+        subset_info = {
+            "method": "prefix_limit_legacy",
+            "seed": None,
+            "n": len(problems),
+            "available": len(raw_problems),
+            "selected_ids": [str(row["id"]) for row in problems],
+        }
+    else:
+        problems = list(raw_problems)
+
+    if run_kind == "auto":
+        effective_run_kind = (
+            "diagnostic" if len(problems) < len(raw_problems) else "full"
+        )
+    else:
+        effective_run_kind = run_kind
+    if effective_run_kind == "full" and len(problems) < len(raw_problems):
+        raise EvalContractError(
+            "A subset run must be labeled --run-kind diagnostic; "
+            "it cannot be reported as the full preregistered experiment"
+        )
+    if effective_run_kind == "diagnostic" and len(problems) >= len(raw_problems):
+        raise EvalContractError(
+            "A diagnostic run requires a subset smaller than the full benchmark"
+        )
+    if allow_unverified_adapter and effective_run_kind != "historical":
+        raise EvalContractError(
+            "--allow-unverified-adapter is only admissible for --run-kind historical"
+        )
+
     if gt_overrides_path is not None:
         overrides = load_ground_truth_overrides(gt_overrides_path)
         problems = [apply_ground_truth_override(p, overrides) for p in problems]
-    if limit and limit < len(problems):
-        problems = problems[:limit]
-    print(f"[INFO] Loaded {len(problems)} problems from {input_file.name}", flush=True)
+    print(
+        f"[INFO] Loaded {len(problems)}/{len(raw_problems)} problems from "
+        f"{input_file.name} ({effective_run_kind})",
+        flush=True,
+    )
+    if subset_info is not None:
+        print(
+            f"[INFO] Subset: {subset_info['method']} n={subset_info['n']} "
+            f"seed={subset_info['seed']}",
+            flush=True,
+        )
 
     # ── Contamination index ───────────────────────────────────────────────────
     contaminated_ids = load_contamination_index(Path(__file__).parent)
     print(f"[INFO] Contamination index: {len(contaminated_ids)} flagged IDs", flush=True)
 
+    # ── Adapter identity ──────────────────────────────────────────────────────
+    needs_adapter = any(a in arms for a in ["A", "B", "C", "D", "E"])
+    needs_vanilla  = "F" in arms
+    adapter_sha: Optional[str] = None
+    if needs_adapter:
+        adapter_sha = adapter_artifact_sha256(adapter_path)
+        validate_adapter_config(adapter_path, base_model_id, base_revision)
+        if expected_adapter_sha256:
+            if adapter_sha.upper() != str(expected_adapter_sha256).upper():
+                raise EvalContractError(
+                    "Adapter SHA-256 mismatch: expected "
+                    f"{str(expected_adapter_sha256).upper()}, got {adapter_sha}"
+                )
+        elif not allow_unverified_adapter and effective_run_kind != "historical":
+            raise EvalContractError(
+                "An adapter-backed evaluation requires --expected-adapter-sha256 "
+                "or an explicit --allow-unverified-adapter (historical only)"
+            )
+        print(f"[INFO] Adapter SHA-256: {adapter_sha}", flush=True)
+
+    # ── Power sampler ─────────────────────────────────────────────────────────
+    sampler = PowerSampler()
+    print(f"[INFO] GPU detected: {sampler.has_nvidia}", flush=True)
+    print(f"[INFO] Energy mode: {sampler.measurement_mode}", flush=True)
+    idle_w = sampler.measure_idle_baseline(duration_sec=3.0)
+    print(f"[INFO] Idle baseline power: {idle_w:.2f} W", flush=True)
+
     # ── Manifest ──────────────────────────────────────────────────────────────
+    expected_keys = expected_cell_keys(problems, arms, budgets)
     manifest = build_manifest(
         input_file,
         adapter_path,
@@ -1099,10 +1322,20 @@ def run_robust_eval(
         expected_sha256=expected_sha256,
         strict_scoring=True,
         gt_overrides_path=gt_overrides_path,
+        adapter_sha256=adapter_sha,
+        expected_adapter_sha256=expected_adapter_sha256,
+        subset_info=subset_info,
+        run_kind=effective_run_kind,
+        expected_cells=len(expected_keys),
+        energy_measurement=sampler.measurement_mode,
     )
     manifest_path = out_dir / "EVAL_RUN_MANIFEST.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
+    validate_resume_manifest(out_dir, manifest, replace_arms=replace_arms)
+    with open(manifest_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+        f.flush()
+        os.fsync(f.fileno())
     print(f"[INFO] Manifest written → {manifest_path}", flush=True)
     if not manifest["dataset_sha256_match"]:
         message = (
@@ -1114,7 +1347,8 @@ def run_robust_eval(
         if allow_dataset_mismatch:
             print(f"[WARN] {message}", flush=True)
         else:
-            raise SystemExit(message)
+            raise EvalContractError(message)
+
     # ── Multi-Threaded Persistence Manager ────────────────────────────────────
     persistence = AsyncPersistenceManager(
         out_dir=out_dir,
@@ -1124,18 +1358,13 @@ def run_robust_eval(
         contaminated_ids=contaminated_ids,
         sync_every=backup_every,
         replace_arms=replace_arms,
+        expected_keys=expected_keys,
     )
     done_keys = persistence.done_keys
 
-    # ── Power sampler ─────────────────────────────────────────────────────────
-    sampler = PowerSampler()
-    print(f"[INFO] GPU detected: {sampler.has_nvidia}", flush=True)
-    idle_w = sampler.measure_idle_baseline(duration_sec=3.0)
-    print(f"[INFO] Idle baseline power: {idle_w:.2f} W", flush=True)
-
     # ── Model loading ─────────────────────────────────────────────────────────
-    needs_adapter = any(a in arms for a in ["A", "B", "C", "D", "E"])
-    needs_vanilla  = "F" in arms
+    # needs_adapter / needs_vanilla were computed before the manifest so the
+    # adapter hash could be verified before any model is loaded.
 
     adapter_model    = None
     adapter_tokenizer = None
@@ -1206,10 +1435,8 @@ def run_robust_eval(
     completed   = len(done_keys)
     print(f"[INFO] Total cells to evaluate: {total_cells} (remaining: {total_cells - completed})", flush=True)
 
-    problem_counter = 0
     for problem in problems:
         pid = problem["id"]
-        problem_counter += 1
 
         for arm in arms:
             label = ARM_LABELS[arm]
@@ -1217,23 +1444,39 @@ def run_robust_eval(
             tokenizer = vanilla_tokenizer if arm == "F" else adapter_tokenizer
 
             for budget in budgets:
+                persistence.check_health()
                 key = _result_key(pid, arm, budget)
                 if key in done_keys:
                     continue
 
-                # Build prompt
+                # Build prompt.  A prompt failure is a pipeline failure, not a
+                # cell to skip: skipping would silently bias the grid.
                 try:
                     prompt, is_bypass = build_prompt(
                         problem, arm, tokenizer,
                         vanilla_tokenizer=vanilla_tokenizer,
                     )
-                except Exception as e:
-                    print(f"[ERROR] Prompt build failed for {pid}|{arm}|{budget}: {e}", flush=True)
-                    continue
+                except Exception as exc:
+                    raise EvalContractError(
+                        f"Prompt build failed for {pid}|{arm}|{budget}: "
+                        f"{type(exc).__name__}: {exc}"
+                    ) from exc
+                if not prompt or not isinstance(prompt, str):
+                    raise EvalContractError(
+                        f"Prompt build returned an empty/non-string prompt for "
+                        f"{pid}|{arm}|{budget}"
+                    )
 
-                # Generate
+                # Generate.  A generation exception aborts the run; it is never
+                # converted into a missing cell or a silent negative result.
                 try:
-                    generated, tokens_emitted, joules, elapsed = generate_with_profiling(
+                    (
+                        generated,
+                        tokens_emitted,
+                        joules,
+                        elapsed,
+                        eos_emitted,
+                    ) = generate_with_profiling(
                         model,
                         tokenizer,
                         prompt,
@@ -1243,9 +1486,31 @@ def run_robust_eval(
                         arm=arm,
                         legacy_stop_on_verify=legacy_stop_on_verify,
                     )
-                except Exception as e:
-                    print(f"[ERROR] Generation failed for {pid}|{arm}|{budget}: {e}", flush=True)
-                    continue
+                except Exception as exc:
+                    raise EvalContractError(
+                        f"Generation failed for {pid}|{arm}|{budget}: "
+                        f"{type(exc).__name__}: {exc}"
+                    ) from exc
+
+                if not isinstance(generated, str):
+                    raise EvalContractError(
+                        f"Generation returned non-string text for {pid}|{arm}|{budget}"
+                    )
+                if tokens_emitted < 0 or tokens_emitted > budget:
+                    raise EvalContractError(
+                        f"Invalid token count {tokens_emitted} for "
+                        f"{pid}|{arm}|{budget} (budget={budget})"
+                    )
+                if tokens_emitted > 0 and not generated.strip():
+                    raise EvalContractError(
+                        f"Generated tokens decoded to empty/whitespace text for "
+                        f"{pid}|{arm}|{budget}"
+                    )
+                if "\ufffd" in generated:
+                    raise EvalContractError(
+                        f"Generated text contains Unicode replacement characters "
+                        f"for {pid}|{arm}|{budget}; tokenizer/decoding is corrupted"
+                    )
 
                 # Arm E: execute python blocks
                 sandbox_outputs = []
@@ -1259,10 +1524,6 @@ def run_robust_eval(
                 # the last equality inside </reg:deduce>, which is why 296
                 # "correct" Arm C rows had zero <ans> declarations.
                 gt = problem.get("ground_truth", "")
-                eos_token = tokenizer.eos_token or ""
-                # EOS must be the final emitted token, not merely present
-                # somewhere in a long truncated trace.
-                eos_emitted = bool(eos_token and generated.rstrip().endswith(eos_token))
                 expected_kind = None
                 if arm == "C":
                     expected_kind = "bypass" if is_bypass else "reasoning"
@@ -1299,6 +1560,7 @@ def run_robust_eval(
                     "hit_budget":       hit_budget,
                     "eos_emitted":      eos_emitted,
                     "truncated":        strict["truncated"],
+                    "loop_marker":      contains_loop_marker(generated),
                     "dynamic_joules":   joules,
                     "elapsed_sec":      elapsed,
                     "is_correct":       strict["is_correct"],
@@ -1320,6 +1582,13 @@ def run_robust_eval(
                     "format_reason":     strict["format_reason"],
                     "duplicate_prompt":  problem.get("duplicate_prompt", False),
                     "duplicate_group_size": problem.get("duplicate_group_size", 1),
+                    "rendered_prompt_sha256": sha256_text(prompt),
+                    "generated_text_sha256": sha256_text(generated),
+                    "adapter_sha256":    adapter_sha,
+                    "dataset_sha256":    manifest["dataset_sha256"],
+                    "run_kind":          manifest["run_kind"],
+                    "evaluator_sha256":  manifest["contracts"]["evaluator_sha256"],
+                    "strict_scorer_sha256": manifest["contracts"]["strict_scorer_sha256"],
                     "sandbox_outputs":   sandbox_outputs,
                     "generated_text":    generated[:12000],
                     "generated_text_was_cut_for_storage": len(generated) > 12000,
@@ -1337,6 +1606,13 @@ def run_robust_eval(
                 )
 
     # ── Final Persistence Flush & Report Generation ───────────────────────────
+    persistence.check_health()
+    verify_completed_cells(expected_keys, persistence.done_keys)
+    if len(persistence.all_results) != len(expected_keys):
+        raise EvalContractError(
+            f"Completed-result count mismatch: expected {len(expected_keys)}, "
+            f"got {len(persistence.all_results)}"
+        )
     persistence.close()
     print(f"[INFO] Robust evaluation complete. Results: {out_dir / 'robust_eval_results.jsonl'}", flush=True)
 
@@ -1433,6 +1709,7 @@ def generate_report(
     lines = []
     lines.append("# SymboLM Robust Evaluation Report")
     lines.append(f"\n**Run ID:** `{manifest['run_id']}`  ")
+    lines.append(f"**Run kind:** `{manifest.get('run_kind', 'full')}`  ")
     lines.append(f"**Commit:** `{manifest['commit_hash']}`  ")
     lines.append(f"**Dataset SHA-256 verified:** `{manifest['dataset_sha256_match']}`  ")
     lines.append(f"**Dataset SHA-256:** `{manifest.get('dataset_sha256', 'unknown')}`  ")
@@ -1440,6 +1717,27 @@ def generate_report(
                  "truncation without EOS = fail; no deduce-equality fallback)  ")
     if manifest.get("ground_truth_overrides"):
         lines.append(f"**Ground-truth overrides:** `{manifest['ground_truth_overrides']}`  ")
+    if manifest.get("adapter_sha256"):
+        lines.append(
+            f"**Adapter SHA-256:** `{manifest['adapter_sha256']}` "
+            f"(match: `{manifest.get('adapter_sha256_match')}`)  "
+        )
+    subset = manifest.get("subset")
+    if subset:
+        lines.append(
+            f"**Subset:** `{subset.get('method')}` n=`{subset.get('n')}` "
+            f"seed=`{subset.get('seed')}`  "
+        )
+    if manifest.get("expected_cells") is not None:
+        lines.append(f"**Expected cells:** {manifest['expected_cells']}  ")
+    energy_mode = manifest.get("energy_measurement")
+    if energy_mode == "nvml":
+        lines.append("**Energy:** measured NVML dynamic power  ")
+    else:
+        lines.append(
+            "**Energy:** CPU TDP estimate only; J/correct is not an admissible "
+            "energy measurement for this run  "
+        )
     if all_results:
         dup = sum(1 for r in all_results if r.get("duplicate_prompt", False))
         lines.append(f"**Duplicate-prompt rows:** {dup}/{len(all_results)}  ")
@@ -1447,6 +1745,12 @@ def generate_report(
     lines.append(f"**GPU:** {manifest['hardware'].get('gpu_name', 'CPU')}  ")
     lines.append(f"**Arms evaluated:** {', '.join(arms)}  ")
     lines.append(f"**Budgets:** {budgets}  ")
+    if manifest.get("run_kind") == "diagnostic":
+        lines.append(
+            "\n> **Diagnostic only.** This is a deterministic subset run, not the "
+            "200-problem x 4-budget x 6-arm preregistered experiment. It cannot be "
+            "reported as the v3 benchmark result.\n"
+        )
     lines.append("")
 
     # ── Pareto frontier table (arms × budgets) ────────────────────────────────
@@ -1657,6 +1961,11 @@ def generate_report(
     lines.append(f"Dataset SHA-256: `{manifest['dataset_sha256']}`  ")
     lines.append(f"Commit: `{manifest['commit_hash']}`  ")
     lines.append(f"Seed: `{manifest['random_seed']}`  ")
+    if manifest.get("adapter_sha256"):
+        lines.append(f"Adapter SHA-256: `{manifest['adapter_sha256']}`  ")
+    if manifest.get("expected_cells") is not None:
+        lines.append(f"Expected cells: `{manifest['expected_cells']}`  ")
+    lines.append(f"Energy measurement: `{manifest.get('energy_measurement', 'unknown')}`  ")
     lines.append(f"SymPy: `{manifest['library_versions'].get('sympy', 'unknown')}`  ")
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1686,7 +1995,30 @@ def main():
     parser.add_argument("--report",     type=Path, default=DEFAULT_REPORT_MD,  help="Markdown report output path")
     parser.add_argument("--budgets",    type=int,  nargs="+", default=DEFAULT_BUDGETS, help="Token budgets (space-separated)")
     parser.add_argument("--arms",       type=str,  nargs="+", default=DEFAULT_ARMS,    help="Arms to run (A B C D E F)")
-    parser.add_argument("--limit",      type=int,  default=0,   help="Limit number of problems (0=all)")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Legacy prefix limit (0=all). Use --subset-size for the diagnostic.",
+    )
+    parser.add_argument(
+        "--subset-size",
+        type=int,
+        default=0,
+        help="Deterministic stratified subset size (e.g. 100 for the v3 diagnostic).",
+    )
+    parser.add_argument(
+        "--subset-seed",
+        type=str,
+        default="42",
+        help="Fixed seed for SHA-256 subset ranking (not an RNG seed).",
+    )
+    parser.add_argument(
+        "--run-kind",
+        choices=["auto", "full", "diagnostic", "historical"],
+        default="auto",
+        help="Label the run. A subset cannot be labeled full; diagnostic is not a v3 result.",
+    )
     parser.add_argument("--device",     type=str,  default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--seed",       type=int,  default=42, help="Random seed for bootstrap")
     parser.add_argument("--backup-every", type=int, default=20, help="Backup tarball every N problems")
@@ -1696,6 +2028,17 @@ def main():
         type=str,
         default=DATASET_SHA256,
         help="Required SHA-256 of the held-out JSONL. Use the legacy hash for old receipts.",
+    )
+    parser.add_argument(
+        "--expected-adapter-sha256",
+        type=str,
+        default=None,
+        help="Required SHA-256 of the adapter weights (adapter_model.safetensors).",
+    )
+    parser.add_argument(
+        "--allow-unverified-adapter",
+        action="store_true",
+        help="Allow an adapter run without an expected hash. Historical rescoring only.",
     )
     parser.add_argument(
         "--allow-dataset-mismatch",
@@ -1720,10 +2063,33 @@ def main():
         if a not in ARM_LABELS:
             parser.error(f"Unknown arm '{a}'. Valid arms: {list(ARM_LABELS.keys())}")
 
+    if args.limit and args.subset_size:
+        parser.error("Use either --limit or --subset-size, not both")
+    if args.allow_dataset_mismatch and args.run_kind != "historical":
+        parser.error("--allow-dataset-mismatch requires --run-kind historical")
+    if args.allow_unverified_adapter and args.run_kind != "historical":
+        parser.error("--allow-unverified-adapter requires --run-kind historical")
+    needs_adapter = any(a != "F" for a in args.arms)
+    if (
+        needs_adapter
+        and args.run_kind != "historical"
+        and not args.expected_adapter_sha256
+        and not args.allow_unverified_adapter
+    ):
+        parser.error(
+            "An adapter-backed evaluation requires --expected-adapter-sha256 "
+            "or --run-kind historical --allow-unverified-adapter"
+        )
+
     print("=" * 70, flush=True)
     print("  SymboLM Robust Evaluation Framework v3 — strict declared-answer scoring", flush=True)
     print(f"  Input: {args.input}", flush=True)
     print(f"  Expected SHA-256: {args.expected_sha256}", flush=True)
+    print(f"  Run kind: {args.run_kind}", flush=True)
+    if args.subset_size:
+        print(f"  Subset: {args.subset_size} rows (seed {args.subset_seed})", flush=True)
+    if args.expected_adapter_sha256:
+        print(f"  Expected adapter SHA-256: {args.expected_adapter_sha256}", flush=True)
     print(f"  Arms: {args.arms}  Budgets: {args.budgets}", flush=True)
     if args.replace_arms:
         print(f"  Replace Arms: {args.replace_arms} (Preserving all other established arm results)", flush=True)
@@ -1748,6 +2114,11 @@ def main():
         allow_dataset_mismatch = args.allow_dataset_mismatch,
         legacy_stop_on_verify = args.legacy_stop_on_verify,
         gt_overrides_path = args.gt_overrides,
+        subset_size = args.subset_size,
+        subset_seed = args.subset_seed,
+        run_kind = args.run_kind,
+        expected_adapter_sha256 = args.expected_adapter_sha256,
+        allow_unverified_adapter = args.allow_unverified_adapter,
     )
 
 

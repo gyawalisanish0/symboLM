@@ -3,10 +3,12 @@
 **Status:** planning document, not a result.
 **Date:** 2026-10-25
 **Current gate:** the 100 × 4 × 6 v3 diagnostic. The r6 Kaggle kernel is `COMPLETE`; its
-adapter passed the generation and package gates and is gate-eligible. No v3 benchmark result
-exists yet. A 38-prompt CPU sweep is a diagnostic only: 24/38 strict, 38/38 format,
-38/38 EOS, no truncation; its failures are arithmetic/semantic, not format. See
-`results/r6_closeout/CPU_SWEEP.json`.
+adapter passed the generation and package gates and is gate-eligible. The v3 harness is
+hardened, but no v3 benchmark result exists yet. A 38-prompt CPU sweep is a diagnostic only:
+24/38 strict, 38/38 format, 38/38 EOS, no truncation; its failures are arithmetic/semantic,
+not format. The r7 trace-audit dry run is also a diagnostic only: no verified split was
+written. See `results/r6_closeout/CPU_SWEEP.json` and
+`results/r7_verified/AUDIT_DRY_RUN.json`.
 **Companion documents:** [`EVIDENCE_STATUS.md`](EVIDENCE_STATUS.md),
 [`RESEARCH_REDIRECT.md`](RESEARCH_REDIRECT.md),
 [`TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md),
@@ -71,8 +73,8 @@ The frozen v3 test is Arm C versus Arm D at 256 tokens, with a strict-accuracy
 non-inferiority margin of −2 percentage points. See
 [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md) §4.1.
 
-**Status:** untested. The r6 adapter is gate-eligible; the 100 × 4 × 6 diagnostic is the
-next gate.
+**Status:** untested. The r6 adapter is gate-eligible and the harness is hardened; the
+100 × 4 × 6 diagnostic is the next gate and has not run.
 
 ### H2 — Scaling hypothesis
 
@@ -133,13 +135,13 @@ human cognition.
 | v3 protocol | Frozen six arms × four budgets; strict scorer; C-vs-D primary at 256 | One narrow confirmatory test |
 | Base model | `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`, dense transformer, pinned revision | 1.5B SFT and edge proxy |
 | r6 repair | Token deltas for the 47 added rows; tied-row gates; generation and package gates passed | A gate-eligible 1.5B SFT adapter; not a benchmark result |
-| Eval harness | Strict declared-answer scoring, EOS-aware truncation, energy path; `robust_eval.py` is the v2.1 path | A v3 diagnostic harness still has to be built and parity-checked |
+| Eval harness | Strict declared-answer scoring, EOS-aware truncation, energy path, deterministic stratified subset selection, adapter/contract/resume checks, completed-grid verification | Hardened and parity-tested; the 2,400-cell diagnostic has not run |
+| r7 trace audit | Dry-run receipt: 2,864 verified reasoning, 400 bypass-contract, 1,302 answer-checked-only, 34 rejected | A data-quality receipt; no verified split written and no r7 artifact |
 | Old evidence | Retracted headlines, Tier B pilots, incomplete six-arm run | Hypothesis generation only |
 
 ### 2.2 What is missing
 
-- A v3-compatible diagnostic harness; `eval/robust_eval.py` is the v2.1 path.
-- The 100 × 4 × 6 diagnostic.
+- The 100 × 4 × 6 diagnostic. The harness is hardened; the run has not started.
 - The full 4,800-cell confirmatory run (separate explicit approval required).
 - A matched no-register adapter for a training-data comparison.
 - Multiple SFT seeds.
@@ -232,7 +234,8 @@ allowed without a separate preregistered test.
 #### A0. Close the 1.5B experiment
 
 - ✅ Finish r6; the generation and package gates passed.
-- Run the 100 × 4 × 6 diagnostic with a v3-compatible harness.
+- ✅ Harden the v3 harness and pass the model-free contract/parity suite.
+- Run the 100 × 4 × 6 diagnostic; it has not started.
 - Request separate approval for the full 4,800-cell run.
 - Report strict accuracy, tokens/correct, J/correct, format validity, terminal-answer rate,
   EOS rate, and the C-vs-D decision.
@@ -422,8 +425,8 @@ replaced by measured receipts.
    `100`; both were terminal/EOS-valid with no loop marker.
 3. ✅ Package gate passed, including `"torchao": "absent"`, merged deltas, and distinct
    terminal-marker rows. Adapter and bundle hashes match the receipt.
-4. ⛔ Run the 100 × 4 × 6 diagnostic with a v3-compatible harness. The existing
-   `eval/robust_eval.py` is the v2.1 path and is not v3-ready.
+4. ⛔ Run the 100 × 4 × 6 diagnostic. The harness is hardened and parity-tested; the run
+   has not started.
 5. ⛔ Only then request approval for the full 4,800-cell run.
 
 **Gate G0:** met for r6: clean adapter + package manifest
@@ -470,6 +473,14 @@ instrumentation; corrupted-register intervention; one external benchmark.
 **Gate G2b:** the effect survives the matched-training comparison with a CI that excludes
 zero and non-inferior accuracy. If it does not, narrow the claim to a serving-contract
 result and say so.
+
+**r7 data preflight (dry run, 2026-10-25):** all 4,140 train / 460 validation rows were
+audited. The receipt is `results/r7_verified/AUDIT_DRY_RUN.json`. 2,864 reasoning rows pass
+the closed-arithmetic/true-verify contract (982 original-valid + 1,985 repaired), 400
+bypass rows are retained only as `verified_bypass_contract`, 1,302 are
+`answer_checked_only` with the verify block removed, and 34 are rejected for arithmetic
+mismatch. No verified split was written. This is a data-quality receipt, not a training
+run or result.
 
 ### Phase 2 — 7B replication (months 1–3)
 
@@ -820,15 +831,16 @@ Venues are secondary. The claim ladder and receipts are primary.
 2. ✅ Run the 38-prompt CPU sweep and record `results/r6_closeout/CPU_SWEEP.json`.
    It is a diagnostic, not a benchmark. The failures are arithmetic/semantic and the
    `verify` blocks are often tautological or false.
-3. ⛔ Harden the v3-compatible 100 × 4 × 6 diagnostic harness. The existing
-   `eval/robust_eval.py` is the v2.1 path and must not be relabeled as v3. It must fail
-   closed on generation errors, corrupted rows, adapter-hash mismatch, and nondeterministic
-   subset selection.
+3. ✅ Harden the v3-compatible 100 × 4 × 6 diagnostic harness. `eval/run_contract.py` and
+   `eval/robust_eval.py` fail closed on generation errors, corrupted rows/checkpoints,
+   adapter/dataset/contract mismatch, nondeterministic subset selection, and incomplete
+   grids. 109 model-free tests pass.
 4. ⛔ Run the 100 × 4 × 6 diagnostic; if it fails, fix the pipeline and do not run the full grid.
 5. ⛔ Request separate explicit approval for the 4,800-cell run.
-6. ⛔ Design and preflight r7 Verified-Trace Repair per
-   `docs/NEXT_TRAINING_SESSION.md`; do not launch it before the v3 diagnostic path is closed
-   and a Phase 1b preregistration exists.
+6. ⛔ Preflight r7 Verified-Trace Repair per `docs/NEXT_TRAINING_SESSION.md`. The dry-run
+   audit is complete (`results/r7_verified/AUDIT_DRY_RUN.json`), but no verified split was
+   written. Do not launch r7 before the v3 diagnostic path is closed and a Phase 1b
+   preregistration exists.
 7. Draft the Phase 1b preregistration for the matched no-register adapter and seeds.
 8. Check 7B base-model availability, tokenizer compatibility, and QLoRA feasibility.
 9. Write a one-page Phase 2 protocol before spending 7B compute.

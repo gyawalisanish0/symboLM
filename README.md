@@ -4,8 +4,9 @@
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Repository branch:** `research/rescue-v3`  
-**Status date:** 2026-10-24  
-**Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded; **no v3
+**Status date:** 2026-10-25<br>
+**Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded; the v3
+harness is hardened; the r7 trace audit is a dry run with no verified split; **no v3
 benchmark result exists yet**.<br>
 **SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r6`). The r4 run passed the full preflight, then stopped at LoRA injection because Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; that was a packaging failure, not a data or scientific result. The r5 run trained 777 steps but failed the strict generation gate: the saved adapter had byte-identical frozen `<ans>`, `</ans>`, and `answer` output rows, so greedy decoding could not emit the terminal markers. r6 trained small deltas on the 47 genuinely added rows, merged them before save, and passed both the strict mixed-kind generation gate and the package gate. Final eval loss was `0.00748848170042038`; the probe answers were `62` and `100`, both terminal/EOS-valid. Receipts are in [`results/r6_closeout/R6_CLOSEOUT.json`](results/r6_closeout/R6_CLOSEOUT.json). No 4,800-cell result exists.<br>
 **Android harness:** [`gyawalisanish0/DomainAI`](https://github.com/gyawalisanish0/DomainAI) (Apache-2.0) is the intended native `llama.cpp` deployment base. Integration has not started; it needs deterministic sampling, stop strings, exact v3 prompt parity, and a headless benchmark path before it can produce research receipts.<br>
@@ -222,9 +223,12 @@ validation  3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
 benchmark   F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
 ```
 
-**The r6 adapter is gate-eligible, but there is still no v3 benchmark result.** The
-100 × 4 × 6 diagnostic has not been run; the 4,800-cell evaluation requires separate explicit
-approval and has not been launched.
+**The r6 adapter is gate-eligible, but there is still no v3 benchmark result.** The v3
+harness is hardened and the model-free suite passes 109 tests. The 100 × 4 × 6 diagnostic
+has not been run; the 4,800-cell evaluation requires separate explicit approval and has not
+been launched. The r7 trace audit is a dry run recorded in
+[`results/r7_verified/AUDIT_DRY_RUN.json`](results/r7_verified/AUDIT_DRY_RUN.json); no
+verified split was written.
 
 ## 6. The next experiment
 
@@ -240,9 +244,9 @@ full **200 problems × 4 budgets × 6 arms = 4,800 cells** run with:
 - a token-efficiency report (tokens per correct answer, OAA/AUC_OAA, TokenEff, and
   joules per correct answer when NVML is available).
 
-The first run after this rescue should be a 100 × 4 diagnostic with a v3-compatible
-harness to catch formatting or EOS regressions. That diagnostic is **not** the primary
-result. The full 200 × 4 run is.
+The first run after this rescue is the 100 × 4 × 6 diagnostic with the hardened harness
+to catch formatting, EOS, or contract regressions. That diagnostic is **not** the primary
+result and has not started. The full 200 × 4 × 6 run is the primary result.
 
 ## 7. Quick start
 
@@ -254,6 +258,9 @@ python scripts/audit_ground_truth.py
 # 2. Formatting regression tests (no model download)
 python -m unittest discover -s tests
 
+# 2b. r7 trace audit dry run (writes the receipt, not a verified split)
+python scripts/audit_training_traces.py
+
 # 3. Train (GPU/TPU; writes run_manifest.json and a generation check)
 python training/sft_train.py \
   --base_model deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \
@@ -264,16 +271,21 @@ python training/sft_train.py \
   --adapter_dir checkpoints/sft_v3_adapter \
   --generation_check 2 --strict_generation_check
 
-# 4. Evaluate strictly
+# 4. Evaluate strictly (2,400-cell diagnostic; not the primary result)
 python eval/robust_eval.py \
   --input data/held_out_eval_200_v2.jsonl \
-  --adapter checkpoints/sft_v3_adapter \
+  --adapter checkpoints/sft_v3_r6/adapter \
+  --expected-adapter-sha256 204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C \
   --expected-sha256 F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707 \
+  --subset-size 100 --subset-seed 20261025 --run-kind diagnostic \
+  --out-dir results/v3_diagnostic \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The commands above use the canonical LF hashes. They still require a clean adapter; do
-not run the evaluation before SFT and the package gate pass.
+The full 4,800-cell run uses the same command without `--subset-size`, with
+`--run-kind full`, and only after separate explicit approval. The commands above use the
+canonical LF hashes. They still require a clean adapter; do not run the evaluation before
+SFT and the package gate pass.
 
 ## 8. Repository map
 
@@ -284,7 +296,7 @@ not run the evaluation before SFT and the package gate pass.
 | `PREREG_VALUATION_V2.md` | Frozen protocol for the rescue run |
 | `docs/RESEARCH_REDIRECT.md` | What survives, what is retracted, and why |
 | `docs/ROADMAP.md` | Long-term plan for symbolic scaling and architecture-level edge efficiency; planning only |
-| `docs/NEXT_TRAINING_SESSION.md` | r7 Verified-Trace Repair design; planning only, not a run |
+| `docs/NEXT_TRAINING_SESSION.md` | r7 Verified-Trace Repair design plus dry-run audit receipt; not a run |
 | `docs/EVIDENCE_STATUS.md` | Short evidence-status table |
 | `EVIDENCE_TRUTH_TABLE.md` | Full claim-by-claim historical audit |
 | `RESULTS_SUMMARY.md` | Audit narrative and strict rescore |

@@ -1,6 +1,7 @@
 # Next Training Session: r7 Verified-Trace Repair
 
-**Status:** design only. Not launched. No r7 artifact exists.<br>
+**Status:** design plus a completed dry-run trace audit. Not launched. No r7 artifact or
+verified split exists.<br>
 **Date:** 2026-10-25<br>
 **Branch:** `research/rescue-v3`<br>
 **Predecessor:** r6, tag `sft-v3-20261023-r6`, commit `c6d13dd0fbbb83a498f7ef722b9c6afbc70f1255`<br>
@@ -67,7 +68,8 @@ r7 is a repair run, not a new format. It keeps the same v3 register contract.
 
 ## 3. Data audit and repair
 
-Add `scripts/audit_training_traces.py` and a repaired split:
+The audit script is `scripts/audit_training_traces.py`. With `--write` it would produce a
+repaired split; the default dry run does not:
 
 ```text
 data/research_sft_verified/
@@ -82,6 +84,34 @@ must record the source hashes, source counts, retained/rejected counts by kind,
 and audit coverage. Rejected rows go to `rejected.jsonl` with a reason; they are
 never silently dropped. The retained split may be smaller than the source split,
 but it must never be expanded.
+
+### 3.0 Dry-run audit receipt (2026-10-25)
+
+`scripts/audit_training_traces.py` now audits all 4,140 train / 460 validation rows. The
+default is a dry run: it writes `results/r7_verified/AUDIT_DRY_RUN.json` and **does not
+write a verified split**. The `--write` path has not been run.
+
+| Split | Audited | Verified reasoning | Bypass contract | Answer-checked-only | Rejected |
+|---|---:|---:|---:|---:|---:|
+| Train | 4,140 | 2,561 | 360 | 1,187 | 32 |
+| Validation | 460 | 303 | 40 | 115 | 2 |
+| **Total** | **4,600** | **2,864** | **400** | **1,302** | **34** |
+
+- The 2,864 verified reasoning rows are 982 original-valid rows plus 1,985 repaired rows.
+  Reasoning verification validity is 0.2338 before repair and 0.6819 after repair.
+  Of the 982 original-valid rows, 103 were removed because their verify arithmetic could
+  not be parsed or checked; the final `valid` status count is 879, not 982.
+- The 1,302 answer-checked-only rows have the verify block removed and are excluded from
+  the verified train/val split by default. They are not called verified.
+- The 34 rejected rows are all arithmetic mismatches, mostly successive-discount rows
+  where exact arithmetic yields a decimal while the terminal answer is rounded. They are
+  recorded in the audit report, not silently dropped.
+- The 400 bypass rows are retained only as `verified_bypass_contract`; they are excluded
+  from the reasoning verification-validity rate.
+- 184 rows carry a heuristic positive-integer ambiguity flag. These are review flags, not
+  automatic rejections.
+- This receipt is a data-quality audit, not a training run, benchmark, accuracy claim, or
+  token-efficiency claim.
 
 ### 3.1 Checks
 
@@ -223,13 +253,19 @@ the first formal evaluation gate for r6.
 1. Finish the CPU sweep and record the receipt. **Done:** 24/38 strict,
    38/38 format, 38/38 EOS, 0 truncation.
 2. Audit the 38-prompt failures and the 200-row benchmark for ambiguity.
-3. Harden `eval/robust_eval.py` and run the 2,400-cell v3 diagnostic on r6.
-   r6 remains the only v3 serving artifact.
+   **Partially done:** the CPU-sweep failure analysis is in
+   `results/r6_closeout/CPU_SWEEP.json`; the trace audit flags 184 rows for
+   positive-integer ambiguity review; benchmark rows `MY2024_064` and
+   `MY2024_065` remain flagged and unchanged.
+3. Harden the harness and run the 2,400-cell v3 diagnostic on r6. **Harness done:**
+   `eval/run_contract.py` and `eval/robust_eval.py` pass 108 model-free tests.
+   **Diagnostic not run.** r6 remains the only v3 serving artifact.
 4. If the diagnostic passes, request separate explicit approval for the
    4,800-cell v3 run.
 5. Freeze a Phase 1b preregistration for r7 **before** its first scored cell.
-6. Build and preflight the verified split. Any wrong answer, false check, or
-   unverified row in the training set stops the run.
+6. Build and preflight the verified split. **Dry-run audit done**; the verified
+   split has not been written. Any wrong answer, false check, or unverified row
+   in the training set stops the run.
 7. Train r7a canonical-only seed 42. Pass the generation and package gates.
 8. Run the 38-prompt and a 100-prompt diagnostic. If verification validity does
    not improve, do not add contrastive data; diagnose first.
@@ -304,6 +340,12 @@ The allowed screening statement is:
 > token-efficiency, or mobile claim is made from this diagnostic.”
 
 ## 11. Receipts to produce
+
+Produced dry-run receipt:
+
+- `results/r7_verified/AUDIT_DRY_RUN.json` (exists; no verified split written)
+
+Still to produce:
 
 - `data/research_sft_verified/manifest.json`
 - `data/research_sft_verified/rejected.jsonl`

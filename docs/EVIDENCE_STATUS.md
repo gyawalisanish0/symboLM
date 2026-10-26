@@ -3,7 +3,8 @@
 **As of:** 2026-10-25<br>
 **Branch:** `research/rescue-v3`  
 **Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded; a
-38-prompt CPU sweep is a diagnostic only; **no v3 benchmark result exists yet**<br>
+38-prompt CPU sweep and the r7 trace-audit dry run are diagnostics only; the v3 harness
+is hardened but **no v3 benchmark result exists yet**<br>
 **Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
@@ -49,6 +50,8 @@ about C-versus-D format value or token-efficiency superiority is allowed.
 | r6 SFT artifact | **Gate-eligible** | `results/r6_closeout/R6_CLOSEOUT.json` | 777 steps / 3 epochs; final eval loss `0.00748848170042038`; strict generation and package gates passed. This is an artifact status, not a benchmark result. |
 | r6 CPU smoke test | **Diagnostic only; 2/2 valid** | `results/r6_closeout/CPU_PROBE.json` | Two greedy probes on a Ryzen 7 5700G, bf16, 8 threads: `295` (114 tokens, 35.8 s) and `26` (13 tokens, 8.4 s). Both emitted EOS, valid format, strict correct. n=2; no accuracy, token-efficiency, or latency claim. |
 | r6 38-prompt CPU sweep | **Diagnostic only; 24/38 strict, 38/38 format, 38/38 EOS** | `results/r6_closeout/CPU_SWEEP.json` | Deterministic 2-per-category stratified sweep, Arm C, budget 256, greedy, bf16, 8 threads. Mean 113.9 tokens and 44.1 s wall-clock. No truncation. Failures are arithmetic/semantic, not format; several `verify` blocks are tautological or false. Two Diophantine prompts are ambiguous. Not benchmark accuracy. |
+| v3 evaluation harness | **Hardened; not yet run** | `eval/run_contract.py`, `eval/robust_eval.py`, `tests/test_robust_eval_contract.py` | Fail-closed dataset/adapter/contract checks, deterministic SHA-256 stratified subset selection, resume identity binding, prompt/generation/persistence aborts, and completed-grid verification. 109 model-free tests pass. This is implementation state, not a benchmark result. |
+| r7 trace audit (dry run) | **Audit receipt only; no verified split written** | `results/r7_verified/AUDIT_DRY_RUN.json` | All 4,140 train / 460 val rows audited. 2,864 reasoning rows pass the closed-arithmetic/true-verify contract (982 original-valid + 1,985 repaired), 400 bypass rows are retained only as `verified_bypass_contract`, 1,302 are `answer_checked_only` with verify removed, and 34 are rejected for arithmetic mismatch. Reasoning verification validity 0.2338 → 0.6819. Not a training run, benchmark, or accuracy/token-efficiency result. |
 | v3 register value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | The preregistered test has not been executed. r5 is ineligible after a generation-gate failure. |
 | v3 token-efficiency value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
 
@@ -199,14 +202,16 @@ whitepaper are explicitly labeled historical.
    3 epochs, final eval loss `0.00748848170042038`; probes returned `62` and `100`.
 8. ✅ Package the r6 adapter and pass the package gate, including `"torchao": "absent"`,
    merged token deltas, and distinct terminal-marker rows.
-9. ⛔ Harden `eval/robust_eval.py` for fail-closed generation, corrupted-row rejection,
-   adapter-hash verification, deterministic subset selection, and prompt/scorer parity.
-10. ⛔ Run the 100 × 4 × 6 diagnostic. The existing `eval/robust_eval.py` is the v2.1 six-arm
-    path and must not be treated as v3-ready until the hardening lands.
+9. ✅ Harden `eval/robust_eval.py` and `eval/run_contract.py` for fail-closed generation,
+   corrupted-row/checkpoint rejection, adapter/dataset/contract verification, deterministic
+   subset selection, resume identity binding, and prompt/scorer parity. The model-free suite
+   passes 109 tests.
+10. ⛔ Run the 100 × 4 × 6 diagnostic. The harness is hardened; the diagnostic has not run.
 11. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
-12. ⛔ Design and preflight r7 Verified-Trace Repair per
-    `docs/NEXT_TRAINING_SESSION.md`; do not launch it before the v3 diagnostic path is closed
-    and a Phase 1b preregistration exists.
+12. ⛔ Preflight r7 Verified-Trace Repair per `docs/NEXT_TRAINING_SESSION.md`. The dry-run
+    audit is complete and recorded in `results/r7_verified/AUDIT_DRY_RUN.json`; **no verified
+    split was written**. Do not launch r7 before the v3 diagnostic path is closed and a
+    Phase 1b preregistration exists.
 13. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
     preregistered C-vs-D decision.
 
@@ -216,8 +221,10 @@ Until step 13, the correct public statement is:
 > fix are complete. The r4 preflight passed but training stopped on a Kaggle `torchao`
 > packaging conflict. The r5 run trained but failed its generation gate because the saved
 > terminal-answer rows were exactly tied. The r6 run completed and passed both the
-> mixed-kind generation gate and the package gate; its adapter is gate-eligible. No v3
-> benchmark result exists yet, and the 4,800-cell experiment has not been run.”
+> mixed-kind generation gate and the package gate; its adapter is gate-eligible. The v3
+> harness is hardened. The r7 trace audit is a dry run with no verified split written. No v3
+> benchmark result exists yet, and neither the 2,400-cell diagnostic nor the 4,800-cell
+> experiment has been run.”
 
 ---
 
@@ -230,6 +237,9 @@ python scripts/audit_ground_truth.py
 
 # Model-free regression suite.
 python -m unittest discover -s tests
+
+# r7 trace audit dry run: writes the audit receipt, not a verified split.
+python scripts/audit_training_traces.py
 
 # Check the v2 hash and duplicate flags.
 python - <<'PY'

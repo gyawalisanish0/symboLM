@@ -23,8 +23,9 @@
   `<ans>`, `</ans>`, and `answer` output rows were byte-identical. The r6 repair (tag
   `sft-v3-20261023-r6`) trained deltas on the 47 genuinely added tokenizer rows, merged them
   before save, and passed both the mixed-kind generation gate and the package gate. Receipts:
-  `results/r6_closeout/R6_CLOSEOUT.json`. The 100 × 4 × 6 diagnostic and the 4,800-cell
-  evaluation have not been run; the full run requires separate approval.
+  `results/r6_closeout/R6_CLOSEOUT.json`. The v3 harness is hardened, but the 100 × 4 × 6
+  diagnostic and the 4,800-cell evaluation have not been run; the full run requires
+  separate approval.
 - **CPU diagnostic (2026-10-25):** a deterministic 38-prompt stratified CPU sweep of r6 is
   recorded in `results/r6_closeout/CPU_SWEEP.json`. Result: **24/38 strict correct,
   38/38 format valid, 38/38 EOS, 0/38 truncated**, mean 113.9 generated tokens, mean 44.1 s
@@ -35,6 +36,24 @@
   `MY2024_065` the model output 21 is a valid x + y but the ground truth is 7; on `MY2024_064`
   the model output 25 is a valid x, not the requested x + y. Do not treat either as a clean
   model failure, and do not quote 24/38 as benchmark accuracy.
+- **Evaluation harness (2026-10-25):** `eval/run_contract.py` and `eval/robust_eval.py`
+  fail closed on dataset/adapter/contract mismatch, corrupt checkpoints, prompt or
+  generation exceptions, persistence/packaging failure, decoding corruption, and an
+  incomplete grid. Subset selection is deterministic SHA-256 stratified selection; a
+  resumed checkpoint is bound to the same dataset, adapter, subset, budgets, run kind,
+  prompt/scorer code, and evaluator code. The model-free suite passes 109 tests. The
+  hardened path is the only admissible diagnostic path; the 2,400-cell diagnostic has
+  not been run.
+- **r7 audit dry run (2026-10-25):** `scripts/audit_training_traces.py` audited all
+  4,140 train / 460 validation rows. Receipt: `results/r7_verified/AUDIT_DRY_RUN.json`.
+  **No verified split was written.** Train: 2,561 verified reasoning + 360
+  bypass-contract, 1,187 answer-checked-only, 32 rejected. Validation: 303 + 40, 115, 2.
+  Totals: 2,864 verified reasoning (982 original-valid + 1,985 repaired), 400
+  bypass-contract, 1,302 answer-checked-only, 34 rejected. Reasoning verification validity
+  rose from 0.2338 to 0.6819. The 34 rejected rows are arithmetic mismatches and are
+  recorded, not silently dropped. Bypass rows are excluded from the reasoning
+  verification rate. This is a data-quality receipt, not a training run, benchmark, or
+  accuracy/token-efficiency result.
 - **Next training design:** `docs/NEXT_TRAINING_SESSION.md` defines **r7 Verified-Trace
   Repair** as the next training session. It audits all 4,140/460 rows, rejects wrong answers,
   repairs or removes false/tautological verify blocks, and optionally adds a capped verified
@@ -60,13 +79,13 @@ dataset, scorer, adapter, or training run.
    frozen v3 prompts/scorer. r6 remains the only v3 serving artifact.
 2. **Do not launch the 4,800-cell evaluation without separate explicit approval.** The
    immediate evaluation work is the v3-compatible 2,400-cell diagnostic (100 problems × 4
-   budgets × 6 arms), after the harness is hardened. The 4,800-cell run is a separate
-   decision.
-3. **Harden the harness before scoring.** `eval/robust_eval.py` still catches prompt-build
-   and generation exceptions and continues. Make it fail closed on generation errors,
-   corrupted rows, adapter-hash mismatch, and non-deterministic subset selection. Add
-   prompt/scorer parity tests against `symbolic/prompts.py` and `eval/strict_scorer.py`.
-   No diagnostic result is admissible from the unhardened path.
+   budgets × 6 arms). The harness is now hardened; the diagnostic is the next gate. The
+   4,800-cell run is a separate decision.
+3. **Harden the harness before scoring. Done (2026-10-25).** `eval/robust_eval.py` and
+   `eval/run_contract.py` now fail closed on prompt-build/generation exceptions, corrupted
+   checkpoints, adapter/dataset/contract mismatch, non-deterministic subset selection, and
+   incomplete grids. Prompt/scorer parity tests pass. No diagnostic result is admissible
+   from the unhardened path, and no diagnostic result exists yet.
 4. **Run the CPU sweep as a diagnostic only.** The receipt is
    `results/r6_closeout/CPU_SWEEP.json`. It supports no accuracy, token-efficiency, latency,
    or mobile claim. Do not select training data or endpoints by looking at its outcomes.
@@ -75,9 +94,12 @@ dataset, scorer, adapter, or training run.
    ambiguous rows; do not silently change ground truth after seeing results. A protocol
    deviation must be dated and reported.
 6. **Next training is r7 Verified-Trace Repair, not another format run.** Follow
-   `docs/NEXT_TRAINING_SESSION.md`. The data audit must reject wrong terminal answers and
-   repair/remove tautological or false verification. Do not train on unverified traces. Do
-   not call an answer-checked-only row “verified.”
+   `docs/NEXT_TRAINING_SESSION.md`. The dry-run audit is complete: 2,864 reasoning rows
+   pass the closed-arithmetic/true-verify contract, 1,302 are answer-checked-only with the
+   verify block removed, and 34 are rejected for arithmetic mismatch. No verified split
+   was written. Do not train on unverified traces. Do not call an answer-checked-only row
+   “verified.” r7 remains blocked until the v3 diagnostic path closes and Phase 1b is
+   preregistered.
 7. **No training before its gates.** r7 needs its own Phase 1b preregistration, data
    manifest, verified-split hashes, r7-specific generation gate, and package gate.
    r6's kernel and generation gate must not be relabeled as the r7 gate.
@@ -100,6 +122,7 @@ dataset, scorer, adapter, or training run.
     `docs/MARKDOWN_AUDIT.md`. Old retractions stay in the repository. Do not rewrite the r4,
     r5, or r6 tags.
 13. **No claim inflation.** The allowed current statement is: r6 is gate-eligible; the CPU
-    sweep is a diagnostic; no v3 benchmark result exists; the 2,400-cell diagnostic and the
-    4,800-cell run have not been completed. The old 37.0% / 39.7% / 67.6% / 100% / 20× /
+    sweep is a diagnostic; the r7 trace audit is a dry run with no verified split; the v3
+    harness is hardened but no v3 benchmark result exists; the 2,400-cell diagnostic and
+    the 4,800-cell run have not been completed. The old 37.0% / 39.7% / 67.6% / 100% / 20× /
     80× / 224× claims remain retracted or projections.

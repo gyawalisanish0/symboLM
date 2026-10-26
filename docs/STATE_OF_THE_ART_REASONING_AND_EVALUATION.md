@@ -173,9 +173,10 @@ implements a token-level gated router.
      gate because its saved `<ans>`, `</ans>`, and `answer` output rows were byte-identical.
      r6 adds trainable deltas for the 47 genuinely added rows and rejects tied marker rows.
 2. **Deterministic Evaluation Harness (`eval/robust_eval.py`):**
-   - The existing file is the v2.1 six-arm harness. It is **not yet v3-compatible**: its
-     prompt construction and adapter path differ from the v3 SFT contract. Do not relabel a
-     run from it as a v3 diagnostic without a prompt/scorer parity check.
+   - The harness is hardened for the v3 path: prompt construction and strict scoring are
+     parity-tested, subset selection is deterministic SHA-256 stratification, and
+     dataset/adapter/contract/checkpoint mismatches abort. The 2,400-cell diagnostic has
+     not been run.
    - 6 arms (CoT, answer-only, full registers, router-only, Python sandbox, vanilla base).
    - 4 independent budgets (256, 512, 1024, 2048 tokens).
    - Token-efficiency metrics: tokens per correct, OAA/AUC_OAA, TokenEff, and overthinking

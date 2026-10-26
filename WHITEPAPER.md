@@ -218,9 +218,10 @@ conflict; r5 removed that unused package and the run completed 777 training step
 adapter then failed the strict generation gate: its frozen `<ans>`, `</ans>`, and `answer`
 output rows were byte-identical, so greedy decoding could not emit the terminal markers. r6
 repaired that artifact with trainable deltas on the 47 added rows and passed both the
-generation and package gates. The adapter is gate-eligible. The 100 × 4 × 6 diagnostic has
-not been run, and the 4,800-cell evaluation has not been launched; the latter requires
-separate explicit approval.
+generation and package gates. The adapter is gate-eligible. The v3 harness is hardened, but
+the 100 × 4 × 6 diagnostic has not been run, and the 4,800-cell evaluation has not been
+launched; the latter requires separate explicit approval. The r7 trace audit is a dry run
+with no verified split written.
 
 ---
 
@@ -241,8 +242,8 @@ The next steps are:
 2. ✅ Validate the r4 preflight, diagnose the `torchao` packaging stop, and create the r5 fix.
 3. ✅ Complete r5 training; diagnose the generation-gate failure and create the r6 repair.
 4. ✅ Run r6 SFT and pass the mixed-kind generation check; the package gate also passed.
-5. Run the 100 × 4 diagnostic (not the primary result) with a v3-compatible harness.
-6. Run the full 200 × 4 experiment only with separate explicit approval.
+5. Run the 100 × 4 × 6 diagnostic (not the primary result) with the hardened harness.
+6. Run the full 200 × 4 × 6 experiment only with separate explicit approval.
 7. Report strict accuracy, tokens per correct, J/correct, format validity, and the
    preregistered decision — including a negative result if that is what the data show.
 

@@ -323,9 +323,10 @@ legitimate scope.
       final eval loss `0.00748848170042038`; probes returned `62` and `100`.
 - [x] Pass the package gate, including `"torchao": "absent"`, merged token deltas, and
       distinct marker rows.
-- [ ] Run the 100 × 4 diagnostic with a v3-compatible harness. The existing
-      `eval/robust_eval.py` is the v2.1 path and is not v3-ready.
+- [x] Harden the v3 harness and pass the model-free contract/parity suite.
+- [ ] Run the 100 × 4 × 6 diagnostic. The harness is hardened; the run has not started.
 - [ ] Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
+- [x] Complete the r7 trace-audit dry run; no verified split was written.
 - [ ] Update README/results with receipts, or publish the negative result.
 
 ---

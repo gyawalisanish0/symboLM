@@ -28,12 +28,13 @@ has not been produced. Every reported number must have a command, a hash, and a 
 |---|---|---|
 | Canonical SFT split | `python scripts/prepare_research_sft.py` | Works; outputs 4,140 / 460 |
 | Ground-truth audit | `python scripts/audit_ground_truth.py` | Works; applies `MY2021_001 = 169.5` and duplicate flags |
-| Model-free tests | `python -m unittest discover -s tests` | Works |
+| r7 trace audit (dry run) | `python scripts/audit_training_traces.py` | Works; writes `results/r7_verified/AUDIT_DRY_RUN.json`, no verified split |
+| Model-free tests | `python -m unittest discover -s tests` | Works; 109 tests pass |
 | Strict scorer | `python -m eval.strict_scorer` / unit tests | Works |
 | SmolLM2 pilot token/energy table | See [`VALUATION.md`](VALUATION.md) | Tier B historical measurement |
 | Old six-arm run | See audit docs | **Incomplete**; not reproducible as a completed result |
 | v3 SFT run | `experiments/kaggle/sft_v3/` | **Complete at the pre-evaluation gates**; r6 trained 777 steps and passed the generation and package gates. No benchmark result. |
-| Full 4,800-cell v3 run | v3 harness (not yet built) | **Not run**; requires a v3-compatible diagnostic harness, a clean adapter, and approval |
+| Full 4,800-cell v3 run | hardened v3 harness | **Not run**; requires the 2,400-cell diagnostic, a clean adapter, and separate approval |
 
 ---
 
@@ -250,20 +251,28 @@ the saved LM-head rows.
 
 ## 7. Strict evaluation
 
-> **Harness status:** `eval/robust_eval.py` is the v2.1 six-arm path. Its prompt construction
-> and adapter loading differ from the v3 SFT contract. It is **not** the v3 diagnostic
-> harness. Do not run it against the r6 adapter and label the output a v3 result until the
-> prompt/scorer parity check and a v3-compatible entry point exist.
+> **Harness status (2026-10-25):** `eval/robust_eval.py` and `eval/run_contract.py` are the
+> hardened v3 path. Prompt construction and strict scoring are parity-tested against
+> `symbolic/prompts.py` and `eval/strict_scorer.py`; dataset/adapter/contract mismatches,
+> corrupt checkpoints, prompt/generation exceptions, persistence failures, decoding
+> corruption, and incomplete grids abort the run. A checkpoint is resumable only under the
+> same dataset, adapter, subset, budgets, run kind, prompt/scorer code, and evaluator code.
+> The 2,400-cell diagnostic has **not** been run; do not label a run as v3 until it exists.
 
 ```bash
 python eval/robust_eval.py \
   --input data/held_out_eval_200_v2.jsonl \
-  --adapter checkpoints/sft_v3_adapter \
+  --adapter checkpoints/sft_v3_r6/adapter \
+  --expected-adapter-sha256 204823BC216BBF7329D6C7C5159ACF8F6688FD321AD1652757C2A9A9D066B31C \
   --expected-sha256 F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707 \
+  --subset-size 100 --subset-seed 20261025 --run-kind diagnostic \
+  --out-dir results/v3_diagnostic \
   --arms A B C D E F --budgets 256 512 1024 2048
 ```
 
-The `--expected-sha256` value is the canonical LF hash. The evaluator records:
+The `--expected-sha256` value is the canonical LF hash. The full 4,800-cell run omits
+`--subset-size`, uses `--run-kind full`, and requires separate explicit approval. The
+evaluator records:
 
 - full generation text;
 - `strict_correct`, `lenient_correct`, and failure reason;

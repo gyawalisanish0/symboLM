@@ -1,0 +1,1217 @@
+{
+  "answer_checked_only_examples": [
+    {
+      "ambiguous_flags": [],
+      "answer": "20",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "20",
+      "id": "concept_phys_193",
+      "original_verification_status": "valid",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4951,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "9",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "9",
+      "id": "concept_word_202",
+      "original_verification_status": "valid",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 3286,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [
+        "positive_integer_solution_set_review"
+      ],
+      "answer": "4",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "4",
+      "id": "concept_dio_rate_74",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 2377,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [
+        "positive_integer_solution_set_review"
+      ],
+      "answer": "4",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "4",
+      "id": "concept_dio_rate_261",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 1490,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "60",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "60",
+      "id": "concept_comb_232",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 3667,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "799",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "799",
+      "id": "concept_legendre_53",
+      "original_verification_status": "tautology",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 3765,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "51",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "51",
+      "id": "concept_legendre_247",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 2599,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "12",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "12",
+      "id": "concept_linear_7",
+      "original_verification_status": "unrelated",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 2174,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "10",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "10",
+      "id": "concept_phys_302",
+      "original_verification_status": "valid",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4706,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [
+        "positive_integer_solution_set_review"
+      ],
+      "answer": "3",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "3",
+      "id": "concept_dio_rate_191",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4849,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [
+        "positive_integer_solution_set_review"
+      ],
+      "answer": "4",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "4",
+      "id": "concept_dio_rate_50",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4801,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "5.2",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "5.2",
+      "id": "concept_dio_rate_285",
+      "original_verification_status": "tautology",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4300,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [
+        "positive_integer_solution_set_review"
+      ],
+      "answer": "4",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "4",
+      "id": "concept_dio_rate_137",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 1627,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [
+        "positive_integer_solution_set_review"
+      ],
+      "answer": "4",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "4",
+      "id": "concept_dio_rate_220",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 529,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "4.5",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "4.5",
+      "id": "concept_dio_rate_257",
+      "original_verification_status": "tautology",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 2222,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "10",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "10",
+      "id": "concept_phys_313",
+      "original_verification_status": "valid",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4672,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [
+        "positive_integer_solution_set_review"
+      ],
+      "answer": "4",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "4",
+      "id": "concept_dio_rate_186",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4822,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "3",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "3",
+      "id": "concept_dio_rate_179",
+      "original_verification_status": "tautology",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 4532,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "224",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "224",
+      "id": "concept_legendre_43",
+      "original_verification_status": "weak",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 3406,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "17",
+      "arithmetic_status": "unchecked",
+      "coverage_level": "answer_checked_only",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "17",
+      "id": "concept_linear_288",
+      "original_verification_status": "unrelated",
+      "repair_action": "removed_verify_arithmetic_unchecked",
+      "repair_expression": null,
+      "source_index": 2666,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "removed"
+    }
+  ],
+  "audit_script": "scripts/audit_training_traces.py",
+  "audit_script_sha256": "58548211B8EC5856A62FCA1DD63D16A3BEF18CC6D40F755D36BF9EB3C18B2EEF",
+  "audit_version": "r7-verified-trace-audit-v1",
+  "claim_boundary": "This audit does not establish benchmark accuracy, format value, token efficiency, latency, or mobile performance. No r7 artifact exists. Do not call answer_checked_only rows verified.",
+  "created_utc": "2026-10-25T16:54:07.685748+00:00",
+  "git_dirty": true,
+  "git_head": "3932128fcc748574df6dc1bd89ab4a97e8b62074",
+  "outputs": null,
+  "rejected_examples": [
+    {
+      "answer": "57",
+      "format_reason": "reasoning",
+      "ground_truth": "57",
+      "id": "concept_word_148",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 1992,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "89",
+      "format_reason": "reasoning",
+      "ground_truth": "89",
+      "id": "concept_word_299",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 4062,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "86",
+      "format_reason": "reasoning",
+      "ground_truth": "86",
+      "id": "concept_word_332",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 2107,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "51",
+      "format_reason": "reasoning",
+      "ground_truth": "51",
+      "id": "concept_word_1",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 2890,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "202",
+      "format_reason": "reasoning",
+      "ground_truth": "202",
+      "id": "concept_word_251",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 4088,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "57",
+      "format_reason": "reasoning",
+      "ground_truth": "57",
+      "id": "concept_word_52",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 1743,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "86",
+      "format_reason": "reasoning",
+      "ground_truth": "86",
+      "id": "concept_word_328",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 4781,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "67",
+      "format_reason": "reasoning",
+      "ground_truth": "67",
+      "id": "concept_word_204",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 4284,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "67",
+      "format_reason": "reasoning",
+      "ground_truth": "67",
+      "id": "concept_word_63",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 1910,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "57",
+      "format_reason": "reasoning",
+      "ground_truth": "57",
+      "id": "concept_word_307",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 4409,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "64",
+      "format_reason": "reasoning",
+      "ground_truth": "64",
+      "id": "concept_word_252",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 135,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "121",
+      "format_reason": "reasoning",
+      "ground_truth": "121",
+      "id": "concept_word_279",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 4243,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "67",
+      "format_reason": "reasoning",
+      "ground_truth": "67",
+      "id": "concept_word_337",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 2924,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "86",
+      "format_reason": "reasoning",
+      "ground_truth": "86",
+      "id": "concept_word_295",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 575,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "57",
+      "format_reason": "reasoning",
+      "ground_truth": "57",
+      "id": "concept_word_152",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 237,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "67",
+      "format_reason": "reasoning",
+      "ground_truth": "67",
+      "id": "concept_word_271",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 1481,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "86",
+      "format_reason": "reasoning",
+      "ground_truth": "86",
+      "id": "concept_word_95",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 4522,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "202",
+      "format_reason": "reasoning",
+      "ground_truth": "202",
+      "id": "concept_word_96",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 3535,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "33",
+      "format_reason": "reasoning",
+      "ground_truth": "33",
+      "id": "concept_word_73",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 844,
+      "split": "train",
+      "target_kind": "reasoning"
+    },
+    {
+      "answer": "86",
+      "format_reason": "reasoning",
+      "ground_truth": "86",
+      "id": "concept_word_129",
+      "original_verification_status": "arithmetic_mismatch",
+      "reasons": [
+        "arithmetic_mismatch"
+      ],
+      "source_index": 96,
+      "split": "train",
+      "target_kind": "reasoning"
+    }
+  ],
+  "repaired_examples": [
+    {
+      "ambiguous_flags": [],
+      "answer": "14",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "14",
+      "id": "concept_totient_167",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(7**11 % 17 == 14)✓</reg:verify>",
+      "source_index": 368,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "96",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "96",
+      "id": "concept_geo_310",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(4*24 == 96)✓</reg:verify>",
+      "source_index": 2908,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "34",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "34",
+      "id": "concept_poly_254",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(6**2-2 == 34)✓</reg:verify>",
+      "source_index": 779,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "16",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "16",
+      "id": "concept_totient_270",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(3**8 % 17 == 16)✓</reg:verify>",
+      "source_index": 1066,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "50",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "50",
+      "id": "concept_phys_200",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(5+5*9 == 50)✓</reg:verify>",
+      "source_index": 937,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "322",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "322",
+      "id": "concept_poly_314",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(7**3-3*7 == 322)✓</reg:verify>",
+      "source_index": 4469,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "96",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "96",
+      "id": "concept_geo_162",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(4*24 == 96)✓</reg:verify>",
+      "source_index": 3802,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "36",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "36",
+      "id": "concept_phys_300",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(0+3*12 == 36)✓</reg:verify>",
+      "source_index": 4292,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "24",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "24",
+      "id": "concept_geo_287",
+      "original_verification_status": "tautology",
+      "repair_action": "replaced_tautology_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(2*12 == 24)✓</reg:verify>",
+      "source_index": 4347,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "200",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "200",
+      "id": "concept_phys_331",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(2*100 == 200)✓</reg:verify>",
+      "source_index": 2207,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "3",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "3",
+      "id": "concept_totient_296",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(3**4 % 13 == 3)✓</reg:verify>",
+      "source_index": 1463,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "10",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "10",
+      "id": "concept_comb_29#4730",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(binomial(5,3) == 10)✓</reg:verify>",
+      "source_index": 4730,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "1",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "1",
+      "id": "concept_totient_146",
+      "original_verification_status": "tautology",
+      "repair_action": "replaced_tautology_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(5**8 % 13 == 1)✓</reg:verify>",
+      "source_index": 309,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "220",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "220",
+      "id": "concept_comb_22",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(binomial(12,3) == 220)✓</reg:verify>",
+      "source_index": 2252,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "198",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "198",
+      "id": "concept_poly_200",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(6**3-3*6 == 198)✓</reg:verify>",
+      "source_index": 3437,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "2207",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "2207",
+      "id": "concept_poly_242",
+      "original_verification_status": "tautology",
+      "repair_action": "replaced_tautology_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(47**2-2 == 2207)✓</reg:verify>",
+      "source_index": 2787,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "78",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "78",
+      "id": "concept_comb_172#3597",
+      "original_verification_status": "tautology",
+      "repair_action": "replaced_tautology_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(binomial(13,2) == 78)✓</reg:verify>",
+      "source_index": 3597,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "45",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "45",
+      "id": "concept_comb_12#1736",
+      "original_verification_status": "weak",
+      "repair_action": "replaced_weak_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(binomial(10,2) == 45)✓</reg:verify>",
+      "source_index": 1736,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "34",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "34",
+      "id": "concept_poly_269",
+      "original_verification_status": "tautology",
+      "repair_action": "replaced_tautology_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(6**2-2 == 34)✓</reg:verify>",
+      "source_index": 744,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    },
+    {
+      "ambiguous_flags": [],
+      "answer": "25",
+      "arithmetic_status": "checked_true",
+      "coverage_level": "verified_reasoning",
+      "derivation_status": "matched",
+      "format_reason": "reasoning",
+      "ground_truth": "25",
+      "id": "concept_phys_171",
+      "original_verification_status": "tautology",
+      "repair_action": "replaced_tautology_with_deduce_check",
+      "repair_expression": "<reg:verify>verify(5*5 == 25)✓</reg:verify>",
+      "source_index": 2025,
+      "split": "train",
+      "target_kind": "reasoning",
+      "verification_status": "repaired"
+    }
+  ],
+  "schema": "symboLM.r7_trace_audit.v1",
+  "source": {
+    "source_manifest": {
+      "canonicalize_contrastive": true,
+      "created_utc": "2026-10-23T05:27:47.239114+00:00",
+      "filtered": {
+        "dialogue": 400
+      },
+      "git_head": "27bda434b201547a5f34d3b6094d70041319bbf6",
+      "kept": 4600,
+      "line_endings": "lf",
+      "renamed_duplicate_ids": 350,
+      "seed": 42,
+      "source": "data/concept_math_contrastive_v2_1.jsonl",
+      "source_records": 5000,
+      "source_sha256": "724581AD5F3DEE4A1A4D2C321C167E13A016F64E023492AF6460D2BF04A3B7A7",
+      "system_prompt": "You are SymboLM. Solve using typed registers: <reg:plan> for invariants, <reg:deduce> for deductive reduction (conclude with ∴ ans = <value>), <reg:verify> for invariant check, then close with </think> and emit <ans><value></ans> for the final answer. If the problem is an atomic fact, emit <reg:bypass><value></reg:bypass> and stop.",
+      "target_kinds": {
+        "bypass": 400,
+        "reasoning": 4200
+      },
+      "train": 4140,
+      "train_sha256": "BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC",
+      "val": 460,
+      "val_fraction": 0.1,
+      "val_sha256": "3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD"
+    },
+    "source_manifest_path": "data/research_sft/manifest.json",
+    "source_manifest_sha256": "F82C3410A88CAB98FA8A90F4E03D584EC7D2B15DD92BEF72DC9FBC3758243114",
+    "train_path": "data/research_sft/train.jsonl",
+    "train_rows": 4140,
+    "train_sha256": "BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC",
+    "val_path": "data/research_sft/val.jsonl",
+    "val_rows": 460,
+    "val_sha256": "3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD"
+  },
+  "status": "dry_run",
+  "totals": {
+    "ambiguity_flag_counts": {
+      "positive_integer_solution_set_review": 184
+    },
+    "ambiguous_rows": 184,
+    "answer_checked_only": 1302,
+    "answer_checked_only_rate": 0.28304347826086956,
+    "arithmetic_status_counts": {
+      "checked_true": 2959,
+      "not_applicable": 400,
+      "not_checked": 34,
+      "unchecked": 1002,
+      "unparsed": 205
+    },
+    "audited": 4600,
+    "bypass_audited": 400,
+    "bypass_contract_rate": 1.0,
+    "coverage_counts": {
+      "answer_checked_only": 1302,
+      "rejected": 34,
+      "verified_bypass_contract": 400,
+      "verified_reasoning": 2864
+    },
+    "derivation_status_counts": {
+      "matched": 4166,
+      "not_applicable": 400,
+      "not_checked": 34
+    },
+    "original_valid": 982,
+    "original_verification_status_counts": {
+      "arithmetic_mismatch": 34,
+      "not_applicable": 400,
+      "tautology": 1447,
+      "unrelated": 31,
+      "valid": 982,
+      "weak": 1706
+    },
+    "reasoning_audited": 4200,
+    "rejected": 34,
+    "rejected_rate": 0.007391304347826087,
+    "rejection_reason_counts": {
+      "arithmetic_mismatch": 34
+    },
+    "removed": 1302,
+    "repair_action_counts": {
+      "None": 1313,
+      "removed_tautology_verify": 32,
+      "removed_verify_arithmetic_unchecked": 1002,
+      "removed_verify_arithmetic_unparsed": 205,
+      "removed_weak_verify": 63,
+      "replaced_tautology_with_deduce_check": 908,
+      "replaced_unrelated_with_deduce_check": 1,
+      "replaced_weak_with_deduce_check": 1076
+    },
+    "repaired": 1985,
+    "retained_total": 3264,
+    "verification_status_counts": {
+      "arithmetic_mismatch": 34,
+      "not_applicable": 400,
+      "removed": 1302,
+      "repaired": 1985,
+      "valid": 879
+    },
+    "verification_validity_rate_after_repair": 0.6819047619047619,
+    "verification_validity_rate_original": 0.2338095238095238,
+    "verified_bypass_contract": 400,
+    "verified_reasoning": 2864
+  },
+  "train": {
+    "ambiguity_flag_counts": {
+      "positive_integer_solution_set_review": 167
+    },
+    "ambiguous_rows": 167,
+    "answer_checked_only": 1187,
+    "answer_checked_only_rate": 0.2867149758454106,
+    "arithmetic_status_counts": {
+      "checked_true": 2647,
+      "not_applicable": 360,
+      "not_checked": 32,
+      "unchecked": 917,
+      "unparsed": 184
+    },
+    "audited": 4140,
+    "bypass_audited": 360,
+    "bypass_contract_rate": 1.0,
+    "coverage_counts": {
+      "answer_checked_only": 1187,
+      "rejected": 32,
+      "verified_bypass_contract": 360,
+      "verified_reasoning": 2561
+    },
+    "derivation_status_counts": {
+      "matched": 3748,
+      "not_applicable": 360,
+      "not_checked": 32
+    },
+    "original_valid": 877,
+    "original_verification_status_counts": {
+      "arithmetic_mismatch": 32,
+      "not_applicable": 360,
+      "tautology": 1299,
+      "unrelated": 30,
+      "valid": 877,
+      "weak": 1542
+    },
+    "reasoning_audited": 3780,
+    "rejected": 32,
+    "rejected_rate": 0.007729468599033816,
+    "rejection_reason_counts": {
+      "arithmetic_mismatch": 32
+    },
+    "removed": 1187,
+    "repair_action_counts": {
+      "None": 1176,
+      "removed_tautology_verify": 30,
+      "removed_verify_arithmetic_unchecked": 917,
+      "removed_verify_arithmetic_unparsed": 184,
+      "removed_weak_verify": 56,
+      "replaced_tautology_with_deduce_check": 807,
+      "replaced_unrelated_with_deduce_check": 1,
+      "replaced_weak_with_deduce_check": 969
+    },
+    "repaired": 1777,
+    "retained_total": 2921,
+    "verification_status_counts": {
+      "arithmetic_mismatch": 32,
+      "not_applicable": 360,
+      "removed": 1187,
+      "repaired": 1777,
+      "valid": 784
+    },
+    "verification_validity_rate_after_repair": 0.6775132275132275,
+    "verification_validity_rate_original": 0.232010582010582,
+    "verified_bypass_contract": 360,
+    "verified_reasoning": 2561
+  },
+  "val": {
+    "ambiguity_flag_counts": {
+      "positive_integer_solution_set_review": 17
+    },
+    "ambiguous_rows": 17,
+    "answer_checked_only": 115,
+    "answer_checked_only_rate": 0.25,
+    "arithmetic_status_counts": {
+      "checked_true": 312,
+      "not_applicable": 40,
+      "not_checked": 2,
+      "unchecked": 85,
+      "unparsed": 21
+    },
+    "audited": 460,
+    "bypass_audited": 40,
+    "bypass_contract_rate": 1.0,
+    "coverage_counts": {
+      "answer_checked_only": 115,
+      "rejected": 2,
+      "verified_bypass_contract": 40,
+      "verified_reasoning": 303
+    },
+    "derivation_status_counts": {
+      "matched": 418,
+      "not_applicable": 40,
+      "not_checked": 2
+    },
+    "original_valid": 105,
+    "original_verification_status_counts": {
+      "arithmetic_mismatch": 2,
+      "not_applicable": 40,
+      "tautology": 148,
+      "unrelated": 1,
+      "valid": 105,
+      "weak": 164
+    },
+    "reasoning_audited": 420,
+    "rejected": 2,
+    "rejected_rate": 0.004347826086956522,
+    "rejection_reason_counts": {
+      "arithmetic_mismatch": 2
+    },
+    "removed": 115,
+    "repair_action_counts": {
+      "None": 137,
+      "removed_tautology_verify": 2,
+      "removed_verify_arithmetic_unchecked": 85,
+      "removed_verify_arithmetic_unparsed": 21,
+      "removed_weak_verify": 7,
+      "replaced_tautology_with_deduce_check": 101,
+      "replaced_weak_with_deduce_check": 107
+    },
+    "repaired": 208,
+    "retained_total": 343,
+    "verification_status_counts": {
+      "arithmetic_mismatch": 2,
+      "not_applicable": 40,
+      "removed": 115,
+      "repaired": 208,
+      "valid": 95
+    },
+    "verification_validity_rate_after_repair": 0.7214285714285714,
+    "verification_validity_rate_original": 0.25,
+    "verified_bypass_contract": 40,
+    "verified_reasoning": 303
+  },
+  "warnings": [
+    "r7 train/val retain only verified_reasoning and verified_bypass_contract rows.",
+    "answer_checked_only rows have the verify block removed and are excluded from the verified train/val split.",
+    "Bypass rows are answer-and-format checked under the atomic contract; they are not counted in the reasoning verification-validity rate.",
+    "This is a data audit, not a training run, benchmark result, or claim of accuracy/token efficiency.",
+    "r7 training remains blocked until the v3 path closes and a Phase 1b preregistration exists."
+  ]
+}

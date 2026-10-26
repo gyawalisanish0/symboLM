@@ -1,10 +1,11 @@
 # SymboLM — Task Tracker
 
-**Status date:** 2026-10-24  
+**Status date:** 2026-10-25<br>
 **Branch:** `research/rescue-v3`  
 **Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded. The r6
-adapter passed the strict mixed-kind generation gate and the package gate. **No v3 benchmark
-result exists yet**; the 100 × 4 × 6 diagnostic is next.
+adapter passed the strict mixed-kind generation gate and the package gate. The v3 harness
+is hardened, and the r7 trace audit is a dry run with no verified split. **No v3 benchmark
+result exists yet**; the 100 × 4 × 6 diagnostic is next and has not started.
 
 This tracker records implementation state, not scientific validity. A checked box means the
 code or document exists; it does not mean the associated claim is confirmed.
@@ -39,7 +40,9 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 - [x] Add route-aware format validation.
 - [x] Add the six-arm, four-budget harness and overthinking metrics.
 - [x] Add run manifests and a mixed-kind post-training generation check.
-- [x] Pass the model-free test suite.
+- [x] Harden the v3 evaluator and add fail-closed dataset/adapter/contract, deterministic
+      subset, resume identity, and completed-grid checks.
+- [x] Pass the model-free test suite (109 tests).
 
 ### Protocol and framing
 
@@ -72,6 +75,8 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 - [x] Package the r6 adapter and pass the package gate, including `"torchao": "absent"`,
       merged token deltas, and distinct terminal-marker rows. Adapter and bundle hashes
       match `results/r6_closeout/R6_CLOSEOUT.json`.
+- [x] Run the r7 trace-audit dry run over all 4,140 train / 460 validation rows and record
+      `results/r7_verified/AUDIT_DRY_RUN.json`. No verified split was written.
 
 ### Evaluation
 

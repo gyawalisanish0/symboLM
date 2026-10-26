@@ -1,9 +1,9 @@
 # Token Efficiency and Biologically Inspired Control
 
-**Status:** current thesis and framing document (2026-10-24)  
+**Status:** current thesis and framing document (2026-10-25)<br>
 **Scope:** explains what SymboLM is trying to measure, what “biologically inspired” means here, and which claims are allowed.  
 **Protocol:** this document does **not** change the frozen hypotheses or endpoints in [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md). It records the framing correction that the earlier, accuracy-first documents obscured.  
-**Current result:** **none for v3.** The r6 SFT adapter is gate-eligible, but the v3 diagnostic and the 4,800-cell evaluation have not been run.
+**Current result:** **none for v3.** The r6 SFT adapter is gate-eligible and the v3 harness is hardened, but the v3 diagnostic and the 4,800-cell evaluation have not been run. The r7 trace audit is a dry run with no verified split written.
 
 ---
 
@@ -167,7 +167,8 @@ Until then, the training contribution is a carefully specified efficiency-orient
 | r4 provenance | **Validated** | `.gitattributes` forces LF; the canonical manifests, preregistration, evaluator, and kernel constants record the LF byte hashes. The Kaggle preflight passed; the data rows and split are unchanged. |
 | r5 package fix | **Validated for packaging; run failed generation** | The unused `torchao` was removed before LoRA injection and the package gate requires `"torchao": "absent"`. Training completed but the strict generation gate failed; no adapter was packaged. |
 | r6 token-delta repair | **Validated at the artifact gates** | Trainable deltas for the 47 genuinely added rows broke the tied-marker failure; both gates reject exactly tied rows. Adapter and bundle hashes match `results/r6_closeout/R6_CLOSEOUT.json`. |
-| Full 4,800-cell run | **Not started** | Requires the 100 × 4 diagnostic, a clean adapter, and separate explicit approval. |
+| Full 4,800-cell run | **Not started** | Requires the 100 × 4 × 6 diagnostic, a clean adapter, and separate explicit approval. |
+| r7 trace audit | **Dry run only** | All 4,600 rows audited; 2,864 verified reasoning, 400 bypass-contract, 1,302 answer-checked-only, 34 rejected. No verified split written. |
 | v3 token-efficiency result | **None** | No v3 result exists. |
 
 The r3 hash mismatch was a packaging/provenance defect, not a scientific result. It was fixed

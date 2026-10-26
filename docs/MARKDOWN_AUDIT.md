@@ -43,9 +43,11 @@ completed 777 training steps, but it failed the strict generation gate: its froz
 `</ans>`, and `answer` output rows were byte-identical, so greedy decoding could not emit
 the terminal markers. The r6 repair (tag `sft-v3-20261023-r6`) trained deltas on the 47
 added rows, merged them before save, and passed both the strict generation gate and the
-package gate. The r6 adapter is gate-eligible; **no v3 benchmark result exists**, and the
-100 × 4 diagnostic and 4,800-cell evaluation have not been launched. Machine-readable
-receipts: `results/r6_closeout/R6_CLOSEOUT.json`.
+package gate. The r6 adapter is gate-eligible; the v3 harness is hardened, but **no v3
+benchmark result exists**, and neither the 100 × 4 × 6 diagnostic nor the 4,800-cell
+evaluation has been launched. The r7 trace audit is a dry run with no verified split
+written. Machine-readable receipts: `results/r6_closeout/R6_CLOSEOUT.json` and
+`results/r7_verified/AUDIT_DRY_RUN.json`.
 
 ## File-by-file audit
 
@@ -54,31 +56,31 @@ receipts: `results/r6_closeout/R6_CLOSEOUT.json`.
 | `AUDIT.md` | Historical / retracted | Historical banner added; retains old 50.5% audit row as historical finding. |
 | `EVAL_V2_200_REPORT.md` | Historical / retracted | Historical duplicate; banner added. |
 | `EVIDENCE_TRUTH_TABLE.md` | Historical / retracted | Token-efficiency/biology banner added; rows 16 and 20 corrected to incomplete/retracted. |
-| `GEMINI.md` | Canonical current | Updated 2026-10-25 with the 38-prompt CPU sweep result, the r7 Verified-Trace Repair design, and a strict next-run directive covering fail-closed evaluation, the 4,800-cell approval gate, benchmark ambiguity, and receipt rules. |
+| `GEMINI.md` | Canonical current | Updated 2026-10-25 with the 38-prompt CPU sweep, the hardened v3 harness, the r7 trace-audit dry-run counts, and a strict next-run directive covering fail-closed evaluation, the 4,800-cell approval gate, benchmark ambiguity, and receipt rules. |
 | `OPTIMIZATIONS_RESEARCH.md` | Design / projection | Banner added: engineering options/projections, not measured v3 results. |
 | `PREREG_VALUATION.md` | Historical / retracted | Already historical/superseded. |
 | `PREREG_VALUATION_V2.md` | Canonical current | Added dated framing, token-efficiency, r4 provenance, r4-outcome/r5 package notes, and the r5-outcome/r6 token-delta note. The note now records the completed r6 artifact gates; hypotheses/endpoints unchanged. |
-| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, r4 provenance, r5 generation failure, and the completed r6 artifact gates. The v3 diagnostic and full run are pending. Adds the Android/`llama.cpp` harness status. |
-| `REPRODUCIBILITY.md` | Canonical current | Rewritten for v3, strict scoring, the r4 LF provenance fix, the r5 `torchao` fix and generation failure, the completed r6 artifact gates, and token-efficiency reporting. Flags `eval/robust_eval.py` as the v2.1 harness, not the v3 diagnostic. |
+| `README.md` | Canonical current | Rewritten around token efficiency, strict-accuracy non-inferiority, biology-as-analogy, the quota-stopped old run, r4 provenance, r5 generation failure, and the completed r6 artifact gates. Updated 2026-10-25 with the hardened v3 harness, the r7 audit dry run, the 2,400-cell diagnostic command, and the separate 4,800-cell approval gate. |
+| `REPRODUCIBILITY.md` | Canonical current | Rewritten for v3, strict scoring, the r4 LF provenance fix, the r5 `torchao` fix and generation failure, the completed r6 artifact gates, and token-efficiency reporting. Updated 2026-10-25: the hardened v3 harness, resume identity checks, the r7 audit dry run, and the diagnostic command with adapter hash. |
 | `RESULTS_SUMMARY.md` | Historical / retracted | Framing banner and tokens-per-correct table added; incomplete-run language corrected. |
 | `SESSION_CONTEXT.md` | Historical / retracted | Correction note added: 20x invalid, 224x projection, old 100%/confirmed claims historical. |
 | `VALUATION.md` | Tier B / audit receipt | Added tokens-per-correct table, C-vs-D null result, and biology caveat. Tier B only. |
-| `WHITEPAPER.md` | Canonical current | Replaced the historical v2.1 root with a current v3 research note; records the r4 preflight pass, `torchao` packaging stop, r5 generation-gate failure, and the completed r6 artifact gates. Old text preserved in docs/ARCHIVE_WHITEPAPER_2.1.md. |
+| `WHITEPAPER.md` | Canonical current | Replaced the historical v2.1 root with a current v3 research note; records the r4 preflight pass, `torchao` packaging stop, r5 generation-gate failure, and the completed r6 artifact gates. Updated 2026-10-25: hardened harness and r7 audit dry run; no v3 result. Old text preserved in docs/ARCHIVE_WHITEPAPER_2.1.md. |
 | `checkpoints/symbolm_v2_adapter/README.md` | Historical / retracted | Historical model card; banner added; repository private; stale "No v3 adapter exists" wording corrected to time-of-card. |
 | `data/DATASET_CURATION_STRATEGY.md` | Design / projection | 60/20/20 marked historical; v3 4,600 split stated; 100%-immaculate guarantee removed. |
 | `data/held_out_eval_200_v2_audit.md` | Tier B / audit receipt | Retained. Documents 200 rows, 173 unique prompts, 20 duplicate groups, MY2021_001=169.5. |
 | `docs/AI_GRANT_OPEN_SOURCE_APPLICATION.md` | Historical / retracted | Banner and one-line correction; currently-running/definitive-evaluation claims corrected. Do not submit as-is. |
 | `docs/ARCHIVE_README_2.1.md` | Archive / historical ops | Already banner-marked; preserved as historical provenance. |
 | `docs/ARCHIVE_WHITEPAPER_2.1.md` | Archive / historical ops | Already banner-marked; preserved as historical provenance. |
-| `docs/EVIDENCE_STATUS.md` | Canonical current | Rewritten with token-efficiency hierarchy, pilot ledger, incomplete-run language, and the r4/r5/r6 provenance, package, failure, and completed artifact-gate notes. The v3 benchmark is still marked unknown/untested. The 2026-10-25 38-prompt CPU sweep is recorded as diagnostic only. |
-| `docs/NEXT_TRAINING_SESSION.md` | Design / projection | New 2026-10-25 plan: r7 Verified-Trace Repair, based on the 38-prompt CPU sweep's false-verification finding. No run, no result. Includes data-audit rules, verification gate, stop conditions, and the follow-on matched no-register control. |
+| `docs/EVIDENCE_STATUS.md` | Canonical current | Rewritten with token-efficiency hierarchy, pilot ledger, incomplete-run language, and the r4/r5/r6 provenance, package, failure, and completed artifact-gate notes. Updated 2026-10-25 with the hardened harness and the r7 audit dry-run counts; the v3 benchmark is still marked unknown/untested. |
+| `docs/NEXT_TRAINING_SESSION.md` | Design / projection | New 2026-10-25 plan: r7 Verified-Trace Repair, based on the 38-prompt CPU sweep's false-verification finding. The dry-run audit receipt is recorded (2,864 verified reasoning, 1,302 answer-checked-only, 34 rejected); no verified split and no r7 run exist. Includes data-audit rules, verification gate, stop conditions, and the follow-on matched no-register control. |
 | `docs/HONEST_PITCH_AND_SOCIAL.md` | Historical / retracted | Banner added; currently-running corrected to incomplete; Tier B receipts labeled. |
 | `docs/MARKDOWN_AUDIT.md` | Audit index | This file. Lists every first-party Markdown document and the action taken. |
-| `docs/RESEARCH_REDIRECT.md` | Canonical current | Rewritten with token efficiency primary, biology as analogy, quota-stop language, decision rules, and the r4/r5/r6 status. r6 artifact gates are checked; the v3 diagnostic is pending. |
-| `docs/ROADMAP.md` | Design / projection | Long-term plan: symbolic-interface scaling, teacher–student distillation, architecture-level edge efficiency, gates, controls, and resources. Android + `llama.cpp` is the first deployment target; `DomainAI` is the harness. Planning only; no measured claim. Updated 2026-10-25 with the CPU sweep diagnostic and the r7 Verified-Trace Repair preflight. |
-| `docs/STATE_OF_THE_ART_REASONING_AND_EVALUATION.md` | Canonical methodology | Removed “SymboLM solves” and hardware-receipt claims; reframed as hypotheses; updated the v3 artifact status through the r5 failure and completed r6 gates. Flags the v2.1/v3 harness gap. |
+| `docs/RESEARCH_REDIRECT.md` | Canonical current | Rewritten with token efficiency primary, biology as analogy, quota-stop language, decision rules, and the r4/r5/r6 status. Updated 2026-10-25: harness hardening and r7 audit dry run checked; the v3 diagnostic is still pending. |
+| `docs/ROADMAP.md` | Design / projection | Long-term plan: symbolic-interface scaling, teacher–student distillation, architecture-level edge efficiency, gates, controls, and resources. Android + `llama.cpp` is the first deployment target; `DomainAI` is the harness. Planning only; no measured claim. Updated 2026-10-25 with the CPU sweep, hardened harness, and r7 audit dry-run counts. |
+| `docs/STATE_OF_THE_ART_REASONING_AND_EVALUATION.md` | Canonical methodology | Removed “SymboLM solves” and hardware-receipt claims; reframed as hypotheses; updated the v3 artifact status through the r5 failure and completed r6 gates. Updated 2026-10-25: the harness is hardened; the 2,400-cell diagnostic is still pending. |
 | `docs/TINY_TERMINAL_AND_CONTEXT_PRUNING_SPEC.md` | Design / projection | Status changed to not active in v3; removed the outperform-70B claim. |
-| `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical current | New canonical doc: metric definitions, biology caveats, training scope, evidence ledger, claim rules, and the r4/r5/r6 status. r6 is gate-eligible; no v3 result exists. |
+| `docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md` | Canonical current | New canonical doc: metric definitions, biology caveats, training scope, evidence ledger, claim rules, and the r4/r5/r6 status. Updated 2026-10-25 with the hardened harness and r7 audit dry run; r6 is gate-eligible and no v3 result exists. |
 | `eval/ABLATION_REAL_REPORT.md` | Tier B / audit receipt | Banner added; C 10.0% vs D 9.0% CI includes zero. Not format-value evidence. |
 | `eval/ADAPTIVE_ALLOCATION_REPORT.md` | Historical / retracted | Historical receipt; banner added. |
 | `eval/AI_ADVERSARIAL_CRITIQUE_LOG.md` | Historical / retracted | Historical audit log; banner added. |
@@ -117,7 +119,7 @@ receipts: `results/r6_closeout/R6_CLOSEOUT.json`.
 | `results/robust_eval/ROBUST_EVAL_REPORT.md` | Historical / retracted | Already warning-marked; incomplete 2,119/4,800 run, C traces lack <ans>. Not a result. |
 | `symbolic/GRADIENT_REGISTERS_SPECIFICATION.md` | Design / projection | Status added: research extension, not implemented in v3. |
 | `symbolic/SPECIFICATION.md` | Design / projection | Scope note added: v3 uses a subset; token minimization is a goal, not a result. |
-| `task.md` | Canonical current | Separates implementation from scientific validity and records the r4 preflight pass, `torchao` packaging stop, r5 generation failure, completed r6 artifact gates, and the remaining v3 diagnostic/evaluation blockers. |
+| `task.md` | Canonical current | Separates implementation from scientific validity and records the r4 preflight pass, `torchao` packaging stop, r5 generation failure, completed r6 artifact gates, hardened v3 harness, r7 audit dry run, and the remaining v3 diagnostic/evaluation blockers. |
 
 ## Cross-cutting corrections
 
