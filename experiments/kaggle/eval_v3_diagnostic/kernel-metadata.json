@@ -1,0 +1,17 @@
+{
+  "id": "sanishgyawali/symbolm-v3-2400-diagnostic",
+  "title": "SymboLM v3 2,400-Cell Diagnostic",
+  "code_file": "run_eval.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [
+    "sanishgyawali/symbolm-v3-sft-rescue"
+  ],
+  "model_sources": []
+}
