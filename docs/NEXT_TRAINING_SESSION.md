@@ -258,7 +258,7 @@ the first formal evaluation gate for r6.
    positive-integer ambiguity review; benchmark rows `MY2024_064` and
    `MY2024_065` remain flagged and unchanged.
 3. Harden the harness and run the 2,400-cell v3 diagnostic on r6. **Harness done:**
-   `eval/run_contract.py` and `eval/robust_eval.py` pass 108 model-free tests.
+   `eval/run_contract.py` and `eval/robust_eval.py` pass 109 model-free tests.
    **Diagnostic not run.** r6 remains the only v3 serving artifact.
 4. If the diagnostic passes, request separate explicit approval for the
    4,800-cell v3 run.
