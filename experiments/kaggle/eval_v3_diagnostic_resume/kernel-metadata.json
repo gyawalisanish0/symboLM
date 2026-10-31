@@ -8,11 +8,12 @@
   "enable_gpu": "true",
   "enable_tpu": "false",
   "enable_internet": "true",
-  "dataset_sources": [],
+  "dataset_sources": [
+    "sanishgyawali/symbolm-v3-diagnostic-checkpoint-2287"
+  ],
   "competition_sources": [],
   "kernel_sources": [
-    "sanishgyawali/symbolm-v3-sft-rescue",
-    "sanishgyawali/symbolm-v3-2-400-cell-diagnostic"
+    "sanishgyawali/symbolm-v3-sft-rescue"
   ],
   "model_sources": []
 }
