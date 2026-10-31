@@ -86,14 +86,16 @@ def validate_adapter_config(
     if not isinstance(config, dict):
         raise EvalContractError(f"Adapter config must be a JSON object: {config_path}")
 
-    recorded_base = str(config.get("base_model_name_or_path", "")).strip()
+    raw_base = config.get("base_model_name_or_path")
+    recorded_base = "" if raw_base is None else str(raw_base).strip()
     if recorded_base and recorded_base != str(base_model).strip():
         raise EvalContractError(
             "Adapter/base-model mismatch: "
             f"adapter records {recorded_base!r}, requested {base_model!r}"
         )
 
-    recorded_revision = str(config.get("revision", "")).strip()
+    raw_revision = config.get("revision")
+    recorded_revision = "" if raw_revision is None else str(raw_revision).strip()
     if base_revision and recorded_revision and recorded_revision != str(base_revision).strip():
         raise EvalContractError(
             "Adapter/base-revision mismatch: "

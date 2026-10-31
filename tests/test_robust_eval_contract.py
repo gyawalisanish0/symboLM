@@ -88,6 +88,31 @@ class TestRunContract(unittest.TestCase):
             with self.assertRaises(EvalContractError):
                 validate_adapter_config(root, "other/model", "rev")
 
+            (root / "adapter_config.json").write_text(
+                json.dumps(
+                    {
+                        "base_model_name_or_path": "base/model",
+                        "revision": None,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertIsNotNone(
+                validate_adapter_config(root, "base/model", "rev")
+            )
+
+            (root / "adapter_config.json").write_text(
+                json.dumps(
+                    {
+                        "base_model_name_or_path": "base/model",
+                        "revision": "different-revision",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(EvalContractError):
+                validate_adapter_config(root, "base/model", "rev")
+
     def test_adapter_hash_rejects_missing_weights(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(EvalContractError):
