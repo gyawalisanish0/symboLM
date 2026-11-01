@@ -1,8 +1,9 @@
 # Next Training Session: r7 Verified-Trace Repair
 
 **Status:** design plus a completed dry-run trace audit. Not launched. No r7 artifact or
-verified split exists.<br>
-**Date:** 2026-10-25<br>
+verified split exists. The 2,400-cell v3 diagnostic is complete and independently
+verified; Gate G1 passed. The 4,800-cell confirmatory run has not been launched.<br>
+**Date:** 2026-11-01<br>
 **Branch:** `research/rescue-v3`<br>
 **Predecessor:** r6, tag `sft-v3-20261023-r6`, commit `c6d13dd0fbbb83a498f7ef722b9c6afbc70f1255`<br>
 **Claim ledger:** [`EVIDENCE_STATUS.md`](EVIDENCE_STATUS.md)<br>
@@ -245,8 +246,9 @@ Minimum diagnostic comparison:
 - paired comparison over the same prompts;
 - no accuracy claim from n=38.
 
-The 38-prompt sweep is a screening signal. The 2,400-cell v3 diagnostic remains
-the first formal evaluation gate for r6.
+The 38-prompt sweep is a screening signal. The 2,400-cell v3 diagnostic was the
+first formal evaluation gate for r6; it is now complete and independently verified,
+with Gate G1 passing. It is not the 4,800-cell confirmatory result.
 
 ## 6. Sequence and gates
 
@@ -257,11 +259,15 @@ the first formal evaluation gate for r6.
    `results/r6_closeout/CPU_SWEEP.json`; the trace audit flags 184 rows for
    positive-integer ambiguity review; benchmark rows `MY2024_064` and
    `MY2024_065` remain flagged and unchanged.
-3. Harden the harness and run the 2,400-cell v3 diagnostic on r6. **Harness done:**
+3. Harden the harness and run the 2,400-cell v3 diagnostic on r6. **Done:**
    `eval/run_contract.py` and `eval/robust_eval.py` pass 109 model-free tests.
-   **Diagnostic not run.** r6 remains the only v3 serving artifact.
+   The diagnostic completed with 2,400/2,400 unique cells, a `completed`
+   wrapper receipt, and independent verification. Gate G1 passed: Arm C
+   400/400 format-valid, EOS-valid, terminal-answer cells, 0 truncations.
+   r6 remains the only v3 serving artifact.
 4. If the diagnostic passes, request separate explicit approval for the
-   4,800-cell v3 run.
+   4,800-cell v3 run. **Not launched.** Gate G1 passing is necessary but not
+   sufficient; the full run remains a separate decision.
 5. Freeze a Phase 1b preregistration for r7 **before** its first scored cell.
 6. Build and preflight the verified split. **Dry-run audit done**; the verified
    split has not been written. Any wrong answer, false check, or unverified row

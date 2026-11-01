@@ -3,9 +3,10 @@
 **A research note on biologically inspired control for small reasoning models**
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
-**Version:** v3 research note, 2026-10-24  
-**Status:** framing and protocol; r6 SFT is gate-eligible, but **no v3 model result exists**  
-**Protocol:** [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md)  
+**Version:** v3 research note, 2026-11-01<br>
+**Status:** framing and protocol; r6 SFT is gate-eligible; the 2,400-cell diagnostic is
+complete and verified as a pipeline/format gate; **no v3 benchmark result exists**<br>
+**Protocol:** [`PREREG_VALUATION_V2.md`](PREREG_VALUATION_V2.md)<br>
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
 ---
@@ -218,10 +219,11 @@ conflict; r5 removed that unused package and the run completed 777 training step
 adapter then failed the strict generation gate: its frozen `<ans>`, `</ans>`, and `answer`
 output rows were byte-identical, so greedy decoding could not emit the terminal markers. r6
 repaired that artifact with trainable deltas on the 47 added rows and passed both the
-generation and package gates. The adapter is gate-eligible. The v3 harness is hardened, but
-the 100 × 4 × 6 diagnostic has not been run, and the 4,800-cell evaluation has not been
-launched; the latter requires separate explicit approval. The r7 trace audit is a dry run
-with no verified split written.
+generation and package gates. The adapter is gate-eligible. The v3 harness is hardened; the
+100 × 4 × 6 diagnostic completed with 2,400/2,400 unique cells, passed independent
+verification, and passed Gate G1. It is a pipeline/format gate, not the primary result. The
+4,800-cell evaluation has not been launched; it requires separate explicit approval. The r7
+trace audit is a dry run with no verified split written.
 
 ---
 

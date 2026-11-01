@@ -34,7 +34,8 @@ has not been produced. Every reported number must have a command, a hash, and a 
 | SmolLM2 pilot token/energy table | See [`VALUATION.md`](VALUATION.md) | Tier B historical measurement |
 | Old six-arm run | See audit docs | **Incomplete**; not reproducible as a completed result |
 | v3 SFT run | `experiments/kaggle/sft_v3/` | **Complete at the pre-evaluation gates**; r6 trained 777 steps and passed the generation and package gates. No benchmark result. |
-| Full 4,800-cell v3 run | hardened v3 harness | **Not run**; requires the 2,400-cell diagnostic, a clean adapter, and separate approval |
+| 2,400-cell v3 diagnostic | hardened v3 harness | **Complete and independently verified**; 2,400/2,400 unique cells; Gate G1 passed. Diagnostic only. Receipt: `results/v3_diagnostic_2400/VERIFICATION.json` |
+| Full 4,800-cell v3 run | hardened v3 harness | **Not run**; the diagnostic is complete, but the full run requires separate approval and a quota/chunking plan |
 
 ---
 
@@ -129,7 +130,10 @@ validation  3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD
 ```
 
 Do not bypass the hash check. If a checkout produces a different hash, the source of the
-difference is line endings or a modified file, not a valid reason to relax the gate.
+difference is line endings or a modified file, not a valid reason to relax the gate. The
+v3 diagnostic text artifacts under `results/v3_diagnostic_2400/` are also forced to LF by
+`.gitattributes` so their verification and `SHA256SUMS.txt` hashes survive a Windows
+checkout.
 
 ### r5 package fix
 
@@ -251,13 +255,14 @@ the saved LM-head rows.
 
 ## 7. Strict evaluation
 
-> **Harness status (2026-10-25):** `eval/robust_eval.py` and `eval/run_contract.py` are the
+> **Harness status (2026-11-01):** `eval/robust_eval.py` and `eval/run_contract.py` are the
 > hardened v3 path. Prompt construction and strict scoring are parity-tested against
 > `symbolic/prompts.py` and `eval/strict_scorer.py`; dataset/adapter/contract mismatches,
 > corrupt checkpoints, prompt/generation exceptions, persistence failures, decoding
 > corruption, and incomplete grids abort the run. A checkpoint is resumable only under the
 > same dataset, adapter, subset, budgets, run kind, prompt/scorer code, and evaluator code.
-> The 2,400-cell diagnostic has **not** been run; do not label a run as v3 until it exists.
+> The 2,400-cell diagnostic is complete and independently verified; it is a pipeline/format
+> gate, not the 4,800-cell v3 benchmark. Do not label it as the primary result.
 
 ```bash
 python eval/robust_eval.py \

@@ -16,3 +16,12 @@
 # checkout cannot silently change the receipt hashes.
 /results/r6_closeout/*.json text eol=lf
 /results/r6_closeout/*.jsonl text eol=lf
+
+# The verified v3 diagnostic artifacts are hashed in VERIFICATION.json and
+# SHA256SUMS.txt. Force LF on the text artifacts so a Windows checkout cannot
+# silently change those hashes. The receipts tarball stays binary.
+/results/v3_diagnostic_2400/*.json text eol=lf
+/results/v3_diagnostic_2400/*.jsonl text eol=lf
+/results/v3_diagnostic_2400/*.md text eol=lf
+/results/v3_diagnostic_2400/*.txt text eol=lf
+/results/v3_diagnostic_2400/*.tar.gz binary

@@ -1,13 +1,18 @@
 # SymboLM Long-Term Roadmap
 
 **Status:** planning document, not a result.
-**Date:** 2026-10-25
-**Current gate:** the 100 × 4 × 6 v3 diagnostic. The r6 Kaggle kernel is `COMPLETE`; its
-adapter passed the generation and package gates and is gate-eligible. The v3 harness is
-hardened, but no v3 benchmark result exists yet. A 38-prompt CPU sweep is a diagnostic only:
-24/38 strict, 38/38 format, 38/38 EOS, no truncation; its failures are arithmetic/semantic,
-not format. The r7 trace-audit dry run is also a diagnostic only: no verified split was
-written. See `results/r6_closeout/CPU_SWEEP.json` and
+**Date:** 2026-11-01
+**Current gate:** the 4,800-cell confirmatory run. The 2,400-cell v3 diagnostic is
+**complete and independently verified**; Gate G1 passed (Arm C 400/400
+format-valid, EOS-valid, terminal-answer cells, 0 truncations). The 4,800-cell run
+has **not been launched** and requires separate explicit approval. The r6 Kaggle kernel is
+`COMPLETE`; its adapter passed the generation and package gates and is
+gate-eligible. No v3 benchmark result exists yet. A 38-prompt CPU sweep is a
+diagnostic only: 24/38 strict, 38/38 format, 38/38 EOS, no truncation; its
+failures are arithmetic/semantic, not format. The r7 trace-audit dry run is also
+a diagnostic only: no verified split was written. See
+`results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md`,
+`results/r6_closeout/CPU_SWEEP.json`, and
 `results/r7_verified/AUDIT_DRY_RUN.json`.
 **Companion documents:** [`EVIDENCE_STATUS.md`](EVIDENCE_STATUS.md),
 [`RESEARCH_REDIRECT.md`](RESEARCH_REDIRECT.md),
@@ -73,8 +78,10 @@ The frozen v3 test is Arm C versus Arm D at 256 tokens, with a strict-accuracy
 non-inferiority margin of −2 percentage points. See
 [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md) §4.1.
 
-**Status:** untested. The r6 adapter is gate-eligible and the harness is hardened; the
-100 × 4 × 6 diagnostic is the next gate and has not run.
+**Status:** the confirmatory test is untested. The r6 adapter is gate-eligible;
+the 100 × 4 × 6 diagnostic is complete and independently verified with Gate G1
+passing, but it is a subset and not the preregistered 4,800-cell test. The full
+run has not been launched and requires separate explicit approval.
 
 ### H2 — Scaling hypothesis
 
@@ -135,14 +142,14 @@ human cognition.
 | v3 protocol | Frozen six arms × four budgets; strict scorer; C-vs-D primary at 256 | One narrow confirmatory test |
 | Base model | `deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B`, dense transformer, pinned revision | 1.5B SFT and edge proxy |
 | r6 repair | Token deltas for the 47 added rows; tied-row gates; generation and package gates passed | A gate-eligible 1.5B SFT adapter; not a benchmark result |
-| Eval harness | Strict declared-answer scoring, EOS-aware truncation, energy path, deterministic stratified subset selection, adapter/contract/resume checks, completed-grid verification | Hardened and parity-tested; the 2,400-cell diagnostic has not run |
+| Eval harness | Strict declared-answer scoring, EOS-aware truncation, energy path, deterministic stratified subset selection, adapter/contract/resume checks, completed-grid verification | Hardened and parity-tested; the 2,400-cell diagnostic completed and independently verified; Gate G1 passed |
 | r7 trace audit | Dry-run receipt: 2,864 verified reasoning, 400 bypass-contract, 1,302 answer-checked-only, 34 rejected | A data-quality receipt; no verified split written and no r7 artifact |
 | Old evidence | Retracted headlines, Tier B pilots, incomplete six-arm run | Hypothesis generation only |
 
 ### 2.2 What is missing
 
-- The 100 × 4 × 6 diagnostic. The harness is hardened; the run has not started.
-- The full 4,800-cell confirmatory run (separate explicit approval required).
+- The full 4,800-cell confirmatory run (separate explicit approval required). The
+  2,400-cell diagnostic is complete and independently verified; Gate G1 passed.
 - A matched no-register adapter for a training-data comparison.
 - Multiple SFT seeds.
 - Thinking-token / answer-token split instrumentation.
@@ -156,8 +163,10 @@ human cognition.
 ### 2.3 Current evidence boundary
 
 No v3 token-efficiency, accuracy, format-value, scaling, or edge claim is allowed yet.
-The r6 artifact passed its gates, but it is not a result; the 100 × 4 × 6 diagnostic is the
-current gate. A quota or infrastructure stop is **incomplete**, never a negative result.
+The r6 artifact passed its gates, but it is not a result; the 2,400-cell diagnostic is
+complete and verified, but it is a pipeline/format gate, not the confirmatory result. The
+current evidence gate is the 4,800-cell run. A quota or infrastructure stop is
+**incomplete**, never a negative result.
 
 ---
 
@@ -235,8 +244,9 @@ allowed without a separate preregistered test.
 
 - ✅ Finish r6; the generation and package gates passed.
 - ✅ Harden the v3 harness and pass the model-free contract/parity suite.
-- Run the 100 × 4 × 6 diagnostic; it has not started.
-- Request separate approval for the full 4,800-cell run.
+- ✅ Run the 100 × 4 × 6 diagnostic; it completed with 2,400/2,400 unique
+  cells and passed independent verification and Gate G1.
+- Request separate approval for the full 4,800-cell run; it has not been launched.
 - Report strict accuracy, tokens/correct, J/correct, format validity, terminal-answer rate,
   EOS rate, and the C-vs-D decision.
 
@@ -425,17 +435,19 @@ replaced by measured receipts.
    `100`; both were terminal/EOS-valid with no loop marker.
 3. ✅ Package gate passed, including `"torchao": "absent"`, merged deltas, and distinct
    terminal-marker rows. Adapter and bundle hashes match the receipt.
-4. ⛔ Run the 100 × 4 × 6 diagnostic. The harness is hardened and parity-tested; the run
-   has not started.
-5. ⛔ Only then request approval for the full 4,800-cell run.
+4. ✅ Run the 100 × 4 × 6 diagnostic. It completed with 2,400/2,400 unique
+   cells, a `completed` wrapper receipt, and independent verification.
+5. ⛔ Request approval for the full 4,800-cell run. It has not been launched.
 
 **Gate G0:** met for r6: clean adapter + package manifest
 (`results/r6_closeout/R6_CLOSEOUT.json`).
-**Gate G1:** diagnostic passes format/EOS/terminal-answer checks; no more than 10% Arm C
-format-invalid cells. Pending.
+**Gate G1:** **passed** for the diagnostic: Arm C 400/400 format-valid,
+EOS-valid, terminal-answer cells; 0 truncations; format-invalid rate 0.0%.
+Receipt: `results/v3_diagnostic_2400/VERIFICATION.json`.
 
 **Deliverables:** adapter hash, run manifest, generation previews, package manifest
-(available for r6); diagnostic report (pending).
+(available for r6); diagnostic report and verification receipt
+(`results/v3_diagnostic_2400/`).
 
 **Stop:** any gate failure means no v3 result. A failure is an artifact/pipeline event, not
 a scientific negative result.
@@ -446,6 +458,9 @@ a scientific negative result.
 
 **Design:** the frozen 4,800-cell grid; no changes to prompts, budgets, arms, or scoring.
 Separate explicit approval is required before launch.
+
+**Status:** not launched. The 2,400-cell diagnostic is complete and verified;
+Gate G1 passed, but it does not authorize the full run.
 
 **Primary:** C vs D at 256 tokens: paired 95% CI for `J/correct_D − J/correct_C` strictly
 excludes zero; strict-accuracy lower bound ≥ −2 pp; C format-valid and terminal-answer rates
@@ -835,12 +850,13 @@ Venues are secondary. The claim ladder and receipts are primary.
    `eval/robust_eval.py` fail closed on generation errors, corrupted rows/checkpoints,
    adapter/dataset/contract mismatch, nondeterministic subset selection, and incomplete
    grids. 109 model-free tests pass.
-4. ⛔ Run the 100 × 4 × 6 diagnostic; if it fails, fix the pipeline and do not run the full grid.
-5. ⛔ Request separate explicit approval for the 4,800-cell run.
+4. ✅ Run the 100 × 4 × 6 diagnostic. Completed with 2,400/2,400 unique cells,
+   independent verification, and Gate G1 passing. It is not the confirmatory result.
+5. ⛔ Request separate explicit approval for the 4,800-cell run. Not launched.
 6. ⛔ Preflight r7 Verified-Trace Repair per `docs/NEXT_TRAINING_SESSION.md`. The dry-run
    audit is complete (`results/r7_verified/AUDIT_DRY_RUN.json`), but no verified split was
-   written. Do not launch r7 before the v3 diagnostic path is closed and a Phase 1b
-   preregistration exists.
+   written. The diagnostic path is closed, but the full v3 path is not. Do not launch r7
+   before v3 closure, a Phase 1b preregistration, and a verified split.
 7. Draft the Phase 1b preregistration for the matched no-register adapter and seeds.
 8. Check 7B base-model availability, tokenizer compatibility, and QLoRA feasibility.
 9. Write a one-page Phase 2 protocol before spending 7B compute.

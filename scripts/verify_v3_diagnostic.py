@@ -14,7 +14,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -90,22 +92,33 @@ def normalize_subset(subset: Any) -> dict:
     }
 
 
-def compute_contract_hashes(repo_root: Path) -> dict:
+def _committed_blob_sha256(repo_root: Path, commit: str, relpath: str) -> str:
+    """Hash the committed blob, not the possibly CRLF-converted working tree."""
+    try:
+        data = subprocess.check_output(
+            ["git", "-C", str(repo_root), "show", f"{commit}:{relpath}"],
+            stderr=subprocess.PIPE,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        detail = ""
+        if isinstance(exc, subprocess.CalledProcessError) and exc.stderr:
+            detail = f": {exc.stderr.decode('utf-8', errors='replace').strip()}"
+        fail(f"Cannot read committed contract file {relpath} at {commit}{detail}")
+    return hashlib.sha256(data).hexdigest().upper()
+
+
+def compute_contract_hashes(repo_root: Path, commit: str) -> dict:
     files = {
-        "evaluator_sha256": repo_root / "eval" / "robust_eval.py",
-        "run_contract_sha256": repo_root / "eval" / "run_contract.py",
-        "strict_scorer_sha256": repo_root / "eval" / "strict_scorer.py",
-        "prompts_sha256": repo_root / "symbolic" / "prompts.py",
+        "evaluator_sha256": "eval/robust_eval.py",
+        "run_contract_sha256": "eval/run_contract.py",
+        "strict_scorer_sha256": "eval/strict_scorer.py",
+        "prompts_sha256": "symbolic/prompts.py",
+        "ground_truth_overrides_sha256": "data/ground_truth_overrides.json",
     }
-    hashes: dict[str, Any] = {}
-    for name, path in files.items():
-        require(path.is_file(), f"Required contract file is missing: {path}")
-        hashes[name] = sha256_file(path)
-    overrides = repo_root / "data" / "ground_truth_overrides.json"
-    hashes["ground_truth_overrides_sha256"] = (
-        sha256_file(overrides) if overrides.is_file() else None
-    )
-    return hashes
+    return {
+        name: _committed_blob_sha256(repo_root, commit, relpath)
+        for name, relpath in files.items()
+    }
 
 
 def parse_results(results_path: Path) -> list[dict]:
@@ -168,7 +181,7 @@ def verify(
 
     contracts = manifest.get("contracts")
     require(isinstance(contracts, dict), "Manifest contracts must be an object")
-    expected_contracts = compute_contract_hashes(repo_root)
+    expected_contracts = compute_contract_hashes(repo_root, manifest["commit_hash"])
     for name, expected in expected_contracts.items():
         require(contracts.get(name) == expected, f"Contract hash mismatch: {name}")
     checks.append("contract_hashes")

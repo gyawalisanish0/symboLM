@@ -4,10 +4,12 @@
 
 **Author / Principal Systems Architect:** Sanish Gyawali (Rupandehi, Nepal)  
 **Repository branch:** `research/rescue-v3`  
-**Status date:** 2026-10-25<br>
-**Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded; the v3
-harness is hardened; the r7 trace audit is a dry run with no verified split; **no v3
-benchmark result exists yet**.<br>
+**Status date:** 2026-11-01<br>
+**Current phase:** **r6 SFT is complete and gate-eligible; the 2,400-cell v3
+diagnostic is complete and independently verified, and Gate G1 passed.** The
+4,800-cell confirmatory run has not been launched and requires separate explicit
+approval. The r7 trace audit is a dry run with no verified split; **no v3 benchmark
+result exists yet**.<br>
 **SFT kernel:** [`experiments/kaggle/sft_v3/`](experiments/kaggle/sft_v3/) (tag `sft-v3-20261023-r6`). The r4 run passed the full preflight, then stopped at LoRA injection because Kaggle supplied `torchao 0.10.0` and PEFT 0.21.2 requires at least `0.16.0`; that was a packaging failure, not a data or scientific result. The r5 run trained 777 steps but failed the strict generation gate: the saved adapter had byte-identical frozen `<ans>`, `</ans>`, and `answer` output rows, so greedy decoding could not emit the terminal markers. r6 trained small deltas on the 47 genuinely added rows, merged them before save, and passed both the strict mixed-kind generation gate and the package gate. Final eval loss was `0.00748848170042038`; the probe answers were `62` and `100`, both terminal/EOS-valid. Receipts are in [`results/r6_closeout/R6_CLOSEOUT.json`](results/r6_closeout/R6_CLOSEOUT.json). No 4,800-cell result exists.<br>
 **Android harness:** [`gyawalisanish0/DomainAI`](https://github.com/gyawalisanish0/DomainAI) (Apache-2.0) is the intended native `llama.cpp` deployment base. Integration has not started; it needs deterministic sampling, stop strings, exact v3 prompt parity, and a headless benchmark path before it can produce research receipts.<br>
 **Model repositories:** all four Hugging Face model/checkpoint repositories were made private on 2026-10-22. Public links return 401; nothing was deleted.
@@ -225,8 +227,11 @@ benchmark   F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707
 
 **The r6 adapter is gate-eligible, but there is still no v3 benchmark result.** The v3
 harness is hardened and the model-free suite passes 109 tests. The 100 × 4 × 6 diagnostic
-has not been run; the 4,800-cell evaluation requires separate explicit approval and has not
-been launched. The r7 trace audit is a dry run recorded in
+**completed with 2,400/2,400 unique cells and passed independent verification and Gate
+G1**; it is a pipeline/format gate, not the primary result. The 4,800-cell evaluation
+requires separate explicit approval and has not been launched. Receipt:
+[`results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md`](results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md).
+The r7 trace audit is a dry run recorded in
 [`results/r7_verified/AUDIT_DRY_RUN.json`](results/r7_verified/AUDIT_DRY_RUN.json); no
 verified split was written.
 
@@ -244,9 +249,10 @@ full **200 problems × 4 budgets × 6 arms = 4,800 cells** run with:
 - a token-efficiency report (tokens per correct answer, OAA/AUC_OAA, TokenEff, and
   joules per correct answer when NVML is available).
 
-The first run after this rescue is the 100 × 4 × 6 diagnostic with the hardened harness
-to catch formatting, EOS, or contract regressions. That diagnostic is **not** the primary
-result and has not started. The full 200 × 4 × 6 run is the primary result.
+The first run after this rescue was the 100 × 4 × 6 diagnostic with the hardened
+harness to catch formatting, EOS, or contract regressions. It **completed and passed
+independent verification and Gate G1**, but it is **not** the primary result. The
+full 200 × 4 × 6 run is the primary result and has not been launched.
 
 ## 7. Quick start
 

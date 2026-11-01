@@ -1,9 +1,14 @@
 # Token Efficiency and Biologically Inspired Control
 
-**Status:** current thesis and framing document (2026-10-25)<br>
+**Status:** current thesis and framing document (updated 2026-11-01)<br>
 **Scope:** explains what SymboLM is trying to measure, what “biologically inspired” means here, and which claims are allowed.  
 **Protocol:** this document does **not** change the frozen hypotheses or endpoints in [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md). It records the framing correction that the earlier, accuracy-first documents obscured.  
-**Current result:** **none for v3.** The r6 SFT adapter is gate-eligible and the v3 harness is hardened, but the v3 diagnostic and the 4,800-cell evaluation have not been run. The r7 trace audit is a dry run with no verified split written.
+**Current result:** **no v3 benchmark result.** The r6 SFT adapter is
+gate-eligible; the 2,400-cell v3 diagnostic is complete and independently
+verified, and Gate G1 passed. The diagnostic is a pipeline/format gate, not the
+confirmatory result. The 4,800-cell evaluation has not been launched. The r7
+trace audit is a dry run with no verified split written. Receipt:
+[`../results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md`](../results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md).
 
 ---
 
@@ -167,9 +172,10 @@ Until then, the training contribution is a carefully specified efficiency-orient
 | r4 provenance | **Validated** | `.gitattributes` forces LF; the canonical manifests, preregistration, evaluator, and kernel constants record the LF byte hashes. The Kaggle preflight passed; the data rows and split are unchanged. |
 | r5 package fix | **Validated for packaging; run failed generation** | The unused `torchao` was removed before LoRA injection and the package gate requires `"torchao": "absent"`. Training completed but the strict generation gate failed; no adapter was packaged. |
 | r6 token-delta repair | **Validated at the artifact gates** | Trainable deltas for the 47 genuinely added rows broke the tied-marker failure; both gates reject exactly tied rows. Adapter and bundle hashes match `results/r6_closeout/R6_CLOSEOUT.json`. |
-| Full 4,800-cell run | **Not started** | Requires the 100 × 4 × 6 diagnostic, a clean adapter, and separate explicit approval. |
+| 2,400-cell diagnostic | **Completed and independently verified; Gate G1 passed** | 2,400/2,400 unique cells; Arm C 400/400 format-valid, EOS-valid, terminal-answer cells; 0 truncations. Diagnostic only; not the confirmatory result. |
+| Full 4,800-cell run | **Not started** | The diagnostic and verification are complete; the full run requires separate explicit approval. |
 | r7 trace audit | **Dry run only** | All 4,600 rows audited; 2,864 verified reasoning, 400 bypass-contract, 1,302 answer-checked-only, 34 rejected. No verified split written. |
-| v3 token-efficiency result | **None** | No v3 result exists. |
+| v3 token-efficiency result | **None** | No v3 benchmark result exists. Diagnostic token counts are not a token-efficiency claim. |
 
 The r3 hash mismatch was a packaging/provenance defect, not a scientific result. It was fixed
 in r4 with a new tag and regenerated hashes from LF bytes; r4 then passed its Kaggle
@@ -235,6 +241,9 @@ Do not use “confirmed,” “SOTA,” “general reasoning,” “brain-like,�
 - [`README.md`](../README.md) — public entry point and current status.
 - [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md) — frozen hypotheses, endpoints, and decision rule.
 - [`docs/EVIDENCE_STATUS.md`](EVIDENCE_STATUS.md) — short claim ledger.
+- [`docs/ADAPTIVE_COMPUTE_AND_HUMAN_ANALOGY.md`](ADAPTIVE_COMPUTE_AND_HUMAN_ANALOGY.md)
+  — conceptual notes on the compute ladder, the human-brain analogy, and
+  compression limits; hypotheses, not results.
 - [`docs/RESEARCH_REDIRECT.md`](RESEARCH_REDIRECT.md) — what survives, what is retracted, and why.
 - [`docs/MARKDOWN_AUDIT.md`](MARKDOWN_AUDIT.md) — file-by-file audit of every first-party Markdown document.
 - [`EVIDENCE_TRUTH_TABLE.md`](../EVIDENCE_TRUTH_TABLE.md) — historical claim audit.

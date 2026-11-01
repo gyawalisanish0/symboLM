@@ -1,0 +1,202 @@
+{
+  "schema": "symboLM.v3_diagnostic_verification.v1",
+  "status": "verified",
+  "verified_utc": "2026-11-01T07:09:10Z",
+  "output_dir": "C:\\Users\\user\\Dev\\symboLM\\results\\v3_diagnostic_2400",
+  "checks": [
+    "no_wrapper_failure",
+    "manifest_present",
+    "manifest_identity",
+    "contract_hashes",
+    "subset_recomputed",
+    "expected_grid",
+    "complete_unique_grid",
+    "wrapper_receipt",
+    "report_boundary",
+    "local_adapter_hash"
+  ],
+  "counts": {
+    "strict_correct": 1184,
+    "strict_correct_and_format": 1184,
+    "format_valid": 1527,
+    "eos_emitted": 1861,
+    "truncated": 539,
+    "answer_declared": 1527
+  },
+  "breakdown": {
+    "A|256": {
+      "cells": 100,
+      "strict_correct": 16,
+      "format_valid": 20,
+      "eos_emitted": 33,
+      "truncated": 67
+    },
+    "A|512": {
+      "cells": 100,
+      "strict_correct": 51,
+      "format_valid": 61,
+      "eos_emitted": 79,
+      "truncated": 21
+    },
+    "A|1024": {
+      "cells": 100,
+      "strict_correct": 64,
+      "format_valid": 81,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "A|2048": {
+      "cells": 100,
+      "strict_correct": 64,
+      "format_valid": 81,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "B|256": {
+      "cells": 100,
+      "strict_correct": 29,
+      "format_valid": 35,
+      "eos_emitted": 44,
+      "truncated": 56
+    },
+    "B|512": {
+      "cells": 100,
+      "strict_correct": 64,
+      "format_valid": 73,
+      "eos_emitted": 82,
+      "truncated": 18
+    },
+    "B|1024": {
+      "cells": 100,
+      "strict_correct": 77,
+      "format_valid": 89,
+      "eos_emitted": 98,
+      "truncated": 2
+    },
+    "B|2048": {
+      "cells": 100,
+      "strict_correct": 77,
+      "format_valid": 91,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "C|256": {
+      "cells": 100,
+      "strict_correct": 62,
+      "format_valid": 100,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "C|512": {
+      "cells": 100,
+      "strict_correct": 62,
+      "format_valid": 100,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "C|1024": {
+      "cells": 100,
+      "strict_correct": 62,
+      "format_valid": 100,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "C|2048": {
+      "cells": 100,
+      "strict_correct": 62,
+      "format_valid": 100,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "D|256": {
+      "cells": 100,
+      "strict_correct": 19,
+      "format_valid": 23,
+      "eos_emitted": 33,
+      "truncated": 67
+    },
+    "D|512": {
+      "cells": 100,
+      "strict_correct": 54,
+      "format_valid": 64,
+      "eos_emitted": 79,
+      "truncated": 21
+    },
+    "D|1024": {
+      "cells": 100,
+      "strict_correct": 67,
+      "format_valid": 84,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "D|2048": {
+      "cells": 100,
+      "strict_correct": 67,
+      "format_valid": 84,
+      "eos_emitted": 100,
+      "truncated": 0
+    },
+    "E|256": {
+      "cells": 100,
+      "strict_correct": 20,
+      "format_valid": 29,
+      "eos_emitted": 63,
+      "truncated": 37
+    },
+    "E|512": {
+      "cells": 100,
+      "strict_correct": 34,
+      "format_valid": 48,
+      "eos_emitted": 91,
+      "truncated": 9
+    },
+    "E|1024": {
+      "cells": 100,
+      "strict_correct": 39,
+      "format_valid": 53,
+      "eos_emitted": 97,
+      "truncated": 3
+    },
+    "E|2048": {
+      "cells": 100,
+      "strict_correct": 39,
+      "format_valid": 53,
+      "eos_emitted": 97,
+      "truncated": 3
+    },
+    "F|256": {
+      "cells": 100,
+      "strict_correct": 2,
+      "format_valid": 2,
+      "eos_emitted": 2,
+      "truncated": 98
+    },
+    "F|512": {
+      "cells": 100,
+      "strict_correct": 31,
+      "format_valid": 32,
+      "eos_emitted": 33,
+      "truncated": 67
+    },
+    "F|1024": {
+      "cells": 100,
+      "strict_correct": 48,
+      "format_valid": 49,
+      "eos_emitted": 52,
+      "truncated": 48
+    },
+    "F|2048": {
+      "cells": 100,
+      "strict_correct": 74,
+      "format_valid": 75,
+      "eos_emitted": 78,
+      "truncated": 22
+    }
+  },
+  "manifest_sha256": "44C5F0FA13A04AEA92D2CFA2DE67E949DEA3901F7EC5E940951B62D65488FB64",
+  "results_sha256": "693A1EDC1C43414B996D24BF66347B6FC9405E37833FBFF798F2A08B1D44AABA",
+  "report_sha256": "6FA4A0591510B4B4FA3A43DA6CD18A3DECAC323207DFEFB861A50A747F98CE35",
+  "wrapper_sha256": "46E1D8B568C9F85BB52AD9925E2FCE4D3523229DC4026A7FC47FFFD7FFC1F020",
+  "energy_measurement": "nvml",
+  "claim_boundary": "Verified pipeline completion and grid coverage for the 2,400-cell diagnostic only. This is not the 4,800-cell confirmatory run and is not a benchmark, token-efficiency, latency, or mobile claim."
+}

@@ -1,11 +1,13 @@
 # SymboLM — Task Tracker
 
-**Status date:** 2026-10-25<br>
+**Status date:** 2026-11-01<br>
 **Branch:** `research/rescue-v3`  
 **Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded. The r6
 adapter passed the strict mixed-kind generation gate and the package gate. The v3 harness
-is hardened, and the r7 trace audit is a dry run with no verified split. **No v3 benchmark
-result exists yet**; the 100 × 4 × 6 diagnostic is next and has not started.
+is hardened; the 2,400-cell diagnostic completed with 2,400/2,400 unique cells, passed
+independent verification, and passed Gate G1. The 4,800-cell confirmatory run has not been
+launched and requires separate explicit approval. The r7 trace audit is a dry run with no
+verified split. **No v3 benchmark result exists yet.**
 
 This tracker records implementation state, not scientific validity. A checked box means the
 code or document exists; it does not mean the associated claim is confirmed.
@@ -80,17 +82,20 @@ The old v2.1 results produced by these phases are retracted or incomplete. See
 
 ### Evaluation
 
-- [ ] Run the 100 × 4 × 6 diagnostic (not the primary result).
+- [x] Run the 100 × 4 × 6 diagnostic (not the primary result). Completed with
+      2,400/2,400 unique cells; independently verified; Gate G1 passed.
 - [ ] Run the full 200 × 4 × 6 experiment (**requires separate explicit approval**).
+      Not launched.
 - [ ] Report strict accuracy, tokens per correct, J/correct, format validity, and the
-      preregistered C-versus-D decision.
+      preregistered C-versus-D decision for the full run.
 - [ ] Publish the result, including a negative result if that is what the data show.
 
 ## Long-term roadmap
 
 The plan for symbolic-interface scaling, teacher–student distillation, and
 architecture-level edge efficiency is in [`docs/ROADMAP.md`](docs/ROADMAP.md). It is
-planning only; r6 is complete, but the v3 diagnostic has not started. The target decision
+planning only; r6 is complete and the 2,400-cell v3 diagnostic is verified, but the
+4,800-cell confirmatory run has not started. The target decision
 is **Android first, using `llama.cpp`**, with a 0.5B Q4 student as the first mobile model.
 The recorded device is a Redmi 15 4G (Snapdragon 685, HyperOS 3, 8 GB), CPU-only; the
 latency/energy budget still needs to be measured.

@@ -1,10 +1,12 @@
 # Evidence Status
 
-**As of:** 2026-10-25<br>
+**As of:** 2026-11-01<br>
 **Branch:** `research/rescue-v3`  
-**Current phase:** **r6 SFT is complete and gate-eligible**; r5 is superseded; a
-38-prompt CPU sweep and the r7 trace-audit dry run are diagnostics only; the v3 harness
-is hardened but **no v3 benchmark result exists yet**<br>
+**Current phase:** **r6 SFT is complete and gate-eligible; the 2,400-cell v3
+diagnostic is complete and independently verified, and Gate G1 passed.** The
+4,800-cell confirmatory run has not been launched and requires separate explicit
+approval. The 38-prompt CPU sweep and the r7 trace-audit dry run remain diagnostics
+only. **No v3 benchmark result exists yet.**<br>
 **Primary protocol:** [`PREREG_VALUATION_V2.md`](../PREREG_VALUATION_V2.md)  
 **Canonical framing:** [`docs/TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md`](TOKEN_EFFICIENCY_AND_BIOLOGICAL_CONTROL.md)
 
@@ -29,6 +31,12 @@ This page is the short answer to “what can we actually claim?” The long audi
 The v3 benchmark has not been run. The r6 adapter is gate-eligible, but no current claim
 about C-versus-D format value or token-efficiency superiority is allowed.
 
+The 2,400-cell diagnostic has now completed: **2,400/2,400 unique cells**, a
+`completed` wrapper receipt, and an independent `verified` receipt. Arm C passed
+Gate G1 with **400/400 format-valid, EOS-valid, terminal-answer cells and zero
+truncations**. This is a pipeline and format gate, not the confirmatory result.
+Receipt: [`../results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md`](../results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md).
+
 ---
 
 ## 2. Status table
@@ -50,10 +58,12 @@ about C-versus-D format value or token-efficiency superiority is allowed.
 | r6 SFT artifact | **Gate-eligible** | `results/r6_closeout/R6_CLOSEOUT.json` | 777 steps / 3 epochs; final eval loss `0.00748848170042038`; strict generation and package gates passed. This is an artifact status, not a benchmark result. |
 | r6 CPU smoke test | **Diagnostic only; 2/2 valid** | `results/r6_closeout/CPU_PROBE.json` | Two greedy probes on a Ryzen 7 5700G, bf16, 8 threads: `295` (114 tokens, 35.8 s) and `26` (13 tokens, 8.4 s). Both emitted EOS, valid format, strict correct. n=2; no accuracy, token-efficiency, or latency claim. |
 | r6 38-prompt CPU sweep | **Diagnostic only; 24/38 strict, 38/38 format, 38/38 EOS** | `results/r6_closeout/CPU_SWEEP.json` | Deterministic 2-per-category stratified sweep, Arm C, budget 256, greedy, bf16, 8 threads. Mean 113.9 tokens and 44.1 s wall-clock. No truncation. Failures are arithmetic/semantic, not format; several `verify` blocks are tautological or false. Two Diophantine prompts are ambiguous. Not benchmark accuracy. |
-| v3 evaluation harness | **Hardened; not yet run** | `eval/run_contract.py`, `eval/robust_eval.py`, `tests/test_robust_eval_contract.py` | Fail-closed dataset/adapter/contract checks, deterministic SHA-256 stratified subset selection, resume identity binding, prompt/generation/persistence aborts, and completed-grid verification. 109 model-free tests pass. This is implementation state, not a benchmark result. |
+| v3 evaluation harness | **Hardened; diagnostic completed and verified** | `eval/run_contract.py`, `eval/robust_eval.py`, `tests/test_robust_eval_contract.py`, `results/v3_diagnostic_2400/VERIFICATION.json` | Fail-closed dataset/adapter/contract checks, deterministic SHA-256 stratified subset selection, resume identity binding, prompt/generation/persistence aborts, and completed-grid verification. 109 model-free tests pass. The 2,400-cell diagnostic completed with 2,400/2,400 unique cells. This is implementation and gate state, not a benchmark result. |
+| v3 2,400-cell diagnostic | **Completed and independently verified; diagnostic only** | `results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md`; `VERIFICATION.json`; run `robust_eval_20261031T151842Z` | 100 problems × 6 arms × 4 budgets; no missing or extra cells; wrapper `completed`; independent `verified`; Gate G1 passes with Arm C 400/400 format-valid, EOS-valid, terminal-answer cells and 0 truncations. Descriptive C strict accuracy is 62/100 and budget-invariant; not a benchmark claim. |
 | r7 trace audit (dry run) | **Audit receipt only; no verified split written** | `results/r7_verified/AUDIT_DRY_RUN.json` | All 4,140 train / 460 val rows audited. 2,864 reasoning rows pass the closed-arithmetic/true-verify contract (982 original-valid + 1,985 repaired), 400 bypass rows are retained only as `verified_bypass_contract`, 1,302 are `answer_checked_only` with verify removed, and 34 are rejected for arithmetic mismatch. Reasoning verification validity 0.2338 → 0.6819. Not a training run, benchmark, or accuracy/token-efficiency result. |
-| v3 register value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | The preregistered test has not been executed. r5 is ineligible after a generation-gate failure. |
-| v3 token-efficiency value | **Unknown / untested** | r6 adapter is gate-eligible; no v3 benchmark run | `tokens_emitted` is total generation; thinking-token split is not yet logged. |
+| v3 register value | **Unknown / untested; confirmatory run not launched** | r6 adapter is gate-eligible; the 2,400-cell diagnostic is a subset and not the preregistered test | The diagnostic is a pipeline/format gate, not evidence for C-versus-D format value. The 4,800-cell confirmatory run requires separate explicit approval. r5 is ineligible after a generation-gate failure. |
+| v3 token-efficiency value | **Unknown / untested; confirmatory run not launched** | r6 adapter is gate-eligible; diagnostic is not a benchmark | `tokens_emitted` is total generation; thinking-token split is not yet logged. The diagnostic's descriptive token counts cannot support a token-efficiency claim. |
+| v3 4,800-cell confirmatory run | **Not launched; blocked pending separate approval** | Frozen `PREREG_VALUATION_V2.md` | The diagnostic and independent verification are complete; the full run is a separate decision. Quota/chunking and resume feasibility must be settled before launch. |
 
 ---
 
@@ -118,6 +128,10 @@ or that the partial numbers are an endpoint result.
 | Canonical train | `BB50D9CBD56B0D2B515D7B922DF10578F587AA60358B0FF87A11821C4D3D94DC` |
 | Canonical validation | `3FCFCC4141522062087D0F35FDF2C54226D454A1A71FE59BEA26F42636FDEDCD` |
 | Held-out v2 benchmark | `F08754D49CFA43A8AFA64382A49C21916A809756B1089DA22827D79819771707` |
+| v3 diagnostic manifest | `44C5F0FA13A04AEA92D2CFA2DE67E949DEA3901F7EC5E940951B62D65488FB64` |
+| v3 diagnostic results | `693A1EDC1C43414B996D24BF66347B6FC9405E37833FBFF798F2A08B1D44AABA` |
+| v3 diagnostic report | `6FA4A0591510B4B4FA3A43DA6CD18A3DECAC323207DFEFB861A50A747F98CE35` |
+| v3 diagnostic verification | `3C485AF65633B85FE523284F389238D7192A8E20F0BA2CED32E64773040EAD94` |
 | Line endings | LF, enforced by `.gitattributes` |
 | Old clean benchmark, CRLF-era | `8369BD8CAF919F672D8EC87FFF2295FF6380AE9E451F668F9EEEE908F83CF07B` |
 | Old clean benchmark, LF (old Kaggle manifest) | `575B247066B65E5B8514990280C534BAA9448014E100ADCFE67D385E43B9AA8E` |
@@ -125,6 +139,16 @@ or that the partial numbers are an endpoint result.
 | SFT targets | 4,600 total: 4,200 reasoning + 400 bypass |
 | SFT split | 4,140 train / 460 validation |
 | Benchmark rows | 200 rows, 173 unique prompts, 20 duplicate groups (27 redundant rows) |
+
+**Diagnostic caveats.** The report's `432/2,400` duplicate-prompt rows are
+dataset annotations: 18 of the 100 selected problems carry
+`duplicate_prompt: true`, and 18 x 6 arms x 4 budgets = 432. They are not 432
+duplicate result cells. The report's contamination table shows a 0.0 pp
+all-versus-clean gap because the selected subset contains 0 of the 67 IDs in
+`eval/contamination_audit_results.json`; that is not proof of exhaustive
+contamination control. Arm C's four budget rows are byte-identical for all 100
+problems, so its effective unique sample is 100, not 400. These caveats are
+recorded in `results/v3_diagnostic_2400/DIAGNOSTIC_STATUS.md`.
 
 **Provenance note.** The r3 data blobs were LF, but the r3 tag did not force LF checkout.
 Windows materialized CRLF and the manifest recorded CRLF hashes, so the Linux kernel failed
@@ -206,12 +230,14 @@ whitepaper are explicitly labeled historical.
    corrupted-row/checkpoint rejection, adapter/dataset/contract verification, deterministic
    subset selection, resume identity binding, and prompt/scorer parity. The model-free suite
    passes 109 tests.
-10. ⛔ Run the 100 × 4 × 6 diagnostic. The harness is hardened; the diagnostic has not run.
-11. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
+10. ✅ Run the 100 × 4 × 6 diagnostic. Completed with 2,400/2,400 unique cells,
+    independent verification, and Gate G1 passing. It is not the confirmatory result.
+11. ⛔ Run the full 200 × 4 × 6 experiment (requires separate explicit approval). Not
+    launched.
 12. ⛔ Preflight r7 Verified-Trace Repair per `docs/NEXT_TRAINING_SESSION.md`. The dry-run
     audit is complete and recorded in `results/r7_verified/AUDIT_DRY_RUN.json`; **no verified
-    split was written**. Do not launch r7 before the v3 diagnostic path is closed and a
-    Phase 1b preregistration exists.
+    split was written**. The diagnostic path is closed, but the full v3 path is not. Do not
+    launch r7 before v3 closure, a Phase 1b preregistration, and a verified split.
 13. ⛔ Report strict accuracy, tokens per correct answer, J/correct, format validity, and the
     preregistered C-vs-D decision.
 

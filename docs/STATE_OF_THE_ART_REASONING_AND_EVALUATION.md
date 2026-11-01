@@ -175,8 +175,9 @@ implements a token-level gated router.
 2. **Deterministic Evaluation Harness (`eval/robust_eval.py`):**
    - The harness is hardened for the v3 path: prompt construction and strict scoring are
      parity-tested, subset selection is deterministic SHA-256 stratification, and
-     dataset/adapter/contract/checkpoint mismatches abort. The 2,400-cell diagnostic has
-     not been run.
+     dataset/adapter/contract/checkpoint mismatches abort. The 2,400-cell diagnostic is
+     complete and independently verified; Gate G1 passed. It is a pipeline/format gate,
+     not the 4,800-cell confirmatory result.
    - 6 arms (CoT, answer-only, full registers, router-only, Python sandbox, vanilla base).
    - 4 independent budgets (256, 512, 1024, 2048 tokens).
    - Token-efficiency metrics: tokens per correct, OAA/AUC_OAA, TokenEff, and overthinking

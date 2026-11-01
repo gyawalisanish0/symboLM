@@ -3,7 +3,9 @@
 **Author:** Sanish Gyawali (Rupandehi, Nepal)  
 **Date:** 2026-10-24  
 **Branch:** `research/rescue-v3`  
-**Status:** active rescue. The r6 adapter is gate-eligible; no v3 GPU result exists yet.
+**Status:** active rescue. The r6 adapter is gate-eligible; the 2,400-cell
+diagnostic is complete and independently verified with Gate G1 passing, but it is
+not the confirmatory result. No v3 benchmark result exists yet.
 
 ---
 
@@ -324,8 +326,10 @@ legitimate scope.
 - [x] Pass the package gate, including `"torchao": "absent"`, merged token deltas, and
       distinct marker rows.
 - [x] Harden the v3 harness and pass the model-free contract/parity suite.
-- [ ] Run the 100 × 4 × 6 diagnostic. The harness is hardened; the run has not started.
+- [x] Run the 100 × 4 × 6 diagnostic. Completed with 2,400/2,400 unique cells;
+  independently verified; Gate G1 passed. Diagnostic only.
 - [ ] Run the full 200 × 4 × 6 experiment (requires separate explicit approval).
+  Not launched.
 - [x] Complete the r7 trace-audit dry run; no verified split was written.
 - [ ] Update README/results with receipts, or publish the negative result.
 
